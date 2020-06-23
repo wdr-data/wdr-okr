@@ -8,7 +8,11 @@ class Insta(Product):
         verbose_name_plural = "Instagram-Accounts"
 
 
-class InstaInsights(models.Model):
+class InstaInsight(models.Model):
+    class Meta:
+        verbose_name = "Instagram-Insight"
+        verbose_name_plural = "Instagram-Insights"
+
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
         WEEKLY = "weekly", "Wöchentlich"
@@ -21,17 +25,25 @@ class InstaInsights(models.Model):
         related_query_name="insight",
     )
     time = models.DateField(verbose_name="Datum")
-    interval = models.CharField(verbose_name="Zeitraum", choices=Interval.choices, max_length=10)
+    interval = models.CharField(
+        verbose_name="Zeitraum", choices=Interval.choices, max_length=10
+    )
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
     followers = models.IntegerField(verbose_name="Follower")
     followers_change = models.IntegerField(verbose_name="Veränderung Follower")
     posts_change = models.IntegerField(verbose_name="Veränderung Posts")
-    textMessageClicksDay = models.IntegerField(verbose_name="Nachricht senden", null=True)
+    textMessageClicksDay = models.IntegerField(
+        verbose_name="Nachricht senden", null=True
+    )
     emailContactsDay = models.IntegerField(verbose_name="Email senden", null=True)
 
 
-class InstaPosts(models.Model):
+class InstaPost(models.Model):
+    class Meta:
+        verbose_name = "Instagram-Post"
+        verbose_name_plural = "Instagram-Posts"
+
     insta = models.ForeignKey(
         to=Insta,
         on_delete=models.CASCADE,
@@ -48,7 +60,11 @@ class InstaPosts(models.Model):
     link = models.URLField(verbose_name="Link")
 
 
-class InstaStories(models.Model):
+class InstaStory(models.Model):
+    class Meta:
+        verbose_name = "Instagram-Story"
+        verbose_name_plural = "Instagram-Stories"
+
     insta = models.ForeignKey(
         to=Insta,
         on_delete=models.CASCADE,
@@ -63,7 +79,12 @@ class InstaStories(models.Model):
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
 
-class Collaborations(models.Model):
+
+class InstaCollaboration(models.Model):
+    class Meta:
+        verbose_name = "Instagram-Collaboration"
+        verbose_name_plural = "Instagram-Collaborations"
+
     insta = models.ForeignKey(
         to=Insta,
         on_delete=models.CASCADE,
@@ -71,6 +92,6 @@ class Collaborations(models.Model):
         related_query_name="collaboration",
     )
     time = models.DateField(verbose_name="Datum")
-    influencer= models.CharField(verbose_name="Influencer:in", max_length=100)
+    influencer = models.CharField(verbose_name="Influencer*in", max_length=100)
     followers = models.IntegerField(verbose_name="Follower")
     description = models.TextField(verbose_name="Beschreibung")
