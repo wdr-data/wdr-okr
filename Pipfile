@@ -12,6 +12,8 @@ django-tz-detect = "*"
 gunicorn = "*"
 whitenoise = "*"
 psycopg2-binary = "*"
+analytics-data = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.8"

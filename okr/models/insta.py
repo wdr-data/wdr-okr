@@ -38,6 +38,9 @@ class InstaInsight(models.Model):
     )
     emailContactsDay = models.IntegerField(verbose_name="Email senden", null=True)
 
+    def __str__(self):
+        return f"{self.time}: {self.insta.name} - {self.Interval[self.interval].label}"
+
 
 class InstaPost(models.Model):
     class Meta:
@@ -59,6 +62,9 @@ class InstaPost(models.Model):
     impressions = models.IntegerField(verbose_name="Impressions")
     link = models.URLField(verbose_name="Link")
 
+    def __str__(self):
+        return f"{self.time}: {self.insta.name} - {self.post_type}"
+
 
 class InstaStory(models.Model):
     class Meta:
@@ -79,6 +85,9 @@ class InstaStory(models.Model):
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
 
+    def __str__(self):
+        return f"{self.time}: {self.insta.name} - {self.story_type}"
+
 
 class InstaCollaboration(models.Model):
     class Meta:
@@ -95,3 +104,6 @@ class InstaCollaboration(models.Model):
     influencer = models.CharField(verbose_name="Influencer*in", max_length=100)
     followers = models.IntegerField(verbose_name="Follower")
     description = models.TextField(verbose_name="Beschreibung")
+
+    def __str__(self):
+        return f"{self.time}: {self.insta.name} - {self.influencer}"
