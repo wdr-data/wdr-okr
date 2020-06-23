@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tz_detect',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'tz_detect.middleware.TimezoneMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -119,6 +121,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+TZ_DETECT_COUNTRIES = ('DE', 'FR', 'GB', 'US', 'CN', 'IN', 'JP', 'BR', 'RU')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
