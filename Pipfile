@@ -9,6 +9,8 @@ verify_ssl = true
 django = "*"
 dj-database-url = "*"
 django-tz-detect = "*"
+gunicorn = "*"
+whitenoise = "*"
 
 [requires]
 python_version = "3.8"

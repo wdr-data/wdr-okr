@@ -1,0 +1,38 @@
+{
+  "name": "WDR OKR",
+  "description": "This app handles the database for WDR OKR",
+  "repository": "https://github.com/wdr-data/wdr-okr",
+  "success_url": "/admin",
+  "scripts": {
+    "postdeploy": "python manage.py migrate && echo \"from django.contrib.auth.models import User; User.objects.create_superuser('${ADMIN_USER}', '${ADMIN_EMAIL}', '${ADMIN_PASSWORD}')\" | python manage.py shell"
+  },
+  "env": {
+    "SECRET_KEY": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret"
+    },
+    "ADMIN_USER": {
+      "description": "Username for the initial superuser",
+      "value": ""
+    },
+    "ADMIN_EMAIL": {
+      "description": "Email address of the superuser",
+      "value": ""
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Initial password for the superuser",
+      "value": ""
+    }
+  },
+  "addons": [
+    "heroku-postgresql:hobby-dev"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-locale"
+    }
+  ]
+}
