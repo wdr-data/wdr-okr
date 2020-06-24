@@ -55,6 +55,7 @@ def get_insta_insights(profile_id, *, interval="daily", start_date=None):
     df_insta_insights.time = df_insta_insights.time.astype("str")
 
     df = df_insta.merge(df_insta_insights, on="time", how="inner")
+
     df = df.replace({np.nan: None})
 
     print(df)
@@ -78,6 +79,8 @@ def get_insta_stories(profile_id, *, start_date=None):
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
     df = quintly.run_query(profile_ids, table, fields, start_date, end_date)
+
+    df = df.replace({np.nan: None})
 
     print(df)
     return df
@@ -114,6 +117,8 @@ def get_insta_posts(profile_id, *, start_date=None):
     )
 
     df = df_posts.merge(df_posts_insights, on=["externalId", "time"], how="inner")
+
+    df = df.replace({np.nan: None})
 
     print(df)
     return df
