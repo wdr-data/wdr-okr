@@ -53,14 +53,15 @@ def get_insta_stories(profile_id):
     profile_ids = [profile_id]
     table = "instagramInsightsStories"
     fields = [
+        "externalId",
         "time",
+        "caption",
         "reach",
         "impressions",
-        "caption",
         "replies",
         "type",
         "link",
-        "externalId",
+        "exits",
     ]
     start_date = datetime.date.today() - datetime.timedelta(days=1)
     end_date = start_date
