@@ -12,8 +12,13 @@ quintly = quintly.QuintlyAPI(
 # You can run the query with the run_query method. It returns a pandas DataFrame
 def get_insta_insights(profile_id, *, interval="daily"):
     profile_ids = [profile_id]
-    start_date = datetime.date.today() - datetime.timedelta(days=1)
-    end_date = start_date
+    if interval == 'daily':
+        start_date = datetime.date.today() - datetime.timedelta(days=3)
+    elif interval == 'weekly':
+        start_date = datetime.date.today() - datetime.timedelta(days=14)
+    elif interval == 'monthly':
+        start_date = datetime.date.today() - datetime.timedelta(days=60)
+    end_date = datetime.date.today()
 
     table = "instagram"
     fields = ["time", "followers", "followersChange", "postsChange"]
