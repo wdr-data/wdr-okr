@@ -11,13 +11,24 @@ from .. import quintly
 berlin = timezone("Europe/Berlin")
 
 
+def parse_start_date(post_data):
+    start_date = post_data.get("start_date")
+    if start_date:
+        start_date = date.fromisoformat(start_date)
+    return start_date
+
+
 @require_POST
 @csrf_exempt
 def trigger_insights(request, interval):
 
     for insta in Insta.objects.all():
 
-        df = quintly.get_insta_insights(insta.quintly_profile_id, interval=interval)
+        df = quintly.get_insta_insights(
+            insta.quintly_profile_id,
+            interval=interval,
+            start_date=parse_start_date(request.POST),
+        )
 
         for index, row in df.iterrows():
             defaults = {
@@ -51,7 +62,9 @@ def trigger_insights(request, interval):
 def trigger_stories(request):
 
     for insta in Insta.objects.all():
-        df = quintly.get_insta_stories(insta.quintly_profile_id)
+        df = quintly.get_insta_stories(
+            insta.quintly_profile_id, start_date=parse_start_date(request.POST)
+        )
 
         for index, row in df.iterrows():
             defaults = {
@@ -77,7 +90,9 @@ def trigger_stories(request):
 def trigger_posts(request):
 
     for insta in Insta.objects.all():
-        df = quintly.get_insta_posts(insta.quintly_profile_id)
+        df = quintly.get_insta_posts(
+            insta.quintly_profile_id, start_date=parse_start_date(request.POST)
+        )
 
         for index, row in df.iterrows():
             defaults = {
