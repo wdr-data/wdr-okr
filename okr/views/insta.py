@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from pytz import timezone
 
+from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -47,12 +48,19 @@ def trigger_insights(request, interval):
                     }
                 )
 
-            obj, created = InstaInsight.objects.update_or_create(
-                insta=insta,
-                time=date.fromisoformat(row.time),
-                interval=interval,
-                defaults=defaults,
-            )
+            try:
+                obj, created = InstaInsight.objects.update_or_create(
+                    insta=insta,
+                    time=date.fromisoformat(row.time),
+                    interval=interval,
+                    defaults=defaults,
+                )
+            except IntegrityError:
+                print(
+                    f"Data for {interval} insight for date {row.time} failed integrity check:",
+                    defaults,
+                    sep="\n",
+                )
 
     return HttpResponse("ok")
 
@@ -78,9 +86,16 @@ def trigger_stories(request):
                 "exits": row.exits,
             }
 
-            obj, created = InstaStory.objects.update_or_create(
-                insta=insta, external_id=row.externalId, defaults=defaults,
-            )
+            try:
+                obj, created = InstaStory.objects.update_or_create(
+                    insta=insta, external_id=row.externalId, defaults=defaults,
+                )
+            except IntegrityError:
+                print(
+                    f"Data for story with ID {row.externalId} failed integrity check:",
+                    defaults,
+                    sep="\n",
+                )
 
     return HttpResponse("ok")
 
@@ -106,8 +121,15 @@ def trigger_posts(request):
                 "link": row.link,
             }
 
-            obj, created = InstaPost.objects.update_or_create(
-                insta=insta, external_id=row.externalId, defaults=defaults,
-            )
+            try:
+                obj, created = InstaPost.objects.update_or_create(
+                    insta=insta, external_id=row.externalId, defaults=defaults,
+                )
+            except IntegrityError:
+                print(
+                    f"Data for post with ID {row.externalId} failed integrity check:",
+                    defaults,
+                    sep="\n",
+                )
 
     return HttpResponse("ok")
