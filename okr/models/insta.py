@@ -80,13 +80,14 @@ class InstaStory(models.Model):
         related_query_name="story",
     )
     external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
-    caption = models.CharField(verbose_name="Text", max_length=200)
+    caption = models.TextField(verbose_name="Text")
     time = models.DateTimeField(verbose_name="Erstellt")
     story_type = models.CharField(verbose_name="Typ", max_length=200)
     replies = models.IntegerField(verbose_name="Antworten")
     exits = models.IntegerField(verbose_name="Exits")
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
+    link = models.URLField(verbose_name="Link", max_length=1024)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.story_type}"

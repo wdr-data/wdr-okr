@@ -58,9 +58,6 @@ def get_insta_insights(profile_id, *, interval="daily"):
     return df
 
 
-# get_insta_insights(278343)
-
-
 def get_insta_stories(profile_id):
     profile_ids = [profile_id]
     table = "instagramInsightsStories"
@@ -75,11 +72,9 @@ def get_insta_stories(profile_id):
         "link",
         "exits",
     ]
-    start_date = datetime.date.today() - datetime.timedelta(days=1)
-    end_date = start_date
+    start_date = datetime.date.today() - datetime.timedelta(days=7)
+    end_date = datetime.date.today()
     df = quintly.run_query(profile_ids, table, fields, start_date, end_date)
+
     print(df)
     return df
-
-
-# get_insta_stories(278343)
