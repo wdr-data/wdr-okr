@@ -1,17 +1,20 @@
 from datetime import date
 
 from django.http import HttpResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
 from ..models.insta import *
 from .. import quintly
 
 
-def trigger(request):
-    # read profile id from db
-    # for profile in profiles:
+@require_POST
+@csrf_exempt
+def trigger(request, interval):
 
     for insta in Insta.objects.all():
 
-        df = quintly.get_insta_insights(insta.quintly_profile_id)
+        df = quintly.get_insta_insights(insta.quintly_profile_id, interval=interval)
 
         for index, row in df.iterrows():
             defaults = {
@@ -27,7 +30,7 @@ def trigger(request):
             obj, created = InstaInsight.objects.update_or_create(
                 insta=insta,
                 time=date.fromisoformat(row.time),
-                interval="daily",
+                interval=interval,
                 defaults=defaults,
             )
 
