@@ -12,14 +12,17 @@ quintly = quintly.QuintlyAPI(
 )
 
 # You can run the query with the run_query method. It returns a pandas DataFrame
-def get_insta_insights(profile_id, *, interval="daily"):
+def get_insta_insights(profile_id, *, interval="daily", start_date=None):
     profile_ids = [profile_id]
-    if interval == "daily":
-        start_date = datetime.date.today() - datetime.timedelta(days=3)
-    elif interval == "weekly":
-        start_date = datetime.date.today() - datetime.timedelta(days=14)
-    elif interval == "monthly":
-        start_date = datetime.date.today() - datetime.timedelta(days=60)
+
+    if start_date is None:
+        if interval == "daily":
+            start_date = datetime.date.today() - datetime.timedelta(days=3)
+        elif interval == "weekly":
+            start_date = datetime.date.today() - datetime.timedelta(days=14)
+        elif interval == "monthly":
+            start_date = datetime.date.today() - datetime.timedelta(days=60)
+
     end_date = datetime.date.today()
 
     table = "instagram"
@@ -58,7 +61,7 @@ def get_insta_insights(profile_id, *, interval="daily"):
     return df
 
 
-def get_insta_stories(profile_id):
+def get_insta_stories(profile_id, *, start_date=None):
     profile_ids = [profile_id]
     table = "instagramInsightsStories"
     fields = [
@@ -72,7 +75,7 @@ def get_insta_stories(profile_id):
         "link",
         "exits",
     ]
-    start_date = datetime.date.today() - datetime.timedelta(days=7)
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
     df = quintly.run_query(profile_ids, table, fields, start_date, end_date)
 
@@ -80,7 +83,7 @@ def get_insta_stories(profile_id):
     return df
 
 
-def get_insta_posts(profile_id):
+def get_insta_posts(profile_id, *, start_date=None):
     profile_ids = [profile_id]
     table = "instagramOwnPosts"
     fields = [
@@ -91,7 +94,7 @@ def get_insta_posts(profile_id):
         "type",
         "link",
     ]
-    start_date = datetime.date.today() - datetime.timedelta(days=7)
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
 
     df_posts = quintly.run_query(profile_ids, table, fields, start_date, end_date)
