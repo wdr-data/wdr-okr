@@ -12,6 +12,7 @@ class InstaInsight(models.Model):
     class Meta:
         verbose_name = "Instagram-Insight"
         verbose_name_plural = "Instagram-Insights"
+        unique_together = ("insta", "time", "interval")
 
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
@@ -33,10 +34,10 @@ class InstaInsight(models.Model):
     followers = models.IntegerField(verbose_name="Follower")
     followers_change = models.IntegerField(verbose_name="Veränderung Follower")
     posts_change = models.IntegerField(verbose_name="Veränderung Posts")
-    textMessageClicksDay = models.IntegerField(
+    text_message_clicks_day = models.IntegerField(
         verbose_name="Nachricht senden", null=True
     )
-    emailContactsDay = models.IntegerField(verbose_name="Email senden", null=True)
+    email_contacts_day = models.IntegerField(verbose_name="Email senden", null=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.Interval[self.interval].label}"
@@ -53,8 +54,9 @@ class InstaPost(models.Model):
         related_name="posts",
         related_query_name="post",
     )
+    external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
     message = models.TextField(verbose_name="Text")
-    time = models.DateField(verbose_name="Datum")
+    time = models.DateTimeField(verbose_name="Erstellt")
     post_type = models.CharField(verbose_name="Typ", max_length=20)
     comments = models.IntegerField(verbose_name="Kommentare")
     likes = models.IntegerField(verbose_name="Likes")
@@ -77,8 +79,9 @@ class InstaStory(models.Model):
         related_name="stories",
         related_query_name="story",
     )
+    external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
     message = models.CharField(verbose_name="Text", max_length=200)
-    time = models.DateField(verbose_name="Datum")
+    time = models.DateTimeField(verbose_name="Erstellt")
     story_type = models.CharField(verbose_name="Typ", max_length=200)
     comments = models.IntegerField(verbose_name="Kommentare")
     likes = models.IntegerField(verbose_name="Likes")
