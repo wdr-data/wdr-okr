@@ -78,3 +78,39 @@ def get_insta_stories(profile_id):
 
     print(df)
     return df
+
+
+def get_insta_posts(profile_id):
+    profile_ids = [profile_id]
+    table = "instagramOwnPosts"
+    fields = [
+        "externalId",
+        "time",
+        "message",
+        "comments",
+        "type",
+        "link",
+    ]
+    start_date = datetime.date.today() - datetime.timedelta(days=7)
+    end_date = datetime.date.today()
+
+    df_posts = quintly.run_query(profile_ids, table, fields, start_date, end_date)
+
+    table = "instagramInsightsOwnPosts"
+
+    fields = [
+        "externalId",
+        "time",
+        "likes",
+        "reach",
+        "impressions",
+    ]
+
+    df_posts_insights = quintly.run_query(
+        profile_ids, table, fields, start_date, end_date
+    )
+
+    df = df_posts.merge(df_posts_insights, on=["externalId", "time"], how="inner")
+
+    print(df)
+    return df

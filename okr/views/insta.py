@@ -70,3 +70,29 @@ def trigger_stories(request):
             )
 
     return HttpResponse("ok")
+
+
+@require_POST
+@csrf_exempt
+def trigger_posts(request):
+
+    for insta in Insta.objects.all():
+        df = quintly.get_insta_posts(insta.quintly_profile_id)
+
+        for index, row in df.iterrows():
+            defaults = {
+                "time": berlin.localize(datetime.fromisoformat(row.time)),
+                "message": row.message,
+                "comments": row.comments,
+                "reach": row.reach,
+                "impressions": row.impressions,
+                "post_type": row.type,
+                "likes": row.likes,
+                "link": row.link,
+            }
+
+            obj, created = InstaPost.objects.update_or_create(
+                insta=insta, external_id=row.externalId, defaults=defaults,
+            )
+
+    return HttpResponse("ok")
