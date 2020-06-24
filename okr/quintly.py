@@ -1,6 +1,8 @@
 import os
 import datetime
 
+import numpy as np
+
 from analytics import quintly
 
 
@@ -12,11 +14,11 @@ quintly = quintly.QuintlyAPI(
 # You can run the query with the run_query method. It returns a pandas DataFrame
 def get_insta_insights(profile_id, *, interval="daily"):
     profile_ids = [profile_id]
-    if interval == 'daily':
+    if interval == "daily":
         start_date = datetime.date.today() - datetime.timedelta(days=3)
-    elif interval == 'weekly':
+    elif interval == "weekly":
         start_date = datetime.date.today() - datetime.timedelta(days=14)
-    elif interval == 'monthly':
+    elif interval == "monthly":
         start_date = datetime.date.today() - datetime.timedelta(days=60)
     end_date = datetime.date.today()
 
@@ -28,13 +30,17 @@ def get_insta_insights(profile_id, *, interval="daily"):
     )
 
     table = "instagramInsights"
+
     fields = [
         "time",
         "reach",
         "impressions",
-        "textMessageClicksDay",
-        "emailContactsDay",
     ]
+    if interval == "daily":
+        fields += [
+            "textMessageClicksDay",
+            "emailContactsDay",
+        ]
 
     df_insta_insights = quintly.run_query(
         profile_ids, table, fields, start_date, end_date, interval=interval
@@ -46,6 +52,7 @@ def get_insta_insights(profile_id, *, interval="daily"):
     df_insta_insights.time = df_insta_insights.time.astype("str")
 
     df = df_insta.merge(df_insta_insights, on="time", how="inner")
+    df = df.replace({np.nan: None})
 
     print(df)
     return df

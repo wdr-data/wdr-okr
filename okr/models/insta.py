@@ -29,8 +29,8 @@ class InstaInsight(models.Model):
     interval = models.CharField(
         verbose_name="Zeitraum", choices=Interval.choices, max_length=10
     )
-    reach = models.IntegerField(verbose_name="Reichweite")
-    impressions = models.IntegerField(verbose_name="Impressions")
+    reach = models.IntegerField(verbose_name="Reichweite", null=True)
+    impressions = models.IntegerField(verbose_name="Impressions", null=True)
     followers = models.IntegerField(verbose_name="Follower")
     followers_change = models.IntegerField(verbose_name="Veränderung Follower")
     posts_change = models.IntegerField(verbose_name="Veränderung Posts")

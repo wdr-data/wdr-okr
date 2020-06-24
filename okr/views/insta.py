@@ -23,9 +23,15 @@ def trigger(request, interval):
                 "followers": row.followers,
                 "followers_change": row.followersChange,
                 "posts_change": row.postsChange,
-                "text_message_clicks_day": row.textMessageClicksDay,
-                "email_contacts_day": row.emailContactsDay,
             }
+
+            if interval == "daily":
+                defaults.update(
+                    {
+                        "text_message_clicks_day": row.textMessageClicksDay,
+                        "email_contacts_day": row.emailContactsDay,
+                    }
+                )
 
             obj, created = InstaInsight.objects.update_or_create(
                 insta=insta,
