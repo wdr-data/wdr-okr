@@ -40,7 +40,7 @@ class InstaInsight(models.Model):
     email_contacts_day = models.IntegerField(verbose_name="Email senden", null=True)
 
     def __str__(self):
-        return f"{self.time}: {self.insta.name} - {self.Interval[self.interval].label}"
+        return f"{self.time}: {self.insta.name} - {self.Interval(self.interval).label}"
 
 
 class InstaPost(models.Model):
