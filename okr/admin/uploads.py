@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.urls import path
 
@@ -32,6 +33,9 @@ class UploadFileMixin:
 
     def _upload_file(self, request):
         if request.method == "POST":
+            if not self.has_add_permission(request):
+                return HttpResponseForbidden()
+
             try:
                 uploaded_file = request.FILES["uploaded_file"]
             except KeyError:
