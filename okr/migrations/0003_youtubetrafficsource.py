@@ -6,18 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('okr', '0002_youtube_youtubeanalytics'),
+        ("okr", "0002_youtube_youtubeanalytics"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='YouTubeTrafficSource',
+            name="YouTubeTrafficSource",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'YouTube-TrafficSource',
-                'verbose_name_plural': 'YouTube-TrafficSources',
+                "verbose_name": "YouTube-TrafficSource",
+                "verbose_name_plural": "YouTube-TrafficSources",
             },
         ),
     ]
