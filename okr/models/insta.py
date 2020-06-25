@@ -38,6 +38,7 @@ class InstaInsight(models.Model):
         verbose_name="Nachricht senden", null=True
     )
     email_contacts_day = models.IntegerField(verbose_name="Email senden", null=True)
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.Interval(self.interval).label}"
@@ -63,6 +64,7 @@ class InstaPost(models.Model):
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
     link = models.URLField(verbose_name="Link")
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.post_type}"
@@ -88,6 +90,7 @@ class InstaStory(models.Model):
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
     link = models.URLField(verbose_name="Link", max_length=1024)
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.story_type}"
@@ -108,6 +111,7 @@ class InstaCollaboration(models.Model):
     influencer = models.CharField(verbose_name="Influencer*in", max_length=100)
     followers = models.IntegerField(verbose_name="Follower")
     description = models.TextField(verbose_name="Beschreibung")
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.influencer}"

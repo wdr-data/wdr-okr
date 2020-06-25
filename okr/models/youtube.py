@@ -39,6 +39,7 @@ class YouTubeAnalytics(models.Model):
     average_view_duration = models.IntegerField(
         verbose_name="Sehdauer im Schnitt", null=True
     )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return (
