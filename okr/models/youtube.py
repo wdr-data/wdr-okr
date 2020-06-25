@@ -44,3 +44,8 @@ class YouTubeAnalytics(models.Model):
         return (
             f"{self.time}: {self.youtube.name} - {self.Interval(self.interval).label}"
         )
+
+class YouTubeTrafficSource(models.Model):
+    class Meta:
+        verbose_name = "YouTube-TrafficSource"
+        verbose_name_plural = "YouTube-TrafficSources"
