@@ -80,7 +80,7 @@ class InstaStory(models.Model):
         related_query_name="story",
     )
     external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
-    caption = models.TextField(verbose_name="Text")
+    caption = models.TextField(verbose_name="Text", null=True)
     time = models.DateTimeField(verbose_name="Erstellt")
     story_type = models.CharField(verbose_name="Typ", max_length=200)
     replies = models.IntegerField(verbose_name="Antworten")
