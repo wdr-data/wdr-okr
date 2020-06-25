@@ -50,3 +50,19 @@ class YouTubeTrafficSource(models.Model):
     class Meta:
         verbose_name = "YouTube-TrafficSource"
         verbose_name_plural = "YouTube-TrafficSources"
+        unique_together = ("youtube", "time")
+
+    youtube = models.ForeignKey(
+        to=YouTube,
+        on_delete=models.CASCADE,
+        related_name="traffic_source",
+        related_query_name="traffic_sources",
+    )
+    time = models.DateField(verbose_name="Datum")
+    impressions_home = models.IntegerField(verbose_name="Impressions (Home)")
+    impressions_subscriptions = models.IntegerField(verbose_name="Impressions (Abos)")
+    impressions_trending = models.IntegerField(verbose_name="Impressions (Trending)")
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.time}: {self.youtube.name}"
