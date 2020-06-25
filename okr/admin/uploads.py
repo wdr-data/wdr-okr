@@ -32,10 +32,12 @@ class UploadFileMixin:
         return {name: data_zip.open(name) for name in data_zip.namelist()}
 
     def _upload_file(self, request):
-        if request.method == "POST":
-            if not self.has_add_permission(request):
-                return HttpResponseForbidden()
+        if not self.has_add_permission(request):
+            if not request.user.is_authenticated:
+                return redirect('/admin/login')
+            return HttpResponseForbidden()
 
+        if request.method == "POST":
             try:
                 uploaded_file = request.FILES["uploaded_file"]
             except KeyError:
