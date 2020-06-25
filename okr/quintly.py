@@ -122,3 +122,36 @@ def get_insta_posts(profile_id, *, start_date=None):
 
     print(df)
     return df
+
+
+def get_youtube_analytics(profile_id, *, interval="daily", start_date=None):
+    profile_ids = [profile_id]
+    table = "youtubeAnalytics"
+
+    if start_date is None:
+        if interval == "daily":
+            start_date = datetime.date.today() - datetime.timedelta(days=7)
+        elif interval == "weekly":
+            start_date = datetime.date.today() - datetime.timedelta(days=14)
+        elif interval == "monthly":
+            start_date = datetime.date.today() - datetime.timedelta(days=60)
+
+    end_date = datetime.date.today()
+
+    fields = [
+        "time",
+        "views",
+        "likes",
+        "dislikes",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+    ]
+
+    df = quintly.run_query(profile_ids, table, fields, start_date, end_date)
+
+    df.time = df.time.str[:10]
+    df.time = df.time.astype("str")
+    df = df.replace({np.nan: None})
+
+    print(df)
+    return df
