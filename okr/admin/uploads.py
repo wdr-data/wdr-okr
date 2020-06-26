@@ -34,7 +34,7 @@ class UploadFileMixin:
     def _upload_file(self, request):
         if not self.has_add_permission(request):
             if not request.user.is_authenticated:
-                return redirect('/admin/login')
+                return redirect("/admin/login")
             return HttpResponseForbidden()
 
         if request.method == "POST":
