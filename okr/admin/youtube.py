@@ -16,6 +16,7 @@ from ..models import (
     YouTubeAgeRangeDuration,
     YouTubeAgeRangePercentage,
 )
+from .base import ProductAdmin
 from .uploads import UploadFileMixin, UploadFileForm
 
 
@@ -32,6 +33,10 @@ class UploadFileFormYouTube(UploadFileForm):
 
 class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
     upload_form_class = UploadFileFormYouTube
+
+    list_display = ["time", "youtube"]
+    list_display_links = ["time"]
+    date_hierarchy = "time"
 
     readonly_fields = ["last_updated"]
 
@@ -74,6 +79,15 @@ class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
             )
             return
 
+        if "Source title" not in df.columns:
+            self.message_user(
+                request,
+                "Die hochgeladene Datei enthält keine detaillierten Traffic Sources! "
+                'Wähle als Traffic Source "Browse features" in den YouTube Studio Analytics.',
+                level=messages.ERROR,
+            )
+            return
+
         for index, row in df.iterrows():
             time = date.fromisoformat(row["Date"])
 
@@ -97,6 +111,11 @@ def parse_duration(duration):
 
 class ViewerAgeAdmin(UploadFileMixin, admin.ModelAdmin):
     upload_form_class = UploadFileFormYouTube
+
+    list_display = ["time", "youtube", "interval"]
+    list_display_links = ["time"]
+    list_filter = ["youtube", "interval"]
+    date_hierarchy = "time"
 
     readonly_fields = ["last_updated"]
 
@@ -194,9 +213,56 @@ class ViewerAgeAdmin(UploadFileMixin, admin.ModelAdmin):
         self.message_user(request, "Datei wurde erfolgreich eingelesen!")
 
 
-admin.site.register(YouTube)
-admin.site.register(YouTubeAnalytics)
+class AnalyticsAdmin(admin.ModelAdmin):
+    list_display = [
+        "time",
+        "youtube",
+        "interval",
+        "views",
+        "likes",
+        "dislikes",
+        "estimated_minutes_watched",
+        "average_view_duration",
+    ]
+    list_display_links = ["time"]
+    list_filter = ["youtube", "interval"]
+    date_hierarchy = "time"
+
+
+class AgeRangeDurationAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "age_13_17",
+        "age_18_24",
+        "age_25_34",
+        "age_35_44",
+        "age_45_54",
+        "age_55_64",
+        "age_65_plus",
+    ]
+    list_display_links = ["id"]
+    list_filter = []
+
+
+class AgeRangePercentageAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "age_13_17",
+        "age_18_24",
+        "age_25_34",
+        "age_35_44",
+        "age_45_54",
+        "age_55_64",
+        "age_65_plus",
+    ]
+    list_display_links = ["id"]
+    list_filter = []
+    date_hierarchy = None
+
+
+admin.site.register(YouTube, ProductAdmin)
+admin.site.register(YouTubeAnalytics, AnalyticsAdmin)
 admin.site.register(YouTubeTrafficSource, TrafficSourceAdmin)
 admin.site.register(YouTubeViewerAge, ViewerAgeAdmin)
-admin.site.register(YouTubeAgeRangeDuration)
-admin.site.register(YouTubeAgeRangePercentage)
+admin.site.register(YouTubeAgeRangeDuration, AgeRangeDurationAdmin)
+admin.site.register(YouTubeAgeRangePercentage, AgeRangePercentageAdmin)

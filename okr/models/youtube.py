@@ -10,7 +10,7 @@ class YouTube(Product):
 
 class YouTubeAnalytics(models.Model):
     class Meta:
-        verbose_name = "YouTube-Analytic"
+        verbose_name = "YouTube-Analytics"
         verbose_name_plural = "YouTube-Analytics"
         unique_together = ("youtube", "time", "interval")
 
@@ -20,6 +20,7 @@ class YouTubeAnalytics(models.Model):
         MONTHLY = "monthly", "Monatlich"
 
     youtube = models.ForeignKey(
+        verbose_name="YouTube-Account",
         to=YouTube,
         on_delete=models.CASCADE,
         related_name="analytic",
@@ -54,6 +55,7 @@ class YouTubeTrafficSource(models.Model):
         unique_together = ("youtube", "time")
 
     youtube = models.ForeignKey(
+        verbose_name="YouTube-Account",
         to=YouTube,
         on_delete=models.CASCADE,
         related_name="traffic_source",
@@ -123,6 +125,7 @@ class YouTubeViewerAge(models.Model):
         MONTHLY = "monthly", "Monatlich"
 
     youtube = models.ForeignKey(
+        verbose_name="YouTube-Account",
         to=YouTube,
         on_delete=models.CASCADE,
         related_name="age_range",

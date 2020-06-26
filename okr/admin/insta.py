@@ -8,6 +8,7 @@ from ..models import (
     InstaCollaboration,
     InstaCollaborationType,
 )
+from .base import ProductAdmin
 
 
 class CollaborationModelForm(forms.ModelForm):
@@ -28,12 +29,67 @@ class CollaborationModelForm(forms.ModelForm):
 class CollaborationAdmin(admin.ModelAdmin):
     form = CollaborationModelForm
     list_display = ["time", "influencer", "collaboration_type", "followers"]
+    list_display_links = ["influencer"]
     readonly_fields = ["last_updated"]
 
 
-admin.site.register(Insta)
-admin.site.register(InstaInsight)
-admin.site.register(InstaPost)
-admin.site.register(InstaStory)
+class InsightAdmin(admin.ModelAdmin):
+    list_display = [
+        "time",
+        "insta",
+        "interval",
+        "reach",
+        "impressions",
+        "followers_change",
+        "posts_change",
+    ]
+    list_display_links = ["time"]
+    list_filter = ["insta", "interval"]
+    date_hierarchy = "time"
+
+
+class PostAdmin(admin.ModelAdmin):
+    list_display = [
+        "external_id",
+        "insta",
+        "time",
+        "post_type",
+        "likes",
+        "reach",
+        "impressions",
+    ]
+    list_display_links = ["external_id"]
+    list_filter = ["insta", "post_type"]
+    date_hierarchy = "time"
+
+
+class StoryAdmin(admin.ModelAdmin):
+    list_display = [
+        "external_id",
+        "insta",
+        "time",
+        "story_type",
+        "reach",
+        "impressions",
+        "exits",
+    ]
+    list_display_links = ["external_id"]
+    list_filter = ["insta", "story_type"]
+    date_hierarchy = "time"
+
+
+class CollaborationTypeAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+    ]
+    list_display_links = ["name"]
+    list_filter = []
+    date_hierarchy = None
+
+
+admin.site.register(Insta, ProductAdmin)
+admin.site.register(InstaInsight, InsightAdmin)
+admin.site.register(InstaPost, PostAdmin)
+admin.site.register(InstaStory, StoryAdmin)
 admin.site.register(InstaCollaboration, CollaborationAdmin)
 admin.site.register(InstaCollaborationType)
