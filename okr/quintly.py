@@ -6,13 +6,22 @@ import numpy as np
 from analytics import quintly
 
 
-# Instantiate the class with your client id and secret
-quintly = quintly.QuintlyAPI(
-    os.environ.get("QUINTLY_CLIENT_ID"), os.environ.get("QUINTLY_CLIENT_SECRET")
-)
+quintly = None
+
+
+def get_quintly():
+    # Instantiate the class with your client id and secret
+    global quintly
+    if not quintly:
+        quintly = quintly.QuintlyAPI(
+            os.environ.get("QUINTLY_CLIENT_ID"), os.environ.get("QUINTLY_CLIENT_SECRET")
+        )
+    return quintly
+
 
 # You can run the query with the run_query method. It returns a pandas DataFrame
 def get_insta_insights(profile_id, *, interval="daily", start_date=None):
+    quintly = get_quintly()
     profile_ids = [profile_id]
 
     if start_date is None:
@@ -63,6 +72,7 @@ def get_insta_insights(profile_id, *, interval="daily", start_date=None):
 
 
 def get_insta_stories(profile_id, *, start_date=None):
+    quintly = get_quintly()
     profile_ids = [profile_id]
     table = "instagramInsightsStories"
     fields = [
@@ -87,6 +97,7 @@ def get_insta_stories(profile_id, *, start_date=None):
 
 
 def get_insta_posts(profile_id, *, start_date=None):
+    quintly = get_quintly()
     profile_ids = [profile_id]
     table = "instagramOwnPosts"
     fields = [
@@ -125,6 +136,7 @@ def get_insta_posts(profile_id, *, start_date=None):
 
 
 def get_youtube_analytics(profile_id, *, interval="daily", start_date=None):
+    quintly = get_quintly()
     profile_ids = [profile_id]
     table = "youtubeAnalytics"
 
