@@ -96,6 +96,17 @@ class InstaStory(models.Model):
         return f"{self.time}: {self.insta.name} - {self.story_type}"
 
 
+class InstaCollaborationType(models.Model):
+    class Meta:
+        verbose_name = "Instagram-Collaboration Format"
+        verbose_name_plural = "Instagram-Collaboration Formate"
+
+    name = models.CharField("Name", max_length=200, null=False, blank=False)
+
+    def __str__(self):
+        return self.name
+
+
 class InstaCollaboration(models.Model):
     class Meta:
         verbose_name = "Instagram-Collaboration"
@@ -113,6 +124,13 @@ class InstaCollaboration(models.Model):
     )
     followers = models.IntegerField(
         verbose_name="Follower", help_text="Anzahl Follower der Influencer*in"
+    )
+    collaboration_type = models.ForeignKey(
+        InstaCollaborationType,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="collaboration",
+        verbose_name="Format",
     )
     topic = models.TextField(verbose_name="Thema", help_text="Thema der Kollaboration")
     description = models.TextField(verbose_name="Notiz", blank=True)
