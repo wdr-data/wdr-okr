@@ -67,3 +67,104 @@ class YouTubeTrafficSource(models.Model):
 
     def __str__(self):
         return f"{self.time}: {self.youtube.name}"
+
+
+class YouTubeAgeRangeDuration(models.Model):
+    class Meta:
+        verbose_name = "YouTube Age-Range (Viewtime)"
+        verbose_name_plural = "YouTube Age-Ranges (Viewtime)"
+
+    age_13_17 = models.DurationField(verbose_name="13 - 17")
+    age_18_24 = models.DurationField(verbose_name="18 - 24")
+    age_25_34 = models.DurationField(verbose_name="25 - 34")
+    age_35_44 = models.DurationField(verbose_name="35 - 44")
+    age_45_54 = models.DurationField(verbose_name="45 - 54")
+    age_55_64 = models.DurationField(verbose_name="55 - 64")
+    age_65_plus = models.DurationField(verbose_name="65+")
+
+
+class YouTubeAgeRangePercentage(models.Model):
+    class Meta:
+        verbose_name = "YouTube Age-Range (Prozent)"
+        verbose_name_plural = "YouTube Age-Ranges (Prozent)"
+
+    age_13_17 = models.DecimalField(
+        verbose_name="13 - 17", max_digits=5, decimal_places=2
+    )
+    age_18_24 = models.DecimalField(
+        verbose_name="18 - 24", max_digits=5, decimal_places=2
+    )
+    age_25_34 = models.DecimalField(
+        verbose_name="25 - 34", max_digits=5, decimal_places=2
+    )
+    age_35_44 = models.DecimalField(
+        verbose_name="35 - 44", max_digits=5, decimal_places=2
+    )
+    age_45_54 = models.DecimalField(
+        verbose_name="45 - 54", max_digits=5, decimal_places=2
+    )
+    age_55_64 = models.DecimalField(
+        verbose_name="55 - 64", max_digits=5, decimal_places=2
+    )
+    age_65_plus = models.DecimalField(
+        verbose_name="65+", max_digits=5, decimal_places=2
+    )
+
+
+class YouTubeViewerAge(models.Model):
+    class Meta:
+        verbose_name = "YouTube Viewer-Age"
+        verbose_name_plural = "YouTube Viewer-Ages"
+        unique_together = ("youtube", "time", "interval")
+
+    class Interval(models.TextChoices):
+        DAILY = "daily", "Täglich"
+        WEEKLY = "weekly", "Wöchentlich"
+        MONTHLY = "monthly", "Monatlich"
+
+    youtube = models.ForeignKey(
+        to=YouTube,
+        on_delete=models.CASCADE,
+        related_name="age_range",
+        related_query_name="age_ranges",
+    )
+    time = models.DateField(verbose_name="Datum")
+    interval = models.CharField(
+        verbose_name="Zeitraum", choices=Interval.choices, max_length=10
+    )
+
+    average_view_duration = models.ForeignKey(
+        YouTubeAgeRangeDuration,
+        models.CASCADE,
+        related_name="+",
+        related_query_name="+",
+        verbose_name="Durchschnittliche View-Time (absolut)",
+    )
+    average_percentage_viewed = models.ForeignKey(
+        YouTubeAgeRangePercentage,
+        models.CASCADE,
+        related_name="+",
+        related_query_name="+",
+        verbose_name="Durchschnittliche View-Time (% des Videos)",
+    )
+    watch_time = models.ForeignKey(
+        YouTubeAgeRangePercentage,
+        models.CASCADE,
+        related_name="+",
+        related_query_name="+",
+        verbose_name="Watch-Time (%)",
+    )
+    views = models.ForeignKey(
+        YouTubeAgeRangePercentage,
+        models.CASCADE,
+        related_name="+",
+        related_query_name="+",
+        verbose_name="Views (%)",
+    )
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return (
+            f"{self.time}: {self.youtube.name} - {self.Interval(self.interval).label}"
+        )
