@@ -1,0 +1,10 @@
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools-items %}
+    {% if has_add_permission %}
+        <li>
+            <a href="upload-file/">Datei hochladen</a>
+        </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

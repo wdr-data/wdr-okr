@@ -38,6 +38,7 @@ class InstaInsight(models.Model):
         verbose_name="Nachricht senden", null=True
     )
     email_contacts_day = models.IntegerField(verbose_name="Email senden", null=True)
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.Interval(self.interval).label}"
@@ -63,6 +64,7 @@ class InstaPost(models.Model):
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
     link = models.URLField(verbose_name="Link")
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.post_type}"
@@ -88,9 +90,21 @@ class InstaStory(models.Model):
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
     link = models.URLField(verbose_name="Link", max_length=1024)
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.story_type}"
+
+
+class InstaCollaborationType(models.Model):
+    class Meta:
+        verbose_name = "Instagram-Collaboration Format"
+        verbose_name_plural = "Instagram-Collaboration Formate"
+
+    name = models.CharField("Name", max_length=200, null=False, blank=False)
+
+    def __str__(self):
+        return self.name
 
 
 class InstaCollaboration(models.Model):
@@ -105,9 +119,22 @@ class InstaCollaboration(models.Model):
         related_query_name="collaboration",
     )
     time = models.DateField(verbose_name="Datum")
-    influencer = models.CharField(verbose_name="Influencer*in", max_length=100)
-    followers = models.IntegerField(verbose_name="Follower")
-    description = models.TextField(verbose_name="Beschreibung")
+    influencer = models.CharField(
+        verbose_name="Influencer*in (Account-Name)", max_length=100
+    )
+    followers = models.IntegerField(
+        verbose_name="Follower", help_text="Anzahl Follower der Influencer*in"
+    )
+    collaboration_type = models.ForeignKey(
+        InstaCollaborationType,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="collaboration",
+        verbose_name="Format",
+    )
+    topic = models.TextField(verbose_name="Thema", help_text="Thema der Kollaboration")
+    description = models.TextField(verbose_name="Notiz", blank=True)
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.time}: {self.insta.name} - {self.influencer}"
