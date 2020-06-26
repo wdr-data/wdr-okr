@@ -112,9 +112,10 @@ class InstaCollaboration(models.Model):
         verbose_name="Influencer*in (Account-Name)", max_length=100
     )
     followers = models.IntegerField(
-        verbose_name="Follower", help_text="Anzahl der Follower der Influencer*in"
+        verbose_name="Follower", help_text="Anzahl Follower der Influencer*in"
     )
-    description = models.TextField(verbose_name="Thema")
+    topic = models.TextField(verbose_name="Thema", help_text="Thema der Kollaboration")
+    description = models.TextField(verbose_name="Notiz", blank=True)
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
