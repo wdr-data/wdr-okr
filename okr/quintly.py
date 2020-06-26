@@ -6,17 +6,17 @@ import numpy as np
 from analytics import quintly
 
 
-quintly = None
+_quintly = None
 
 
 def get_quintly():
     # Instantiate the class with your client id and secret
-    global quintly
-    if not quintly:
-        quintly = quintly.QuintlyAPI(
+    global _quintly
+    if not _quintly:
+        _quintly = quintly.QuintlyAPI(
             os.environ.get("QUINTLY_CLIENT_ID"), os.environ.get("QUINTLY_CLIENT_SECRET")
         )
-    return quintly
+    return _quintly
 
 
 # You can run the query with the run_query method. It returns a pandas DataFrame
