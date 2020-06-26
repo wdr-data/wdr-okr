@@ -159,7 +159,9 @@ def get_youtube_analytics(profile_id, *, interval="daily", start_date=None):
         "averageViewDuration",
     ]
 
-    df = quintly.run_query(profile_ids, table, fields, start_date, end_date)
+    df = quintly.run_query(
+        profile_ids, table, fields, start_date, end_date, interval=interval
+    )
 
     df.time = df.time.str[:10]
     df.time = df.time.astype("str")
