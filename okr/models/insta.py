@@ -20,6 +20,7 @@ class InstaInsight(models.Model):
         MONTHLY = "monthly", "Monatlich"
 
     insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
         to=Insta,
         on_delete=models.CASCADE,
         related_name="insights",
@@ -50,6 +51,7 @@ class InstaPost(models.Model):
         verbose_name_plural = "Instagram-Posts"
 
     insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
         to=Insta,
         on_delete=models.CASCADE,
         related_name="posts",
@@ -76,6 +78,7 @@ class InstaStory(models.Model):
         verbose_name_plural = "Instagram-Stories"
 
     insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
         to=Insta,
         on_delete=models.CASCADE,
         related_name="stories",
@@ -113,6 +116,7 @@ class InstaCollaboration(models.Model):
         verbose_name_plural = "Instagram-Collaborations"
 
     insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
         to=Insta,
         on_delete=models.CASCADE,
         related_name="collaborations",
