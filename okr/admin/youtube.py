@@ -74,6 +74,15 @@ class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
             )
             return
 
+        if "Source title" not in df.columns:
+            self.message_user(
+                request,
+                "Die hochgeladene Datei enthält keine detaillierten Traffic Sources! "
+                'Wähle als Traffic Source "Browse features" in den YouTube Studio Analytics.',
+                level=messages.ERROR,
+            )
+            return
+
         for index, row in df.iterrows():
             time = date.fromisoformat(row["Date"])
 
