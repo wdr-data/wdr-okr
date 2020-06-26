@@ -1,4 +1,5 @@
 from zipfile import ZipFile
+import logging
 
 from django import forms
 from django.contrib import admin
@@ -49,11 +50,13 @@ class UploadFileMixin:
             try:
                 self.process_uploaded_file(request, uploaded_file)
             except:
+                logging.exception("Processing file upload failed")
                 self.message_user(
                     request,
                     "Bei der Verarbeitung ist ein unerwarteter Fehler aufgetreten",
                     level=messages.ERROR,
                 )
+
             return redirect("..")
 
         form = self.upload_form_class()
