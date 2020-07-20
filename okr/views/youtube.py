@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
 from ..models.youtube import *
-from .. import quintly
+from ..scrapers import quintly
 
 berlin = timezone("Europe/Berlin")
 
