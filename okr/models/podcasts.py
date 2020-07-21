@@ -46,7 +46,7 @@ class PodcastEpisode(models.Model):
     publication_date_time = models.DateTimeField(verbose_name="Veröffentlicht am")
     media = models.URLField(max_length=1024, verbose_name="Media-URL")
     zmdb_id = models.IntegerField(verbose_name="ZMDB-ID", unique=True)
-    duratation = models.DurationField(verbose_name="Audio-Länge")
+    duration = models.DurationField(verbose_name="Audio-Länge")
 
     def __str__(self):
         return f"{self.podcast.name} - {self.title} ({self.publication_date_time})"
