@@ -8,7 +8,7 @@ from . import spotify
 from . import podstat
 from ...models import Podcast, PodcastEpisode
 
-def scrape():
+def scrape_feed():
     for podcast in Podcast.objects.all():
         d = feed.parse(podcast.feed_url)
         for entry in d.entries:
@@ -37,3 +37,9 @@ def scrape():
                     defaults,
                     sep="\n",
                 )
+
+def scrape_spotify():
+    pass
+
+def scrape_podstat():
+    pass
