@@ -1,8 +1,8 @@
 from django.db import models
-from .base import Product
+from .base import Quintly
 
 
-class Insta(Product):
+class Insta(Quintly):
     class Meta:
         verbose_name = "Instagram-Account"
         verbose_name_plural = "Instagram-Accounts"

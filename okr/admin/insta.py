@@ -8,7 +8,7 @@ from ..models import (
     InstaCollaboration,
     InstaCollaborationType,
 )
-from .base import ProductAdmin
+from .base import QuintlyAdmin
 
 
 class CollaborationModelForm(forms.ModelForm):
@@ -87,7 +87,7 @@ class CollaborationTypeAdmin(admin.ModelAdmin):
     date_hierarchy = None
 
 
-admin.site.register(Insta, ProductAdmin)
+admin.site.register(Insta, QuintlyAdmin)
 admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
 admin.site.register(InstaStory, StoryAdmin)

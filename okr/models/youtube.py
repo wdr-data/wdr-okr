@@ -1,8 +1,8 @@
 from django.db import models
-from .base import Product
+from .base import Quintly
 
 
-class YouTube(Product):
+class YouTube(Quintly):
     class Meta:
         verbose_name = "YouTube-Account"
         verbose_name_plural = "YouTube-Accounts"

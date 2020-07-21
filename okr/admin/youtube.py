@@ -16,7 +16,7 @@ from ..models import (
     YouTubeAgeRangeDuration,
     YouTubeAgeRangePercentage,
 )
-from .base import ProductAdmin
+from .base import QuintlyAdmin
 from .uploads import UploadFileMixin, UploadFileForm
 
 
@@ -260,7 +260,7 @@ class AgeRangePercentageAdmin(admin.ModelAdmin):
     date_hierarchy = None
 
 
-admin.site.register(YouTube, ProductAdmin)
+admin.site.register(YouTube, QuintlyAdmin)
 admin.site.register(YouTubeAnalytics, AnalyticsAdmin)
 admin.site.register(YouTubeTrafficSource, TrafficSourceAdmin)
 admin.site.register(YouTubeViewerAge, ViewerAgeAdmin)
