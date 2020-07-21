@@ -8,15 +8,18 @@ from . import spotify
 from . import podstat
 from ...models import Podcast, PodcastEpisode
 
+
 def scrape_feed():
     for podcast in Podcast.objects.all():
         d = feed.parse(podcast.feed_url)
         for entry in d.entries:
             media_url = entry.enclosures[0].href
-            zmdb_id = int(media_url.split('/')[-2])
+            zmdb_id = int(media_url.split("/")[-2])
             t = datetime.strptime(entry.itunes_duration, "%H:%M:%S")
             duration = timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
-            publication_date_time = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+            publication_date_time = datetime(
+                *entry.published_parsed[:6], tzinfo=pytz.UTC
+            )
             defaults = {
                 "podcast": podcast,
                 "title": entry.title,
@@ -28,8 +31,7 @@ def scrape_feed():
 
             try:
                 obj, created = PodcastEpisode.objects.update_or_create(
-                    zmdb_id=zmdb_id,
-                    defaults=defaults,
+                    zmdb_id=zmdb_id, defaults=defaults,
                 )
             except IntegrityError:
                 print(
@@ -38,8 +40,10 @@ def scrape_feed():
                     sep="\n",
                 )
 
+
 def scrape_spotify():
     pass
+
 
 def scrape_podstat():
     pass

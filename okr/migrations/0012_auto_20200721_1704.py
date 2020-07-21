@@ -6,13 +6,14 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('okr', '0011_podcast_podcastdataspotifyfollowers_podcastepisode_podcastepisodedatapodstatdownload_podcastepisoded'),
+        (
+            "okr",
+            "0011_podcast_podcastdataspotifyfollowers_podcastepisode_podcastepisodedatapodstatdownload_podcastepisoded",
+        ),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='podcastepisode',
-            old_name='duratation',
-            new_name='duration',
+            model_name="podcastepisode", old_name="duratation", new_name="duration",
         ),
     ]
