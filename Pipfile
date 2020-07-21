@@ -17,6 +17,7 @@ pandas = "*"
 pytz = "*"
 sqlalchemy = "*"
 mysqlclient = "*"
+feedparser = "*"
 
 [requires]
 python_version = "3.8"
