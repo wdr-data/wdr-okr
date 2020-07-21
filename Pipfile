@@ -18,6 +18,7 @@ pytz = "*"
 sqlalchemy = "*"
 mysqlclient = "*"
 feedparser = "*"
+apscheduler = "*"
 
 [requires]
 python_version = "3.8"
