@@ -1,5 +1,6 @@
 import os
 import functools
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, defer, undefer, joinedload, relationship
@@ -22,6 +23,7 @@ def requires_engine(func):
     return wrapper
 
 
+@contextmanager
 @requires_engine
 def get_podcast(name):
     Base = automap_base()
@@ -35,7 +37,11 @@ def get_podcast(name):
     session = Session(engine)
 
     podcast = session.query(Podcast).filter(Podcast.podcast == name)[0]
-    return podcast
+
+    try:
+        yield podcast
+    finally:
+        session.close()
 
     """
     print(podcast.podcast, "\n")

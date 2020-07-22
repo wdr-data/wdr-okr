@@ -1,5 +1,6 @@
 import os
 import functools
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine, Column, Integer, ForeignKey
 from sqlalchemy.orm import Session, defer, undefer, joinedload, relationship, foreign
@@ -22,6 +23,7 @@ def requires_engine(func):
     return wrapper
 
 
+@contextmanager
 @requires_engine
 def get_podcast(zmdb_id):
     Base = automap_base()
@@ -51,16 +53,21 @@ def get_podcast(zmdb_id):
     session = Session(engine)
 
     podcast = session.query(PodcastUrl).filter(PodcastUrl.titel.like(f"%{zmdb_id}"))[1]
-    # return podcast
 
+    try:
+        yield podcast
+    finally:
+        session.close()
+
+    """
     print(podcast.titel, "\n")
     print(vars(podcast), "\n")
     print(vars(podcast.podcast_murl), "\n")
     print("Found", len(podcast.podcast_ucount_tag_collection), "ucounts")
 
-    return
     for day_data in podcast.podcast_ucount_tag_collection:
         print(vars(day_data))
+    """
 
 
 if __name__ == "__main__":
