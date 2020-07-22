@@ -28,6 +28,9 @@ class PodcastDataSpotifyFollowers(models.Model):
     )
     followers = models.IntegerField(verbose_name="Follower")
 
+    def __str__(self):
+        return f"{self.podcast} - {self.date}"
+
 
 class PodcastEpisode(models.Model):
     class Meta:
