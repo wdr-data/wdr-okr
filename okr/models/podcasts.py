@@ -12,6 +12,8 @@ class Podcast(Product):
     image = models.URLField(max_length=1024, verbose_name="Bild")
     description = models.TextField(verbose_name="Beschreibung")
 
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
 
 class PodcastDataSpotifyFollowers(models.Model):
     class Meta:
@@ -27,6 +29,8 @@ class PodcastDataSpotifyFollowers(models.Model):
         related_query_name="followers",
     )
     followers = models.IntegerField(verbose_name="Follower")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.podcast} - {self.date}"
@@ -51,6 +55,8 @@ class PodcastEpisode(models.Model):
     zmdb_id = models.IntegerField(verbose_name="ZMDB-ID", unique=True)
     duration = models.DurationField(verbose_name="Audio-Länge")
 
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
     def __str__(self):
         return f"{self.podcast.name} - {self.title} ({self.publication_date_time})"
 
@@ -72,6 +78,8 @@ class PodcastEpisodeDataSpotify(models.Model):
     starts = models.IntegerField(verbose_name="Starts")
     streams = models.IntegerField(verbose_name="Streams")
     listeners = models.IntegerField(verbose_name="Hörer")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.episode.title} ({self.date})"
@@ -106,6 +114,8 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
         verbose_name="Geschlecht nicht angegeben"
     )
 
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
     def __str__(self):
         return f"{self.episode.title} ({self.date})"
 
@@ -127,6 +137,8 @@ class PodcastEpisodeDataPodstatDownload(models.Model):
     nv = models.IntegerField(verbose_name="Nutzungsvorgang")
     nv10 = models.IntegerField(verbose_name="Nutzungsvorgang über 10 Sec.")
 
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
     def __str__(self):
         return f"{self.episode.title} ({self.date})"
 
@@ -147,6 +159,8 @@ class PodcastEpisodeDataPodstatOndemand(models.Model):
     )
     nv = models.IntegerField(verbose_name="Nutzungsvorgang")
     nv10 = models.IntegerField(verbose_name="Nutzungsvorgang über 10 Sec.")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.episode.title} ({self.date})"
@@ -171,6 +185,8 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
     quartile_2 = models.IntegerField(verbose_name="2. Quartil")
     quartile_3 = models.IntegerField(verbose_name="3. Quartil")
     complete = models.IntegerField(verbose_name="Komplett")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
         return f"{self.episode.title} ({self.date})"
