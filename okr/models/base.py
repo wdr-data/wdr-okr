@@ -6,7 +6,13 @@ class Product(models.Model):
         abstract = True
 
     name = models.CharField(max_length=200)
-    quintly_profile_id = models.IntegerField()
 
     def __str__(self):
         return self.name
+
+
+class Quintly(Product):
+    class Meta:
+        abstract = True
+
+    quintly_profile_id = models.IntegerField()

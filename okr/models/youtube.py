@@ -1,8 +1,8 @@
 from django.db import models
-from .base import Product
+from .base import Quintly
 
 
-class YouTube(Product):
+class YouTube(Quintly):
     class Meta:
         verbose_name = "YouTube-Account"
         verbose_name_plural = "YouTube-Accounts"
@@ -12,7 +12,7 @@ class YouTubeAnalytics(models.Model):
     class Meta:
         verbose_name = "YouTube-Analytics"
         verbose_name_plural = "YouTube-Analytics"
-        unique_together = ("youtube", "time", "interval")
+        unique_together = ("youtube", "date", "interval")
 
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
@@ -26,7 +26,7 @@ class YouTubeAnalytics(models.Model):
         related_name="analytic",
         related_query_name="analytics",
     )
-    time = models.DateField(verbose_name="Datum")
+    date = models.DateField(verbose_name="Datum")
     interval = models.CharField(
         verbose_name="Zeitraum", choices=Interval.choices, max_length=10
     )
@@ -44,7 +44,7 @@ class YouTubeAnalytics(models.Model):
 
     def __str__(self):
         return (
-            f"{self.time}: {self.youtube.name} - {self.Interval(self.interval).label}"
+            f"{self.date}: {self.youtube.name} - {self.Interval(self.interval).label}"
         )
 
 
@@ -52,7 +52,7 @@ class YouTubeTrafficSource(models.Model):
     class Meta:
         verbose_name = "YouTube-TrafficSource"
         verbose_name_plural = "YouTube-TrafficSources"
-        unique_together = ("youtube", "time")
+        unique_together = ("youtube", "date")
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
@@ -61,14 +61,14 @@ class YouTubeTrafficSource(models.Model):
         related_name="traffic_source",
         related_query_name="traffic_sources",
     )
-    time = models.DateField(verbose_name="Datum")
+    date = models.DateField(verbose_name="Datum")
     impressions_home = models.IntegerField(verbose_name="Impressions (Home)")
     impressions_subscriptions = models.IntegerField(verbose_name="Impressions (Abos)")
     impressions_trending = models.IntegerField(verbose_name="Impressions (Trending)")
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.time}: {self.youtube.name}"
+        return f"{self.date}: {self.youtube.name}"
 
 
 class YouTubeAgeRangeDuration(models.Model):
@@ -117,7 +117,7 @@ class YouTubeViewerAge(models.Model):
     class Meta:
         verbose_name = "YouTube Viewer-Age"
         verbose_name_plural = "YouTube Viewer-Ages"
-        unique_together = ("youtube", "time", "interval")
+        unique_together = ("youtube", "date", "interval")
 
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
@@ -131,7 +131,7 @@ class YouTubeViewerAge(models.Model):
         related_name="age_range",
         related_query_name="age_ranges",
     )
-    time = models.DateField(verbose_name="Datum")
+    date = models.DateField(verbose_name="Datum")
     interval = models.CharField(
         verbose_name="Zeitraum", choices=Interval.choices, max_length=10
     )
@@ -169,5 +169,5 @@ class YouTubeViewerAge(models.Model):
 
     def __str__(self):
         return (
-            f"{self.time}: {self.youtube.name} - {self.Interval(self.interval).label}"
+            f"{self.date}: {self.youtube.name} - {self.Interval(self.interval).label}"
         )
