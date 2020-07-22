@@ -166,4 +166,20 @@ def _scrape_podcast_data_spotify_followers(podcast, follower_data):
 
 
 def scrape_podstat():
+    with podstat.make_connection_meta() as connection_meta:
+        for podcast in Podcast.objects.all():
+            for podcast_episode in podcast.episodes.all():
+                podstat_episode_variants = podstat.get_episode(
+                    connection_meta, podcast_episode.zmdb_id
+                )
+                if len(podstat_episode_variants) != 2:
+                    print(
+                        f"Expected 2 variants of episode {podcast_episode} in podstat data, found {len(podstat_episode_variants)}"
+                    )
+
+                for variant in podstat_episode_variants:
+                    print(variant.podcast_murl.hinweis)
+
+
+def scrape_episode_data_podstat_downloads(podcast_episode, podstat_ucount):
     pass
