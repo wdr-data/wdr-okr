@@ -59,5 +59,8 @@ def start():
     scheduler.add_job(
         podcasts.scrape_feed, trigger="cron", hour="5,11,17,23", minute="40"
     )
+    scheduler.add_job(
+        podcasts.scrape_spotify, trigger="cron", hour="5,11,17,23", minute="41"
+    )
 
     scheduler.start()
