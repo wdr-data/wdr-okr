@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import pytz
 
 from django.db.utils import IntegrityError
@@ -13,10 +13,11 @@ from ...models import (
     PodcastEpisodeDataSpotifyUser,
     PodcastDataSpotifyFollowers,
     PodcastEpisodeDataPodstatOndemand,
-    PodcastEpisodeDataPodstatDownload
+    PodcastEpisodeDataPodstatDownload,
 )
 
-berlin = pytz.timezone('Europe/Berlin')
+berlin = pytz.timezone("Europe/Berlin")
+
 
 def scrape_feed():
     for podcast in Podcast.objects.all():
@@ -50,13 +51,20 @@ def scrape_feed():
                 )
 
 
-def scrape_spotify():
+def scrape_spotify(*, start_date=None):
+
+    if start_date is None:
+        start_date = date.today() - timedelta(days=31)
+
     with spotify.make_connection_meta() as connection_meta:
         for podcast in Podcast.objects.all():
             spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
 
             # Scrape follower data for podcast
             for follower_data in spotify_podcast.podcasts_follower_collection:
+                if follower_data.datum and follower_data.datum < start_date:
+                    continue
+
                 _scrape_podcast_data_spotify_followers(podcast, follower_data)
 
             # Create mapping from episode title to object for faster lookups
@@ -84,10 +92,14 @@ def scrape_spotify():
 
                 # Scrape stream stats for episode
                 for stream_data in spotify_episode.episode_data_streams_collection:
+                    if stream_data.datum and stream_data.datum < start_date:
+                        continue
                     _scrape_episode_data_spotify(podcast_episode, stream_data)
 
                 # Scrape user stats for episode
                 for user_data in spotify_episode.episode_data_additional_collection:
+                    if user_data and user_data.datum < start_date:
+                        continue
                     _scrape_episode_data_spotify_user(podcast_episode, user_data)
 
 
@@ -168,7 +180,11 @@ def _scrape_podcast_data_spotify_followers(podcast, follower_data):
         )
 
 
-def scrape_podstat():
+def scrape_podstat(*, start_date=None):
+
+    if start_date is None:
+        start_date = date.today() - timedelta(days=31)
+
     with podstat.make_connection_meta() as connection_meta:
         for podcast in Podcast.objects.all():
             for podcast_episode in podcast.episodes.all():
@@ -183,10 +199,21 @@ def scrape_podstat():
                 for variant in podstat_episode_variants:
                     variant_type = variant.podcast_murl.hinweis
                     for podcast_ucount in variant.podcast_ucount_tag_collection:
-                        if variant_type == 'O':
-                            _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount)
-                        elif variant_type == 'D':
-                            _scrape_episode_data_podstat_download(podcast_episode, podcast_ucount)
+                        if (
+                            datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
+                            < start_date
+                        ):
+                            continue
+
+                        if variant_type == "O":
+                            _scrape_episode_data_podstat_ondemand(
+                                podcast_episode, podcast_ucount
+                            )
+                        elif variant_type == "D":
+                            _scrape_episode_data_podstat_download(
+                                podcast_episode, podcast_ucount
+                            )
+
 
 def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
     ucount_date = datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
