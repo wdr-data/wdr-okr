@@ -12,8 +12,7 @@ def start():
     if settings.DEBUG:
         return
 
-    scheduler = BackgroundScheduler()
-    scheduler.timezone = berlin
+    scheduler = BackgroundScheduler(timezone=berlin)
 
     # Instagram
     scheduler.add_job(
