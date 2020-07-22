@@ -6,42 +6,35 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, defer, undefer, joinedload, relationship
 from sqlalchemy.ext.automap import automap_base
 
-
-engine = None
-
-
-def requires_engine(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        global engine
-        if not engine:
-            engine = create_engine(
-                f"mysql://{os.environ['MYSQL_PODCAST_USER']}:{os.environ['MYSQL_PODCAST_PASSWORD']}@{os.environ['MYSQL_PODCAST_HOST']}/{os.environ['MYSQL_PODCAST_DATABASE_SPOTIFY']}"
-            )
-        return func(*args, **kwargs)
-
-    return wrapper
+from .connection_meta import ConnectionMeta
 
 
 @contextmanager
-@requires_engine
-def get_podcast(name):
+def make_connection_meta():
+    engine = create_engine(
+        f"mysql://{os.environ['MYSQL_PODCAST_USER']}:{os.environ['MYSQL_PODCAST_PASSWORD']}@{os.environ['MYSQL_PODCAST_HOST']}/{os.environ['MYSQL_PODCAST_DATABASE_SPOTIFY']}"
+    )
+    session = Session(engine)
+
     Base = automap_base()
     Base.prepare(engine, reflect=True)
 
-    Podcast = Base.classes.podcasts
-    Episode = Base.classes.episodes
-    Stream = Base.classes.episode_data_streams
-    Additional = Base.classes.episode_data_additional
-
-    session = Session(engine)
-
-    podcast = session.query(Podcast).filter(Podcast.podcast == name)[0]
+    class classes:
+        Podcast = Base.classes.podcasts
+        Episode = Base.classes.episodes
+        Stream = Base.classes.episode_data_streams
+        Additional = Base.classes.episode_data_additional
 
     try:
-        yield podcast
+        yield ConnectionMeta(engine=engine, session=session, classes=classes)
     finally:
         session.close()
+
+
+def get_podcast(connection_meta, name):
+    Podcast = connection_meta.classes.Podcast
+
+    return connection_meta.session.query(Podcast).filter(Podcast.podcast == name)[0]
 
     """
     print(podcast.podcast, "\n")

@@ -48,8 +48,10 @@ def scrape_feed():
 
 
 def scrape_spotify():
-    for podcast in Podcast.objects.all():
-        with spotify.get_podcast(podcast.name) as spotify_podcast:
+    with spotify.make_connection_meta() as connection_meta:
+        for podcast in Podcast.objects.all():
+            spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
+
             # Scrape follower data for podcast
             for follower_data in spotify_podcast.podcasts_follower_collection:
                 _scrape_podcast_data_spotify_followers(podcast, follower_data)
