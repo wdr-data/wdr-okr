@@ -12,8 +12,11 @@ from ...models import (
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataSpotifyUser,
     PodcastDataSpotifyFollowers,
+    PodcastEpisodeDataPodstatOndemand,
+    PodcastEpisodeDataPodstatDownload
 )
 
+berlin = pytz.timezone('Europe/Berlin')
 
 def scrape_feed():
     for podcast in Podcast.objects.all():
@@ -178,8 +181,46 @@ def scrape_podstat():
                     )
 
                 for variant in podstat_episode_variants:
-                    print(variant.podcast_murl.hinweis)
+                    variant_type = variant.podcast_murl.hinweis
+                    for podcast_ucount in variant.podcast_ucount_tag_collection:
+                        if variant_type == 'O':
+                            _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount)
+                        elif variant_type == 'D':
+                            _scrape_episode_data_podstat_download(podcast_episode, podcast_ucount)
+
+def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
+    ucount_date = datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
+
+    defaults = {
+        "nv": podcast_ucount.nv,
+        "nv10": podcast_ucount.nv10,
+    }
+    try:
+        obj, created = PodcastEpisodeDataPodstatOndemand.objects.update_or_create(
+            episode=podcast_episode, date=ucount_date, defaults=defaults,
+        )
+    except IntegrityError:
+        print(
+            f"Podstat ondemand data for episode {podcast_episode} on {ucount_date} failed integrity check:",
+            defaults,
+            sep="\n",
+        )
 
 
-def scrape_episode_data_podstat_downloads(podcast_episode, podstat_ucount):
-    pass
+def _scrape_episode_data_podstat_download(podcast_episode, podcast_ucount):
+    ucount_date = datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
+
+    defaults = {
+        "nv": podcast_ucount.nv,
+        "nv10": podcast_ucount.nv10,
+    }
+    try:
+        obj, created = PodcastEpisodeDataPodstatDownload.objects.update_or_create(
+            episode=podcast_episode, date=ucount_date, defaults=defaults,
+        )
+    except IntegrityError:
+        print(
+            f"Podstat downloads data for episode {podcast_episode} on {ucount_date} failed integrity check:",
+            defaults,
+            sep="\n",
+        )
