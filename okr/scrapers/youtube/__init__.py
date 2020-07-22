@@ -25,7 +25,7 @@ def scrape_analytics(interval):
             try:
                 obj, created = YouTubeAnalytics.objects.update_or_create(
                     youtube=youtube,
-                    time=date.fromisoformat(row.time),
+                    date=date.fromisoformat(row.time),
                     interval=interval,
                     defaults=defaults,
                 )

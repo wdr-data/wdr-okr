@@ -12,7 +12,7 @@ class InstaInsight(models.Model):
     class Meta:
         verbose_name = "Instagram-Insight"
         verbose_name_plural = "Instagram-Insights"
-        unique_together = ("insta", "time", "interval")
+        unique_together = ("insta", "date", "interval")
 
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
@@ -26,7 +26,7 @@ class InstaInsight(models.Model):
         related_name="insights",
         related_query_name="insight",
     )
-    time = models.DateField(verbose_name="Datum")
+    date = models.DateField(verbose_name="Datum")
     interval = models.CharField(
         verbose_name="Zeitraum", choices=Interval.choices, max_length=10
     )
@@ -42,7 +42,7 @@ class InstaInsight(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.time}: {self.insta.name} - {self.Interval(self.interval).label}"
+        return f"{self.date}: {self.insta.name} - {self.Interval(self.interval).label}"
 
 
 class InstaPost(models.Model):
@@ -59,7 +59,7 @@ class InstaPost(models.Model):
     )
     external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
     message = models.TextField(verbose_name="Text")
-    time = models.DateTimeField(verbose_name="Erstellt")
+    created_at = models.DateTimeField(verbose_name="Erstellt")
     post_type = models.CharField(verbose_name="Typ", max_length=20)
     comments = models.IntegerField(verbose_name="Kommentare")
     likes = models.IntegerField(verbose_name="Likes")
@@ -69,7 +69,7 @@ class InstaPost(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.time}: {self.insta.name} - {self.post_type}"
+        return f"{self.created_at}: {self.insta.name} - {self.post_type}"
 
 
 class InstaStory(models.Model):
@@ -86,7 +86,7 @@ class InstaStory(models.Model):
     )
     external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
     caption = models.TextField(verbose_name="Text", null=True)
-    time = models.DateTimeField(verbose_name="Erstellt")
+    created_at = models.DateTimeField(verbose_name="Erstellt")
     story_type = models.CharField(verbose_name="Typ", max_length=200)
     replies = models.IntegerField(verbose_name="Antworten")
     exits = models.IntegerField(verbose_name="Exits")
@@ -96,7 +96,7 @@ class InstaStory(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.time}: {self.insta.name} - {self.story_type}"
+        return f"{self.created_at}: {self.insta.name} - {self.story_type}"
 
 
 class InstaCollaborationType(models.Model):
@@ -122,7 +122,7 @@ class InstaCollaboration(models.Model):
         related_name="collaborations",
         related_query_name="collaboration",
     )
-    time = models.DateField(verbose_name="Datum")
+    date = models.DateField(verbose_name="Datum")
     influencer = models.CharField(
         verbose_name="Influencer*in (Account-Name)", max_length=100
     )
@@ -141,4 +141,4 @@ class InstaCollaboration(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.time}: {self.insta.name} - {self.influencer}"
+        return f"{self.date}: {self.insta.name} - {self.influencer}"

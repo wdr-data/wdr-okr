@@ -34,9 +34,9 @@ class UploadFileFormYouTube(UploadFileForm):
 class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
     upload_form_class = UploadFileFormYouTube
 
-    list_display = ["time", "youtube"]
-    list_display_links = ["time"]
-    date_hierarchy = "time"
+    list_display = ["date", "youtube"]
+    list_display_links = ["date"]
+    date_hierarchy = "date"
 
     readonly_fields = ["last_updated"]
 
@@ -98,7 +98,7 @@ class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
 
         for time, defaults in merged.items():
             obj, created = YouTubeTrafficSource.objects.update_or_create(
-                youtube=youtube, time=time, defaults=defaults,
+                youtube=youtube, date=time, defaults=defaults,
             )
 
         self.message_user(request, "Datei wurde erfolgreich eingelesen!")
@@ -112,10 +112,10 @@ def parse_duration(duration):
 class ViewerAgeAdmin(UploadFileMixin, admin.ModelAdmin):
     upload_form_class = UploadFileFormYouTube
 
-    list_display = ["time", "youtube", "interval"]
-    list_display_links = ["time"]
+    list_display = ["date", "youtube", "interval"]
+    list_display_links = ["date"]
     list_filter = ["youtube", "interval"]
-    date_hierarchy = "time"
+    date_hierarchy = "date"
 
     readonly_fields = ["last_updated"]
 
@@ -207,7 +207,7 @@ class ViewerAgeAdmin(UploadFileMixin, admin.ModelAdmin):
             ranges[field_for_type[index]] = obj
 
         obj, created = YouTubeViewerAge.objects.update_or_create(
-            youtube=youtube, time=start_date, interval=interval, defaults=ranges,
+            youtube=youtube, date=start_date, interval=interval, defaults=ranges,
         )
 
         self.message_user(request, "Datei wurde erfolgreich eingelesen!")
@@ -215,7 +215,7 @@ class ViewerAgeAdmin(UploadFileMixin, admin.ModelAdmin):
 
 class AnalyticsAdmin(admin.ModelAdmin):
     list_display = [
-        "time",
+        "date",
         "youtube",
         "interval",
         "views",
@@ -224,9 +224,9 @@ class AnalyticsAdmin(admin.ModelAdmin):
         "estimated_minutes_watched",
         "average_view_duration",
     ]
-    list_display_links = ["time"]
+    list_display_links = ["date"]
     list_filter = ["youtube", "interval"]
-    date_hierarchy = "time"
+    date_hierarchy = "date"
 
 
 class AgeRangeDurationAdmin(admin.ModelAdmin):

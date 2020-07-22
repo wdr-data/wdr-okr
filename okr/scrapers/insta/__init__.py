@@ -37,7 +37,7 @@ def scrape_insights(interval, *, start_date=None):
             try:
                 obj, created = InstaInsight.objects.update_or_create(
                     insta=insta,
-                    time=date.fromisoformat(row.time),
+                    date=date.fromisoformat(row.time),
                     interval=interval,
                     defaults=defaults,
                 )
@@ -55,7 +55,7 @@ def scrape_stories(*, start_date=None):
 
         for index, row in df.iterrows():
             defaults = {
-                "time": berlin.localize(datetime.fromisoformat(row.time)),
+                "created_at": berlin.localize(datetime.fromisoformat(row.time)),
                 "caption": row.caption,
                 "reach": row.reach,
                 "impressions": row.impressions,
@@ -83,7 +83,7 @@ def scrape_posts(*, start_date=None):
 
         for index, row in df.iterrows():
             defaults = {
-                "time": berlin.localize(datetime.fromisoformat(row.time)),
+                "created_at": berlin.localize(datetime.fromisoformat(row.time)),
                 "message": row.message,
                 "comments": row.comments,
                 "reach": row.reach,
