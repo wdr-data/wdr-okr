@@ -1,15 +1,10 @@
-from datetime import date, datetime
-from pytz import timezone
+from datetime import date
 
-from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
-from ..models.insta import *
-from ..scrapers import quintly
-
-berlin = timezone("Europe/Berlin")
+from ..scrapers.insta import scrape_insights, scrape_stories, scrape_posts
 
 
 def parse_start_date(post_data):
@@ -22,114 +17,19 @@ def parse_start_date(post_data):
 @require_POST
 @csrf_exempt
 def trigger_insights(request, interval):
-
-    for insta in Insta.objects.all():
-
-        df = quintly.get_insta_insights(
-            insta.quintly_profile_id,
-            interval=interval,
-            start_date=parse_start_date(request.POST),
-        )
-
-        for index, row in df.iterrows():
-            defaults = {
-                "reach": row.reach,
-                "impressions": row.impressions,
-                "followers": row.followers,
-                "followers_change": row.followersChange,
-                "posts_change": row.postsChange,
-            }
-
-            if interval == "daily":
-                defaults.update(
-                    {
-                        "text_message_clicks_day": row.textMessageClicksDay,
-                        "email_contacts_day": row.emailContactsDay,
-                    }
-                )
-
-            try:
-                obj, created = InstaInsight.objects.update_or_create(
-                    insta=insta,
-                    time=date.fromisoformat(row.time),
-                    interval=interval,
-                    defaults=defaults,
-                )
-            except IntegrityError:
-                print(
-                    f"Data for {interval} insight for date {row.time} failed integrity check:",
-                    defaults,
-                    sep="\n",
-                )
-
+    scrape_insights(interval, start_date=parse_start_date(request.POST))
     return HttpResponse("ok")
 
 
 @require_POST
 @csrf_exempt
 def trigger_stories(request):
-
-    for insta in Insta.objects.all():
-        df = quintly.get_insta_stories(
-            insta.quintly_profile_id, start_date=parse_start_date(request.POST)
-        )
-
-        for index, row in df.iterrows():
-            defaults = {
-                "time": berlin.localize(datetime.fromisoformat(row.time)),
-                "caption": row.caption,
-                "reach": row.reach,
-                "impressions": row.impressions,
-                "replies": row.replies,
-                "story_type": row.type,
-                "link": row.link,
-                "exits": row.exits,
-            }
-
-            try:
-                obj, created = InstaStory.objects.update_or_create(
-                    insta=insta, external_id=row.externalId, defaults=defaults,
-                )
-            except IntegrityError:
-                print(
-                    f"Data for story with ID {row.externalId} failed integrity check:",
-                    defaults,
-                    sep="\n",
-                )
-
+    scrape_stories(start_date=parse_start_date(request.POST))
     return HttpResponse("ok")
 
 
 @require_POST
 @csrf_exempt
 def trigger_posts(request):
-
-    for insta in Insta.objects.all():
-        df = quintly.get_insta_posts(
-            insta.quintly_profile_id, start_date=parse_start_date(request.POST)
-        )
-
-        for index, row in df.iterrows():
-            defaults = {
-                "time": berlin.localize(datetime.fromisoformat(row.time)),
-                "message": row.message,
-                "comments": row.comments,
-                "reach": row.reach,
-                "impressions": row.impressions,
-                "post_type": row.type,
-                "likes": row.likes,
-                "link": row.link,
-            }
-
-            try:
-                obj, created = InstaPost.objects.update_or_create(
-                    insta=insta, external_id=row.externalId, defaults=defaults,
-                )
-            except IntegrityError:
-                print(
-                    f"Data for post with ID {row.externalId} failed integrity check:",
-                    defaults,
-                    sep="\n",
-                )
-
+    scrape_posts(start_date=parse_start_date(request.POST))
     return HttpResponse("ok")
