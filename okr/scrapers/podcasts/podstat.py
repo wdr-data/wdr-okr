@@ -34,7 +34,11 @@ def make_connection_meta():
 
             murlid = Column(Integer, ForeignKey("podcast_murl.murlid"))
             podcast_ucount_tag_collection = relationship(
-                "PodcastCount", backref="podcast_url", viewonly=True, sync_backref=False
+                "PodcastCount",
+                backref="podcast_url",
+                viewonly=True,
+                sync_backref=False,
+                lazy="joined",
             )
 
         class PodcastMediaCount(Base):
