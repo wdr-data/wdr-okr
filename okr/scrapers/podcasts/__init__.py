@@ -191,6 +191,10 @@ def scrape_podstat(*, start_date=None):
     if start_date is None:
         start_date = date.today() - timedelta(days=31)
 
+    start_time = int(
+        datetime(start_date.year, start_date.month, start_date.day).timestamp()
+    )
+
     with podstat.make_connection_meta() as connection_meta:
         for podcast in Podcast.objects.all():
             for podcast_episode in podcast.episodes.all():
@@ -204,13 +208,11 @@ def scrape_podstat(*, start_date=None):
 
                 for variant in podstat_episode_variants:
                     variant_type = variant.podcast_murl.hinweis
-                    for podcast_ucount in variant.podcast_ucount_tag_collection:
-                        if (
-                            datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
-                            < start_date
-                        ):
-                            continue
 
+                    PodcastCount = connection_meta.classes.PodcastCount
+                    for podcast_ucount in variant.podcast_ucount_tag_collection.filter(
+                        PodcastCount.zeit >= start_time
+                    ):
                         if variant_type == "O":
                             _scrape_episode_data_podstat_ondemand(
                                 podcast_episode, podcast_ucount
