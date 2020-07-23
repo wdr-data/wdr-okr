@@ -21,7 +21,7 @@ def make_connection_meta():
     class classes:
         class PodcastCount(Base):
             __tablename__ = "podcast_ucount_tag"
-            urlid = Column(Integer, ForeignKey("podcast_url.urlid"))
+            urlid = Column(Integer, ForeignKey("podcast_url.urlid"), primary_key=True)
 
         class PodcastMediaUrl(Base):
             __tablename__ = "podcast_murl"
