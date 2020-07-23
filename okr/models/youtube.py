@@ -71,10 +71,40 @@ class YouTubeTrafficSource(models.Model):
         return f"{self.date}: {self.youtube.name}"
 
 
-class YouTubeAgeRangeDuration(models.Model):
+class YouTubeAgeRangeBase(models.Model):
     class Meta:
-        verbose_name = "YouTube Age-Range (Viewtime)"
-        verbose_name_plural = "YouTube Age-Ranges (Viewtime)"
+        abstract = True
+        unique_together = ("youtube", "date", "interval")
+
+    class Interval(models.TextChoices):
+        DAILY = "daily", "Täglich"
+        WEEKLY = "weekly", "Wöchentlich"
+        MONTHLY = "monthly", "Monatlich"
+
+    youtube = models.ForeignKey(
+        verbose_name="YouTube-Account",
+        to=YouTube,
+        on_delete=models.CASCADE,
+        related_name="+",
+        related_query_name="+",
+    )
+    date = models.DateField(verbose_name="Datum")
+    interval = models.CharField(
+        verbose_name="Zeitraum", choices=Interval.choices, max_length=10
+    )
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return (
+            f"{self.youtube.name}: {self.date} ({self.Interval(self.interval).label})"
+        )
+
+
+class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
+    class Meta:
+        abstract = True
+        unique_together = YouTubeAgeRangeBase.Meta.unique_together
 
     age_13_17 = models.DurationField(verbose_name="13 - 17")
     age_18_24 = models.DurationField(verbose_name="18 - 24")
@@ -85,10 +115,10 @@ class YouTubeAgeRangeDuration(models.Model):
     age_65_plus = models.DurationField(verbose_name="65+")
 
 
-class YouTubeAgeRangePercentage(models.Model):
+class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
     class Meta:
-        verbose_name = "YouTube Age-Range (Prozent)"
-        verbose_name_plural = "YouTube Age-Ranges (Prozent)"
+        abstract = True
+        unique_together = YouTubeAgeRangeBase.Meta.unique_together
 
     age_13_17 = models.DecimalField(
         verbose_name="13 - 17", max_digits=5, decimal_places=2
@@ -113,61 +143,33 @@ class YouTubeAgeRangePercentage(models.Model):
     )
 
 
-class YouTubeViewerAge(models.Model):
+class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
     class Meta:
-        verbose_name = "YouTube Viewer-Age"
-        verbose_name_plural = "YouTube Viewer-Ages"
-        unique_together = ("youtube", "date", "interval")
+        verbose_name = "YouTube Age-Range (Durchschnittliche View-Time - Dauer)"
+        verbose_name_plural = "YouTube Age-Ranges (Durchschnittliche View-Time - Dauer)"
+        unique_together = YouTubeAgeRangeDuration.Meta.unique_together
 
-    class Interval(models.TextChoices):
-        DAILY = "daily", "Täglich"
-        WEEKLY = "weekly", "Wöchentlich"
-        MONTHLY = "monthly", "Monatlich"
 
-    youtube = models.ForeignKey(
-        verbose_name="YouTube-Account",
-        to=YouTube,
-        on_delete=models.CASCADE,
-        related_name="age_range",
-        related_query_name="age_ranges",
-    )
-    date = models.DateField(verbose_name="Datum")
-    interval = models.CharField(
-        verbose_name="Zeitraum", choices=Interval.choices, max_length=10
-    )
-
-    average_view_duration = models.ForeignKey(
-        YouTubeAgeRangeDuration,
-        models.CASCADE,
-        related_name="+",
-        related_query_name="+",
-        verbose_name="Durchschnittliche View-Time (absolut)",
-    )
-    average_percentage_viewed = models.ForeignKey(
-        YouTubeAgeRangePercentage,
-        models.CASCADE,
-        related_name="+",
-        related_query_name="+",
-        verbose_name="Durchschnittliche View-Time (% des Videos)",
-    )
-    watch_time = models.ForeignKey(
-        YouTubeAgeRangePercentage,
-        models.CASCADE,
-        related_name="+",
-        related_query_name="+",
-        verbose_name="Watch-Time (%)",
-    )
-    views = models.ForeignKey(
-        YouTubeAgeRangePercentage,
-        models.CASCADE,
-        related_name="+",
-        related_query_name="+",
-        verbose_name="Views (%)",
-    )
-
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
-
-    def __str__(self):
-        return (
-            f"{self.date}: {self.youtube.name} - {self.Interval(self.interval).label}"
+class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
+    class Meta:
+        verbose_name = "YouTube Age-Range (Durchschnittliche View-Time - % des Videos)"
+        verbose_name_plural = (
+            "YouTube Age-Ranges (Durchschnittliche View-Time - % des Videos)"
         )
+        unique_together = YouTubeAgeRangePercentage.Meta.unique_together
+
+
+class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
+    class Meta:
+        verbose_name = "YouTube Age-Range (View-Time - % gesamt)"
+        verbose_name_plural = (
+            "YouTube Age-Ranges (Durchschnittliche View-Time - % gesamt)"
+        )
+        unique_together = YouTubeAgeRangePercentage.Meta.unique_together
+
+
+class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
+    class Meta:
+        verbose_name = "YouTube Age-Range (Views - % gesamt)"
+        verbose_name_plural = "YouTube Age-Ranges (Durchschnittliche Views - % gesamt)"
+        unique_together = YouTubeAgeRangePercentage.Meta.unique_together

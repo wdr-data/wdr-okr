@@ -12,9 +12,10 @@ from ..models import (
     YouTube,
     YouTubeAnalytics,
     YouTubeTrafficSource,
-    YouTubeViewerAge,
-    YouTubeAgeRangeDuration,
-    YouTubeAgeRangePercentage,
+    YouTubeAgeRangeAverageViewDuration,
+    YouTubeAgeRangeAverageViewPercentage,
+    YouTubeAgeRangeViewsPercentage,
+    YouTubeAgeRangeWatchTimePercentage,
 )
 from .base import QuintlyAdmin
 from .uploads import UploadFileMixin, UploadFileForm
@@ -109,10 +110,21 @@ def parse_duration(duration):
     return timedelta(hours=int(hours), minutes=int(minutes), seconds=int(seconds))
 
 
-class ViewerAgeAdmin(UploadFileMixin, admin.ModelAdmin):
+class ViewerAgeRangeBaseAdmin(UploadFileMixin, admin.ModelAdmin):
     upload_form_class = UploadFileFormYouTube
 
-    list_display = ["date", "youtube", "interval"]
+    list_display = [
+        "date",
+        "youtube",
+        "interval",
+        "age_13_17",
+        "age_18_24",
+        "age_25_34",
+        "age_35_44",
+        "age_45_54",
+        "age_55_64",
+        "age_65_plus",
+    ]
     list_display_links = ["date"]
     list_filter = ["youtube", "interval"]
     date_hierarchy = "date"
@@ -172,43 +184,38 @@ class ViewerAgeAdmin(UploadFileMixin, admin.ModelAdmin):
         df = df.rename(columns={"Viewer age": "type"}).set_index("type").transpose()
         print(df)
 
-        field_for_type = {
-            "Average view duration": "average_view_duration",
-            "Views (%)": "views",
-            "Average percentage viewed (%)": "average_percentage_viewed",
-            "Watch time (hours) (%)": "watch_time",
+        model_for_type = {
+            "Average view duration": YouTubeAgeRangeAverageViewDuration,
+            "Views (%)": YouTubeAgeRangeViewsPercentage,
+            "Average percentage viewed (%)": YouTubeAgeRangeAverageViewPercentage,
+            "Watch time (hours) (%)": YouTubeAgeRangeWatchTimePercentage,
         }
-
-        ranges = {}
 
         for index, row in df.iterrows():
             if index == "Average view duration":
-                obj = YouTubeAgeRangeDuration(
-                    age_13_17=parse_duration(row["AGE_13_17"]),
-                    age_18_24=parse_duration(row["AGE_18_24"]),
-                    age_25_34=parse_duration(row["AGE_25_34"]),
-                    age_35_44=parse_duration(row["AGE_35_44"]),
-                    age_45_54=parse_duration(row["AGE_45_54"]),
-                    age_55_64=parse_duration(row["AGE_55_64"]),
-                    age_65_plus=parse_duration(row["AGE_65_"]),
-                )
+                defaults = {
+                    "age_13_17": parse_duration(row["AGE_13_17"]),
+                    "age_18_24": parse_duration(row["AGE_18_24"]),
+                    "age_25_34": parse_duration(row["AGE_25_34"]),
+                    "age_35_44": parse_duration(row["AGE_35_44"]),
+                    "age_45_54": parse_duration(row["AGE_45_54"]),
+                    "age_55_64": parse_duration(row["AGE_55_64"]),
+                    "age_65_plus": parse_duration(row["AGE_65_"]),
+                }
             else:
-                obj = YouTubeAgeRangePercentage(
-                    age_13_17=Decimal(row["AGE_13_17"]),
-                    age_18_24=Decimal(row["AGE_18_24"]),
-                    age_25_34=Decimal(row["AGE_25_34"]),
-                    age_35_44=Decimal(row["AGE_35_44"]),
-                    age_45_54=Decimal(row["AGE_45_54"]),
-                    age_55_64=Decimal(row["AGE_55_64"]),
-                    age_65_plus=Decimal(row["AGE_65_"]),
-                )
+                defaults = {
+                    "age_13_17": Decimal(row["AGE_13_17"]),
+                    "age_18_24": Decimal(row["AGE_18_24"]),
+                    "age_25_34": Decimal(row["AGE_25_34"]),
+                    "age_35_44": Decimal(row["AGE_35_44"]),
+                    "age_45_54": Decimal(row["AGE_45_54"]),
+                    "age_55_64": Decimal(row["AGE_55_64"]),
+                    "age_65_plus": Decimal(row["AGE_65_"]),
+                }
 
-            obj.save()
-            ranges[field_for_type[index]] = obj
-
-        obj, created = YouTubeViewerAge.objects.update_or_create(
-            youtube=youtube, date=start_date, interval=interval, defaults=ranges,
-        )
+            obj, created = model_for_type[index].objects.update_or_create(
+                youtube=youtube, date=start_date, interval=interval, defaults=defaults,
+            )
 
         self.message_user(request, "Datei wurde erfolgreich eingelesen!")
 
@@ -229,40 +236,10 @@ class AnalyticsAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
-class AgeRangeDurationAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "age_13_17",
-        "age_18_24",
-        "age_25_34",
-        "age_35_44",
-        "age_45_54",
-        "age_55_64",
-        "age_65_plus",
-    ]
-    list_display_links = ["id"]
-    list_filter = []
-
-
-class AgeRangePercentageAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "age_13_17",
-        "age_18_24",
-        "age_25_34",
-        "age_35_44",
-        "age_45_54",
-        "age_55_64",
-        "age_65_plus",
-    ]
-    list_display_links = ["id"]
-    list_filter = []
-    date_hierarchy = None
-
-
 admin.site.register(YouTube, QuintlyAdmin)
 admin.site.register(YouTubeAnalytics, AnalyticsAdmin)
 admin.site.register(YouTubeTrafficSource, TrafficSourceAdmin)
-admin.site.register(YouTubeViewerAge, ViewerAgeAdmin)
-admin.site.register(YouTubeAgeRangeDuration, AgeRangeDurationAdmin)
-admin.site.register(YouTubeAgeRangePercentage, AgeRangePercentageAdmin)
+admin.site.register(YouTubeAgeRangeAverageViewDuration, ViewerAgeRangeBaseAdmin)
+admin.site.register(YouTubeAgeRangeAverageViewPercentage, ViewerAgeRangeBaseAdmin)
+admin.site.register(YouTubeAgeRangeViewsPercentage, ViewerAgeRangeBaseAdmin)
+admin.site.register(YouTubeAgeRangeWatchTimePercentage, ViewerAgeRangeBaseAdmin)
