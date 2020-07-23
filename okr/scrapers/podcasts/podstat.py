@@ -3,7 +3,7 @@ import functools
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine, Column, Integer, ForeignKey
-from sqlalchemy.orm import Session, defer, undefer, joinedload, relationship, foreign
+from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
 
 from .connection_meta import ConnectionMeta
@@ -21,7 +21,7 @@ def make_connection_meta():
     class classes:
         class PodcastCount(Base):
             __tablename__ = "podcast_ucount_tag"
-            urlid = Column(Integer, ForeignKey("podcast_url.urlid"))
+            urlid = Column(Integer, ForeignKey("podcast_url.urlid"), primary_key=True)
 
         class PodcastMediaUrl(Base):
             __tablename__ = "podcast_murl"
@@ -34,7 +34,11 @@ def make_connection_meta():
 
             murlid = Column(Integer, ForeignKey("podcast_murl.murlid"))
             podcast_ucount_tag_collection = relationship(
-                "PodcastCount", backref="podcast_url", viewonly=True, sync_backref=False
+                "PodcastCount",
+                backref="podcast_url",
+                viewonly=True,
+                sync_backref=False,
+                lazy="dynamic",
             )
 
         class PodcastMediaCount(Base):

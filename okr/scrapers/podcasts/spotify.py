@@ -3,7 +3,7 @@ import functools
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, defer, undefer, joinedload, relationship
+from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
 
 from .connection_meta import ConnectionMeta
@@ -17,13 +17,32 @@ def make_connection_meta():
     session = Session(engine)
 
     Base = automap_base()
-    Base.prepare(engine, reflect=True)
 
     class classes:
-        Podcast = Base.classes.podcasts
-        Episode = Base.classes.episodes
-        Stream = Base.classes.episode_data_streams
-        Additional = Base.classes.episode_data_additional
+        class Episode(Base):
+            __tablename__ = "episodes"
+
+            episode_data_streams_collection = relationship(
+                "episode_data_streams", lazy="dynamic",
+            )
+
+            episode_data_additional_collection = relationship(
+                "episode_data_additional", lazy="dynamic",
+            )
+
+        class Podcast(Base):
+            __tablename__ = "podcasts"
+
+            episodes_collection = relationship("Episode", lazy="dynamic",)
+            podcasts_follower_collection = relationship(
+                "podcasts_follower", lazy="dynamic",
+            )
+
+    Base.prepare(engine, reflect=True)
+
+    classes.Stream = Base.classes.episode_data_streams
+    classes.Additional = Base.classes.episode_data_additional
+    classes.FollowersData = Base.classes.podcasts_follower
 
     try:
         yield ConnectionMeta(engine=engine, session=session, classes=classes)
