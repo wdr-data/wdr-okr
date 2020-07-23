@@ -62,12 +62,28 @@ def scrape_spotify(*, start_date=None):
         for podcast in Podcast.objects.all():
             spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
 
+            spotify_followers_objects = []
+            spotify_objects = []
+            spotify_user_objects = []
+
             # Scrape follower data for podcast
             FollowersData = connection_meta.classes.FollowersData
             for followers_data in spotify_podcast.podcasts_follower_collection.filter(
                 FollowersData.datum >= start_date
             ):
-                _scrape_podcast_data_spotify_followers(podcast, followers_data)
+                spotify_followers_objects.append(
+                    _scrape_podcast_data_spotify_followers(podcast, followers_data)
+                )
+
+            if spotify_followers_objects:
+                result_spotify_followers = bulk_sync(
+                    new_models=spotify_followers_objects,
+                    key_fields=["date", "podcast"],
+                    batch_size=100,
+                    skip_deletes=True,
+                    filters=None,
+                )
+                print("Spotify followers bulk objects:", result_spotify_followers)
 
             # Create mapping from episode title to object for faster lookups
             spotify_episodes = {}
@@ -82,6 +98,7 @@ def scrape_spotify(*, start_date=None):
                 spotify_episodes[ep.episode] = ep
 
             for podcast_episode in podcast.episodes.all():
+
                 try:
                     spotify_episode = spotify_episodes[podcast_episode.title]
                 except KeyError:
@@ -99,7 +116,9 @@ def scrape_spotify(*, start_date=None):
                 ) in spotify_episode.episode_data_streams_collection.filter(
                     Stream.datum >= start_date
                 ):
-                    _scrape_episode_data_spotify(podcast_episode, stream_data)
+                    spotify_objects.append(
+                        _scrape_episode_data_spotify(podcast_episode, stream_data)
+                    )
 
                 # Scrape user stats for episode
                 Additional = connection_meta.classes.Additional
@@ -108,7 +127,29 @@ def scrape_spotify(*, start_date=None):
                 ) in spotify_episode.episode_data_additional_collection.filter(
                     Additional.datum >= start_date
                 ):
-                    _scrape_episode_data_spotify_user(podcast_episode, user_data)
+                    spotify_user_objects.append(
+                        _scrape_episode_data_spotify_user(podcast_episode, user_data)
+                    )
+
+            if spotify_objects:
+                result_spotify = bulk_sync(
+                    new_models=spotify_objects,
+                    key_fields=["date", "episode"],
+                    batch_size=100,
+                    skip_deletes=True,
+                    filters=None,
+                )
+                print("Spotify bulk objects:", result_spotify)
+
+            if spotify_user_objects:
+                result_spotify_user = bulk_sync(
+                    new_models=spotify_user_objects,
+                    key_fields=["date", "episode"],
+                    batch_size=100,
+                    skip_deletes=True,
+                    filters=None,
+                )
+                print("Spotify user bulk objects:", result_spotify_user)
 
 
 def _scrape_episode_data_spotify(podcast_episode, stream_data):
@@ -116,22 +157,13 @@ def _scrape_episode_data_spotify(podcast_episode, stream_data):
         print(f"Date for stream data of episode {podcast_episode} is NULL")
         return
 
-    defaults = {
-        "starts": stream_data.starts,
-        "streams": stream_data.streams,
-        "listeners": stream_data.listeners,
-    }
-
-    try:
-        obj, created = PodcastEpisodeDataSpotify.objects.update_or_create(
-            episode=podcast_episode, date=stream_data.datum, defaults=defaults,
-        )
-    except IntegrityError:
-        print(
-            f"Spotify data for episode {podcast_episode} on {stream_data.datum} failed integrity check:",
-            defaults,
-            sep="\n",
-        )
+    return PodcastEpisodeDataSpotify(
+        episode=podcast_episode,
+        date=stream_data.datum,
+        starts=stream_data.starts,
+        streams=stream_data.streams,
+        listeners=stream_data.listeners,
+    )
 
 
 def _scrape_episode_data_spotify_user(podcast_episode, user_data):
@@ -139,32 +171,23 @@ def _scrape_episode_data_spotify_user(podcast_episode, user_data):
         print(f"Date for stream data of episode {podcast_episode} is NULL")
         return
 
-    # Use getattr because the column name has a minus in it
-    defaults = {
-        "age_0_17": getattr(user_data, "age_0-17"),
-        "age_18_22": getattr(user_data, "age_18-22"),
-        "age_23_27": getattr(user_data, "age_23-27"),
-        "age_28_34": getattr(user_data, "age_28-34"),
-        "age_35_44": getattr(user_data, "age_35-44"),
-        "age_45_59": getattr(user_data, "age_45-59"),
-        "age_60_150": getattr(user_data, "age_60-150"),
-        "age_unknown": user_data.age_unknown,
-        "gender_female": user_data.gender_female,
-        "gender_male": user_data.gender_male,
-        "gender_non_binary": user_data.gender_non_binary,
-        "gender_not_specified": user_data.gender_not_specified,
-    }
-
-    try:
-        obj, created = PodcastEpisodeDataSpotifyUser.objects.update_or_create(
-            episode=podcast_episode, date=user_data.datum, defaults=defaults,
-        )
-    except IntegrityError:
-        print(
-            f"Spotify user data for episode {podcast_episode} on {user_data.datum} failed integrity check:",
-            defaults,
-            sep="\n",
-        )
+    return PodcastEpisodeDataSpotifyUser(
+        # Use getattr because the column name has a minus in it
+        episode=podcast_episode,
+        date=user_data.datum,
+        age_0_17=getattr(user_data, "age_0-17"),
+        age_18_22=getattr(user_data, "age_18-22"),
+        age_23_27=getattr(user_data, "age_23-27"),
+        age_28_34=getattr(user_data, "age_28-34"),
+        age_35_44=getattr(user_data, "age_35-44"),
+        age_45_59=getattr(user_data, "age_45-59"),
+        age_60_150=getattr(user_data, "age_60-150"),
+        age_unknown=user_data.age_unknown,
+        gender_female=user_data.gender_female,
+        gender_male=user_data.gender_male,
+        gender_non_binary=user_data.gender_non_binary,
+        gender_not_specified=user_data.gender_not_specified,
+    )
 
 
 def _scrape_podcast_data_spotify_followers(podcast, follower_data):
@@ -172,20 +195,9 @@ def _scrape_podcast_data_spotify_followers(podcast, follower_data):
         print(f"Date for follower data of podcast {podcast} is NULL")
         return
 
-    defaults = {
-        "followers": follower_data.followers,
-    }
-
-    try:
-        obj, created = PodcastDataSpotifyFollowers.objects.update_or_create(
-            podcast=podcast, date=follower_data.datum, defaults=defaults,
-        )
-    except IntegrityError:
-        print(
-            f"Spotify follower data for podcast {podcast} on {follower_data.datum} failed integrity check:",
-            defaults,
-            sep="\n",
-        )
+    return PodcastDataSpotifyFollowers(
+        podcast=podcast, date=follower_data.datum, followers=follower_data.followers
+    )
 
 
 def scrape_podstat(*, start_date=None):
