@@ -229,9 +229,11 @@ def scrape_podstat(*, start_date=None):
                                     podcast_episode, podcast_ucount
                                 )
                             )
+
                 filters = Q(episode=podcast_episode)
 
                 if ondemand_objects:
+                    ondemand_objects = _aggregate_episode_data(ondemand_objects)
                     result_ondemand = bulk_sync(
                         new_models=ondemand_objects,
                         key_fields=["date", "episode"],
@@ -239,9 +241,14 @@ def scrape_podstat(*, start_date=None):
                         skip_deletes=True,
                         filters=filters,
                     )
-                    print("Ondemand bulk objects:", result_ondemand)
+                    print(
+                        "Ondemand bulk sync results for episode",
+                        podcast_episode,
+                        result_ondemand,
+                    )
 
                 if download_objects:
+                    download_objects = _aggregate_episode_data(download_objects)
                     result_download = bulk_sync(
                         new_models=download_objects,
                         key_fields=["date", "episode"],
@@ -249,7 +256,11 @@ def scrape_podstat(*, start_date=None):
                         skip_deletes=True,
                         filters=filters,
                     )
-                    print("Download bulk objects:", result_download)
+                    print(
+                        "Download bulk sync results for episode",
+                        podcast_episode,
+                        result_download,
+                    )
 
 
 def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
@@ -272,3 +283,18 @@ def _scrape_episode_data_podstat_download(podcast_episode, podcast_ucount):
         nv=podcast_ucount.nv,
         nv10=podcast_ucount.nv10,
     )
+
+
+def _aggregate_episode_data(data_objects):
+    cache = {}
+
+    for obj in data_objects:
+        if obj.date in cache:
+            print("Aggregating values for", obj.date)
+            existing = cache[obj.date]
+            existing.nv += obj.nv
+            existing.nv10 += obj.nv10
+        else:
+            cache[obj.date] = obj
+
+    return list(cache.values())
