@@ -2,6 +2,8 @@ from datetime import date, datetime, timedelta
 import pytz
 
 from django.db.utils import IntegrityError
+from django.db.models import Q
+from bulk_sync import bulk_sync
 
 from . import feed
 from . import spotify
@@ -205,6 +207,8 @@ def scrape_podstat(*, start_date=None):
                     print(
                         f"Expected 2 variants of episode {podcast_episode} in podstat data, found {len(podstat_episode_variants)}"
                     )
+                ondemand_objects = []
+                download_objects = []
 
                 for variant in podstat_episode_variants:
                     variant_type = variant.podcast_murl.hinweis
@@ -214,48 +218,57 @@ def scrape_podstat(*, start_date=None):
                         PodcastCount.zeit >= start_time
                     ):
                         if variant_type == "O":
-                            _scrape_episode_data_podstat_ondemand(
-                                podcast_episode, podcast_ucount
+                            ondemand_objects.append(
+                                _scrape_episode_data_podstat_ondemand(
+                                    podcast_episode, podcast_ucount
+                                )
                             )
                         elif variant_type == "D":
-                            _scrape_episode_data_podstat_download(
-                                podcast_episode, podcast_ucount
+                            download_objects.append(
+                                _scrape_episode_data_podstat_download(
+                                    podcast_episode, podcast_ucount
+                                )
                             )
+                filters = Q(episode=podcast_episode)
+
+                if ondemand_objects:
+                    result_ondemand = bulk_sync(
+                        new_models=ondemand_objects,
+                        key_fields=["date", "episode"],
+                        batch_size=100,
+                        skip_deletes=True,
+                        filters=filters,
+                    )
+                    print("Ondemand bulk objects:", result_ondemand)
+
+                if download_objects:
+                    result_download = bulk_sync(
+                        new_models=download_objects,
+                        key_fields=["date", "episode"],
+                        batch_size=100,
+                        skip_deletes=True,
+                        filters=filters,
+                    )
+                    print("Download bulk objects:", result_download)
 
 
 def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
     ucount_date = datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
 
-    defaults = {
-        "nv": podcast_ucount.nv,
-        "nv10": podcast_ucount.nv10,
-    }
-    try:
-        obj, created = PodcastEpisodeDataPodstatOndemand.objects.update_or_create(
-            episode=podcast_episode, date=ucount_date, defaults=defaults,
-        )
-    except IntegrityError:
-        print(
-            f"Podstat ondemand data for episode {podcast_episode} on {ucount_date} failed integrity check:",
-            defaults,
-            sep="\n",
-        )
+    return PodcastEpisodeDataPodstatOndemand(
+        episode=podcast_episode,
+        date=ucount_date,
+        nv=podcast_ucount.nv,
+        nv10=podcast_ucount.nv10,
+    )
 
 
 def _scrape_episode_data_podstat_download(podcast_episode, podcast_ucount):
     ucount_date = datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
 
-    defaults = {
-        "nv": podcast_ucount.nv,
-        "nv10": podcast_ucount.nv10,
-    }
-    try:
-        obj, created = PodcastEpisodeDataPodstatDownload.objects.update_or_create(
-            episode=podcast_episode, date=ucount_date, defaults=defaults,
-        )
-    except IntegrityError:
-        print(
-            f"Podstat downloads data for episode {podcast_episode} on {ucount_date} failed integrity check:",
-            defaults,
-            sep="\n",
-        )
+    return PodcastEpisodeDataPodstatDownload(
+        episode=podcast_episode,
+        date=ucount_date,
+        nv=podcast_ucount.nv,
+        nv10=podcast_ucount.nv10,
+    )

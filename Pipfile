@@ -23,6 +23,7 @@ sqlalchemy = "*"
 mysqlclient = "*"
 feedparser = "*"
 apscheduler = "*"
+django-bulk-sync = "*"
 
 [requires]
 python_version = "3.8"
