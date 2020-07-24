@@ -20,7 +20,7 @@ class PodcastDataSpotifyFollowers(models.Model):
     class Meta:
         verbose_name = "Podcast-Spotify-Follower"
         verbose_name_plural = "Podcast-Spotify-Follower"
-        ordering = ["-date"]
+        ordering = ["-date", "podcast"]
 
     date = models.DateField(verbose_name="Datum")
     podcast = models.ForeignKey(
@@ -61,7 +61,9 @@ class PodcastEpisode(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.podcast.name} - {self.title} ({self.publication_date_time})"
+        return (
+            f"{self.podcast.name} - {self.title} ({self.publication_date_time.date()})"
+        )
 
 
 class PodcastEpisodeDataSpotify(models.Model):
@@ -69,7 +71,7 @@ class PodcastEpisodeDataSpotify(models.Model):
         verbose_name = "Podcast-Episoden-Abruf (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Abrufe (Spotify)"
         unique_together = ("date", "episode")
-        ordering = ["-date"]
+        ordering = ["-date", "episode"]
 
     date = models.DateField(verbose_name="Datum")
     episode = models.ForeignKey(
@@ -94,7 +96,7 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
         verbose_name = "Podcast-Episoden-Nutzer (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Nutzer (Spotify)"
         unique_together = ("date", "episode")
-        ordering = ["-date"]
+        ordering = ["-date", "episode"]
 
     date = models.DateField(verbose_name="Datum")
     episode = models.ForeignKey(
@@ -130,7 +132,7 @@ class PodcastEpisodeDataPodstatDownload(models.Model):
         verbose_name = "Podcast-Episoden-Downloads (Podstat)"
         verbose_name_plural = "Podcast-Episoden-Downloads (Podstat)"
         unique_together = ("date", "episode")
-        ordering = ["-date"]
+        ordering = ["-date", "episode"]
 
     date = models.DateField(verbose_name="Datum")
     episode = models.ForeignKey(
@@ -154,7 +156,7 @@ class PodcastEpisodeDataPodstatOndemand(models.Model):
         verbose_name = "Podcast-Episoden-Streams (Podstat)"
         verbose_name_plural = "Podcast-Episoden-Streams (Podstat)"
         unique_together = ("date", "episode")
-        ordering = ["-date"]
+        ordering = ["-date", "episode"]
 
     date = models.DateField(verbose_name="Datum")
     episode = models.ForeignKey(
@@ -178,7 +180,7 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
         verbose_name = "Podcast-Episoden-Performance (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Performance (Spotify)"
         unique_together = ("date", "episode")
-        ordering = ["-date"]
+        ordering = ["-date", "episode"]
 
     date = models.DateField(verbose_name="Datum")
     episode = models.ForeignKey(
