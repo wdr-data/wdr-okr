@@ -145,31 +145,27 @@ class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
 
 class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
     class Meta:
-        verbose_name = "YouTube Age-Range (Durchschnittliche View-Time - Dauer)"
-        verbose_name_plural = "YouTube Age-Ranges (Durchschnittliche View-Time - Dauer)"
+        verbose_name = "YouTube Age-Range (Average View Duration)"
+        verbose_name_plural = "YouTube Age-Ranges (Average View Duration)"
         unique_together = YouTubeAgeRangeDuration.Meta.unique_together
 
 
 class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
     class Meta:
-        verbose_name = "YouTube Age-Range (Durchschnittliche View-Time - % des Videos)"
-        verbose_name_plural = (
-            "YouTube Age-Ranges (Durchschnittliche View-Time - % des Videos)"
-        )
+        verbose_name = "YouTube Age-Range (Average Percentage Viewed)"
+        verbose_name_plural = "YouTube Age-Ranges (Average Percentage Viewed)"
         unique_together = YouTubeAgeRangePercentage.Meta.unique_together
 
 
 class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
     class Meta:
-        verbose_name = "YouTube Age-Range (View-Time - % gesamt)"
-        verbose_name_plural = (
-            "YouTube Age-Ranges (Durchschnittliche View-Time - % gesamt)"
-        )
+        verbose_name = "YouTube Age-Range (Watch Time - Hours)"
+        verbose_name_plural = "YouTube Age-Ranges (Watch Time - Hours)"
         unique_together = YouTubeAgeRangePercentage.Meta.unique_together
 
 
 class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
     class Meta:
-        verbose_name = "YouTube Age-Range (Views - % gesamt)"
-        verbose_name_plural = "YouTube Age-Ranges (Durchschnittliche Views - % gesamt)"
+        verbose_name = "YouTube Age-Range (Views)"
+        verbose_name_plural = "YouTube Age-Ranges (Views)"
         unique_together = YouTubeAgeRangePercentage.Meta.unique_together
