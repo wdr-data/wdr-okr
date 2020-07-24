@@ -8,7 +8,7 @@ from ..models import (
     InstaCollaboration,
     InstaCollaborationType,
 )
-from .base import ProductAdmin
+from .base import QuintlyAdmin
 
 
 class CollaborationModelForm(forms.ModelForm):
@@ -28,14 +28,15 @@ class CollaborationModelForm(forms.ModelForm):
 
 class CollaborationAdmin(admin.ModelAdmin):
     form = CollaborationModelForm
-    list_display = ["time", "influencer", "collaboration_type", "followers"]
+    list_display = ["date", "influencer", "collaboration_type", "followers"]
     list_display_links = ["influencer"]
     readonly_fields = ["last_updated"]
+    date_hierarchy = "date"
 
 
 class InsightAdmin(admin.ModelAdmin):
     list_display = [
-        "time",
+        "date",
         "insta",
         "interval",
         "reach",
@@ -43,16 +44,16 @@ class InsightAdmin(admin.ModelAdmin):
         "followers_change",
         "posts_change",
     ]
-    list_display_links = ["time"]
+    list_display_links = ["date"]
     list_filter = ["insta", "interval"]
-    date_hierarchy = "time"
+    date_hierarchy = "date"
 
 
 class PostAdmin(admin.ModelAdmin):
     list_display = [
         "external_id",
         "insta",
-        "time",
+        "created_at",
         "post_type",
         "likes",
         "reach",
@@ -60,14 +61,14 @@ class PostAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["external_id"]
     list_filter = ["insta", "post_type"]
-    date_hierarchy = "time"
+    date_hierarchy = "created_at"
 
 
 class StoryAdmin(admin.ModelAdmin):
     list_display = [
         "external_id",
         "insta",
-        "time",
+        "created_at",
         "story_type",
         "reach",
         "impressions",
@@ -75,7 +76,7 @@ class StoryAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["external_id"]
     list_filter = ["insta", "story_type"]
-    date_hierarchy = "time"
+    date_hierarchy = "created_at"
 
 
 class CollaborationTypeAdmin(admin.ModelAdmin):
@@ -87,7 +88,7 @@ class CollaborationTypeAdmin(admin.ModelAdmin):
     date_hierarchy = None
 
 
-admin.site.register(Insta, ProductAdmin)
+admin.site.register(Insta, QuintlyAdmin)
 admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
 admin.site.register(InstaStory, StoryAdmin)

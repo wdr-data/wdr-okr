@@ -1,6 +1,7 @@
 from django.contrib import admin
 from . import insta
 from . import youtube
+from . import podcasts
 
 admin.site.site_header = "Django WDR OKR"
 admin.site.site_title = "Django WDR OKR"
