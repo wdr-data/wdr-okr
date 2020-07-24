@@ -6,6 +6,7 @@ class Insta(Quintly):
     class Meta:
         verbose_name = "Instagram-Account"
         verbose_name_plural = "Instagram-Accounts"
+        ordering = Quintly.Meta.ordering
 
 
 class InstaInsight(models.Model):
@@ -13,6 +14,7 @@ class InstaInsight(models.Model):
         verbose_name = "Instagram-Insight"
         verbose_name_plural = "Instagram-Insights"
         unique_together = ("insta", "date", "interval")
+        ordering = ["-date"]
 
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
@@ -49,6 +51,7 @@ class InstaPost(models.Model):
     class Meta:
         verbose_name = "Instagram-Post"
         verbose_name_plural = "Instagram-Posts"
+        ordering = ["-created_at"]
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
@@ -76,6 +79,7 @@ class InstaStory(models.Model):
     class Meta:
         verbose_name = "Instagram-Story"
         verbose_name_plural = "Instagram-Stories"
+        ordering = ["-created_at"]
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
@@ -103,6 +107,7 @@ class InstaCollaborationType(models.Model):
     class Meta:
         verbose_name = "Instagram-Collaboration Format"
         verbose_name_plural = "Instagram-Collaboration Formate"
+        ordering = ["name"]
 
     name = models.CharField("Name", max_length=200, null=False, blank=False)
 
@@ -114,6 +119,7 @@ class InstaCollaboration(models.Model):
     class Meta:
         verbose_name = "Instagram-Collaboration"
         verbose_name_plural = "Instagram-Collaborations"
+        ordering = ["-date"]
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",

@@ -6,6 +6,7 @@ class YouTube(Quintly):
     class Meta:
         verbose_name = "YouTube-Account"
         verbose_name_plural = "YouTube-Accounts"
+        ordering = Quintly.Meta.ordering
 
 
 class YouTubeAnalytics(models.Model):
@@ -13,6 +14,7 @@ class YouTubeAnalytics(models.Model):
         verbose_name = "YouTube-Analytics"
         verbose_name_plural = "YouTube-Analytics"
         unique_together = ("youtube", "date", "interval")
+        ordering = ["-date"]
 
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
@@ -53,6 +55,7 @@ class YouTubeTrafficSource(models.Model):
         verbose_name = "YouTube-TrafficSource"
         verbose_name_plural = "YouTube-TrafficSources"
         unique_together = ("youtube", "date")
+        ordering = ["-date"]
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
@@ -75,6 +78,7 @@ class YouTubeAgeRangeBase(models.Model):
     class Meta:
         abstract = True
         unique_together = ("youtube", "date", "interval")
+        ordering = ["-date"]
 
     class Interval(models.TextChoices):
         DAILY = "daily", "Täglich"
@@ -105,6 +109,7 @@ class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
     class Meta:
         abstract = True
         unique_together = YouTubeAgeRangeBase.Meta.unique_together
+        ordering = YouTubeAgeRangeBase.Meta.ordering
 
     age_13_17 = models.DurationField(verbose_name="13 - 17")
     age_18_24 = models.DurationField(verbose_name="18 - 24")
@@ -119,6 +124,7 @@ class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
     class Meta:
         abstract = True
         unique_together = YouTubeAgeRangeBase.Meta.unique_together
+        ordering = YouTubeAgeRangeBase.Meta.ordering
 
     age_13_17 = models.DecimalField(
         verbose_name="13 - 17", max_digits=5, decimal_places=2
@@ -148,6 +154,7 @@ class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
         verbose_name = "YouTube Age-Range (Average View Duration)"
         verbose_name_plural = "YouTube Age-Ranges (Average View Duration)"
         unique_together = YouTubeAgeRangeDuration.Meta.unique_together
+        ordering = YouTubeAgeRangeDuration.Meta.ordering
 
 
 class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
@@ -155,6 +162,7 @@ class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
         verbose_name = "YouTube Age-Range (Average Percentage Viewed)"
         verbose_name_plural = "YouTube Age-Ranges (Average Percentage Viewed)"
         unique_together = YouTubeAgeRangePercentage.Meta.unique_together
+        ordering = YouTubeAgeRangePercentage.Meta.ordering
 
 
 class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
@@ -162,6 +170,7 @@ class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
         verbose_name = "YouTube Age-Range (Watch Time - Hours)"
         verbose_name_plural = "YouTube Age-Ranges (Watch Time - Hours)"
         unique_together = YouTubeAgeRangePercentage.Meta.unique_together
+        ordering = YouTubeAgeRangePercentage.Meta.ordering
 
 
 class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
@@ -169,3 +178,4 @@ class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
         verbose_name = "YouTube Age-Range (Views)"
         verbose_name_plural = "YouTube Age-Ranges (Views)"
         unique_together = YouTubeAgeRangePercentage.Meta.unique_together
+        ordering = YouTubeAgeRangePercentage.Meta.ordering
