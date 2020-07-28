@@ -95,7 +95,7 @@ def scrape_spotify(*, start_date=None):
                 if ep.episode in spotify_episodes:
                     print(
                         "Found multiple matches for Spotify episode",
-                        podcast_episode,
+                        ep.episode,
                         "in external database.",
                     )
 
