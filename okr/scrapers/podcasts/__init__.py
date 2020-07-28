@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from time import sleep
 import pytz
 
 from django.db.utils import IntegrityError
@@ -19,6 +20,24 @@ from ...models import (
 )
 
 berlin = pytz.timezone("Europe/Berlin")
+
+
+def scrape_full(podcast):
+    print("Running full scrape of", podcast)
+
+    podcast_filter = Q(id=podcast.id)
+    start_date = date(2000, 1, 1)
+
+    sleep(1)
+    scrape_feed(podcast_filter=podcast_filter)
+
+    sleep(1)
+    scrape_spotify(start_date=start_date, podcast_filter=podcast_filter)
+
+    sleep(1)
+    scrape_podstat(start_date=start_date, podcast_filter=podcast_filter)
+
+    print("Finished full scrape of", podcast)
 
 
 def scrape_feed(*, podcast_filter=None):

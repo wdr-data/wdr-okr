@@ -1,18 +1,25 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from pytz import timezone
 
+from ..models import Podcast
 from . import insta, youtube, podcasts
 
 
 berlin = timezone("Europe/Berlin")
 
+scheduler = None
+
 
 def start():
+    global scheduler
+    scheduler = BackgroundScheduler(timezone=berlin)
+    scheduler.start()
+
     if settings.DEBUG:
         return
-
-    scheduler = BackgroundScheduler(timezone=berlin)
 
     # Instagram
     scheduler.add_job(
@@ -61,4 +68,9 @@ def start():
     scheduler.add_job(podcasts.scrape_spotify, trigger="cron", hour="6", minute="10")
     scheduler.add_job(podcasts.scrape_podstat, trigger="cron", hour="6", minute="11")
 
-    scheduler.start()
+
+@receiver(post_save, sender=Podcast)
+def podcast_created(instance, created, **kwargs):
+    print(instance, created)
+    if created:
+        scheduler.add_job(podcasts.scrape_full, args=[instance])
