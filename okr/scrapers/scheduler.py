@@ -63,10 +63,10 @@ def start():
 
     # Podcasts
     scheduler.add_job(
-        podcasts.scrape_feed, trigger="cron", hour="5,11,17,23", minute="40"
+        podcasts.scrape_feed, trigger="cron", hour="4,10,16,22", minute="0"
     )
-    scheduler.add_job(podcasts.scrape_spotify, trigger="cron", hour="6", minute="10")
-    scheduler.add_job(podcasts.scrape_podstat, trigger="cron", hour="6", minute="11")
+    scheduler.add_job(podcasts.scrape_spotify, trigger="cron", hour="4", minute="15")
+    scheduler.add_job(podcasts.scrape_podstat, trigger="cron", hour="4", minute="30")
 
 
 @receiver(post_save, sender=Podcast)
