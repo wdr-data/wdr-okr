@@ -23,6 +23,8 @@ berlin = pytz.timezone("Europe/Berlin")
 
 def scrape_feed():
     for podcast in Podcast.objects.all():
+        print("Scraping feed for", podcast)
+
         d = feed.parse(podcast.feed_url)
         for entry in d.entries:
             media_url = entry.enclosures[0].href
@@ -60,6 +62,7 @@ def scrape_spotify(*, start_date=None):
 
     with spotify.make_connection_meta() as connection_meta:
         for podcast in Podcast.objects.all():
+            print("Scraping spotify for", podcast)
             spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
 
             spotify_followers_objects = []
@@ -76,6 +79,7 @@ def scrape_spotify(*, start_date=None):
                 )
 
             if spotify_followers_objects:
+                print("Scraping spotify followers for", podcast)
                 result_spotify_followers = bulk_sync(
                     new_models=spotify_followers_objects,
                     key_fields=["date", "podcast"],
@@ -98,6 +102,7 @@ def scrape_spotify(*, start_date=None):
                 spotify_episodes[ep.episode] = ep
 
             for podcast_episode in podcast.episodes.all():
+                print("Scraping spotify episode data for", podcast_episode)
 
                 try:
                     spotify_episode = spotify_episodes[podcast_episode.title]
@@ -212,6 +217,7 @@ def scrape_podstat(*, start_date=None):
     with podstat.make_connection_meta() as connection_meta:
         for podcast in Podcast.objects.all():
             for podcast_episode in podcast.episodes.all():
+                print("Scraping podstat episode data for", podcast_episode)
                 podstat_episode_variants = podstat.get_episode(
                     connection_meta, podcast_episode.zmdb_id
                 )
