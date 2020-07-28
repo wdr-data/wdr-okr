@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from pytz import timezone
 
-from ..models import Podcast
+from ..models import Podcast, Insta, YouTube
 from . import insta, youtube, podcasts
 
 
@@ -74,3 +74,17 @@ def podcast_created(instance, created, **kwargs):
     print(instance, created)
     if created:
         scheduler.add_job(podcasts.scrape_full, args=[instance])
+
+
+@receiver(post_save, sender=Insta)
+def insta_created(instance, created, **kwargs):
+    print(instance, created)
+    if created:
+        scheduler.add_job(insta.scrape_full, args=[instance])
+
+
+@receiver(post_save, sender=YouTube)
+def youtube_created(instance, created, **kwargs):
+    print(instance, created)
+    if created:
+        scheduler.add_job(youtube.scrape_full, args=[instance])

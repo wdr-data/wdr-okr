@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from time import sleep
 from pytz import timezone
 
 from django.db.utils import IntegrityError
@@ -10,9 +11,27 @@ from ..common import quintly
 berlin = timezone("Europe/Berlin")
 
 
-def scrape_insights(interval, *, start_date=None):
-    for insta in Insta.objects.all():
+def scrape_full(insta):
+    insta_filter = Q(id=insta.id)
+    start_date = date(2000, 1, 1)
 
+    sleep(1)
+
+    scrape_insights("daily", start_date=start_date, insta_filter=insta_filter)
+    scrape_insights("weekly", start_date=start_date, insta_filter=insta_filter)
+    scrape_insights("monthly", start_date=start_date, insta_filter=insta_filter)
+
+    scrape_stories(start_date=start_date, insta_filter=insta_filter)
+    scrape_posts(start_date=start_date, insta_filter=insta_filter)
+
+
+def scrape_insights(interval, *, start_date=None, insta_filter=None):
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
         df = quintly.get_insta_insights(
             insta.quintly_profile_id, interval=interval, start_date=start_date,
         )
@@ -49,8 +68,13 @@ def scrape_insights(interval, *, start_date=None):
                 )
 
 
-def scrape_stories(*, start_date=None):
-    for insta in Insta.objects.all():
+def scrape_stories(*, start_date=None, insta_filter=None):
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
         df = quintly.get_insta_stories(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
@@ -77,8 +101,13 @@ def scrape_stories(*, start_date=None):
                 )
 
 
-def scrape_posts(*, start_date=None):
-    for insta in Insta.objects.all():
+def scrape_posts(*, start_date=None, insta_filter=None):
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
         df = quintly.get_insta_posts(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
