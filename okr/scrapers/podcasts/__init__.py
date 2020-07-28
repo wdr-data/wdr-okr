@@ -21,8 +21,13 @@ from ...models import (
 berlin = pytz.timezone("Europe/Berlin")
 
 
-def scrape_feed():
-    for podcast in Podcast.objects.all():
+def scrape_feed(*, podcast_filter=None):
+    podcasts = Podcast.objects.all()
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
+    for podcast in podcasts:
         print("Scraping feed for", podcast)
 
         d = feed.parse(podcast.feed_url)
@@ -55,13 +60,18 @@ def scrape_feed():
                 )
 
 
-def scrape_spotify(*, start_date=None):
+def scrape_spotify(*, start_date=None, podcast_filter=None):
 
     if start_date is None:
         start_date = date.today() - timedelta(days=31)
 
+    podcasts = Podcast.objects.all()
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
     with spotify.make_connection_meta() as connection_meta:
-        for podcast in Podcast.objects.all():
+        for podcast in podcasts:
             print("Scraping spotify for", podcast)
             spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
 
@@ -205,7 +215,7 @@ def _scrape_podcast_data_spotify_followers(podcast, follower_data):
     )
 
 
-def scrape_podstat(*, start_date=None):
+def scrape_podstat(*, start_date=None, podcast_filter=None):
 
     if start_date is None:
         start_date = date.today() - timedelta(days=31)
@@ -214,8 +224,14 @@ def scrape_podstat(*, start_date=None):
         datetime(start_date.year, start_date.month, start_date.day).timestamp()
     )
 
+    podcasts = Podcast.objects.all()
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
     with podstat.make_connection_meta() as connection_meta:
-        for podcast in Podcast.objects.all():
+        for podcast in podcasts:
+            print("Scraping podstat for", podcast)
             for podcast_episode in podcast.episodes.all():
                 print("Scraping podstat episode data for", podcast_episode)
                 podstat_episode_variants = podstat.get_episode(
