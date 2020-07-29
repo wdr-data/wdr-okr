@@ -10,7 +10,7 @@ from ..common import quintly
 
 def scrape_full(youtube):
     youtube_filter = Q(id=youtube.id)
-    start_date = date(2000, 1, 1)
+    start_date = date(2019, 1, 1)
 
     sleep(1)
 

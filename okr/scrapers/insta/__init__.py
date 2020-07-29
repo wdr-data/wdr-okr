@@ -14,7 +14,7 @@ berlin = timezone("Europe/Berlin")
 
 def scrape_full(insta):
     insta_filter = Q(id=insta.id)
-    start_date = date(2000, 1, 1)
+    start_date = date(2019, 1, 1)
 
     sleep(1)
 
