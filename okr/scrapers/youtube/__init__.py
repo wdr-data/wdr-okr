@@ -33,9 +33,9 @@ def scrape_analytics(interval, *, start_date=None, youtube_filter=None):
 
         for index, row in df.iterrows():
             defaults = {
-                "views": row.views,
-                "likes": row.likes,
-                "dislikes": row.dislikes,
+                "views": row.views or 0,
+                "likes": row.likes or 0,
+                "dislikes": row.dislikes or 0,
                 "estimated_minutes_watched": row.estimatedMinutesWatched,
                 "average_view_duration": row.averageViewDuration,
             }

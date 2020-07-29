@@ -39,18 +39,18 @@ def scrape_insights(interval, *, start_date=None, insta_filter=None):
 
         for index, row in df.iterrows():
             defaults = {
-                "reach": row.reach,
-                "impressions": row.impressions,
-                "followers": row.followers,
-                "followers_change": row.followersChange,
-                "posts_change": row.postsChange,
+                "reach": row.reach or 0,
+                "impressions": row.impressions or 0,
+                "followers": row.followers or 0,
+                "followers_change": row.followersChange or 0,
+                "posts_change": row.postsChange or 0,
             }
 
             if interval == "daily":
                 defaults.update(
                     {
-                        "text_message_clicks_day": row.textMessageClicksDay,
-                        "email_contacts_day": row.emailContactsDay,
+                        "text_message_clicks_day": row.textMessageClicksDay or 0,
+                        "email_contacts_day": row.emailContactsDay or 0,
                     }
                 )
 
@@ -82,12 +82,12 @@ def scrape_stories(*, start_date=None, insta_filter=None):
             defaults = {
                 "created_at": berlin.localize(datetime.fromisoformat(row.time)),
                 "caption": row.caption,
-                "reach": row.reach,
-                "impressions": row.impressions,
-                "replies": row.replies,
+                "reach": row.reach or 0,
+                "impressions": row.impressions or 0,
+                "replies": row.replies or 0,
                 "story_type": row.type,
                 "link": row.link,
-                "exits": row.exits,
+                "exits": row.exits or 0,
             }
 
             try:
@@ -115,11 +115,11 @@ def scrape_posts(*, start_date=None, insta_filter=None):
             defaults = {
                 "created_at": berlin.localize(datetime.fromisoformat(row.time)),
                 "message": row.message,
-                "comments": row.comments,
-                "reach": row.reach,
-                "impressions": row.impressions,
+                "comments": row.comments or 0,
+                "reach": row.reach or 0,
+                "impressions": row.impressions or 0,
                 "post_type": row.type,
-                "likes": row.likes,
+                "likes": row.likes or 0,
                 "link": row.link,
             }
 
