@@ -251,6 +251,10 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
     with podstat.make_connection_meta() as connection_meta:
         for podcast in podcasts:
             print("Scraping podstat for", podcast)
+
+            ondemand_objects = []
+            download_objects = []
+
             for podcast_episode in podcast.episodes.all():
                 print("Scraping podstat episode data for", podcast_episode)
                 podstat_episode_variants = podstat.get_episode(
@@ -260,8 +264,8 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
                     print(
                         f"Expected 2 variants of episode {podcast_episode} in podstat data, found {len(podstat_episode_variants)}"
                     )
-                ondemand_objects = []
-                download_objects = []
+                ondemand_objects_episode = []
+                download_objects_episode = []
 
                 for variant in podstat_episode_variants:
                     variant_type = variant.podcast_murl.hinweis
@@ -271,49 +275,62 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
                         PodcastCount.zeit >= start_time
                     ):
                         if variant_type == "O":
-                            ondemand_objects.append(
+                            ondemand_objects_episode.append(
                                 _scrape_episode_data_podstat_ondemand(
                                     podcast_episode, podcast_ucount
                                 )
                             )
                         elif variant_type == "D":
-                            download_objects.append(
+                            download_objects_episode.append(
                                 _scrape_episode_data_podstat_download(
                                     podcast_episode, podcast_ucount
                                 )
                             )
 
-                filters = Q(episode=podcast_episode)
-
-                if ondemand_objects:
-                    ondemand_objects = _aggregate_episode_data(ondemand_objects)
-                    result_ondemand = bulk_sync(
-                        new_models=ondemand_objects,
-                        key_fields=["date", "episode"],
-                        batch_size=100,
-                        skip_deletes=True,
-                        filters=filters,
+                # Deduplicate records in case of renaming etc.
+                if ondemand_objects_episode:
+                    ondemand_objects_episode = _aggregate_episode_data(
+                        ondemand_objects_episode
                     )
                     print(
-                        "Ondemand bulk sync results for episode",
-                        podcast_episode,
-                        result_ondemand,
+                        "Found",
+                        len(ondemand_objects_episode),
+                        "unique ondemand datapoints",
                     )
+                    ondemand_objects.extend(ondemand_objects_episode)
 
-                if download_objects:
-                    download_objects = _aggregate_episode_data(download_objects)
-                    result_download = bulk_sync(
-                        new_models=download_objects,
-                        key_fields=["date", "episode"],
-                        batch_size=100,
-                        skip_deletes=True,
-                        filters=filters,
+                if download_objects_episode:
+                    download_objects_episode = _aggregate_episode_data(
+                        download_objects_episode
                     )
                     print(
-                        "Download bulk sync results for episode",
-                        podcast_episode,
-                        result_download,
+                        "Found",
+                        len(download_objects_episode),
+                        "unique download datapoints",
                     )
+                    download_objects.extend(download_objects_episode)
+
+            if ondemand_objects:
+                result_ondemand = bulk_sync(
+                    new_models=ondemand_objects,
+                    key_fields=["date", "episode"],
+                    skip_deletes=True,
+                    filters=None,
+                )
+                print(
+                    "Ondemand bulk sync results for podcast", podcast, result_ondemand,
+                )
+
+            if download_objects:
+                result_download = bulk_sync(
+                    new_models=download_objects,
+                    key_fields=["date", "episode"],
+                    skip_deletes=True,
+                    filters=None,
+                )
+                print(
+                    "Download bulk sync results for podcast", podcast, result_download,
+                )
 
 
 def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
