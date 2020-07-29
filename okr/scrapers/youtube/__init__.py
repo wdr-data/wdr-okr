@@ -2,6 +2,7 @@ from datetime import date
 from time import sleep
 
 from django.db.utils import IntegrityError
+from django.db.models import Q
 
 from ...models.youtube import *
 from ..common import quintly

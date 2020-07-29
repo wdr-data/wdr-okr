@@ -3,6 +3,7 @@ from time import sleep
 from pytz import timezone
 
 from django.db.utils import IntegrityError
+from django.db.models import Q
 
 from ...models.insta import *
 from ..common import quintly
