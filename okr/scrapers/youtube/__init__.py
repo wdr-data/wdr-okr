@@ -23,7 +23,7 @@ def scrape_analytics(interval, *, start_date=None, youtube_filter=None):
     youtubes = YouTube.objects.all()
 
     if youtube_filter:
-        youtubes.filter(youtube_filter)
+        youtubes = youtubes.filter(youtube_filter)
 
     for youtube in youtubes:
 
