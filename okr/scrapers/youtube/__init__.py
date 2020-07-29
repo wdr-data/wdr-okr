@@ -28,7 +28,7 @@ def scrape_analytics(interval, *, start_date=None, youtube_filter=None):
     for youtube in youtubes:
 
         df = quintly.get_youtube_analytics(
-            youtube.quintly_profile_id, interval=interval
+            youtube.quintly_profile_id, interval=interval, start_date=start_date
         )
 
         for index, row in df.iterrows():
