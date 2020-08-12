@@ -1,7 +1,9 @@
 from datetime import date, datetime
+from time import sleep
 from pytz import timezone
 
 from django.db.utils import IntegrityError
+from django.db.models import Q
 
 from ...models.insta import *
 from ..common import quintly
@@ -10,27 +12,45 @@ from ..common import quintly
 berlin = timezone("Europe/Berlin")
 
 
-def scrape_insights(interval, *, start_date=None):
-    for insta in Insta.objects.all():
+def scrape_full(insta):
+    insta_filter = Q(id=insta.id)
+    start_date = date(2019, 1, 1)
 
+    sleep(1)
+
+    scrape_insights("daily", start_date=start_date, insta_filter=insta_filter)
+    scrape_insights("weekly", start_date=start_date, insta_filter=insta_filter)
+    scrape_insights("monthly", start_date=start_date, insta_filter=insta_filter)
+
+    scrape_stories(start_date=start_date, insta_filter=insta_filter)
+    scrape_posts(start_date=start_date, insta_filter=insta_filter)
+
+
+def scrape_insights(interval, *, start_date=None, insta_filter=None):
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
         df = quintly.get_insta_insights(
             insta.quintly_profile_id, interval=interval, start_date=start_date,
         )
 
         for index, row in df.iterrows():
             defaults = {
-                "reach": row.reach,
-                "impressions": row.impressions,
-                "followers": row.followers,
-                "followers_change": row.followersChange,
-                "posts_change": row.postsChange,
+                "reach": row.reach or 0,
+                "impressions": row.impressions or 0,
+                "followers": row.followers or 0,
+                "followers_change": row.followersChange or 0,
+                "posts_change": row.postsChange or 0,
             }
 
             if interval == "daily":
                 defaults.update(
                     {
-                        "text_message_clicks_day": row.textMessageClicksDay,
-                        "email_contacts_day": row.emailContactsDay,
+                        "text_message_clicks_day": row.textMessageClicksDay or 0,
+                        "email_contacts_day": row.emailContactsDay or 0,
                     }
                 )
 
@@ -49,20 +69,25 @@ def scrape_insights(interval, *, start_date=None):
                 )
 
 
-def scrape_stories(*, start_date=None):
-    for insta in Insta.objects.all():
+def scrape_stories(*, start_date=None, insta_filter=None):
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
         df = quintly.get_insta_stories(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
             defaults = {
                 "created_at": berlin.localize(datetime.fromisoformat(row.time)),
                 "caption": row.caption,
-                "reach": row.reach,
-                "impressions": row.impressions,
-                "replies": row.replies,
+                "reach": row.reach or 0,
+                "impressions": row.impressions or 0,
+                "replies": row.replies or 0,
                 "story_type": row.type,
                 "link": row.link,
-                "exits": row.exits,
+                "exits": row.exits or 0,
             }
 
             try:
@@ -77,19 +102,24 @@ def scrape_stories(*, start_date=None):
                 )
 
 
-def scrape_posts(*, start_date=None):
-    for insta in Insta.objects.all():
+def scrape_posts(*, start_date=None, insta_filter=None):
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
         df = quintly.get_insta_posts(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
             defaults = {
                 "created_at": berlin.localize(datetime.fromisoformat(row.time)),
                 "message": row.message,
-                "comments": row.comments,
-                "reach": row.reach,
-                "impressions": row.impressions,
+                "comments": row.comments or 0,
+                "reach": row.reach or 0,
+                "impressions": row.impressions or 0,
                 "post_type": row.type,
-                "likes": row.likes,
+                "likes": row.likes or 0,
                 "link": row.link,
             }
 

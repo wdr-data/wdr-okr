@@ -26,7 +26,11 @@ def make_connection_meta():
         class PodcastMediaUrl(Base):
             __tablename__ = "podcast_murl"
             podcast_url_collection = relationship(
-                "PodcastUrl", backref="podcast_murl", viewonly=True, sync_backref=False
+                "PodcastUrl",
+                backref="podcast_murl",
+                viewonly=True,
+                sync_backref=False,
+                lazy="joined",
             )
 
         class PodcastUrl(Base):
