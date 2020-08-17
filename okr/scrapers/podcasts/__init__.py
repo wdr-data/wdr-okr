@@ -145,25 +145,39 @@ def scrape_spotify(*, start_date=None, podcast_filter=None):
 
                 # Scrape stream stats for episode
                 Stream = connection_meta.classes.Stream
+                dates = set()
                 for (
                     stream_data
                 ) in spotify_episode.episode_data_streams_collection.filter(
                     Stream.datum >= start_date
                 ):
+                    if stream_data.datum in dates:
+                        print("Multiple spotify stream stats for", stream_data.datum)
+                        continue
+
                     spotify_objects.append(
                         _scrape_episode_data_spotify(podcast_episode, stream_data)
                     )
 
+                    dates.add(stream_data.datum)
+
                 # Scrape user stats for episode
                 Additional = connection_meta.classes.Additional
+                dates = set()
                 for (
                     user_data
                 ) in spotify_episode.episode_data_additional_collection.filter(
                     Additional.datum >= start_date
                 ):
+                    if stream_data.datum in dates:
+                        print("Multiple spotify user stats for", stream_data.datum)
+                        continue
+
                     spotify_user_objects.append(
                         _scrape_episode_data_spotify_user(podcast_episode, user_data)
                     )
+
+                    dates.add(stream_data.datum)
 
             if spotify_objects:
                 result_spotify = bulk_sync(
