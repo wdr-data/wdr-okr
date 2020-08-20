@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 from time import sleep
 import pytz
+import gc
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
@@ -89,8 +90,8 @@ def scrape_spotify(*, start_date=None, podcast_filter=None):
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
 
-    with spotify.make_connection_meta() as connection_meta:
-        for podcast in podcasts:
+    for podcast in podcasts:
+        with spotify.make_connection_meta() as connection_meta:
             print("Scraping spotify for", podcast)
             spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
 
@@ -199,6 +200,8 @@ def scrape_spotify(*, start_date=None, podcast_filter=None):
                 )
                 print("Spotify user bulk objects:", result_spotify_user)
 
+        gc.collect()
+
 
 def _scrape_episode_data_spotify(podcast_episode, stream_data):
     if stream_data.datum is None:
@@ -262,8 +265,8 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
 
-    with podstat.make_connection_meta() as connection_meta:
-        for podcast in podcasts:
+    for podcast in podcasts:
+        with podstat.make_connection_meta() as connection_meta:
             print("Scraping podstat for", podcast)
 
             ondemand_objects = []
@@ -345,6 +348,8 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
                 print(
                     "Download bulk sync results for podcast", podcast, result_download,
                 )
+
+        gc.collect()
 
 
 def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
