@@ -93,7 +93,11 @@ def scrape_spotify(*, start_date=None, podcast_filter=None):
     for podcast in podcasts:
         with spotify.make_connection_meta() as connection_meta:
             print("Scraping spotify for", podcast)
-            spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
+            try:
+                spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
+            except IndexError:
+                print("No Spotify data for", podcast)
+                continue
 
             spotify_followers_objects = []
             spotify_objects = []
