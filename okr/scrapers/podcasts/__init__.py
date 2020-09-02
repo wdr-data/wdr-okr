@@ -83,7 +83,7 @@ def scrape_feed(*, podcast_filter=None):
 def scrape_spotify(*, start_date=None, podcast_filter=None):
 
     if start_date is None:
-        start_date = date.today() - timedelta(days=31)
+        start_date = date.today() - timedelta(days=20)
 
     podcasts = Podcast.objects.all()
 
@@ -258,7 +258,7 @@ def _scrape_podcast_data_spotify_followers(podcast, follower_data):
 def scrape_podstat(*, start_date=None, podcast_filter=None):
 
     if start_date is None:
-        start_date = date.today() - timedelta(days=31)
+        start_date = date.today() - timedelta(days=20)
 
     start_time = int(
         datetime(start_date.year, start_date.month, start_date.day).timestamp()
