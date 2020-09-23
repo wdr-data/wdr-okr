@@ -289,7 +289,16 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
                 download_objects_episode = []
 
                 for variant in podstat_episode_variants:
-                    variant_type = variant.podcast_murl.hinweis
+                    if variant.podcast_murl is None:
+                        print(
+                            "No murl found for podcast_url",
+                            variant.urlid,
+                            "with url",
+                            variant.url,
+                        )
+                        continue
+                    else:
+                        variant_type = variant.podcast_murl.hinweis
 
                     PodcastCount = connection_meta.classes.PodcastCount
                     for podcast_ucount in variant.podcast_ucount_tag_collection.filter(
