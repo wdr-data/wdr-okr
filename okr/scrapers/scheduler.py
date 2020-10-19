@@ -1,8 +1,10 @@
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.events import EVENT_JOB_ERROR
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from pytz import timezone
+from sentry_sdk import capture_exception
 
 from ..models import Podcast, Insta, YouTube
 from . import insta, youtube, podcasts
@@ -13,6 +15,11 @@ berlin = timezone("Europe/Berlin")
 scheduler = None
 
 
+def sentry_listener(event):
+    if event.exception:
+        capture_exception(event.exception)
+
+
 def start():
     global scheduler
     scheduler = BackgroundScheduler(timezone=berlin)
@@ -20,6 +27,8 @@ def start():
 
     if settings.DEBUG:
         return
+
+    scheduler.add_listener(sentry_listener, EVENT_JOB_ERROR)
 
     # Instagram
     scheduler.add_job(

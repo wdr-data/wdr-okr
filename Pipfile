@@ -23,6 +23,7 @@ mysqlclient = "*"
 feedparser = "*"
 apscheduler = "*"
 django-bulk-sync = "*"
+sentry-sdk = "*"
 
 [requires]
 python_version = "3.8"

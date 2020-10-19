@@ -18,8 +18,15 @@ from django.urls import include, path
 from django.conf.urls import url
 from django.views.generic.base import RedirectView
 
+
+def trigger_error(request):
+    local_var = "foobar"
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("okr/", include("okr.urls")),
     url(r"^$", RedirectView.as_view(url="/admin")),
+    path("sentry-debug/", trigger_error),
 ]
