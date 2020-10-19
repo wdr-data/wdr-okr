@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.urls import path
+from sentry_sdk import capture_exception
 
 
 class UploadFileForm(forms.Form):
@@ -49,7 +50,8 @@ class UploadFileMixin:
 
             try:
                 self.process_uploaded_file(request, uploaded_file)
-            except:
+            except Exception as e:
+                capture_exception(e)
                 logging.exception("Processing file upload failed")
                 self.message_user(
                     request,

@@ -3,6 +3,7 @@ from time import sleep
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
+from sentry_sdk import capture_exception
 
 from ...models.youtube import *
 from ..common import quintly
@@ -47,7 +48,8 @@ def scrape_analytics(interval, *, start_date=None, youtube_filter=None):
                     interval=interval,
                     defaults=defaults,
                 )
-            except IntegrityError:
+            except IntegrityError as e:
+                capture_exception(e)
                 print(
                     f"Data for analytics with interval {interval} at {row.time} failed integrity check:",
                     defaults,

@@ -4,6 +4,7 @@ from pytz import timezone
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
+from sentry_sdk import capture_exception
 
 from ...models.insta import *
 from ..common import quintly
@@ -61,7 +62,8 @@ def scrape_insights(interval, *, start_date=None, insta_filter=None):
                     interval=interval,
                     defaults=defaults,
                 )
-            except IntegrityError:
+            except IntegrityError as e:
+                capture_exception(e)
                 print(
                     f"Data for {interval} insight for date {row.time} failed integrity check:",
                     defaults,
@@ -94,7 +96,8 @@ def scrape_stories(*, start_date=None, insta_filter=None):
                 obj, created = InstaStory.objects.update_or_create(
                     insta=insta, external_id=row.externalId, defaults=defaults,
                 )
-            except IntegrityError:
+            except IntegrityError as e:
+                capture_exception(e)
                 print(
                     f"Data for story with ID {row.externalId} failed integrity check:",
                     defaults,
@@ -127,7 +130,8 @@ def scrape_posts(*, start_date=None, insta_filter=None):
                 obj, created = InstaPost.objects.update_or_create(
                     insta=insta, external_id=row.externalId, defaults=defaults,
                 )
-            except IntegrityError:
+            except IntegrityError as e:
+                capture_exception(e)
                 print(
                     f"Data for post with ID {row.externalId} failed integrity check:",
                     defaults,
