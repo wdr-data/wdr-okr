@@ -16,7 +16,7 @@ django-tz-detect = "*"
 gunicorn = "*"
 whitenoise = "*"
 psycopg2-binary = "*"
-analytics-data = "*"
+analytics-data = {file = "./wheels/analytics_data-0.7.0-py2.py3-none-any.whl"}
 pandas = "*"
 pytz = "*"
 sqlalchemy = "*"
