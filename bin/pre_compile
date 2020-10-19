@@ -1,3 +1,4 @@
 wget https://bootstrap.pypa.io/get-pip.py
 python ./get-pip.py
+export PATH=/app/.local/bin:$PATH
 pip install -U pipenv
