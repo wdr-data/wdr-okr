@@ -1,8 +1,0 @@
-# Replace target pipenv version
-#sed 's/2018.5.18/2020.8.13/g' /buildpack/bin/steps/pipenv > /buildpack/bin/steps/pipenv
-
-# Replace check for Pipfile to prevent installation of ancient pip version
-#sed 's/\[\[ -f "\$BUILD_DIR\/Pipfile" ]]/false/g' /buildpack/bin/steps/python > /buildpack/bin/steps/python
-
-ls -al /
-tree -a /app
