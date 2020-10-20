@@ -4,6 +4,7 @@ from .base import Quintly
 
 class Insta(Quintly):
     class Meta:
+        db_table = "instagram"
         verbose_name = "Instagram-Account"
         verbose_name_plural = "Instagram-Accounts"
         ordering = Quintly.Meta.ordering
@@ -11,6 +12,7 @@ class Insta(Quintly):
 
 class InstaInsight(models.Model):
     class Meta:
+        db_table = "instagram_insights"
         verbose_name = "Instagram-Insight"
         verbose_name_plural = "Instagram-Insights"
         unique_together = ("insta", "date", "interval")
@@ -49,6 +51,7 @@ class InstaInsight(models.Model):
 
 class InstaPost(models.Model):
     class Meta:
+        db_table = "instagram_post"
         verbose_name = "Instagram-Post"
         verbose_name_plural = "Instagram-Posts"
         ordering = ["-created_at"]
@@ -77,6 +80,7 @@ class InstaPost(models.Model):
 
 class InstaStory(models.Model):
     class Meta:
+        db_table = "instagram_story"
         verbose_name = "Instagram-Story"
         verbose_name_plural = "Instagram-Stories"
         ordering = ["-created_at"]
@@ -105,6 +109,7 @@ class InstaStory(models.Model):
 
 class InstaCollaborationType(models.Model):
     class Meta:
+        db_table = "instagram_collaboration_type"
         verbose_name = "Instagram-Collaboration Format"
         verbose_name_plural = "Instagram-Collaboration Formate"
         ordering = ["name"]
@@ -117,6 +122,7 @@ class InstaCollaborationType(models.Model):
 
 class InstaCollaboration(models.Model):
     class Meta:
+        db_table = "instagram_collaboration"
         verbose_name = "Instagram-Collaboration"
         verbose_name_plural = "Instagram-Collaborations"
         ordering = ["-date"]

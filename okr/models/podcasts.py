@@ -5,6 +5,7 @@ from .base import Product
 
 class Podcast(Product):
     class Meta:
+        db_table = "podcast"
         verbose_name = "Podcast"
         verbose_name_plural = "Podcasts"
         ordering = Product.Meta.ordering
@@ -19,6 +20,7 @@ class Podcast(Product):
 
 class PodcastDataSpotifyFollowers(models.Model):
     class Meta:
+        db_table= "podcast_data_spotify_followers"
         verbose_name = "Podcast-Spotify-Follower"
         verbose_name_plural = "Podcast-Spotify-Follower"
         ordering = ["-date", "podcast"]
@@ -41,6 +43,7 @@ class PodcastDataSpotifyFollowers(models.Model):
 
 class PodcastEpisode(models.Model):
     class Meta:
+        db_table = "podcast_episode"
         verbose_name = "Podcast-Episode"
         verbose_name_plural = "Podcast-Episoden"
         ordering = ["-publication_date_time"]
@@ -69,6 +72,7 @@ class PodcastEpisode(models.Model):
 
 class PodcastEpisodeDataSpotify(models.Model):
     class Meta:
+        db_table = "podcast_episode_data_spotify"
         verbose_name = "Podcast-Episoden-Abruf (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Abrufe (Spotify)"
         unique_together = ("date", "episode")
@@ -94,6 +98,7 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
     class Meta:
+        db_table = "podcast_episode_data_spotify_user"
         verbose_name = "Podcast-Episoden-Nutzer (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Nutzer (Spotify)"
         unique_together = ("date", "episode")
@@ -130,6 +135,7 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 class PodcastEpisodeDataPodstatDownload(models.Model):
     class Meta:
+        db_table="podcast_episode_data_podstat_download"
         verbose_name = "Podcast-Episoden-Downloads (Podstat)"
         verbose_name_plural = "Podcast-Episoden-Downloads (Podstat)"
         unique_together = ("date", "episode")
@@ -154,6 +160,7 @@ class PodcastEpisodeDataPodstatDownload(models.Model):
 
 class PodcastEpisodeDataPodstatOndemand(models.Model):
     class Meta:
+        db_table = "podcast_episode_data_podstat_ondemand"
         verbose_name = "Podcast-Episoden-Streams (Podstat)"
         verbose_name_plural = "Podcast-Episoden-Streams (Podstat)"
         unique_together = ("date", "episode")
@@ -178,6 +185,7 @@ class PodcastEpisodeDataPodstatOndemand(models.Model):
 
 class PodcastEpisodeDataSpotifyPerformance(models.Model):
     class Meta:
+        db_table = "podcast_episode_data_spotify_performance"
         verbose_name = "Podcast-Episoden-Performance (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Performance (Spotify)"
         unique_together = ("date", "episode")
