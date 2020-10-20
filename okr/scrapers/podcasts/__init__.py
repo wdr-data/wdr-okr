@@ -6,6 +6,7 @@ import gc
 from django.db.utils import IntegrityError
 from django.db.models import Q
 from bulk_sync import bulk_sync
+from sentry_sdk import capture_exception
 
 from . import feed
 from . import spotify
@@ -72,7 +73,8 @@ def scrape_feed(*, podcast_filter=None):
                 obj, created = PodcastEpisode.objects.update_or_create(
                     zmdb_id=zmdb_id, defaults=defaults,
                 )
-            except IntegrityError:
+            except IntegrityError as e:
+                capture_exception(e)
                 print(
                     f"Data for {entry.title} failed integrity check:",
                     defaults,
@@ -95,7 +97,8 @@ def scrape_spotify(*, start_date=None, podcast_filter=None):
             print("Scraping spotify for", podcast)
             try:
                 spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
-            except IndexError:
+            except IndexError as e:
+                capture_exception(e)
                 print("No Spotify data for", podcast)
                 continue
 
@@ -141,6 +144,7 @@ def scrape_spotify(*, start_date=None, podcast_filter=None):
                 try:
                     spotify_episode = spotify_episodes[podcast_episode.title]
                 except KeyError:
+                    # Not log to Sentry as the database lags behind a week
                     print(
                         "Could not find Spotify episode",
                         podcast_episode,
