@@ -20,7 +20,7 @@ class Podcast(Product):
 
 class PodcastDataSpotifyFollowers(models.Model):
     class Meta:
-        db_table= "podcast_data_spotify_followers"
+        db_table = "podcast_data_spotify_followers"
         verbose_name = "Podcast-Spotify-Follower"
         verbose_name_plural = "Podcast-Spotify-Follower"
         ordering = ["-date", "podcast"]
@@ -135,7 +135,7 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 class PodcastEpisodeDataPodstat(models.Model):
     class Meta:
-        db_table="podcast_episode_data_podstat"
+        db_table = "podcast_episode_data_podstat"
         verbose_name = "Podcast-Episoden-Abruf (Podstat)"
         verbose_name_plural = "Podcast-Episoden-Abrufe (Podstat)"
         unique_together = ("date", "episode")

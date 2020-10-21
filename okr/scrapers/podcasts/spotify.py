@@ -23,19 +23,25 @@ def make_connection_meta():
             __tablename__ = "episodes"
 
             episode_data_streams_collection = relationship(
-                "episode_data_streams", lazy="dynamic",
+                "episode_data_streams",
+                lazy="dynamic",
             )
 
             episode_data_additional_collection = relationship(
-                "episode_data_additional", lazy="dynamic",
+                "episode_data_additional",
+                lazy="dynamic",
             )
 
         class Podcast(Base):
             __tablename__ = "podcasts"
 
-            episodes_collection = relationship("Episode", lazy="dynamic",)
+            episodes_collection = relationship(
+                "Episode",
+                lazy="dynamic",
+            )
             podcasts_follower_collection = relationship(
-                "podcasts_follower", lazy="dynamic",
+                "podcasts_follower",
+                lazy="dynamic",
             )
 
     Base.prepare(engine, reflect=True)

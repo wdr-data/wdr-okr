@@ -7,92 +7,92 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('okr', '0017_auto_20200724_1329'),
+        ("okr", "0017_auto_20200724_1329"),
     ]
 
     operations = [
         migrations.AlterModelTable(
-            name='insta',
-            table='instagram',
+            name="insta",
+            table="instagram",
         ),
         migrations.AlterModelTable(
-            name='instacollaboration',
-            table='instagram_collaboration',
+            name="instacollaboration",
+            table="instagram_collaboration",
         ),
         migrations.AlterModelTable(
-            name='instacollaborationtype',
-            table='instagram_collaboration_type',
+            name="instacollaborationtype",
+            table="instagram_collaboration_type",
         ),
         migrations.AlterModelTable(
-            name='instainsight',
-            table='instagram_insights',
+            name="instainsight",
+            table="instagram_insights",
         ),
         migrations.AlterModelTable(
-            name='instapost',
-            table='instagram_post',
+            name="instapost",
+            table="instagram_post",
         ),
         migrations.AlterModelTable(
-            name='instastory',
-            table='instagram_story',
+            name="instastory",
+            table="instagram_story",
         ),
         migrations.AlterModelTable(
-            name='podcast',
-            table='podcast',
+            name="podcast",
+            table="podcast",
         ),
         migrations.AlterModelTable(
-            name='podcastdataspotifyfollowers',
-            table='podcast_data_spotify_followers',
+            name="podcastdataspotifyfollowers",
+            table="podcast_data_spotify_followers",
         ),
         migrations.AlterModelTable(
-            name='podcastepisode',
-            table='podcast_episode',
+            name="podcastepisode",
+            table="podcast_episode",
         ),
         migrations.AlterModelTable(
-            name='podcastepisodedatapodstatdownload',
-            table='podcast_episode_data_podstat_download',
+            name="podcastepisodedatapodstatdownload",
+            table="podcast_episode_data_podstat_download",
         ),
         migrations.AlterModelTable(
-            name='podcastepisodedatapodstatondemand',
-            table='podcast_episode_data_podstat_ondemand',
+            name="podcastepisodedatapodstatondemand",
+            table="podcast_episode_data_podstat_ondemand",
         ),
         migrations.AlterModelTable(
-            name='podcastepisodedataspotify',
-            table='podcast_episode_data_spotify',
+            name="podcastepisodedataspotify",
+            table="podcast_episode_data_spotify",
         ),
         migrations.AlterModelTable(
-            name='podcastepisodedataspotifyperformance',
-            table='podcast_episode_data_spotify_performance',
+            name="podcastepisodedataspotifyperformance",
+            table="podcast_episode_data_spotify_performance",
         ),
         migrations.AlterModelTable(
-            name='podcastepisodedataspotifyuser',
-            table='podcast_episode_data_spotify_user',
+            name="podcastepisodedataspotifyuser",
+            table="podcast_episode_data_spotify_user",
         ),
         migrations.AlterModelTable(
-            name='youtube',
-            table='youtube',
+            name="youtube",
+            table="youtube",
         ),
         migrations.AlterModelTable(
-            name='youtubeagerangeaverageviewduration',
-            table='youtube_age_range_average_view_duration',
+            name="youtubeagerangeaverageviewduration",
+            table="youtube_age_range_average_view_duration",
         ),
         migrations.AlterModelTable(
-            name='youtubeagerangeaverageviewpercentage',
-            table='youtube_age_range_average_view_percentage',
+            name="youtubeagerangeaverageviewpercentage",
+            table="youtube_age_range_average_view_percentage",
         ),
         migrations.AlterModelTable(
-            name='youtubeagerangeviewspercentage',
-            table='youtube_age_range_views_percentage',
+            name="youtubeagerangeviewspercentage",
+            table="youtube_age_range_views_percentage",
         ),
         migrations.AlterModelTable(
-            name='youtubeagerangewatchtimepercentage',
-            table='youtube_age_range_watch_time_percentage',
+            name="youtubeagerangewatchtimepercentage",
+            table="youtube_age_range_watch_time_percentage",
         ),
         migrations.AlterModelTable(
-            name='youtubeanalytics',
-            table='youtube_analytics',
+            name="youtubeanalytics",
+            table="youtube_analytics",
         ),
         migrations.AlterModelTable(
-            name='youtubetrafficsource',
-            table='youtube_traffic_source',
+            name="youtubetrafficsource",
+            table="youtube_traffic_source",
         ),
     ]

@@ -48,7 +48,9 @@ class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
 
         if not request.POST["youtube"]:
             self.message_user(
-                request, "Bitte einen YouTube-Account auswählen", level=messages.ERROR,
+                request,
+                "Bitte einen YouTube-Account auswählen",
+                level=messages.ERROR,
             )
             return
 
@@ -99,7 +101,9 @@ class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
 
         for time, defaults in merged.items():
             obj, created = YouTubeTrafficSource.objects.update_or_create(
-                youtube=youtube, date=time, defaults=defaults,
+                youtube=youtube,
+                date=time,
+                defaults=defaults,
             )
 
         self.message_user(request, "Datei wurde erfolgreich eingelesen!")
@@ -174,7 +178,9 @@ class ViewerAgeRangeBaseAdmin(UploadFileMixin, admin.ModelAdmin):
 
         if not request.POST["youtube"]:
             self.message_user(
-                request, "Bitte einen YouTube-Account auswählen", level=messages.ERROR,
+                request,
+                "Bitte einen YouTube-Account auswählen",
+                level=messages.ERROR,
             )
             return
 
@@ -214,7 +220,10 @@ class ViewerAgeRangeBaseAdmin(UploadFileMixin, admin.ModelAdmin):
                 }
 
             obj, created = model_for_type[index].objects.update_or_create(
-                youtube=youtube, date=start_date, interval=interval, defaults=defaults,
+                youtube=youtube,
+                date=start_date,
+                interval=interval,
+                defaults=defaults,
             )
 
         self.message_user(request, "Datei wurde erfolgreich eingelesen!")

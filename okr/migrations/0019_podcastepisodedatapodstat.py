@@ -32,7 +32,7 @@ def migrate_podstat(apps, schema_editor):
                 episode=entry.episode,
                 date=entry.date,
             )
-            obj.ondemand=entry.nv
+            obj.ondemand = entry.nv
         except PodcastEpisodeDataPodstat.DoesNotExist:
             obj = PodcastEpisodeDataPodstat(
                 episode=entry.episode,
@@ -92,6 +92,10 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RunPython(migrate_podstat),
-        migrations.DeleteModel(name="PodcastEpisodeDataPodstatDownload",),
-        migrations.DeleteModel(name="PodcastEpisodeDataPodstatOndemand",),
+        migrations.DeleteModel(
+            name="PodcastEpisodeDataPodstatDownload",
+        ),
+        migrations.DeleteModel(
+            name="PodcastEpisodeDataPodstatOndemand",
+        ),
     ]
