@@ -133,11 +133,11 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
         return f"{self.episode.title} ({self.date})"
 
 
-class PodcastEpisodeDataPodstatDownload(models.Model):
+class PodcastEpisodeDataPodstat(models.Model):
     class Meta:
-        db_table="podcast_episode_data_podstat_download"
-        verbose_name = "Podcast-Episoden-Downloads (Podstat)"
-        verbose_name_plural = "Podcast-Episoden-Downloads (Podstat)"
+        db_table="podcast_episode_data_podstat"
+        verbose_name = "Podcast-Episoden-Abruf (Podstat)"
+        verbose_name_plural = "Podcast-Episoden-Abrufe (Podstat)"
         unique_together = ("date", "episode")
         ordering = ["-date", "episode"]
 
@@ -146,36 +146,11 @@ class PodcastEpisodeDataPodstatDownload(models.Model):
         verbose_name="Episode",
         to=PodcastEpisode,
         on_delete=models.CASCADE,
-        related_name="data_podstat_download",
-        related_query_name="data_podstat_download",
+        related_name="data_podstat",
+        related_query_name="data_podstat",
     )
-    nv = models.IntegerField(verbose_name="Nutzungsvorgang")
-    nv10 = models.IntegerField(verbose_name="Nutzungsvorgang über 10 Sec.")
-
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
-
-    def __str__(self):
-        return f"{self.episode.title} ({self.date})"
-
-
-class PodcastEpisodeDataPodstatOndemand(models.Model):
-    class Meta:
-        db_table = "podcast_episode_data_podstat_ondemand"
-        verbose_name = "Podcast-Episoden-Streams (Podstat)"
-        verbose_name_plural = "Podcast-Episoden-Streams (Podstat)"
-        unique_together = ("date", "episode")
-        ordering = ["-date", "episode"]
-
-    date = models.DateField(verbose_name="Datum")
-    episode = models.ForeignKey(
-        verbose_name="Episode",
-        to=PodcastEpisode,
-        on_delete=models.CASCADE,
-        related_name="data_podstat_ondemand",
-        related_query_name="data_podstat_ondemand",
-    )
-    nv = models.IntegerField(verbose_name="Nutzungsvorgang")
-    nv10 = models.IntegerField(verbose_name="Nutzungsvorgang über 10 Sec.")
+    downloads = models.IntegerField(verbose_name="Downloads")
+    ondemand = models.IntegerField(verbose_name="OnDemand")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
