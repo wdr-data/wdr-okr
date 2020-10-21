@@ -15,10 +15,9 @@ from ...models import (
     Podcast,
     PodcastEpisode,
     PodcastEpisodeDataSpotify,
+    PodcastEpisodeDataPodstat,
     PodcastEpisodeDataSpotifyUser,
     PodcastDataSpotifyFollowers,
-    PodcastEpisodeDataPodstatOndemand,
-    PodcastEpisodeDataPodstatDownload,
 )
 
 berlin = pytz.timezone("Europe/Berlin")
@@ -277,8 +276,7 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
         with podstat.make_connection_meta() as connection_meta:
             print("Scraping podstat for", podcast)
 
-            ondemand_objects = []
-            download_objects = []
+            podstat_objects = []
 
             for podcast_episode in podcast.episodes.all():
                 print("Scraping podstat episode data for", podcast_episode)
@@ -321,49 +319,28 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
                                 )
                             )
 
+                objects_episode = ondemand_objects_episode + download_objects_episode
                 # Deduplicate records in case of renaming etc.
-                if ondemand_objects_episode:
-                    ondemand_objects_episode = _aggregate_episode_data(
-                        ondemand_objects_episode
+                if objects_episode:
+                    objects_episode = _aggregate_episode_data(
+                        objects_episode
                     )
                     print(
                         "Found",
                         len(ondemand_objects_episode),
                         "unique ondemand datapoints",
                     )
-                    ondemand_objects.extend(ondemand_objects_episode)
+                    podstat_objects.extend(objects_episode)
 
-                if download_objects_episode:
-                    download_objects_episode = _aggregate_episode_data(
-                        download_objects_episode
-                    )
-                    print(
-                        "Found",
-                        len(download_objects_episode),
-                        "unique download datapoints",
-                    )
-                    download_objects.extend(download_objects_episode)
-
-            if ondemand_objects:
-                result_ondemand = bulk_sync(
-                    new_models=ondemand_objects,
+            if podstat_objects:
+                result_podstat = bulk_sync(
+                    new_models=podstat_objects,
                     key_fields=["date", "episode"],
                     skip_deletes=True,
                     filters=None,
                 )
                 print(
-                    "Ondemand bulk sync results for podcast", podcast, result_ondemand,
-                )
-
-            if download_objects:
-                result_download = bulk_sync(
-                    new_models=download_objects,
-                    key_fields=["date", "episode"],
-                    skip_deletes=True,
-                    filters=None,
-                )
-                print(
-                    "Download bulk sync results for podcast", podcast, result_download,
+                    "Podstat bulk sync results for podcast", podcast, result_podstat,
                 )
 
         gc.collect()
@@ -372,35 +349,40 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
 def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
     ucount_date = datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
 
-    return PodcastEpisodeDataPodstatOndemand(
-        episode=podcast_episode,
-        date=ucount_date,
-        nv=podcast_ucount.nv,
-        nv10=podcast_ucount.nv10,
-    )
+    return {
+        'episode': podcast_episode,
+        'date': ucount_date,
+        'ondemand': podcast_ucount.nv,
+        'downloads': 0,
+    }
 
 
 def _scrape_episode_data_podstat_download(podcast_episode, podcast_ucount):
     ucount_date = datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
 
-    return PodcastEpisodeDataPodstatDownload(
-        episode=podcast_episode,
-        date=ucount_date,
-        nv=podcast_ucount.nv,
-        nv10=podcast_ucount.nv10,
-    )
+    return {
+        'episode': podcast_episode,
+        'date': ucount_date,
+        'downloads': podcast_ucount.nv,
+        'ondemand': 0,
+    }
 
 
 def _aggregate_episode_data(data_objects):
     cache = {}
 
     for obj in data_objects:
-        if obj.date in cache:
-            print("Aggregating values for", obj.date)
-            existing = cache[obj.date]
-            existing.nv += obj.nv
-            existing.nv10 += obj.nv10
+        podstat_obj = PodcastEpisodeDataPodstat(
+            episode = obj['episode'],
+            date = obj['date'],
+            downloads = obj['downloads'],
+            ondemand = obj['ondemand']
+        )
+        if podstat_obj.date in cache:
+            existing = cache[podstat_obj.date]
+            existing.downloads += podstat_obj.downloads
+            existing.ondemand += podstat_obj.ondemand
         else:
-            cache[obj.date] = obj
+            cache[podstat_obj.date] = podstat_obj
 
     return list(cache.values())

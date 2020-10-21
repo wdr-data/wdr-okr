@@ -5,6 +5,7 @@ from .base import Product
 
 class Podcast(Product):
     class Meta:
+        db_table = "podcast"
         verbose_name = "Podcast"
         verbose_name_plural = "Podcasts"
         ordering = Product.Meta.ordering
@@ -19,6 +20,7 @@ class Podcast(Product):
 
 class PodcastDataSpotifyFollowers(models.Model):
     class Meta:
+        db_table= "podcast_data_spotify_followers"
         verbose_name = "Podcast-Spotify-Follower"
         verbose_name_plural = "Podcast-Spotify-Follower"
         ordering = ["-date", "podcast"]
@@ -41,6 +43,7 @@ class PodcastDataSpotifyFollowers(models.Model):
 
 class PodcastEpisode(models.Model):
     class Meta:
+        db_table = "podcast_episode"
         verbose_name = "Podcast-Episode"
         verbose_name_plural = "Podcast-Episoden"
         ordering = ["-publication_date_time"]
@@ -69,6 +72,7 @@ class PodcastEpisode(models.Model):
 
 class PodcastEpisodeDataSpotify(models.Model):
     class Meta:
+        db_table = "podcast_episode_data_spotify"
         verbose_name = "Podcast-Episoden-Abruf (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Abrufe (Spotify)"
         unique_together = ("date", "episode")
@@ -94,6 +98,7 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
     class Meta:
+        db_table = "podcast_episode_data_spotify_user"
         verbose_name = "Podcast-Episoden-Nutzer (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Nutzer (Spotify)"
         unique_together = ("date", "episode")
@@ -128,10 +133,11 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
         return f"{self.episode.title} ({self.date})"
 
 
-class PodcastEpisodeDataPodstatDownload(models.Model):
+class PodcastEpisodeDataPodstat(models.Model):
     class Meta:
-        verbose_name = "Podcast-Episoden-Downloads (Podstat)"
-        verbose_name_plural = "Podcast-Episoden-Downloads (Podstat)"
+        db_table="podcast_episode_data_podstat"
+        verbose_name = "Podcast-Episoden-Abruf (Podstat)"
+        verbose_name_plural = "Podcast-Episoden-Abrufe (Podstat)"
         unique_together = ("date", "episode")
         ordering = ["-date", "episode"]
 
@@ -140,35 +146,11 @@ class PodcastEpisodeDataPodstatDownload(models.Model):
         verbose_name="Episode",
         to=PodcastEpisode,
         on_delete=models.CASCADE,
-        related_name="data_podstat_download",
-        related_query_name="data_podstat_download",
+        related_name="data_podstat",
+        related_query_name="data_podstat",
     )
-    nv = models.IntegerField(verbose_name="Nutzungsvorgang")
-    nv10 = models.IntegerField(verbose_name="Nutzungsvorgang über 10 Sec.")
-
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
-
-    def __str__(self):
-        return f"{self.episode.title} ({self.date})"
-
-
-class PodcastEpisodeDataPodstatOndemand(models.Model):
-    class Meta:
-        verbose_name = "Podcast-Episoden-Streams (Podstat)"
-        verbose_name_plural = "Podcast-Episoden-Streams (Podstat)"
-        unique_together = ("date", "episode")
-        ordering = ["-date", "episode"]
-
-    date = models.DateField(verbose_name="Datum")
-    episode = models.ForeignKey(
-        verbose_name="Episode",
-        to=PodcastEpisode,
-        on_delete=models.CASCADE,
-        related_name="data_podstat_ondemand",
-        related_query_name="data_podstat_ondemand",
-    )
-    nv = models.IntegerField(verbose_name="Nutzungsvorgang")
-    nv10 = models.IntegerField(verbose_name="Nutzungsvorgang über 10 Sec.")
+    downloads = models.IntegerField(verbose_name="Downloads")
+    ondemand = models.IntegerField(verbose_name="OnDemand")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
@@ -178,6 +160,7 @@ class PodcastEpisodeDataPodstatOndemand(models.Model):
 
 class PodcastEpisodeDataSpotifyPerformance(models.Model):
     class Meta:
+        db_table = "podcast_episode_data_spotify_performance"
         verbose_name = "Podcast-Episoden-Performance (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Performance (Spotify)"
         unique_together = ("date", "episode")
