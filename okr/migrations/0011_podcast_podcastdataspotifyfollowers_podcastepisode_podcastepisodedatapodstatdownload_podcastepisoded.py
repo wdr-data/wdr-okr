@@ -29,7 +29,10 @@ class Migration(migrations.Migration):
                 ("image", models.URLField(max_length=1024, verbose_name="Bild")),
                 ("description", models.TextField(verbose_name="Beschreibung")),
             ],
-            options={"verbose_name": "Podcast", "verbose_name_plural": "Podcasts",},
+            options={
+                "verbose_name": "Podcast",
+                "verbose_name_plural": "Podcasts",
+            },
         ),
         migrations.CreateModel(
             name="PodcastEpisode",

@@ -382,7 +382,13 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RunPython(migrate_age_ranges),
-        migrations.DeleteModel(name="YouTubeAgeRangeDuration",),
-        migrations.DeleteModel(name="YouTubeAgeRangePercentage",),
-        migrations.DeleteModel(name="YouTubeViewerAge",),
+        migrations.DeleteModel(
+            name="YouTubeAgeRangeDuration",
+        ),
+        migrations.DeleteModel(
+            name="YouTubeAgeRangePercentage",
+        ),
+        migrations.DeleteModel(
+            name="YouTubeViewerAge",
+        ),
     ]

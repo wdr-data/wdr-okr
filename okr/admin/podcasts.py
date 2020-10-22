@@ -13,8 +13,7 @@ from ..models import (
     PodcastEpisodeDataSpotifyUser,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataSpotify,
-    PodcastEpisodeDataPodstatOndemand,
-    PodcastEpisodeDataPodstatDownload,
+    PodcastEpisodeDataPodstat,
 )
 from .base import ProductAdmin
 
@@ -100,24 +99,12 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
-class EpisodeDataPodstatDownloadAdmin(admin.ModelAdmin):
+class EpisodeDataPodstatAdmin(admin.ModelAdmin):
     list_display = [
         "episode",
         "date",
-        "nv",
-        "nv10",
-    ]
-    list_display_links = ["episode", "date"]
-    list_filter = []
-    date_hierarchy = "date"
-
-
-class EpisodeDataPodstatOndemandAdmin(admin.ModelAdmin):
-    list_display = [
-        "episode",
-        "date",
-        "nv",
-        "nv10",
+        "downloads",
+        "ondemand",
     ]
     list_display_links = ["episode", "date"]
     list_filter = []
@@ -132,5 +119,4 @@ admin.site.register(PodcastEpisodeDataSpotifyUser, EpisodeDataSpotifyUserAdmin)
 admin.site.register(
     PodcastEpisodeDataSpotifyPerformance, EpisodeDataSpotifyPerformanceAdmin
 )
-admin.site.register(PodcastEpisodeDataPodstatDownload, EpisodeDataPodstatDownloadAdmin)
-admin.site.register(PodcastEpisodeDataPodstatOndemand, EpisodeDataPodstatOndemandAdmin)
+admin.site.register(PodcastEpisodeDataPodstat, EpisodeDataPodstatAdmin)

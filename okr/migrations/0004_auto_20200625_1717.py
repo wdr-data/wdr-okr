@@ -56,6 +56,7 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(
-            name="youtubetrafficsource", unique_together={("youtube", "time")},
+            name="youtubetrafficsource",
+            unique_together={("youtube", "time")},
         ),
     ]

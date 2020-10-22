@@ -27,7 +27,9 @@ class UploadFileMixin:
     upload_form_class = UploadFileForm
 
     def get_urls(self):
-        return [path("upload-file/", self._upload_file),] + super().get_urls()
+        return [
+            path("upload-file/", self._upload_file),
+        ] + super().get_urls()
 
     def open_zip(self, zip_file):
         data_zip = ZipFile(zip_file)
@@ -44,7 +46,9 @@ class UploadFileMixin:
                 uploaded_file = request.FILES["uploaded_file"]
             except KeyError:
                 self.message_user(
-                    request, "Bitte eine Datei auswählen", level=messages.ERROR,
+                    request,
+                    "Bitte eine Datei auswählen",
+                    level=messages.ERROR,
                 )
                 return redirect(".")
 
@@ -64,7 +68,11 @@ class UploadFileMixin:
         form = self.upload_form_class()
 
         admin_form = helpers.AdminForm(
-            form, [(None, {"fields": form.fields})], {}, [], model_admin=self,
+            form,
+            [(None, {"fields": form.fields})],
+            {},
+            [],
+            model_admin=self,
         )
 
         opts = self.model._meta

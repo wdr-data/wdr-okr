@@ -14,6 +14,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="podcastepisode", old_name="duratation", new_name="duration",
+            model_name="podcastepisode",
+            old_name="duratation",
+            new_name="duration",
         ),
     ]

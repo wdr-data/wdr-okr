@@ -11,36 +11,54 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="instacollaboration", old_name="time", new_name="date",
+            model_name="instacollaboration",
+            old_name="time",
+            new_name="date",
         ),
         migrations.RenameField(
-            model_name="instainsight", old_name="time", new_name="date",
+            model_name="instainsight",
+            old_name="time",
+            new_name="date",
         ),
         migrations.RenameField(
-            model_name="instapost", old_name="time", new_name="created_at",
+            model_name="instapost",
+            old_name="time",
+            new_name="created_at",
         ),
         migrations.RenameField(
-            model_name="instastory", old_name="time", new_name="created_at",
+            model_name="instastory",
+            old_name="time",
+            new_name="created_at",
         ),
         migrations.RenameField(
-            model_name="youtubeanalytics", old_name="time", new_name="date",
+            model_name="youtubeanalytics",
+            old_name="time",
+            new_name="date",
         ),
         migrations.RenameField(
-            model_name="youtubetrafficsource", old_name="time", new_name="date",
+            model_name="youtubetrafficsource",
+            old_name="time",
+            new_name="date",
         ),
         migrations.RenameField(
-            model_name="youtubeviewerage", old_name="time", new_name="date",
+            model_name="youtubeviewerage",
+            old_name="time",
+            new_name="date",
         ),
         migrations.AlterUniqueTogether(
-            name="instainsight", unique_together={("insta", "date", "interval")},
+            name="instainsight",
+            unique_together={("insta", "date", "interval")},
         ),
         migrations.AlterUniqueTogether(
-            name="youtubeanalytics", unique_together={("youtube", "date", "interval")},
+            name="youtubeanalytics",
+            unique_together={("youtube", "date", "interval")},
         ),
         migrations.AlterUniqueTogether(
-            name="youtubetrafficsource", unique_together={("youtube", "date")},
+            name="youtubetrafficsource",
+            unique_together={("youtube", "date")},
         ),
         migrations.AlterUniqueTogether(
-            name="youtubeviewerage", unique_together={("youtube", "date", "interval")},
+            name="youtubeviewerage",
+            unique_together={("youtube", "date", "interval")},
         ),
     ]
