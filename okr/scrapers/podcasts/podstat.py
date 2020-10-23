@@ -54,6 +54,8 @@ def make_connection_meta():
         yield ConnectionMeta(engine=engine, session=session, classes=classes)
     finally:
         session.close()
+        del session
+        del engine
 
 
 def get_episode(connection_meta, zmdb_id):

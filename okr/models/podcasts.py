@@ -15,26 +15,36 @@ class Podcast(Product):
     image = models.URLField(max_length=1024, verbose_name="Bild")
     description = models.TextField(verbose_name="Beschreibung")
 
+    spotify_id = models.CharField(
+        max_length=32,
+        verbose_name="Spotify ID",
+        null=True,
+    )
+
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
 
-class PodcastDataSpotifyFollowers(models.Model):
+class PodcastDataSpotify(models.Model):
     class Meta:
-        db_table = "podcast_data_spotify_followers"
-        verbose_name = "Podcast-Spotify-Follower"
-        verbose_name_plural = "Podcast-Spotify-Follower"
+        db_table = "podcast_data_spotify"
+        verbose_name = "Podcast-Spotify-Nutzer"
+        verbose_name_plural = "Podcast-Spotify-Nutzer"
         ordering = ["-date", "podcast"]
+        unique_together = ["date", "podcast"]
 
     date = models.DateField(verbose_name="Datum")
     podcast = models.ForeignKey(
         verbose_name="Podcast",
         to=Podcast,
         on_delete=models.CASCADE,
-        related_name="followers",
-        related_query_name="followers",
+        related_name="data_spotify",
+        related_query_name="data_spotify",
     )
     followers = models.IntegerField(verbose_name="Follower")
-
+    listeners = models.IntegerField(verbose_name="Listeners")
+    listeners_weekly = models.IntegerField(verbose_name="Listeners (wöchentlich)")
+    listeners_monthly = models.IntegerField(verbose_name="Listeners (monatlich)")
+    listeners_all_time = models.IntegerField(verbose_name="Listeners (insgesamt)")
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
@@ -60,6 +70,13 @@ class PodcastEpisode(models.Model):
     publication_date_time = models.DateTimeField(verbose_name="Veröffentlicht am")
     media = models.URLField(max_length=1024, verbose_name="Media-URL")
     zmdb_id = models.IntegerField(verbose_name="ZMDB-ID", unique=True)
+
+    spotify_id = models.CharField(
+        max_length=32,
+        verbose_name="Spotify ID",
+        null=True,
+    )
+
     duration = models.DurationField(verbose_name="Audio-Länge")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
@@ -88,7 +105,8 @@ class PodcastEpisodeDataSpotify(models.Model):
     )
     starts = models.IntegerField(verbose_name="Starts")
     streams = models.IntegerField(verbose_name="Streams")
-    listeners = models.IntegerField(verbose_name="Hörer")
+    listeners = models.IntegerField(verbose_name="Listeners")
+    listeners_all_time = models.IntegerField(verbose_name="Listeners (insgesamt)")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
