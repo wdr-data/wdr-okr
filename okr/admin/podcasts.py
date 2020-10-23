@@ -11,6 +11,7 @@ from ..models import (
     Podcast,
     PodcastEpisode,
     PodcastDataSpotify,
+    PodcastDataSpotifyHourly,
     PodcastEpisodeDataSpotifyUser,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataSpotify,
@@ -77,6 +78,18 @@ class DataSpotifyAdmin(admin.ModelAdmin):
     list_display_links = ["podcast", "date"]
     list_filter = ["podcast"]
     date_hierarchy = "date"
+
+
+class DataSpotifyHourlyAdmin(admin.ModelAdmin):
+    list_display = [
+        "podcast",
+        "date_time",
+        "starts",
+        "streams",
+    ]
+    list_display_links = ["podcast", "date_time"]
+    list_filter = ["podcast"]
+    date_hierarchy = "date_time"
 
 
 class EpisodeAdmin(admin.ModelAdmin):
@@ -159,6 +172,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
+admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)
 admin.site.register(PodcastEpisodeDataSpotifyUser, EpisodeDataSpotifyUserAdmin)
 admin.site.register(

@@ -22,6 +22,7 @@ from ...models import (
     PodcastEpisodeDataPodstat,
     PodcastEpisodeDataSpotifyUser,
     PodcastDataSpotify,
+    PodcastDataSpotifyHourly,
 )
 
 berlin = pytz.timezone("Europe/Berlin")
@@ -220,6 +221,32 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
 
                 obj = PodcastDataSpotify(podcast=podcast, date=date, **defaults)
                 obj.save()
+
+            # Data hourly
+            if date < dt.date(2019, 12, 1):
+                continue
+
+            for hour in range(0, 24):
+                agg_type_data = {}
+                date_time = dt.datetime(
+                    date.year, date.month, date.day, hour, tzinfo=pytz.UTC
+                )
+                for agg_type in ["starts", "streams"]:
+                    try:
+                        agg_type_data[agg_type] = spotify_api.podcast_data(
+                            podcast.spotify_id,
+                            agg_type,
+                            date_time,
+                            precision=spotify_api.Precision.HOUR,
+                        )["total"]
+                    except:
+                        agg_type_data[agg_type] = 0
+
+                PodcastDataSpotifyHourly.objects.update_or_create(
+                    podcast=podcast,
+                    date_time=date_time,
+                    defaults=agg_type_data,
+                )
 
         # Episodes
         for podcast_episode in podcast.episodes.all():

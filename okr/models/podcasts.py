@@ -51,6 +51,29 @@ class PodcastDataSpotify(models.Model):
         return f"{self.podcast} - {self.date}"
 
 
+class PodcastDataSpotifyHourly(models.Model):
+    class Meta:
+        db_table = "podcast_data_spotify_hourly"
+        verbose_name = "Podcast-Spotify-Abruf (stündlich)"
+        verbose_name_plural = "Podcast-Spotify-Abrufe (stündlich)"
+        ordering = ["-date_time", "podcast"]
+        unique_together = ["date_time", "podcast"]
+
+    date_time = models.DateTimeField(verbose_name="Zeitpunkt")
+    podcast = models.ForeignKey(
+        verbose_name="Podcast",
+        to=Podcast,
+        on_delete=models.CASCADE,
+        related_name="data_spotify_hourly",
+        related_query_name="data_spotify_hourly",
+    )
+    starts = models.IntegerField(verbose_name="Starts")
+    streams = models.IntegerField(verbose_name="Streams")
+
+    def __str__(self):
+        return f"{self.podcast} - {self.date_time}"
+
+
 class PodcastEpisode(models.Model):
     class Meta:
         db_table = "podcast_episode"

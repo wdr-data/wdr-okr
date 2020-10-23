@@ -1,7 +1,7 @@
 import os
-from typing import List, Dict
+from typing import List, Dict, Union
 import datetime as dt
-
+from enum import Enum
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
@@ -11,6 +11,12 @@ LICENSOR_ID = os.environ.get("SPOTIFY_LICENSOR_ID")
 
 
 class CustomSpotify(spotipy.Spotify):
+    class Precision(Enum):
+        YEAR = 1
+        MONTH = 2
+        DAY = 3
+        HOUR = 4
+
     def _auth_headers(self):
         headers = super()._auth_headers()
         headers["Accept"] = "application/json"
@@ -26,9 +32,23 @@ class CustomSpotify(spotipy.Spotify):
     def licensed_podcasts(self):
         return self.podcast_api(f"licensors/{LICENSOR_ID}/podcasts")
 
-    def podcast_data(self, podcast_id: str, agg_type: str, date: dt.date):
+    def podcast_data(
+        self,
+        podcast_id: str,
+        agg_type: str,
+        date: Union[dt.date, dt.datetime],
+        *,
+        precision: Precision = Precision.DAY,
+    ):
+        path_components = [date.year, date.month, date.day]
+
+        if isinstance(date, dt.datetime):
+            path_components.append(date.hour)
+
+        sub_path = "/".join(map(str, path_components[: precision.value]))
+
         return self.podcast_api(
-            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/{agg_type}/{date.year}/{date.month}/{date.day}/total"
+            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/{agg_type}/{sub_path}/total"
         )["aggregation"][agg_type]["counts"]
 
     def podcast_data_date_range(
