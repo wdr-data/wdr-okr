@@ -31,15 +31,22 @@ class CustomSpotify(spotipy.Spotify):
             f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/{agg_type}/{date.year}/{date.month}/{date.day}/total"
         )["aggregation"][agg_type]["counts"]
 
-    def podcast_data_all_time(
-        self, podcast_id: str, agg_type: str, *, end: dt.date = None
+    def podcast_data_date_range(
+        self,
+        podcast_id: str,
+        agg_type: str,
+        *,
+        start: dt.date = None,
+        end: dt.date = None,
     ):
+        if start is None:
+            start = dt.date(2016, 1, 1)
         if end is None:
             end = local_yesterday()
 
         return self.podcast_api(
             f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/{agg_type}/total",
-            start="2016-01-01",
+            start=start.isoformat(),
             end=end.isoformat(),
         )["aggregation"][agg_type]["counts"]
 

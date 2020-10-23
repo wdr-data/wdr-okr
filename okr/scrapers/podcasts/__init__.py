@@ -164,7 +164,7 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
         for date in reversed(date_range(start_date, yesterday)):
 
             try:
-                listener_data_all_time = spotify_api.podcast_data_all_time(
+                listener_data_all_time = spotify_api.podcast_data_date_range(
                     podcast.spotify_id, "listeners", end=date
                 )
             except SpotifyException:
@@ -178,9 +178,31 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
             except SpotifyException:
                 listener_data = {"total": 0}
 
+            try:
+                listener_weekly_data = spotify_api.podcast_data_date_range(
+                    podcast.spotify_id,
+                    "listeners",
+                    start=date - dt.timedelta(days=7),
+                    end=date,
+                )
+            except SpotifyException:
+                listener_weekly_data = {"total": 0}
+
+            try:
+                listener_monthly_data = spotify_api.podcast_data_date_range(
+                    podcast.spotify_id,
+                    "listeners",
+                    start=date - dt.timedelta(days=30),
+                    end=date,
+                )
+            except SpotifyException:
+                listener_monthly_data = {"total": 0}
+
             defaults = {
                 "listeners_all_time": listener_data_all_time["total"],
                 "listeners": listener_data["total"],
+                "listeners_weekly": listener_weekly_data["total"],
+                "listeners_monthly": listener_monthly_data["total"],
             }
 
             if date == yesterday:
