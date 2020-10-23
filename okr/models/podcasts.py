@@ -42,6 +42,8 @@ class PodcastDataSpotify(models.Model):
     )
     followers = models.IntegerField(verbose_name="Follower")
     listeners = models.IntegerField(verbose_name="Listeners")
+    listeners_weekly = models.IntegerField(verbose_name="Listeners (wöchentlich)")
+    listeners_monthly = models.IntegerField(verbose_name="Listeners (monatlich)")
     listeners_all_time = models.IntegerField(verbose_name="Listeners (insgesamt)")
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 

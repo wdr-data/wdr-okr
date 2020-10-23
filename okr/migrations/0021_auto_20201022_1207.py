@@ -11,16 +11,23 @@ def fill_podcast_data_history(apps, schema_editor):
         return
 
     from okr.scrapers.podcasts.spotify_api import spotify_api
+    from spotipy.exceptions import SpotifyException
 
     for podcast in Podcast.objects.all():
         spotify_id = podcast.spotify_id
         for data in podcast.data_spotify.all():
-            data.listeners = spotify_api.podcast_data(
-                spotify_id, "listeners", data.date
-            )["total"]
-            data.listeners_all_time = spotify_api.podcast_data_all_time(
-                spotify_id, "listeners", end=data.date
-            )["total"]
+            try:
+                data.listeners = spotify_api.podcast_data(
+                    spotify_id, "listeners", data.date
+                )["total"]
+            except SpotifyException:
+                pass
+            try:
+                data.listeners_all_time = spotify_api.podcast_data_date_range(
+                    spotify_id, "listeners", end=data.date
+                )["total"]
+            except SpotifyException:
+                pass
             data.save()
 
 

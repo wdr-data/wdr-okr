@@ -65,7 +65,15 @@ class PodcastAdmin(ProductAdmin):
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
-    list_display = ["podcast", "date", "followers", "listeners", "listeners_all_time"]
+    list_display = [
+        "podcast",
+        "date",
+        "followers",
+        "listeners",
+        "listeners_weekly",
+        "listeners_monthly",
+        "listeners_all_time",
+    ]
     list_display_links = ["podcast", "date"]
     list_filter = ["podcast"]
     date_hierarchy = "date"
