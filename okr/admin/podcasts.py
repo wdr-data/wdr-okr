@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from decimal import Decimal
 import re
+import functools
 
 from django import forms
 from django.contrib import admin
@@ -9,28 +10,62 @@ from django.contrib import messages
 from ..models import (
     Podcast,
     PodcastEpisode,
-    PodcastDataSpotifyFollowers,
+    PodcastDataSpotify,
     PodcastEpisodeDataSpotifyUser,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
 )
 from .base import ProductAdmin
+from ..scrapers.podcasts import feed
+from ..scrapers.podcasts.spotify_api import spotify_api, fetch_all
+
+
+class FeedForm(forms.ModelForm):
+    class Meta:
+        model = Podcast
+        fields = ["feed_url"]
+
+    feed_url = forms.URLField(label="Feed URL")
+
+    def save(self, commit=True):
+        d = feed.parse(self.instance.feed_url)
+
+        self.instance.name = d.feed.title
+        self.instance.author = d.feed.author
+        self.instance.image = d.feed.image.href
+        self.instance.description = d.feed.description
+
+        licensed_podcasts = spotify_api.licensed_podcasts()
+        spotify_podcasts = fetch_all(
+            functools.partial(spotify_api.shows, market="DE"),
+            list(
+                uri.replace("spotify:show:", "")
+                for uri in licensed_podcasts["shows"].keys()
+            ),
+            "shows",
+        )
+
+        spotify_podcast_id = next(
+            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title), None
+        )
+        self.instance.spotify_id = spotify_podcast_id
+
+        return super().save(commit=commit)
 
 
 class PodcastAdmin(ProductAdmin):
-    list_display = ProductAdmin.list_display + [
-        "author",
-    ]
+    list_display = ProductAdmin.list_display + ["author", "spotify_id"]
     list_filter = ["author"]
 
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            return FeedForm
+        return super().get_form(request, obj=obj, **kwargs)
 
-class DataSpotifyFollowersAdmin(admin.ModelAdmin):
-    list_display = [
-        "podcast",
-        "date",
-        "followers",
-    ]
+
+class DataSpotifyAdmin(admin.ModelAdmin):
+    list_display = ["podcast", "date", "followers", "listeners", "listeners_all_time"]
     list_display_links = ["podcast", "date"]
     list_filter = ["podcast"]
     date_hierarchy = "date"
@@ -42,6 +77,7 @@ class EpisodeAdmin(admin.ModelAdmin):
         "podcast",
         "publication_date_time",
         "zmdb_id",
+        "spotify_id",
         "duration",
     ]
     list_display_links = ["title"]
@@ -56,6 +92,7 @@ class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
         "starts",
         "streams",
         "listeners",
+        "listeners_all_time",
     ]
     list_display_links = ["episode", "date"]
     list_filter = []
@@ -113,7 +150,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
-admin.site.register(PodcastDataSpotifyFollowers, DataSpotifyFollowersAdmin)
+admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)
 admin.site.register(PodcastEpisodeDataSpotifyUser, EpisodeDataSpotifyUserAdmin)
 admin.site.register(
