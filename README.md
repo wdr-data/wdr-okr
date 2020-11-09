@@ -2,10 +2,13 @@
 
 ## About the Project
 
-This _Django_-Project is part of a process to establish the [OKR Framework](https://de.wikipedia.org/wiki/Objectives_and_Key_Results) within the organisation of WDR.
-After identifying the correct KPI for each product, we seek to collect the corresponding data to visualize the data in form of a dashboard.
+This _Django_-Project is part of a process to establish the
+[OKR Framework](https://de.wikipedia.org/wiki/Objectives_and_Key_Results) within
+the organization of WDR.
+After identifying the correct KPI for each product, we seek to collect the
+corresponding data to visualize the data in form of a dashboard.
 
-Data ist collected from:
+Data is collected from:
 
 - Analytics platform APIs
 - Manual data exports from analytics platforms
@@ -15,7 +18,8 @@ Data ist collected from:
 
 ### Environment Variables
 
-To run the Django framework, you'll need to set the following environment variables:
+To run the Django framework, you'll need to set the following environment
+variables:
 
 ```env
 # Django
@@ -36,7 +40,8 @@ MYSQL_PODCAST_DATABASE_PODSTAT=
 
 The `SECRET_KEY` is only required if you have set `DEBUG=False`.
 
-To run the project locally, store these variables in an `.env` file in the root folder.
+To run the project locally, store these variables in an `.env` file in the root
+folder.
 
 ### First time setup
 
@@ -70,15 +75,21 @@ $ pipenv run manage runserver
 
 Scrapers are located in `okr/scrapers/` with one module for each product type.
 
-The `__init__.py` of each scraper module contains the functions to fill the intelligence layer. If cleaning or restructuring is required, it is done here. There are other submodules for collecting the raw data, one for each source.
+The `__init__.py` of each scraper module contains the functions to fill the
+intelligence layer. If cleaning or restructuring is required, it is done here.
+There are other submodules for collecting the raw data, one for each source.
 
-We use APScheduler for scheduling. `okr/scrapers/scheduler.py` contains the setup and cron-based rules to run scrapers periodically at specified times.
+We use APScheduler for scheduling. `okr/scrapers/scheduler.py` contains the
+setup and cron-based rules to run scrapers periodically at specified times.
 
-Some data that can't be scraped automatically (yet) is manually entered or uploaded as files in the Django admin backend. The relevant files for this are located in `okr/admin`.
+Some data that can't be scraped automatically (yet) is manually entered or
+uploaded as files in the Django admin backend. The relevant files for this
+are located in `okr/admin`.
 
-Our intelligence layer is managed via the Django ORM. Models are defined in `okr/models/` with generally self-contained submodules for each product type.
+Our intelligence layer is managed via the Django ORM. Models are defined in
+`okr/models/` with generally self-contained submodules for each product type.
 
-## Datasoures
+## Data sources
 
 - [Quintly API](https://api.quintly.com/)
 - YouTube Analytics .csv export (studio.youtube.com)
