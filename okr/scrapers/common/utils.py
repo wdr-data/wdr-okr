@@ -1,3 +1,6 @@
+"""Provides helper functions for dates.
+"""
+
 import datetime as dt
 from typing import List
 
