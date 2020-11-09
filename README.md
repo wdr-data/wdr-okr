@@ -1,6 +1,6 @@
 # WDR-OKR
 
-## About the Project
+## About the project
 
 This _Django_-Project is part of a process to establish the
 [OKR Framework](https://de.wikipedia.org/wiki/Objectives_and_Key_Results) within
