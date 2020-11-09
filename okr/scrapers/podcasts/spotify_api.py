@@ -2,12 +2,22 @@ import os
 from typing import List, Dict, Union
 import datetime as dt
 from enum import Enum
+import logging
+
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 from ..common.utils import local_yesterday
 
 LICENSOR_ID = os.environ.get("SPOTIFY_LICENSOR_ID")
+
+
+class SpotipyFilter(logging.Filter):
+    def filter(self, record):
+        return not record.getMessage().endswith("returned 404 due to error")
+
+
+spotipy.client.logger.addFilter(SpotipyFilter())
 
 
 class CustomSpotify(spotipy.Spotify):
