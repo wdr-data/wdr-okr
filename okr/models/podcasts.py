@@ -216,7 +216,7 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
         related_query_name="data_spotify_performance",
     )
     average_listen = models.DurationField(
-        verbose_name="Hörzeit im Schnitt", help_text="HH:MM:SS"
+        verbose_name="Average Listen", help_text="HH:MM:SS, 50% der Listeners hörten bis zu diesem Zeitpunkt."
     )
     quartile_1 = models.IntegerField(verbose_name="1. Quartil")
     quartile_2 = models.IntegerField(verbose_name="2. Quartil")
