@@ -2,12 +2,25 @@ import os
 from typing import List, Dict, Union
 import datetime as dt
 from enum import Enum
+from time import sleep
+import logging
+
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.exceptions import SpotifyException
+from requests.exceptions import ReadTimeout
 
 from ..common.utils import local_yesterday
 
 LICENSOR_ID = os.environ.get("SPOTIFY_LICENSOR_ID")
+
+
+class SpotipyFilter(logging.Filter):
+    def filter(self, record):
+        return not record.getMessage().endswith("returned 404 due to error")
+
+
+spotipy.client.logger.addFilter(SpotipyFilter())
 
 
 class CustomSpotify(spotipy.Spotify):
@@ -21,6 +34,32 @@ class CustomSpotify(spotipy.Spotify):
         headers = super()._auth_headers()
         headers["Accept"] = "application/json"
         return headers
+
+    def _internal_call(self, method, url, payload, params):
+        error = None
+        retries = 3
+
+        for i in range(retries):
+            try:
+                result = super()._internal_call(method, url, payload, params)
+                return result
+
+            except ReadTimeout as e:
+                error = e
+                spotipy.client.logger.info(
+                    f"Got ReadTimeoutError, attempt {i + 1}/{retries}"
+                )
+                sleep(10 * (i + 1))
+
+            except SpotifyException as e:
+                if e.http_status != 429:
+                    raise
+
+                error = e
+                spotipy.client.logger.info(f"Got RetryError, attempt {i + 1}/{retries}")
+                sleep(10 * (i + 1))
+
+        raise error
 
     def podcast_api(self, path: str, *, payload=None, **kwargs) -> Dict:
         if path.startswith("/"):
