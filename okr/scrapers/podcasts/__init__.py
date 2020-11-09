@@ -23,6 +23,7 @@ from ...models import (
     PodcastEpisodeDataSpotifyUser,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
+    PodcastEpisodeDataSpotifyPerformance,
 )
 
 berlin = pytz.timezone("Europe/Berlin")
@@ -325,6 +326,7 @@ def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
                 continue
 
             spotify_user_objects = []
+            spotify_performance_objects = []
 
             # Create mapping from episode title to object for faster lookups
             spotify_episodes = {}
@@ -356,19 +358,23 @@ def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
                 Additional = connection_meta.classes.Additional
                 dates = set()
                 for (
-                    user_data
+                    additional_data
                 ) in spotify_episode.episode_data_additional_collection.filter(
                     Additional.datum >= start_date
                 ):
-                    if user_data.datum in dates:
-                        print("Multiple spotify user stats for", user_data.datum)
+                    if additional_data.datum in dates:
+                        print("Multiple spotify user stats for", additional_data.datum)
                         continue
 
                     spotify_user_objects.append(
-                        _scrape_episode_data_spotify_user(podcast_episode, user_data)
+                        _scrape_episode_data_spotify_user(podcast_episode, additional_data)
                     )
 
-                    dates.add(user_data.datum)
+                    spotify_performance_objects.append(
+                        _scrape_episode_data_spotify_performance(podcast_episode, additional_data)
+                    )
+
+                    dates.add(additional_data.datum)
 
             if spotify_user_objects:
                 result_spotify_user = bulk_sync(
@@ -380,6 +386,16 @@ def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
                 )
                 print("Spotify user bulk objects:", result_spotify_user)
 
+            if spotify_performance_objects:
+                result_spotify_performance = bulk_sync(
+                    new_models=spotify_performance_objects,
+                    key_fields=["date", "episode"],
+                    batch_size=100,
+                    skip_deletes=True,
+                    filters=None,
+                )
+                print("Spotify performance bulk objects:", result_spotify_performance)
+    
         del connection_meta
         gc.collect()
 
@@ -396,27 +412,52 @@ def _scrape_episode_data_spotify(podcast_episode, date, stream_data):
     )
 
 
-def _scrape_episode_data_spotify_user(podcast_episode, user_data):
-    if user_data.datum is None:
-        print(f"Date for stream data of episode {podcast_episode} is NULL")
+def _scrape_episode_data_spotify_user(podcast_episode, additional_data):
+    if additional_data.datum is None:
+        print(f"Date for user data of episode {podcast_episode} is NULL")
         return
 
     return PodcastEpisodeDataSpotifyUser(
         # Use getattr because the column name has a minus in it
         episode=podcast_episode,
-        date=user_data.datum,
-        age_0_17=getattr(user_data, "age_0-17"),
-        age_18_22=getattr(user_data, "age_18-22"),
-        age_23_27=getattr(user_data, "age_23-27"),
-        age_28_34=getattr(user_data, "age_28-34"),
-        age_35_44=getattr(user_data, "age_35-44"),
-        age_45_59=getattr(user_data, "age_45-59"),
-        age_60_150=getattr(user_data, "age_60-150"),
-        age_unknown=user_data.age_unknown,
-        gender_female=user_data.gender_female,
-        gender_male=user_data.gender_male,
-        gender_non_binary=user_data.gender_non_binary,
-        gender_not_specified=user_data.gender_not_specified,
+        date=additional_data.datum,
+        age_0_17=getattr(additional_data, "age_0-17"),
+        age_18_22=getattr(additional_data, "age_18-22"),
+        age_23_27=getattr(additional_data, "age_23-27"),
+        age_28_34=getattr(additional_data, "age_28-34"),
+        age_35_44=getattr(additional_data, "age_35-44"),
+        age_45_59=getattr(additional_data, "age_45-59"),
+        age_60_150=getattr(additional_data, "age_60-150"),
+        age_unknown=additional_data.age_unknown,
+        gender_female=additional_data.gender_female,
+        gender_male=additional_data.gender_male,
+        gender_non_binary=additional_data.gender_non_binary,
+        gender_not_specified=additional_data.gender_not_specified,
+    )
+
+
+def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
+    if additional_data.datum is None:
+        print(f"Date for performacne data of episode {podcast_episode} is NULL")
+        return
+
+    time=getattr(additional_data, "average_listen")
+    average_listen=dt.timedelta(
+        hours=time.hour,
+        minutes=time.minute,
+        seconds=time.second,
+        )
+
+    return PodcastEpisodeDataSpotifyPerformance(
+        # Use getattr because the column name has a minus in it
+        episode=podcast_episode,
+        date=additional_data.datum,
+        # average_listen ist time --> durationfield
+        average_listen=average_listen,
+        quartile_1=getattr(additional_data, "first_quartile"),
+        quartile_2=getattr(additional_data, "second_quartile"),
+        quartile_3=getattr(additional_data, "third_quartile"),
+        complete=getattr(additional_data, "complete"),
     )
 
 
