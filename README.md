@@ -16,7 +16,7 @@ Data is collected from:
 
 ## Local development
 
-### Environment Variables
+### Environment variables
 
 To run the Django framework, you'll need to set the following environment
 variables:
@@ -36,6 +36,11 @@ MYSQL_PODCAST_USER=
 MYSQL_PODCAST_PASSWORD=
 MYSQL_PODCAST_DATABASE_SPOTIFY=
 MYSQL_PODCAST_DATABASE_PODSTAT=
+
+# Spotify
+SPOTIPY_CLIENT_ID=
+SPOTIPY_CLIENT_SECRET=
+SPOTIFY_LICENSOR_ID=
 ```
 
 The `SECRET_KEY` is only required if you have set `DEBUG=False`.
