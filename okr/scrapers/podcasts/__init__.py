@@ -550,6 +550,7 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
                     result_podstat,
                 )
 
+        del connection_meta
         gc.collect()
 
 

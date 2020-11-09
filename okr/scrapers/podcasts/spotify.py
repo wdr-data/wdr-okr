@@ -53,7 +53,10 @@ def make_connection_meta():
     try:
         yield ConnectionMeta(engine=engine, session=session, classes=classes)
     finally:
+        session.expire_all()
         session.close()
+        del session
+        del engine
 
 
 def get_podcast(connection_meta, name):
