@@ -367,11 +367,15 @@ def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
                         continue
 
                     spotify_user_objects.append(
-                        _scrape_episode_data_spotify_user(podcast_episode, additional_data)
+                        _scrape_episode_data_spotify_user(
+                            podcast_episode, additional_data
+                        )
                     )
 
                     spotify_performance_objects.append(
-                        _scrape_episode_data_spotify_performance(podcast_episode, additional_data)
+                        _scrape_episode_data_spotify_performance(
+                            podcast_episode, additional_data
+                        )
                     )
 
                     dates.add(additional_data.datum)
@@ -395,7 +399,7 @@ def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
                     filters=None,
                 )
                 print("Spotify performance bulk objects:", result_spotify_performance)
-    
+
         del connection_meta
         gc.collect()
 
@@ -441,12 +445,12 @@ def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
         print(f"Date for performacne data of episode {podcast_episode} is NULL")
         return
 
-    time=getattr(additional_data, "average_listen")
-    average_listen=dt.timedelta(
+    time = getattr(additional_data, "average_listen")
+    average_listen = dt.timedelta(
         hours=time.hour,
         minutes=time.minute,
         seconds=time.second,
-        )
+    )
 
     return PodcastEpisodeDataSpotifyPerformance(
         # Use getattr because the column name has a minus in it

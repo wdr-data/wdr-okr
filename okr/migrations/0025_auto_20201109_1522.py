@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('okr', '0024_podcastdataspotifyhourly'),
+        ("okr", "0024_podcastdataspotifyhourly"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='podcastepisodedataspotifyperformance',
-            name='average_listen',
-            field=models.DurationField(help_text='HH:MM:SS, 50% der Listeners hörten bis zu diesem Zeitpunkt.', verbose_name='Average Listen'),
+            model_name="podcastepisodedataspotifyperformance",
+            name="average_listen",
+            field=models.DurationField(
+                help_text="HH:MM:SS, 50% der Listeners hörten bis zu diesem Zeitpunkt.",
+                verbose_name="Average Listen",
+            ),
         ),
     ]
