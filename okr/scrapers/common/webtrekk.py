@@ -1,14 +1,19 @@
-"""
-Creatin of Webtrekk JSON/RPC Module
-"""
 import requests
 import os
+import datetime as dt
+from typing import Dict, Optional
+from contextlib import contextmanager
+
 
 WEBTREKK_LOGIN = os.environ.get("WEBTREKK_LOGIN")
 WEBTREKK_PASSWORD = os.environ.get("WEBTREKK_PASSWORD")
 
 
-class Webtrekkjson:
+class WebtrekkError(Exception):
+    pass
+
+
+class Webtrekk:
     """
     Webtrekk API Object Class
     """
@@ -32,17 +37,25 @@ class Webtrekkjson:
                   "customerId": self.account,
                   "language": "de",
                   }
-        self.token = self.get_response(method='login', params=params)
+        self.token = self._get_response(method='login', params=params)
         print(f"{WEBTREKK_LOGIN} has been sucessfully connected to to {self.name}.")
 
     def logout(self):
         """
         Logout from JSON/RSP Api
         """
-        self.get_response('logout', {'token': self.token})
-        print(f"{WEBTREKK_LOGIN} has been loged out sucessfully from {self.name}.")
+        self._get_response('logout', {'token': self.token})
+        print(f"{WEBTREKK_LOGIN} has been logged out sucessfully from {self.name}.")
 
-    def get_response(self, method=str, params={}):
+    @contextmanager
+    def session(self):
+        self.login()
+        try:
+            yield 
+        finally:
+            self.logout()
+
+    def _get_response(self, method: str, params: Dict[str, str]  = {}):
         """
         Call Webtrekk JSON/RCP Api Method with Params
         """
@@ -57,36 +70,48 @@ class Webtrekkjson:
             "version": "1.1",
             "method": method,
         }
+    
         response = requests.post(url, json=payload).json()
+
         if 'result' in response:
             return response['result']
         if 'error' in response:
-            print(response['error'])
-            return f'Error in method {method}'
-        return print(f'Something unexpected happend: {response}')
+            raise WebtrekkError(response['error'])
+        return None
+
+    def get_report_data(self, name: str, start_date: Optional[dt.date] = None, end_date: Optional[dt.date] = None):
+        """
+        Call getReportData
+        """
+        params = {'report_name': name}
+        
+        #Date format="YYYY-MM-DD"
+        if start_date:
+            params['time_start'] = start_date.strftime("%Y-%m-%d")
+        if end_date:
+            params['time_stop'] = end_date.strftime("%Y-%m-%d")
+        if start_date and not end_date:
+            params['time_stop'] = params['time_start']
+    
+        return self._get_response('getReportData', params)
+
 
     def get_analysis_data(self, analysis_config):
         """
         Call JSON/RCP Api for Analytics Data
         """
         params = {'analysisConfig': analysis_config}
-        data = self.get_response('getAnalysisData', params)
+        data = self._get_response('getAnalysisData', params)
         return data
 
     def get_dimensions_metrics(self):
         """
         Call getAnalysisObjectsAndMetricsList
         """
-        return self.get_response('getAnalysisObjectsAndMetricsList')
+        return self._get_response('getAnalysisObjectsAndMetricsList')
 
     def get_report_list(self):
         """
         Call getCustomReportsList
         """
-        return self.get_response('getCustomReportsList')
-
-    def get_report_data(self, name):
-        """
-        Call getReportData
-        """
-        return self.get_response('getReportData', {'report_name': name})
+        return self._get_response('getCustomReportsList')

@@ -55,13 +55,13 @@ def start():
     scheduler.add_job(
         insta.scrape_stories,
         trigger="cron",
-        hour="5,11,17,23",
+        hour="5",
         minute="31",
     )
     scheduler.add_job(
         insta.scrape_posts,
         trigger="cron",
-        hour="5,11,17,23",
+        hour="5",
         minute="32",
     )
 
@@ -70,7 +70,7 @@ def start():
         youtube.scrape_analytics,
         args=["daily"],
         trigger="cron",
-        hour="5,11,17,23",
+        hour="5",
         minute="35",
     )
     scheduler.add_job(
@@ -97,6 +97,7 @@ def start():
         podcasts.scrape_spotify_api, trigger="cron", hour="12", minute="0"
     )
     scheduler.add_job(podcasts.scrape_podstat, trigger="cron", hour="8", minute="30")
+    scheduler.add_job(podcasts.scrape_episode_data_webtrekk_performance, trigger="cron", hour="4", minute="0")
 
 
 @receiver(post_save, sender=Podcast)

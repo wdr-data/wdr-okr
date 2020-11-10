@@ -13,6 +13,7 @@ from . import feed
 from . import spotify
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
+from .webtrekk import cleaned_webtrekk_audio_data
 from ..common.utils import local_today, local_yesterday, date_range
 from ...models import (
     Podcast,
@@ -23,6 +24,7 @@ from ...models import (
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
     PodcastEpisodeDataSpotifyPerformance,
+    PodcastEpisodeDataWebtrekkPerformance,
 )
 
 berlin = pytz.timezone("Europe/Berlin")
@@ -45,6 +47,9 @@ def scrape_full(podcast):
 
     sleep(1)
     scrape_podstat(start_date=start_date, podcast_filter=podcast_filter)
+    
+    sleep(1)
+    scrape_episode_data_webtrekk_performance(start_date=start_date, podcast_filter=podcast_filter)
 
     print("Finished full scrape of", podcast)
 
@@ -554,3 +559,34 @@ def _aggregate_episode_data(data_objects):
             cache[podstat_obj["date"]] = podstat_obj
 
     return list(cache.values())
+
+
+def scrape_episode_data_webtrekk_performance(*, start_date=None, podcast_filter=None):
+    today = local_today()
+    yesterday = local_yesterday()
+
+    if start_date is None:
+        start_date = yesterday - dt.timedelta(days=2)
+    start_date = max(start_date, today - dt.timedelta(days=7))
+    start_date = min(start_date, yesterday)
+
+    for date in reversed(date_range(start_date, yesterday)):
+        data = cleaned_webtrekk_audio_data(date)
+        
+        podcasts = Podcast.objects.all()
+
+        if podcast_filter:
+            podcasts = podcasts.filter(podcast_filter)
+        
+        for podcast in podcasts:
+            for episode in podcast.episodes.all():
+                
+                if episode.zmdb_id not in data:
+                    continue
+                
+                PodcastEpisodeDataWebtrekkPerformance.objects.update_or_create(
+                    date = date,
+                    episode = episode,
+                    defaults = data[episode.zmdb_id]
+                )
+        print(f"Finished scraping of Webtrekk performance data for {date}.")
