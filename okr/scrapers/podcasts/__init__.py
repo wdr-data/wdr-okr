@@ -47,9 +47,11 @@ def scrape_full(podcast):
 
     sleep(1)
     scrape_podstat(start_date=start_date, podcast_filter=podcast_filter)
-    
+
     sleep(1)
-    scrape_episode_data_webtrekk_performance(start_date=start_date, podcast_filter=podcast_filter)
+    scrape_episode_data_webtrekk_performance(
+        start_date=start_date, podcast_filter=podcast_filter
+    )
 
     print("Finished full scrape of", podcast)
 
@@ -572,21 +574,19 @@ def scrape_episode_data_webtrekk_performance(*, start_date=None, podcast_filter=
 
     for date in reversed(date_range(start_date, yesterday)):
         data = cleaned_webtrekk_audio_data(date)
-        
+
         podcasts = Podcast.objects.all()
 
         if podcast_filter:
             podcasts = podcasts.filter(podcast_filter)
-        
+
         for podcast in podcasts:
             for episode in podcast.episodes.all():
-                
+
                 if episode.zmdb_id not in data:
                     continue
-                
+
                 PodcastEpisodeDataWebtrekkPerformance.objects.update_or_create(
-                    date = date,
-                    episode = episode,
-                    defaults = data[episode.zmdb_id]
+                    date=date, episode=episode, defaults=data[episode.zmdb_id]
                 )
         print(f"Finished scraping of Webtrekk performance data for {date}.")

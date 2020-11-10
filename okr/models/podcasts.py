@@ -229,6 +229,7 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
     def __str__(self):
         return f"{self.episode.title} ({self.date})"
 
+
 class PodcastEpisodeDataWebtrekkPerformance(models.Model):
     class Meta:
         db_table = "podcast_episode_data_webtrekk_performance"
@@ -247,10 +248,10 @@ class PodcastEpisodeDataWebtrekkPerformance(models.Model):
     )
 
     media_views = models.IntegerField(verbose_name="Medienansichten")
-    media_views_complete = models.IntegerField(verbose_name="Medienansichten vollständig")
-    playing_time = models.DurationField(
-        verbose_name="Spieldauer", help_text="HH:MM:SS"
+    media_views_complete = models.IntegerField(
+        verbose_name="Medienansichten vollständig"
     )
+    playing_time = models.DurationField(verbose_name="Spieldauer", help_text="HH:MM:SS")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
