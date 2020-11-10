@@ -16,6 +16,7 @@ from ..models import (
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
+    PodcastEpisodeDataWebtrekkPerformance,
 )
 from .base import ProductAdmin
 from ..scrapers.podcasts import feed
@@ -157,6 +158,19 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
+class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
+    list_display = [
+        "episode",
+        "date",
+        "media_views",
+        "media_views_complete",
+        "playing_time",
+    ]
+    list_display_links = ["episode", "date"]
+    list_filter = []
+    date_hierarchy = "date"
+
+
 class EpisodeDataPodstatAdmin(admin.ModelAdmin):
     list_display = [
         "episode",
@@ -177,5 +191,8 @@ admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)
 admin.site.register(PodcastEpisodeDataSpotifyUser, EpisodeDataSpotifyUserAdmin)
 admin.site.register(
     PodcastEpisodeDataSpotifyPerformance, EpisodeDataSpotifyPerformanceAdmin
+)
+admin.site.register(
+    PodcastEpisodeDataWebtrekkPerformance, EpisodeDataWebtrekkPerformanceAdmin
 )
 admin.site.register(PodcastEpisodeDataPodstat, EpisodeDataPodstatAdmin)

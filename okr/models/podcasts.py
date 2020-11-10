@@ -228,3 +228,32 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
 
     def __str__(self):
         return f"{self.episode.title} ({self.date})"
+
+
+class PodcastEpisodeDataWebtrekkPerformance(models.Model):
+    class Meta:
+        db_table = "podcast_episode_data_webtrekk_performance"
+        verbose_name = "Podcast-Episoden-Performance (Webtrekk)"
+        verbose_name_plural = "Podcast-Episoden-Performance (Webtrekk)"
+        unique_together = ("date", "episode")
+        ordering = ["-date", "episode"]
+
+    date = models.DateField(verbose_name="Datum")
+    episode = models.ForeignKey(
+        verbose_name="Episode",
+        to=PodcastEpisode,
+        on_delete=models.CASCADE,
+        related_name="data_webtrekk_performance",
+        related_query_name="data_webtrekk_performance",
+    )
+
+    media_views = models.IntegerField(verbose_name="Medienansichten")
+    media_views_complete = models.IntegerField(
+        verbose_name="Medienansichten vollständig"
+    )
+    playing_time = models.DurationField(verbose_name="Spieldauer", help_text="HH:MM:SS")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.episode.title} ({self.date})"
