@@ -10,7 +10,7 @@ class Podcast(Product):
         verbose_name_plural = "Podcasts"
         ordering = Product.Meta.ordering
 
-    feed_url = models.URLField(max_length=1024, verbose_name="Feed-URL")
+    feed_url = models.URLField(max_length=1024, verbose_name="Feed-URL", unique=True)
     author = models.CharField(max_length=200, verbose_name="Autor")
     image = models.URLField(max_length=1024, verbose_name="Bild")
     description = models.TextField(verbose_name="Beschreibung")
