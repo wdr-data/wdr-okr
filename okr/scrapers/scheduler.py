@@ -1,3 +1,6 @@
+"""Configure scheduler to call scraper modules.
+"""
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
 from django.conf import settings
@@ -21,6 +24,8 @@ def sentry_listener(event):
 
 
 def start():
+    """Add and define scheduler for each scraper module.
+    """
     global scheduler
     scheduler = BackgroundScheduler(timezone=berlin)
     scheduler.start()
@@ -106,21 +111,39 @@ def start():
 
 
 @receiver(post_save, sender=Podcast)
-def podcast_created(instance, created, **kwargs):
+def podcast_created(instance: Podcast, created: bool, **kwargs):
+    """Start scraper run for newly added podcast.
+
+    Args:
+        instance (Podcast): A Podcast instance
+        created (bool): Start scraper if set to True
+    """
     print(instance, created)
     if created:
         scheduler.add_job(podcasts.scrape_full, args=[instance])
 
 
 @receiver(post_save, sender=Insta)
-def insta_created(instance, created, **kwargs):
+def insta_created(instance: Insta, created: bool, **kwargs):
+    """Start scraper run for newly added Instagram account.
+
+    Args:
+        instance (Insta): An Insta instance
+        created (bool): Don't start scraper if set to False
+    """
     print(instance, created)
     if created:
         scheduler.add_job(insta.scrape_full, args=[instance])
 
 
 @receiver(post_save, sender=YouTube)
-def youtube_created(instance, created, **kwargs):
+def youtube_created(instance: YouTube, created: bool, **kwargs):
+    """Start scraper run for newly added Youtube channel.
+
+    Args:
+        instance (YouTube): A YouTube instance
+        created (bool): Don't start scraper if set to False
+    """
     print(instance, created)
     if created:
         scheduler.add_job(youtube.scrape_full, args=[instance])
