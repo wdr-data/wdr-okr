@@ -73,7 +73,7 @@ def get_episode(connection_meta: ConnectionMeta, zmdb_id: int) -> list:
         zmdb_id (int): ZMDB ID
 
     Returns:
-        list: [description]
+        list: List of data sets that match zmdb_id.
     """
 
     PodcastUrl = connection_meta.classes.PodcastUrl
