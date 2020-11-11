@@ -24,7 +24,7 @@ def sentry_listener(event):
 
 
 def start():
-    """Define scheduler for each scraper module.
+    """Add and define scheduler for each scraper module.
     """
     global scheduler
     scheduler = BackgroundScheduler(timezone=berlin)
@@ -112,7 +112,7 @@ def start():
 
 @receiver(post_save, sender=Podcast)
 def podcast_created(instance: Podcast, created: bool, **kwargs):
-    """Start scraper for newly added podcast.
+    """Start scraper run for newly added podcast.
 
     Args:
         instance (Podcast): A Podcast instance
@@ -125,7 +125,7 @@ def podcast_created(instance: Podcast, created: bool, **kwargs):
 
 @receiver(post_save, sender=Insta)
 def insta_created(instance: Insta, created: bool, **kwargs):
-    """Start scraper for newly added Instagram account.
+    """Start scraper run for newly added Instagram account.
 
     Args:
         instance (Insta): An Insta instance
@@ -138,7 +138,7 @@ def insta_created(instance: Insta, created: bool, **kwargs):
 
 @receiver(post_save, sender=YouTube)
 def youtube_created(instance: YouTube, created: bool, **kwargs):
-    """Start scraper for newly added Youtube channel.
+    """Start scraper run for newly added Youtube channel.
 
     Args:
         instance (YouTube): A YouTube instance
