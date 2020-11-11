@@ -1,3 +1,7 @@
+"""Read and process data for podcasts.
+
+"""
+
 import datetime as dt
 from time import sleep
 import pytz
@@ -30,7 +34,12 @@ from ...models import (
 berlin = pytz.timezone("Europe/Berlin")
 
 
-def scrape_full(podcast):
+def scrape_full(podcast: Podcast):
+    """Read and process all available data for podcast.
+
+    Args:
+        podcast (Podcast): Podcast to process
+    """
     print("Running full scrape of", podcast)
 
     podcast_filter = Q(id=podcast.id)
@@ -56,7 +65,13 @@ def scrape_full(podcast):
     print("Finished full scrape of", podcast)
 
 
-def scrape_feed(*, podcast_filter=None):
+def scrape_feed(*, podcast_filter: Q = None):
+    """Read and process data from podcast RSS feed.
+
+    Args:
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     podcasts = Podcast.objects.all()
 
     if podcast_filter:
@@ -136,7 +151,15 @@ def scrape_feed(*, podcast_filter=None):
                 )
 
 
-def scrape_spotify_api(*, start_date=None, podcast_filter=None):
+def scrape_spotify_api(*, start_date: dt.date = None, podcast_filter: Q = None):
+    """Read and process data from Spotify API.
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     today = local_today()
     yesterday = local_yesterday()
 
@@ -304,8 +327,15 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
         gc.collect()
 
 
-def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
+def scrape_spotify_mediatrend(*, start_date: dt.date = None, podcast_filter: Q = None):
+    """Read and process data from Spotify Mediatrend.
 
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     if start_date is None:
         start_date = dt.date.today() - dt.timedelta(days=20)
 
@@ -439,8 +469,15 @@ def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
     )
 
 
-def scrape_podstat(*, start_date=None, podcast_filter=None):
+def scrape_podstat(*, start_date: dt.date = None, podcast_filter: Q = None):
+    """Read and process data from Podstat.
 
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     if start_date is None:
         start_date = dt.date.today() - dt.timedelta(days=20)
 
@@ -563,7 +600,17 @@ def _aggregate_episode_data(data_objects):
     return list(cache.values())
 
 
-def scrape_episode_data_webtrekk_performance(*, start_date=None, podcast_filter=None):
+def scrape_episode_data_webtrekk_performance(
+    *, start_date: dt.date = None, podcast_filter: Q = None
+):
+    """Read and process data from Webtrekk.
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     today = local_today()
     yesterday = local_yesterday()
 
