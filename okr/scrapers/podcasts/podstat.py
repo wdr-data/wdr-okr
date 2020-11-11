@@ -1,6 +1,7 @@
 import os
 import functools
 from contextlib import contextmanager
+from typing import Iterator
 
 from sqlalchemy import create_engine, Column, Integer, ForeignKey
 from sqlalchemy.orm import Session, relationship
@@ -10,7 +11,12 @@ from .connection_meta import ConnectionMeta
 
 
 @contextmanager
-def make_connection_meta():
+def make_connection_meta() -> Iterator[ConnectionMeta]:
+    """Connect to Podstat database.
+
+    Yields:
+        Iterator[ConnectionMeta]: ConnectionMeta object.
+    """
     engine = create_engine(
         f"mysql://{os.environ['MYSQL_PODCAST_USER']}:{os.environ['MYSQL_PODCAST_PASSWORD']}@{os.environ['MYSQL_PODCAST_HOST']}/{os.environ['MYSQL_PODCAST_DATABASE_PODSTAT']}"
     )
@@ -59,7 +65,17 @@ def make_connection_meta():
         del engine
 
 
-def get_episode(connection_meta, zmdb_id):
+def get_episode(connection_meta: ConnectionMeta, zmdb_id: int) -> list:
+    """Retrieve Podstat data for zmdb_id.
+
+    Args:
+        connection_meta (ConnectionMeta): Connection to Podstat database.
+        zmdb_id (int): ZMDB ID
+
+    Returns:
+        list: [description]
+    """
+
     PodcastUrl = connection_meta.classes.PodcastUrl
     # Actually returns (hopefully) 2 items, one for ondemand and one for downloads
     return list(
