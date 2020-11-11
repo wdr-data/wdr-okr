@@ -24,8 +24,7 @@ def sentry_listener(event):
 
 
 def start():
-    """Add and define scheduler for each scraper module.
-    """
+    """Add and define scheduler for each scraper module."""
     global scheduler
     scheduler = BackgroundScheduler(timezone=berlin)
     scheduler.start()
@@ -120,7 +119,7 @@ def podcast_created(instance: Podcast, created: bool, **kwargs):
     """
     print(instance, created)
     if created:
-        scheduler.add_job(podcasts.scrape_full, args=[instance])
+        scheduler.add_job(podcasts.scrape_full, args=[instance], max_instances=1)
 
 
 @receiver(post_save, sender=Insta)
@@ -133,7 +132,7 @@ def insta_created(instance: Insta, created: bool, **kwargs):
     """
     print(instance, created)
     if created:
-        scheduler.add_job(insta.scrape_full, args=[instance])
+        scheduler.add_job(insta.scrape_full, args=[instance], max_instances=1)
 
 
 @receiver(post_save, sender=YouTube)
@@ -146,4 +145,4 @@ def youtube_created(instance: YouTube, created: bool, **kwargs):
     """
     print(instance, created)
     if created:
-        scheduler.add_job(youtube.scrape_full, args=[instance])
+        scheduler.add_job(youtube.scrape_full, args=[instance], max_instances=1)
