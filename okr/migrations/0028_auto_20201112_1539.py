@@ -7,82 +7,182 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('okr', '0027_auto_20201110_1727'),
+        ("okr", "0027_auto_20201110_1727"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Page',
+            name="Page",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_seen', models.DateField(auto_created=True, verbose_name='Zuerst gesehen')),
-                ('url', models.URLField(unique=True, verbose_name='URL')),
-                ('sophora_id', models.CharField(max_length=512, verbose_name='Sophora ID')),
-                ('last_updated', models.DateTimeField(auto_now=True, verbose_name='Zuletzt upgedated')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "first_seen",
+                    models.DateField(auto_now=True, verbose_name="Zuerst gesehen"),
+                ),
+                ("url", models.URLField(unique=True, verbose_name="URL")),
+                (
+                    "sophora_id",
+                    models.CharField(max_length=512, verbose_name="Sophora ID"),
+                ),
+                (
+                    "last_updated",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Zuletzt upgedated"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Seite',
-                'verbose_name_plural': 'Seiten',
-                'db_table': 'page',
-                'ordering': ['-first_seen'],
+                "verbose_name": "Seite",
+                "verbose_name_plural": "Seiten",
+                "db_table": "page",
+                "ordering": ["-first_seen"],
             },
         ),
         migrations.CreateModel(
-            name='Property',
+            name="Property",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('url', models.URLField(unique=True, verbose_name='URL')),
-                ('last_updated', models.DateTimeField(auto_now=True, verbose_name='Zuletzt upgedated')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("url", models.URLField(unique=True, verbose_name="URL")),
+                (
+                    "last_updated",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Zuletzt upgedated"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Property',
-                'verbose_name_plural': 'Properties',
-                'db_table': 'property',
-                'ordering': ['name'],
+                "verbose_name": "Property",
+                "verbose_name_plural": "Properties",
+                "db_table": "property",
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='PageMeta',
+            name="PageMeta",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('editorial_update', models.DateTimeField(verbose_name='Redaktioneller Stand')),
-                ('headline', models.TextField(verbose_name='Titel')),
-                ('teaser', models.TextField(verbose_name='Teaser')),
-                ('last_updated', models.DateTimeField(auto_now=True, verbose_name='Zuletzt upgedated')),
-                ('page', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='meta', related_query_name='meta', to='okr.page', unique=True, verbose_name='Seite')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "editorial_update",
+                    models.DateTimeField(verbose_name="Redaktioneller Stand"),
+                ),
+                ("headline", models.TextField(verbose_name="Titel")),
+                ("teaser", models.TextField(verbose_name="Teaser")),
+                (
+                    "last_updated",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Zuletzt upgedated"
+                    ),
+                ),
+                (
+                    "page",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="meta",
+                        related_query_name="meta",
+                        to="okr.page",
+                        unique=True,
+                        verbose_name="Seite",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Seiten-Metadaten',
-                'verbose_name_plural': 'Seiten-Metadaten',
-                'db_table': 'page_meta',
-                'ordering': ['-editorial_update'],
+                "verbose_name": "Seiten-Metadaten",
+                "verbose_name_plural": "Seiten-Metadaten",
+                "db_table": "page_meta",
+                "ordering": ["-editorial_update"],
             },
         ),
         migrations.AddField(
-            model_name='page',
-            name='property',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pages', related_query_name='page', to='okr.property', verbose_name='Property'),
+            model_name="page",
+            name="property",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="pages",
+                related_query_name="page",
+                to="okr.property",
+                verbose_name="Property",
+            ),
         ),
         migrations.CreateModel(
-            name='PageDataGSC',
+            name="PageDataGSC",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField(verbose_name='Datum')),
-                ('device', models.CharField(choices=[('MOBILE', 'Mobil'), ('DESKTOP', 'Desktop'), ('TABLET', 'Tablet')], max_length=16, verbose_name='Gerätetyp')),
-                ('clicks', models.IntegerField(verbose_name='Klicks')),
-                ('impressions', models.IntegerField(verbose_name='Impressions')),
-                ('ctr', models.FloatField(verbose_name='CTR')),
-                ('position', models.FloatField(verbose_name='Durchschnittliche Position')),
-                ('last_updated', models.DateTimeField(auto_now=True, verbose_name='Zuletzt upgedated')),
-                ('page', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='data_gsc', related_query_name='data_gsc', to='okr.page', verbose_name='Seite')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField(verbose_name="Datum")),
+                (
+                    "device",
+                    models.CharField(
+                        choices=[
+                            ("MOBILE", "Mobil"),
+                            ("DESKTOP", "Desktop"),
+                            ("TABLET", "Tablet"),
+                        ],
+                        max_length=16,
+                        verbose_name="Gerätetyp",
+                    ),
+                ),
+                ("clicks", models.IntegerField(verbose_name="Klicks")),
+                ("impressions", models.IntegerField(verbose_name="Impressions")),
+                ("ctr", models.FloatField(verbose_name="CTR")),
+                (
+                    "position",
+                    models.FloatField(verbose_name="Durchschnittliche Position"),
+                ),
+                (
+                    "last_updated",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="Zuletzt upgedated"
+                    ),
+                ),
+                (
+                    "page",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="data_gsc",
+                        related_query_name="data_gsc",
+                        to="okr.page",
+                        verbose_name="Seite",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Seiten-Daten (GSC)',
-                'verbose_name_plural': 'Seiten-Daten (GSC)',
-                'db_table': 'page_data_gsc',
-                'ordering': ['-date', '-clicks'],
-                'unique_together': {('date', 'page', 'device')},
+                "verbose_name": "Seiten-Daten (GSC)",
+                "verbose_name_plural": "Seiten-Daten (GSC)",
+                "db_table": "page_data_gsc",
+                "ordering": ["-date", "-clicks"],
+                "unique_together": {("date", "page", "device")},
             },
         ),
     ]

@@ -4,9 +4,22 @@ from okr.scrapers.pages.gsc import fetch_day
 from typing import Optional
 
 from django.db.models import Q
+from sentry_sdk import capture_exception
 
-from okr.models.pages import Page, Property
+from okr.models.pages import Page, Property, PageDataGSC
 from okr.scrapers.common.utils import date_range, local_today, local_yesterday
+
+
+def scrape_full(property):
+    print("Running full scrape of property", property)
+
+    property_filter = Q(id=property.id)
+
+    start_date = local_yesterday() - dt.timedelta(days=30)
+
+    scrape_gsc(start_date=start_date, property_filter=property_filter)
+
+    print("Finished full scrape of property", property)
 
 
 def scrape_gsc(
@@ -28,15 +41,37 @@ def scrape_gsc(
 
     for property in properties:
         for date in reversed(date_range(start_date, yesterday)):
+            print(
+                f"Start scrape Google Search Console data for property {property} from {date}."
+            )
             data = fetch_day(property, date)
             for row in data:
-                page, device = row["keys"]
-                try:
-                    sophora_id = re.match(r".*?/(.*?)\.(?:html|amp)$", page).group(1)
-                except AttributeError:
-                    # TODO: Failed to parse, report to sentry
-                    continue  # ?
+                url, device = row["keys"]
 
-                Page.objects.get_or_create(
-                    property=property, date=date, defaults=dict()
+                try:
+                    sophora_id = re.match(r".*/(.*?)\.(?:html|amp)$", url).group(1)
+                except AttributeError as error:
+                    capture_exception(error)
+                    continue
+
+                page, created = Page.objects.get_or_create(
+                    url=url,
+                    defaults=dict(
+                        sophora_id=sophora_id,
+                        property=property,
+                    ),
                 )
+
+                PageDataGSC.objects.update_or_create(
+                    page=page,
+                    date=date,
+                    device=device,
+                    defaults=dict(
+                        clicks=row["clicks"],
+                        impressions=row["impressions"],
+                        ctr=row["ctr"],
+                        position=row["position"],
+                    ),
+                )
+
+        print(f"Finished Google Search Console scrape for property {property}.")

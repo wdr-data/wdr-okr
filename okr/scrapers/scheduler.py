@@ -9,8 +9,8 @@ from django.dispatch import receiver
 from pytz import timezone
 from sentry_sdk import capture_exception
 
-from ..models import Podcast, Insta, YouTube
-from . import insta, youtube, podcasts
+from ..models import Podcast, Insta, YouTube, Property
+from . import insta, youtube, podcasts, pages
 
 
 berlin = timezone("Europe/Berlin")
@@ -108,6 +108,14 @@ def start():
         minute="0",
     )
 
+    # Pages
+    scheduler.add_job(
+        pages.scrape_gsc,
+        trigger="cron",
+        hour="16",
+        minute="0",
+    )
+
 
 @receiver(post_save, sender=Podcast)
 def podcast_created(instance: Podcast, created: bool, **kwargs):
@@ -146,3 +154,16 @@ def youtube_created(instance: YouTube, created: bool, **kwargs):
     print(instance, created)
     if created:
         scheduler.add_job(youtube.scrape_full, args=[instance], max_instances=1)
+
+
+@receiver(post_save, sender=Property)
+def property_created(instance: Property, created: bool, **kwargs):
+    """Start scraper run for newly added property.
+
+    Args:
+        instance (Property): A Property instance
+        created (bool): Start scraper if set to True
+    """
+    print(instance, created)
+    if created:
+        scheduler.add_job(pages.scrape_full, args=[instance], max_instances=1)

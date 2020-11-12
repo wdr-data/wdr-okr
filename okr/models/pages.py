@@ -44,7 +44,7 @@ class Page(models.Model):
         verbose_name="Sophora ID",
         max_length=512,
     )
-    first_seen = models.DateField(verbose_name="Zuerst gesehen", auto_created=True)
+    first_seen = models.DateField(verbose_name="Zuerst gesehen", auto_now=True)
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
