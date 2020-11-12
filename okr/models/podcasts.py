@@ -3,7 +3,7 @@
 
 from django.db import models
 
-from .base import Product # Dinge die man anlegt, youtube, insta, podcast, etc.
+from .base import Product
 
 
 class Podcast(Product):
