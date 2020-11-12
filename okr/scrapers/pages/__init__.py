@@ -51,7 +51,13 @@ def scrape_gsc(
                 url, device = row["keys"]
 
                 try:
-                    sophora_id = re.match(r".*/(.*?)\.(?:html|amp)$", url).group(1)
+                    match = re.match(r".*/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$", url)
+                    sophora_id = match.group(1)
+                    sophora_page = match.group(2)
+
+                    if sophora_page is not None:
+                        sophora_page = int(sophora_page)
+
                 except AttributeError as error:
                     capture_exception(error)
                     continue
@@ -64,6 +70,7 @@ def scrape_gsc(
                         defaults=dict(
                             property=property,
                             sophora_id=sophora_id,
+                            sophora_page=sophora_page,
                         ),
                     )
                     page_cache[url] = page

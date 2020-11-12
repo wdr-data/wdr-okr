@@ -44,6 +44,14 @@ class Page(models.Model):
         verbose_name="Sophora ID",
         max_length=512,
     )
+    sophora_page = models.IntegerField(
+        verbose_name="Sophora-Seite",
+        null=True,
+        help_text=(
+            "Wenn unter der Sophora ID ein mehrseitiger Artikel ist "
+            "und eine Unterseite besucht wird, steht hier ein Wert"
+        ),
+    )
     first_seen = models.DateField(verbose_name="Zuerst gesehen", auto_now=True)
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
