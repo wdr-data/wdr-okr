@@ -1,6 +1,10 @@
+"""Wrapper for Podstat Spotify API
+"""
+
 import os
 import functools
 from contextlib import contextmanager
+from typing import Iterator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, relationship
@@ -10,7 +14,12 @@ from .connection_meta import ConnectionMeta
 
 
 @contextmanager
-def make_connection_meta():
+def make_connection_meta() -> Iterator[ConnectionMeta]:
+    """Connect to Podstat Spotify API.
+
+    Yields:
+        Iterator[ConnectionMeta]: ConnectionMeta object.
+    """
     engine = create_engine(
         f"mysql://{os.environ['MYSQL_PODCAST_USER']}:{os.environ['MYSQL_PODCAST_PASSWORD']}@{os.environ['MYSQL_PODCAST_HOST']}/{os.environ['MYSQL_PODCAST_DATABASE_SPOTIFY']}"
     )
@@ -59,7 +68,7 @@ def make_connection_meta():
         del engine
 
 
-def get_podcast(connection_meta, name):
+def get_podcast(connection_meta: ConnectionMeta, name: str):
     Podcast = connection_meta.classes.Podcast
 
     return connection_meta.session.query(Podcast).filter(Podcast.podcast == name)[0]

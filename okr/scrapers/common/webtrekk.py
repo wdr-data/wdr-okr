@@ -1,7 +1,10 @@
+""" Wrapper for Webtrekk API.
+"""
+
 import requests
 import os
 import datetime as dt
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from contextlib import contextmanager
 
 
@@ -14,13 +17,17 @@ class WebtrekkError(Exception):
 
 
 class Webtrekk:
-    """
-    Webtrekk API Object Class
+    """Webtrekk API Object Class
+
+    Requires the following environment variables: WEBTREKK_LOGIN, WEBTREKK_PASSWORD,
+    WEBTREKK_ACCOUNT_LIVE_ID
+
+    Provides the following methods: get_report_data(), get_analysis_data(),
+    get_dimensions_metrics(), get_report_list()
     """
 
     def __init__(self):
-        """
-        Login to Webtrekk JSON/RCP Api
+        """Set up login information for Webtrekk JSON/RCP API
         """
         self.token = None
         self.account = os.environ.get("WEBTREKK_ACCOUNT_LIVE_ID")
@@ -32,6 +39,8 @@ class Webtrekk:
         return f"{WEBTREKK_LOGIN} ist not connected to {self.name}."
 
     def login(self):
+        """ Login to JSON/RSP API
+        """
         params = {
             "login": WEBTREKK_LOGIN,
             "pass": WEBTREKK_PASSWORD,
@@ -42,8 +51,7 @@ class Webtrekk:
         print(f"{WEBTREKK_LOGIN} has been sucessfully connected to to {self.name}.")
 
     def logout(self):
-        """
-        Logout from JSON/RSP Api
+        """ Logout from JSON/RSP API
         """
         self._get_response("logout", {"token": self.token})
         print(f"{WEBTREKK_LOGIN} has been logged out sucessfully from {self.name}.")
@@ -56,9 +64,21 @@ class Webtrekk:
         finally:
             self.logout()
 
-    def _get_response(self, method: str, params: Dict[str, str] = {}):
-        """
-        Call Webtrekk JSON/RCP Api Method with Params
+    def _get_response(self, method: str, params: Dict[str, str] = {}) -> Any:
+        """Call Webtrekk JSON/RCP API Method with params
+
+        Args:
+            method (str): API request method as defined by the API. For example:
+              "getAnalysisData", "getReportData", "getAnalysisObjectsAndMetricsList", or
+              "getCustomReportsList".
+            params (Dict[str, str], optional): Parameters for API request. Defaults to
+              {}.
+
+        Raises:
+            WebtrekkError: Custom error for Webtrekk errors.
+
+        Returns:
+            Any: Reply from API. Can be int, str, and dict, for example.
         """
         url = "https://report2.webtrekk.de/cgi-bin/wt/JSONRPC.cgi"
 
@@ -85,10 +105,20 @@ class Webtrekk:
         name: str,
         start_date: Optional[dt.date] = None,
         end_date: Optional[dt.date] = None,
-    ):
+    ) -> Dict:
+        """Call getReportData method at Webtrekk's JSON/RPC API
+
+        Args:
+            name (str): id of the report to retrieve
+            start_date (Optional[dt.date], optional): Earliest date to retrieve data
+              for. Defaults to None.
+            end_date (Optional[dt.date], optional): Latest date to retrieve data
+              for. Defaults to None.
+
+        Returns:
+            Dict: Reply from API
         """
-        Call getReportData
-        """
+
         params = {"report_name": name}
 
         # Date format="YYYY-MM-DD"
@@ -101,22 +131,32 @@ class Webtrekk:
 
         return self._get_response("getReportData", params)
 
-    def get_analysis_data(self, analysis_config):
-        """
-        Call JSON/RCP Api for Analytics Data
+    def get_analysis_data(self, analysis_config: str) -> Dict:
+        """Call getAnalysisData method at Webtrekk's JSON/RPC API
+
+        Args:
+            analysis_config (str): Config information for analysis (according to API
+            documentation)
+
+        Returns:
+            Dict: Reply from API
         """
         params = {"analysisConfig": analysis_config}
         data = self._get_response("getAnalysisData", params)
         return data
 
-    def get_dimensions_metrics(self):
-        """
-        Call getAnalysisObjectsAndMetricsList
+    def get_dimensions_metrics(self) -> Dict:
+        """Call getAnalysisObjectsAndMetricsList method at Webtrekk's JSON/RPC API
+
+        Returns:
+            Dict:  Reply from API
         """
         return self._get_response("getAnalysisObjectsAndMetricsList")
 
-    def get_report_list(self):
-        """
-        Call getCustomReportsList
+    def get_report_list(self) -> Dict:
+        """Call getAnalysisObjectsAndMetricsList method at Webtrekk's JSON/RPC API
+
+        Returns:
+            Dict:  Reply from API
         """
         return self._get_response("getCustomReportsList")

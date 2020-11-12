@@ -1,5 +1,4 @@
-"""Retrieve Podstat data.
-
+"""Wrapper for Podstat API
 """
 
 import os

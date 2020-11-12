@@ -1,5 +1,4 @@
 """Parse feed using feedparser
-
 """
 
 import feedparser

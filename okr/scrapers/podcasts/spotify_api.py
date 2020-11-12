@@ -1,3 +1,6 @@
+""" Wrapper for Spotify APIs (using the spotipy library)
+"""
+
 import os
 from typing import List, Dict, Union
 import datetime as dt
@@ -148,7 +151,7 @@ class CustomSpotify(spotipy.Spotify):
         )["aggregation"][agg_type]["counts"]
 
 
-def _divide_chunks(l: List, n: int):
+def _divide_chunks(l: List, n: int) ->List[int]:
     # looping till length l
     for i in range(0, len(l), n):
         yield l[i : i + n]

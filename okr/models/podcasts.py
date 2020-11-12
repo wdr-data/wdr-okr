@@ -1,9 +1,19 @@
+""" Database models for podcasts
+"""
+
 from django.db import models
 
-from .base import Product
+from .base import Product # Dinge die man anlegt, youtube, insta, podcast, etc.
 
 
 class Podcast(Product):
+    """Create schema for db table "podcast".
+
+    Table contains basic data for each podcast.
+
+    Extends Product class.
+    """
+
     class Meta:
         db_table = "podcast"
         verbose_name = "Podcast"
@@ -25,6 +35,10 @@ class Podcast(Product):
 
 
 class PodcastDataSpotify(models.Model):
+    """Create schema for db table "podcast_data_spotify".
+
+    Table contains basic Spotify data for each podcast that is available on Spotify.
+    """
     class Meta:
         db_table = "podcast_data_spotify"
         verbose_name = "Podcast-Spotify-Nutzer"
@@ -52,6 +66,10 @@ class PodcastDataSpotify(models.Model):
 
 
 class PodcastDataSpotifyHourly(models.Model):
+    """Create schema for db table "podcast_data_spotify_hourly".
+
+    Table contains hourly Spotify data for each podcast that is available on Spotify.
+    """
     class Meta:
         db_table = "podcast_data_spotify_hourly"
         verbose_name = "Podcast-Spotify-Abruf (stündlich)"
@@ -75,6 +93,10 @@ class PodcastDataSpotifyHourly(models.Model):
 
 
 class PodcastEpisode(models.Model):
+    """Create schema for db table "podcast_episode".
+
+    Table contains basic data for each podcast episode.
+    """
     class Meta:
         db_table = "podcast_episode"
         verbose_name = "Podcast-Episode"
@@ -111,6 +133,10 @@ class PodcastEpisode(models.Model):
 
 
 class PodcastEpisodeDataSpotify(models.Model):
+    """Create schema for db table "podcast_episode_data_spotify".
+
+    Table contains basic Spotify data for each episode that is available on Spotify.
+    """
     class Meta:
         db_table = "podcast_episode_data_spotify"
         verbose_name = "Podcast-Episoden-Abruf (Spotify)"
@@ -138,6 +164,10 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
+    """Create schema for db table "podcast_episode_data_spotify_user".
+
+    Table contains Spotify user data for each episode that is available on Spotify.
+    """
     class Meta:
         db_table = "podcast_episode_data_spotify_user"
         verbose_name = "Podcast-Episoden-Nutzer (Spotify)"
@@ -175,6 +205,10 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 
 class PodcastEpisodeDataPodstat(models.Model):
+    """Create schema for db table "podcast_episode_data_podstat".
+
+    Table contains Podstat data for each episode.
+    """
     class Meta:
         db_table = "podcast_episode_data_podstat"
         verbose_name = "Podcast-Episoden-Abruf (Podstat)"
@@ -200,6 +234,11 @@ class PodcastEpisodeDataPodstat(models.Model):
 
 
 class PodcastEpisodeDataSpotifyPerformance(models.Model):
+    """Create schema for db table "podcast_episode_data_spotify_performance".
+
+    Table contains Spotify performance data for each episode that is available on
+      Spotify.
+    """
     class Meta:
         db_table = "podcast_episode_data_spotify_performance"
         verbose_name = "Podcast-Episoden-Performance (Spotify)"
@@ -231,6 +270,10 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
 
 
 class PodcastEpisodeDataWebtrekkPerformance(models.Model):
+    """Create schema for db table "podcast_episode_data_webtrekk_performance".
+
+    Table contains Webtrekk data for each episode.
+    """
     class Meta:
         db_table = "podcast_episode_data_webtrekk_performance"
         verbose_name = "Podcast-Episoden-Performance (Webtrekk)"
