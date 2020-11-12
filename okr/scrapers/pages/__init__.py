@@ -40,6 +40,8 @@ def scrape_gsc(
         properties = properties.filter(property_filter)
 
     for property in properties:
+        page_cache = {}
+
         for date in reversed(date_range(start_date, yesterday)):
             print(
                 f"Start scrape Google Search Console data for property {property} from {date}."
@@ -54,13 +56,17 @@ def scrape_gsc(
                     capture_exception(error)
                     continue
 
-                page, created = Page.objects.get_or_create(
-                    url=url,
-                    defaults=dict(
-                        sophora_id=sophora_id,
-                        property=property,
-                    ),
-                )
+                if url in page_cache:
+                    page = page_cache[url]
+                else:
+                    page, created = Page.objects.get_or_create(
+                        url=url,
+                        defaults=dict(
+                            property=property,
+                            sophora_id=sophora_id,
+                        ),
+                    )
+                    page_cache[url] = page
 
                 PageDataGSC.objects.update_or_create(
                     page=page,
