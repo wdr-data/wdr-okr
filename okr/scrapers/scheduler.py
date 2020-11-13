@@ -113,6 +113,12 @@ def start():
         hour="16",
         minute="0",
     )
+    scheduler.add_job(
+        pages.scrape_sophora,
+        trigger="cron",
+        hour="17",
+        minute="0",
+    )
 
 
 @receiver(post_save, sender=Podcast)
