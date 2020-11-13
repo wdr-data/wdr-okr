@@ -27,8 +27,7 @@ class Webtrekk:
     """
 
     def __init__(self):
-        """Set up login information for Webtrekk JSON/RCP API
-        """
+        """Set up login information for Webtrekk JSON/RPC API"""
         self.token = None
         self.account = os.environ.get("WEBTREKK_ACCOUNT_LIVE_ID")
         self.name = f"{WEBTREKK_LOGIN}-LIVE-account"
@@ -39,8 +38,7 @@ class Webtrekk:
         return f"{WEBTREKK_LOGIN} ist not connected to {self.name}."
 
     def login(self):
-        """ Login to JSON/RSP API
-        """
+        """Login to JSON/RPC API"""
         params = {
             "login": WEBTREKK_LOGIN,
             "pass": WEBTREKK_PASSWORD,
@@ -51,8 +49,7 @@ class Webtrekk:
         print(f"{WEBTREKK_LOGIN} has been successfully connected to to {self.name}.")
 
     def logout(self):
-        """ Logout from JSON/RSP API
-        """
+        """Logout from JSON/RPC API"""
         self._get_response("logout", {"token": self.token})
         print(f"{WEBTREKK_LOGIN} has been logged out successfully from {self.name}.")
 
@@ -65,7 +62,7 @@ class Webtrekk:
             self.logout()
 
     def _get_response(self, method: str, params: Dict[str, str] = {}) -> Any:
-        """Call Webtrekk JSON/RCP API Method with params
+        """Call Webtrekk JSON/RPC API Method with params
 
         Args:
             method (str): API request method as defined by the API. For example:
