@@ -1,5 +1,10 @@
+"""Read and process data for podcasts and podcast episodes from various data sources.
+"""
+
 import datetime as dt
 from time import sleep
+
+from typing import Optional
 import gc
 import functools
 
@@ -27,7 +32,12 @@ from ...models import (
 )
 
 
-def scrape_full(podcast):
+def scrape_full(podcast: Podcast):
+    """Read and process all available data for podcast.
+
+    Args:
+        podcast (Podcast): Podcast to scrape data for
+    """
     print("Running full scrape of", podcast)
 
     podcast_filter = Q(id=podcast.id)
@@ -53,7 +63,24 @@ def scrape_full(podcast):
     print("Finished full scrape of", podcast)
 
 
-def scrape_feed(*, podcast_filter=None):
+def scrape_feed(*, podcast_filter: Optional[Q] = None):
+    """Read and process data from podcast RSS feed.
+
+    This method supplies publicly available metadata for podcast episodes. This includes
+    information such as episode title, episode description, episode duration and
+    ZMDB ID for the episode's media file. Additionally, this method uses the Spotify
+    public API and Spotify podcaster API to determine each episode's Spotify ID, if
+    one exists.
+
+    Requesting Spotify data from both the public API and the podcaster API is necessary
+    because episode names in the podaster API can be outdated. On the other hand, only
+    the podcaster API contains information about de-published episodes. Data from both
+    APIs is required to make mapping by episode name possible.
+
+    Args:
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     podcasts = Podcast.objects.all()
 
     if podcast_filter:
@@ -62,7 +89,8 @@ def scrape_feed(*, podcast_filter=None):
     for podcast in podcasts:
         print("Scraping feed for", podcast)
 
-        # Create mapping from episode title to object for faster lookups
+        # For podcasts that are available on Spotify: Map episode title to Spotify ID
+        # for faster lookups
         if podcast.spotify_id:
             licensed_episodes = spotify_api.podcast_episodes(podcast.spotify_id)
 
@@ -83,7 +111,7 @@ def scrape_feed(*, podcast_filter=None):
 
                 spotify_episode_id_by_name[ep_meta["name"]] = episode_id
 
-            # Try to fill up with public API information as well, where available
+            # Try to read additional, publicly available data from Spotify's public API
             ep_metas_public = fetch_all(
                 functools.partial(spotify_api.episodes, market="de"),
                 spotify_episode_ids_search,
@@ -94,10 +122,11 @@ def scrape_feed(*, podcast_filter=None):
             ):
                 if ep_meta_public:
                     spotify_episode_id_by_name[ep_meta_public["name"]] = episode_id
-
+        # Leave Spotify ID empty of no matching ID was found
         else:
             spotify_episode_id_by_name = {}
 
+        # Read data from RSS feed
         d = feed.parse(podcast.feed_url)
         for entry in d.entries:
             spotify_id = spotify_episode_id_by_name.get(entry.title)
@@ -131,7 +160,25 @@ def scrape_feed(*, podcast_filter=None):
                 )
 
 
-def scrape_spotify_api(*, start_date=None, podcast_filter=None):
+def scrape_spotify_api(
+    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+):
+    """Read and process data from Spotify API.
+
+    This method supplies two kinds of Spotify-related data:
+
+    a) Data about the podcast itself, such as the current number of the podcast's
+    followers
+
+    b) Client side usage data for each podcast episode. This includes starts, streams
+    (minimum listening duration of 1 minute), or listeners (number of accounts).
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     today = local_today()
     yesterday = local_yesterday()
 
@@ -150,7 +197,7 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
             print("No Spotify ID for", podcast)
             continue
 
-        # Scrape follower and listener data for podcast (ignores start_date)
+        # Retrieve follower and listener data for podcast
         follower_data = spotify_api.podcast_followers(podcast.spotify_id)
 
         first_episode_date = podcast.episodes.order_by("publication_date_time")[
@@ -161,7 +208,7 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
             start_date = first_episode_date
 
         for date in reversed(date_range(start_date, yesterday)):
-
+            # Read daily data
             try:
                 listener_data_all_time = spotify_api.podcast_data_date_range(
                     podcast.spotify_id, "listeners", end=date
@@ -220,7 +267,7 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
                 obj = PodcastDataSpotify(podcast=podcast, date=date, **defaults)
                 obj.save()
 
-            # Data hourly
+            # Read hourly data
             if date < dt.date(2019, 12, 1):
                 continue
 
@@ -246,7 +293,7 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
                     defaults=agg_type_data,
                 )
 
-        # Episodes
+        # Retrieve data for individual episodes
         for podcast_episode in podcast.episodes.all():
             print("Scraping spotify episode data for", podcast_episode)
 
@@ -299,8 +346,20 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
         gc.collect()
 
 
-def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
+def scrape_spotify_mediatrend(
+    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+):
+    """Read and process data from Spotify Mediatrend.
 
+    This method supplies demographical data and other items that are only available
+    through Mediatrend (and not through the Spotify API).
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     if start_date is None:
         start_date = dt.date.today() - dt.timedelta(days=20)
 
@@ -319,7 +378,7 @@ def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
                 print("No Spotify data for", podcast)
                 continue
 
-            # Create mapping from episode title to object for faster lookups
+            # Create mapping from episode title to Spotify dataset for faster lookups
             spotify_episodes = {}
             for ep in spotify_podcast.episodes_collection:
                 if ep.episode in spotify_episodes:
@@ -337,7 +396,7 @@ def scrape_spotify_mediatrend(*, start_date=None, podcast_filter=None):
                 try:
                     spotify_episode = spotify_episodes[podcast_episode.title]
                 except KeyError:
-                    # Not log to Sentry as the database lags behind a week
+                    # Don't log to Sentry as the database lags behind a week
                     print(
                         "Could not find Spotify episode",
                         podcast_episode,
@@ -434,8 +493,20 @@ def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
     )
 
 
-def scrape_podstat(*, start_date=None, podcast_filter=None):
+def scrape_podstat(
+    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+):
+    """Read and process data from Podstat.
 
+    This method supplies data per episode of self hosted podcasts. Specifically, the
+    number of download and on-demand client requests per media file for each episode.
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     if start_date is None:
         start_date = dt.date.today() - dt.timedelta(days=20)
 
@@ -558,7 +629,20 @@ def _aggregate_episode_data(data_objects):
     return list(cache.values())
 
 
-def scrape_episode_data_webtrekk_performance(*, start_date=None, podcast_filter=None):
+def scrape_episode_data_webtrekk_performance(
+    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+):
+    """Read and process data from Webtrekk.
+
+    This method supplies episode data from the Webtrekk database based on each episode's
+    ZMDB ID.
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
     today = local_today()
     yesterday = local_yesterday()
 

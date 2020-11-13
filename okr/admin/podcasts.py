@@ -1,3 +1,6 @@
+"""Forms for adding and editing podcasts
+"""
+
 from datetime import date, timedelta
 from decimal import Decimal
 import re
@@ -24,6 +27,13 @@ from ..scrapers.podcasts.spotify_api import spotify_api, fetch_all
 
 
 class FeedForm(forms.ModelForm):
+    """Form for adding a new podcast
+
+    This form processes a feed url inputted by the user. It adds a new podcast to
+    the database and initiates a scraper run to collect basic data about the
+    podcast.
+    """
+
     class Meta:
         model = Podcast
         fields = ["feed_url"]
@@ -57,6 +67,8 @@ class FeedForm(forms.ModelForm):
 
 
 class PodcastAdmin(ProductAdmin):
+    """List for choosing an existing podcast to edit"""
+
     list_display = ProductAdmin.list_display + ["author", "spotify_id"]
     list_filter = ["author"]
 
@@ -67,6 +79,8 @@ class PodcastAdmin(ProductAdmin):
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify podcast user data to edit"""
+
     list_display = [
         "podcast",
         "date",
@@ -82,6 +96,8 @@ class DataSpotifyAdmin(admin.ModelAdmin):
 
 
 class DataSpotifyHourlyAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify hourly podcast data to edit"""
+
     list_display = [
         "podcast",
         "date_time",
@@ -94,6 +110,8 @@ class DataSpotifyHourlyAdmin(admin.ModelAdmin):
 
 
 class EpisodeAdmin(admin.ModelAdmin):
+    """List for choosing existing podcast episode data to edit"""
+
     list_display = [
         "title",
         "podcast",
@@ -108,6 +126,8 @@ class EpisodeAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify podcast episode data to edit"""
+
     list_display = [
         "episode",
         "date",
@@ -122,6 +142,8 @@ class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify episode user data to edit"""
+
     list_display = [
         "episode",
         "date",
@@ -144,6 +166,8 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify episode performance data to edit"""
+
     list_display = [
         "episode",
         "date",
@@ -159,6 +183,8 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
+    """List for choosing existing Webtrekk episode performance data to edit"""
+
     list_display = [
         "episode",
         "date",
@@ -172,6 +198,8 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataPodstatAdmin(admin.ModelAdmin):
+    """List for choosing existing Podstat episode data to edit"""
+
     list_display = [
         "episode",
         "date",
