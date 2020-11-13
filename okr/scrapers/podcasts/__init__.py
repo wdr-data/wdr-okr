@@ -74,6 +74,11 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
     public API and Spotify podcaster API to determine each episode's Spotify ID, if
     one exists.
 
+    Requesting Spotify data from both the public API and the podcaster API is necessary
+    because episode names in the podaster API can be outdated. On the other hand, only
+    the podcaster API contains information about de-published episodes. Data from both
+    APIs is required to make mapping by episode name possible.
+
     Args:
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
