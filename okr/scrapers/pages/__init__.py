@@ -19,9 +19,10 @@ def scrape_full(property):
 
     start_date = local_yesterday() - dt.timedelta(days=30)
 
-    scrape_gsc(start_date=start_date, property_filter=property_filter)
     sleep(1)
+    scrape_gsc(start_date=start_date, property_filter=property_filter)
 
+    sleep(1)
     scrape_sophora(property_filter=property_filter)
 
     print("Finished full scrape of property", property)
