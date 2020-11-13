@@ -69,7 +69,7 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
         del engine
 
 
-def get_podcast(connection_meta: ConnectionMeta, name: str) -> List[DeclarativeMeta]:
+def get_podcast(connection_meta: ConnectionMeta, name: str) -> DeclarativeMeta:
     """Retrieve podcast data from API.
 
     Args:
@@ -77,12 +77,11 @@ def get_podcast(connection_meta: ConnectionMeta, name: str) -> List[DeclarativeM
         name (str): Name of podcast to look for.
 
     Returns:
-        List[DeclarativeMeta]: List of podcasts matching name.
+        DeclarativeMeta: The podcast matching the name.
     """
     Podcast = connection_meta.classes.Podcast
 
     return connection_meta.session.query(Podcast).filter(Podcast.podcast == name)[0]
-
 
     """
     print(podcast.podcast, "\n")
@@ -92,6 +91,7 @@ def get_podcast(connection_meta: ConnectionMeta, name: str) -> List[DeclarativeM
         for stream in episode.episode_data_streams_collection:
             print(vars(stream))
     """
+
 
 if __name__ == "__main__":
     get_podcast("WDR 5 Polit-WG")
