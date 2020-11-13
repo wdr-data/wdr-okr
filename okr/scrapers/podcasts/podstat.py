@@ -4,11 +4,12 @@
 import os
 import functools
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Iterator, List
 
 from sqlalchemy import create_engine, Column, Integer, ForeignKey
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
 
 from .connection_meta import ConnectionMeta
 
@@ -68,7 +69,7 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
         del engine
 
 
-def get_episode(connection_meta: ConnectionMeta, zmdb_id: int) -> list:
+def get_episode(connection_meta: ConnectionMeta, zmdb_id: int) -> List[DeclarativeMeta]:
     """Retrieve Podstat data for zmdb_id.
 
     Args:
@@ -76,7 +77,7 @@ def get_episode(connection_meta: ConnectionMeta, zmdb_id: int) -> list:
         zmdb_id (int): ZMDB ID
 
     Returns:
-        list: List of data sets that match zmdb_id.
+        list[DeclarativeMeta]: List of data sets that match zmdb_id.
     """
 
     PodcastUrl = connection_meta.classes.PodcastUrl

@@ -4,11 +4,12 @@
 import os
 import functools
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Iterator, List
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
 
 from .connection_meta import ConnectionMeta
 
@@ -68,10 +69,20 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
         del engine
 
 
-def get_podcast(connection_meta: ConnectionMeta, name: str):
+def get_podcast(connection_meta: ConnectionMeta, name: str) -> List[DeclarativeMeta]:
+    """Retrieve podcast data from API.
+
+    Args:
+        connection_meta (ConnectionMeta): Connection to API.
+        name (str): Name of podcast to look for.
+
+    Returns:
+        List[DeclarativeMeta]: List of podcasts matching name.
+    """
     Podcast = connection_meta.classes.Podcast
 
     return connection_meta.session.query(Podcast).filter(Podcast.podcast == name)[0]
+
 
     """
     print(podcast.podcast, "\n")
@@ -81,7 +92,6 @@ def get_podcast(connection_meta: ConnectionMeta, name: str):
         for stream in episode.episode_data_streams_collection:
             print(vars(stream))
     """
-
 
 if __name__ == "__main__":
     get_podcast("WDR 5 Polit-WG")

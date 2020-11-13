@@ -9,10 +9,10 @@ from ..common.webtrekk import Webtrekk
 
 
 def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
-    """Retrieve and process data from Webtrekk API.
+    """Retrieve and process data from Webtrekk API for a specific date.
 
     Args:
-        date (Optional[dt.date], optional): Earliest date to request data for. Defaults
+        date (Optional[dt.date], optional): Date to request data for. Defaults
           to None.
 
     Returns:

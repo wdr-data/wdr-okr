@@ -30,7 +30,8 @@ class FeedForm(forms.ModelForm):
     """Form for adding a new podcast
 
     This form processes a feed url inputted by the user. It adds a new podcast to
-    the database and initiates a full scraper run.
+    the database and initiates a scraper run to collect basic data about the
+    podcast.
     """
     class Meta:
         model = Podcast

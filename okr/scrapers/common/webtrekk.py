@@ -111,7 +111,8 @@ class Webtrekk:
         Args:
             name (str): id of the report to retrieve
             start_date (Optional[dt.date], optional): Earliest date to retrieve data
-              for. Defaults to None.
+              for. If only a start_date but no end_date is provided, the scraper will
+              only collect data for the date provided in start_date. Defaults to None.
             end_date (Optional[dt.date], optional): Latest date to retrieve data
               for. Defaults to None.
 

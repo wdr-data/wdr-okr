@@ -68,7 +68,7 @@ def scrape_full(podcast: Podcast):
 def scrape_feed(*, podcast_filter: Optional[Q] = None):
     """Read and process data from podcast RSS feed.
 
-    This method supplies publicly available metadata for podcast episodes. This incluces
+    This method supplies publicly available metadata for podcast episodes. This includes
     information such as episode title, episode description, episode duration and
     ZMDB ID for the episode's media file. Additionally, this method uses the Spotify
     public API and Spotify podcaster API to determine each episode's Spotify ID, if
@@ -196,7 +196,7 @@ def scrape_spotify_api(
             print("No Spotify ID for", podcast)
             continue
 
-        # Retrieve follower and listener data for podcast (ignores start_date)
+        # Retrieve follower and listener data for podcast
         follower_data = spotify_api.podcast_followers(podcast.spotify_id)
 
         first_episode_date = podcast.episodes.order_by("publication_date_time")[
