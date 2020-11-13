@@ -1,6 +1,5 @@
 import datetime as dt
 from time import sleep
-import pytz
 import gc
 import functools
 
@@ -14,7 +13,7 @@ from . import spotify
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .webtrekk import cleaned_webtrekk_audio_data
-from ..common.utils import local_today, local_yesterday, date_range
+from ..common.utils import local_today, local_yesterday, date_range, BERLIN, UTC
 from ...models import (
     Podcast,
     PodcastEpisode,
@@ -26,8 +25,6 @@ from ...models import (
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataWebtrekkPerformance,
 )
-
-berlin = pytz.timezone("Europe/Berlin")
 
 
 def scrape_full(podcast):
@@ -109,9 +106,7 @@ def scrape_feed(*, podcast_filter=None):
             zmdb_id = int(media_url.split("/")[-2])
             t = dt.datetime.strptime(entry.itunes_duration, "%H:%M:%S")
             duration = dt.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
-            publication_date_time = dt.datetime(
-                *entry.published_parsed[:6], tzinfo=pytz.UTC
-            )
+            publication_date_time = dt.datetime(*entry.published_parsed[:6], tzinfo=UTC)
             defaults = {
                 "podcast": podcast,
                 "title": entry.title,
@@ -232,7 +227,7 @@ def scrape_spotify_api(*, start_date=None, podcast_filter=None):
             for hour in range(0, 24):
                 agg_type_data = {}
                 date_time = dt.datetime(
-                    date.year, date.month, date.day, hour, tzinfo=pytz.UTC
+                    date.year, date.month, date.day, hour, tzinfo=UTC
                 )
                 for agg_type in ["starts", "streams"]:
                     try:
@@ -522,7 +517,7 @@ def scrape_podstat(*, start_date=None, podcast_filter=None):
 
 
 def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
-    ucount_date = dt.datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
+    ucount_date = dt.datetime.fromtimestamp(podcast_ucount.zeit, BERLIN).date()
 
     return {
         "episode": podcast_episode,
@@ -533,7 +528,7 @@ def _scrape_episode_data_podstat_ondemand(podcast_episode, podcast_ucount):
 
 
 def _scrape_episode_data_podstat_download(podcast_episode, podcast_ucount):
-    ucount_date = dt.datetime.fromtimestamp(podcast_ucount.zeit, berlin).date()
+    ucount_date = dt.datetime.fromtimestamp(podcast_ucount.zeit, BERLIN).date()
 
     return {
         "episode": podcast_episode,

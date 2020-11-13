@@ -6,14 +6,12 @@ from apscheduler.events import EVENT_JOB_ERROR
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from pytz import timezone
 from sentry_sdk import capture_exception
 
 from ..models import Podcast, Insta, YouTube, Property
 from . import insta, youtube, podcasts, pages
+from .common.utils import BERLIN
 
-
-berlin = timezone("Europe/Berlin")
 
 scheduler = None
 
@@ -26,7 +24,7 @@ def sentry_listener(event):
 def start():
     """Add and define scheduler for each scraper module."""
     global scheduler
-    scheduler = BackgroundScheduler(timezone=berlin)
+    scheduler = BackgroundScheduler(timezone=BERLIN)
     scheduler.start()
 
     if settings.DEBUG:
