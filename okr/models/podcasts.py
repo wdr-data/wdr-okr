@@ -39,6 +39,7 @@ class PodcastDataSpotify(models.Model):
 
     Table contains basic Spotify data for each podcast that is available on Spotify.
     """
+
     class Meta:
         db_table = "podcast_data_spotify"
         verbose_name = "Podcast-Spotify-Nutzer"
@@ -70,6 +71,7 @@ class PodcastDataSpotifyHourly(models.Model):
 
     Table contains hourly Spotify data for each podcast that is available on Spotify.
     """
+
     class Meta:
         db_table = "podcast_data_spotify_hourly"
         verbose_name = "Podcast-Spotify-Abruf (stündlich)"
@@ -97,6 +99,7 @@ class PodcastEpisode(models.Model):
 
     Table contains basic data for each podcast episode.
     """
+
     class Meta:
         db_table = "podcast_episode"
         verbose_name = "Podcast-Episode"
@@ -137,6 +140,7 @@ class PodcastEpisodeDataSpotify(models.Model):
 
     Table contains basic Spotify data for each episode that is available on Spotify.
     """
+
     class Meta:
         db_table = "podcast_episode_data_spotify"
         verbose_name = "Podcast-Episoden-Abruf (Spotify)"
@@ -168,6 +172,7 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
     Table contains Spotify user data for each episode that is available on Spotify.
     """
+
     class Meta:
         db_table = "podcast_episode_data_spotify_user"
         verbose_name = "Podcast-Episoden-Nutzer (Spotify)"
@@ -209,6 +214,7 @@ class PodcastEpisodeDataPodstat(models.Model):
 
     Table contains Podstat data for each episode.
     """
+
     class Meta:
         db_table = "podcast_episode_data_podstat"
         verbose_name = "Podcast-Episoden-Abruf (Podstat)"
@@ -239,6 +245,7 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
     Table contains Spotify performance data for each episode that is available on
       Spotify.
     """
+
     class Meta:
         db_table = "podcast_episode_data_spotify_performance"
         verbose_name = "Podcast-Episoden-Performance (Spotify)"
@@ -274,6 +281,7 @@ class PodcastEpisodeDataWebtrekkPerformance(models.Model):
 
     Table contains Webtrekk data for each episode.
     """
+
     class Meta:
         db_table = "podcast_episode_data_webtrekk_performance"
         verbose_name = "Podcast-Episoden-Performance (Webtrekk)"

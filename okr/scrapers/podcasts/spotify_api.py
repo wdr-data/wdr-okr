@@ -150,9 +150,11 @@ class CustomSpotify(spotipy.Spotify):
             end=end.isoformat(),
         )["aggregation"][agg_type]["counts"]
 
-T = TypeVar('T')
 
-def _divide_chunks(l: List[T], n: int) ->Iterator[List[T]]:
+T = TypeVar("T")
+
+
+def _divide_chunks(l: List[T], n: int) -> Iterator[List[T]]:
     # looping till length l
     for i in range(0, len(l), n):
         yield l[i : i + n]
