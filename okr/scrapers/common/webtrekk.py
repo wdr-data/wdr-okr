@@ -48,13 +48,13 @@ class Webtrekk:
             "language": "de",
         }
         self.token = self._get_response(method="login", params=params)
-        print(f"{WEBTREKK_LOGIN} has been sucessfully connected to to {self.name}.")
+        print(f"{WEBTREKK_LOGIN} has been successfully connected to to {self.name}.")
 
     def logout(self):
         """ Logout from JSON/RSP API
         """
         self._get_response("logout", {"token": self.token})
-        print(f"{WEBTREKK_LOGIN} has been logged out sucessfully from {self.name}.")
+        print(f"{WEBTREKK_LOGIN} has been logged out successfully from {self.name}.")
 
     @contextmanager
     def session(self):
