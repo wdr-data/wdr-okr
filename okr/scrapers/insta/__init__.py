@@ -1,6 +1,5 @@
 from datetime import date, datetime
 from time import sleep
-from pytz import timezone
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
@@ -8,9 +7,7 @@ from sentry_sdk import capture_exception
 
 from ...models.insta import *
 from ..common import quintly
-
-
-berlin = timezone("Europe/Berlin")
+from ..common.utils import BERLIN
 
 
 def scrape_full(insta):
@@ -84,7 +81,7 @@ def scrape_stories(*, start_date=None, insta_filter=None):
 
         for index, row in df.iterrows():
             defaults = {
-                "created_at": berlin.localize(datetime.fromisoformat(row.time)),
+                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
                 "caption": row.caption,
                 "reach": row.reach or 0,
                 "impressions": row.impressions or 0,
@@ -120,7 +117,7 @@ def scrape_posts(*, start_date=None, insta_filter=None):
 
         for index, row in df.iterrows():
             defaults = {
-                "created_at": berlin.localize(datetime.fromisoformat(row.time)),
+                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
                 "message": row.message,
                 "comments": row.comments or 0,
                 "reach": row.reach or 0,

@@ -72,3 +72,6 @@ venv.bak/
 
 .vscode
 /static
+
+# Service account
+google-credentials.json
