@@ -52,7 +52,11 @@ def scrape_gsc(
 
                 try:
                     match = re.match(r".*/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$", url)
+
                     sophora_id = match.group(1)
+                    # Cut off any other weird Sophora parameters
+                    sophora_id = re.sub(f"~.*", "", sophora_id)
+
                     sophora_page = match.group(2)
 
                     if sophora_page is not None:
