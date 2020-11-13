@@ -74,12 +74,14 @@ class PageMeta(models.Model):
         to=Page,
         verbose_name="Seite",
         on_delete=models.CASCADE,
-        related_name="meta",
+        related_name="metas",
         related_query_name="meta",
         unique=True,
     )
 
-    editorial_update = models.DateTimeField(verbose_name="Redaktioneller Stand")
+    editorial_update = models.DateTimeField(
+        verbose_name="Redaktioneller Stand", null=True
+    )
     headline = models.TextField(
         verbose_name="Titel",
     )

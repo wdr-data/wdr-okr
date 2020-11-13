@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                             "und eine Unterseite besucht wird, steht hier ein Wert"
                         ),
                         null=True,
-                        verbose_name="Seite",
+                        verbose_name="Sophora-Seite",
                     ),
                 ),
                 (
@@ -113,7 +113,7 @@ class Migration(migrations.Migration):
                     "page",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="meta",
+                        related_name="metas",
                         related_query_name="meta",
                         to="okr.page",
                         unique=True,
