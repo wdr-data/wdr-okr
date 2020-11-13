@@ -25,6 +25,7 @@ apscheduler = "*"
 django-bulk-sync = "*"
 sentry-sdk = "*"
 spotipy = "*"
+google-api-python-client = "*"
 
 [requires]
 python_version = "3.8"
