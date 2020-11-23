@@ -29,7 +29,9 @@ def scrape_full(property):
 
 
 def scrape_gsc(
-    *, start_date: Optional[dt.date] = None, property_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    property_filter: Optional[Q] = None,
 ):
     today = local_today()
     yesterday = local_yesterday()

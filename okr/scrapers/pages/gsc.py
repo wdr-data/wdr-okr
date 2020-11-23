@@ -12,7 +12,10 @@ Dimension = Literal["page", "device", "date", "query", "country", "searchAppeara
 
 
 def fetch_day(
-    property: Property, date: dt.date, *, dimensions: Optional[List[Dimension]] = None
+    property: Property,
+    date: dt.date,
+    *,
+    dimensions: Optional[List[Dimension]] = None,
 ) -> List[Dict[str, Any]]:
     if dimensions is None:
         dimensions = [

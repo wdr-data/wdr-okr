@@ -160,7 +160,9 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
 
 
 def scrape_spotify_api(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Spotify API.
 
@@ -346,7 +348,9 @@ def scrape_spotify_api(
 
 
 def scrape_spotify_mediatrend(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Spotify Mediatrend.
 
@@ -493,7 +497,9 @@ def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
 
 
 def scrape_podstat(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Podstat.
 
@@ -629,7 +635,9 @@ def _aggregate_episode_data(data_objects):
 
 
 def scrape_episode_data_webtrekk_performance(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Webtrekk.
 

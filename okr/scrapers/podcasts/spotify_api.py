@@ -161,7 +161,10 @@ def _divide_chunks(l: List[T], n: int) -> Iterator[List[T]]:
 
 
 def fetch_all(
-    fn: callable, ids: List[str], result_key: str, chunk_size: int = 50
+    fn: callable,
+    ids: List[str],
+    result_key: str,
+    chunk_size: int = 50,
 ) -> List[Dict]:
     agg = []
     for chunk in _divide_chunks(ids, chunk_size):
