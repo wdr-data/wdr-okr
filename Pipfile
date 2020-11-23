@@ -8,6 +8,7 @@ format = "black . --exclude wheels"
 manage = "python manage.py"
 
 [dev-packages]
+black = "*"
 
 [packages]
 django = "*"
