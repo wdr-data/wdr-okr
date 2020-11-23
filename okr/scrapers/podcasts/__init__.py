@@ -31,7 +31,12 @@ from ...models import (
 )
 
 
-def scrape_full(podcast: Podcast):
+def scrape_full(
+    podcast: Podcast,
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+):
     """Read and process all available data for podcast.
 
     Args:
@@ -40,23 +45,37 @@ def scrape_full(podcast: Podcast):
     print("Running full scrape of", podcast)
 
     podcast_filter = Q(id=podcast.id)
-    start_date = dt.date(2016, 1, 1)
+    start_date = start_date or dt.date(2016, 1, 1)
 
     sleep(1)
     scrape_feed(podcast_filter=podcast_filter)
 
     sleep(1)
-    scrape_spotify_mediatrend(start_date=start_date, podcast_filter=podcast_filter)
+    scrape_spotify_mediatrend(
+        start_date=start_date,
+        end_date=end_date,
+        podcast_filter=podcast_filter,
+    )
 
     sleep(1)
-    scrape_spotify_api(start_date=start_date, podcast_filter=podcast_filter)
+    scrape_spotify_api(
+        start_date=start_date,
+        end_date=end_date,
+        podcast_filter=podcast_filter,
+    )
 
     sleep(1)
-    scrape_podstat(start_date=start_date, podcast_filter=podcast_filter)
+    scrape_podstat(
+        start_date=start_date,
+        end_date=end_date,
+        podcast_filter=podcast_filter,
+    )
 
     sleep(1)
     scrape_episode_data_webtrekk_performance(
-        start_date=start_date, podcast_filter=podcast_filter
+        start_date=start_date,
+        end_date=end_date,
+        podcast_filter=podcast_filter,
     )
 
     print("Finished full scrape of", podcast)
@@ -160,7 +179,10 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
 
 
 def scrape_spotify_api(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Spotify API.
 
@@ -178,11 +200,12 @@ def scrape_spotify_api(
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
     """
-    today = local_today()
     yesterday = local_yesterday()
 
     if start_date is None:
         start_date = yesterday - dt.timedelta(days=5)
+
+    end_date = end_date or yesterday
 
     podcasts = Podcast.objects.all()
 
@@ -206,7 +229,7 @@ def scrape_spotify_api(
         if start_date < first_episode_date:
             start_date = first_episode_date
 
-        for date in reversed(date_range(start_date, yesterday)):
+        for date in reversed(date_range(start_date, end_date)):
             # Read daily data
             try:
                 listener_data_all_time = spotify_api.podcast_data_date_range(
@@ -301,7 +324,7 @@ def scrape_spotify_api(
                 continue
 
             # Scrape stream stats for episode
-            for date in date_range(start_date, yesterday):
+            for date in date_range(start_date, end_date):
                 if date < podcast_episode.publication_date_time.date():
                     continue
 
@@ -346,7 +369,10 @@ def scrape_spotify_api(
 
 
 def scrape_spotify_mediatrend(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Spotify Mediatrend.
 
@@ -361,6 +387,8 @@ def scrape_spotify_mediatrend(
     """
     if start_date is None:
         start_date = dt.date.today() - dt.timedelta(days=20)
+
+    end_date = end_date or local_today()
 
     podcasts = Podcast.objects.all()
 
@@ -409,7 +437,8 @@ def scrape_spotify_mediatrend(
                 for (
                     additional_data
                 ) in spotify_episode.episode_data_additional_collection.filter(
-                    Additional.datum >= start_date
+                    Additional.datum >= start_date,
+                    Additional.datum <= end_date,
                 ):
                     if additional_data.datum in dates:
                         print("Multiple spotify user stats for", additional_data.datum)
@@ -493,7 +522,10 @@ def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
 
 
 def scrape_podstat(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Podstat.
 
@@ -509,8 +541,22 @@ def scrape_podstat(
     if start_date is None:
         start_date = dt.date.today() - dt.timedelta(days=20)
 
+    end_date = end_date or local_today()
+
     start_time = int(
-        dt.datetime(start_date.year, start_date.month, start_date.day).timestamp()
+        dt.datetime(
+            start_date.year,
+            start_date.month,
+            start_date.day,
+        ).timestamp()
+    )
+
+    end_time = int(
+        dt.datetime(
+            end_date.year,
+            end_date.month,
+            end_date.day,
+        ).timestamp()
     )
 
     podcasts = Podcast.objects.all()
@@ -548,7 +594,8 @@ def scrape_podstat(
 
                     PodcastCount = connection_meta.classes.PodcastCount
                     for podcast_ucount in variant.podcast_ucount_tag_collection.filter(
-                        PodcastCount.zeit >= start_time
+                        PodcastCount.zeit >= start_time,
+                        PodcastCount.zeit <= end_time,
                     ):
                         if variant_type == "O":
                             ondemand_objects_episode.append(
@@ -629,7 +676,10 @@ def _aggregate_episode_data(data_objects):
 
 
 def scrape_episode_data_webtrekk_performance(
-    *, start_date: Optional[dt.date] = None, podcast_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Read and process data from Webtrekk.
 
@@ -648,9 +698,11 @@ def scrape_episode_data_webtrekk_performance(
     if start_date is None:
         start_date = yesterday - dt.timedelta(days=2)
     start_date = max(start_date, today - dt.timedelta(days=7))
-    start_date = min(start_date, yesterday)
 
-    for date in reversed(date_range(start_date, yesterday)):
+    end_date = end_date or yesterday
+    start_date = min(start_date, end_date)
+
+    for date in reversed(date_range(start_date, end_date)):
         data = cleaned_webtrekk_audio_data(date)
 
         podcasts = Podcast.objects.all()
