@@ -119,19 +119,23 @@ class CustomSpotify(spotipy.Spotify):
 
     def podcast_episodes(self, podcast_id: str):
         return self.podcast_api(
-            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes"
+            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes",
         )
 
     def podcast_episode_meta(self, podcast_id: str, episode_id: str):
         return self.podcast_api(
-            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes/{episode_id}/metadata"
+            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes/{episode_id}/metadata",
         )
 
     def podcast_episode_data(
-        self, podcast_id: str, episode_id: str, agg_type: str, date: dt.date
+        self,
+        podcast_id: str,
+        episode_id: str,
+        agg_type: str,
+        date: dt.date,
     ):
         return self.podcast_api(
-            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes/{episode_id}/{agg_type}/{date.year}/{date.month}/{date.day}/total"
+            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes/{episode_id}/{agg_type}/{date.year}/{date.month}/{date.day}/total",
         )["aggregation"][agg_type]["counts"]
 
     def podcast_episode_data_all_time(

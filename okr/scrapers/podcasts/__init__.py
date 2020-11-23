@@ -516,7 +516,11 @@ def scrape_podstat(
         start_date = dt.date.today() - dt.timedelta(days=20)
 
     start_time = int(
-        dt.datetime(start_date.year, start_date.month, start_date.day).timestamp()
+        dt.datetime(
+            start_date.year,
+            start_date.month,
+            start_date.day,
+        ).timestamp()
     )
 
     podcasts = Podcast.objects.all()
