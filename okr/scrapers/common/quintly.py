@@ -1,4 +1,4 @@
-""" Basic functions to connect to quintly API.
+""" Basic functions to connect to Quintly API.
 """
 
 import os
