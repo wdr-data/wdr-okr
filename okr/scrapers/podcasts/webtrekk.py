@@ -2,7 +2,7 @@
 """
 
 import datetime as dt
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, Union
 import re
 
 from ..common.webtrekk import Webtrekk
@@ -32,7 +32,7 @@ def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
 
     # Loop over episodes
     head = data["analysisTabHead"]
-    data_dict = {}
+    data_dict: Dict[int, Dict[str, Any]] = {}
     for element in data["analysisData"]:
 
         # Find ZMDB ID

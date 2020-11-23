@@ -2,7 +2,7 @@
 """
 
 import os
-from typing import Dict, List, Iterator, TypeVar, Union
+from typing import Callable, Dict, List, Iterator, TypeVar, Union
 import datetime as dt
 from enum import Enum
 from time import sleep
@@ -165,7 +165,7 @@ def _divide_chunks(l: List[T], n: int) -> Iterator[List[T]]:
 
 
 def fetch_all(
-    fn: callable,
+    fn: Callable,
     ids: List[str],
     result_key: str,
     chunk_size: int = 50,
