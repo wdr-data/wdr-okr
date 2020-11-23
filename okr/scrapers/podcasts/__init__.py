@@ -42,7 +42,7 @@ def scrape_full(
     Args:
         podcast (Podcast): Podcast to scrape data for
         start_date (dt.date, optional): earliest date to request data for. Defaults to
-          None.
+          None. If not set, 01-01-2016 is used.
         end_date (dt.date, optional): Latest date to request data for. Defaults to
           None.
     """
@@ -200,9 +200,9 @@ def scrape_spotify_api(
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
-          None.
+          None. If not set, "6 days ago" is used.
         end_date (dt.date, optional): Latest date to request data for. Defaults to
-          None.
+          None. If not set, "yesterday" is used.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
     """
@@ -387,9 +387,9 @@ def scrape_spotify_mediatrend(
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
-          None.
+          None. If not set, "20 days ago" is used.
         end_date (dt.date, optional): Latest date to request data for. Defaults to
-          None.
+          None. If not set, "today" is used.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
     """
@@ -542,9 +542,9 @@ def scrape_podstat(
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
-          None.
+          None. If not set, "20 days ago" is used.
         end_date (dt.date, optional): Latest date to request data for. Defaults to
-          None.
+          None. If not set, "today" is used.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
     """
@@ -698,9 +698,10 @@ def scrape_episode_data_webtrekk_performance(
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
-          None.
+          None. If not set, "3 days ago" is used. Values are truncated to be no longer
+          than 7 days ago.
         end_date (dt.date, optional): Latest date to request data for. Defaults to
-          None.
+          None. If not set, "yesterday" is used.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
     """
