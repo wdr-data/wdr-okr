@@ -324,7 +324,7 @@ def scrape_spotify_api(
                 continue
 
             # Scrape stream stats for episode
-            for date in date_range(start_date, yesterday):
+            for date in date_range(start_date, end_date):
                 if date < podcast_episode.publication_date_time.date():
                     continue
 
