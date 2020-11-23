@@ -1,3 +1,6 @@
+""" Basic functions to connect to quintly API.
+"""
+
 import os
 import datetime
 import functools

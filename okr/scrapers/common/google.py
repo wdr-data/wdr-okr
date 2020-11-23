@@ -1,5 +1,4 @@
-"""
-Set up service account credentials and needed services.
+""" Set up service account credentials and needed services.
 """
 
 from datetime import date
