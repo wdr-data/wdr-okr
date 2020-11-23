@@ -41,6 +41,10 @@ def scrape_full(
 
     Args:
         podcast (Podcast): Podcast to scrape data for
+        start_date (dt.date, optional): earliest date to request data for. Defaults to
+          None.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
+          None.
     """
     print("Running full scrape of", podcast)
 
@@ -196,6 +200,8 @@ def scrape_spotify_api(
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
           None.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
@@ -382,6 +388,8 @@ def scrape_spotify_mediatrend(
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
           None.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
+          None.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
     """
@@ -534,6 +542,8 @@ def scrape_podstat(
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
           None.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
@@ -688,6 +698,8 @@ def scrape_episode_data_webtrekk_performance(
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
           None.
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
