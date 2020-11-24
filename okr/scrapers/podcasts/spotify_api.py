@@ -1,11 +1,11 @@
-"""Wrapper for Spotify APIs (using the spotipy library)
-"""
+"""Wrapper for Spotify APIs (using the spotipy library)"""
 
 import os
 from typing import Dict, List, Iterator, TypeVar, Union
 import datetime as dt
 from enum import Enum
 from time import sleep
+from typing import Callable, Optional
 import logging
 
 import spotipy
@@ -19,7 +19,17 @@ LICENSOR_ID = os.environ.get("SPOTIFY_LICENSOR_ID")
 
 
 class SpotipyFilter(logging.Filter):
-    def filter(self, record):
+    """Filter to check reply message for errors"""
+
+    def filter(self, record) -> bool:
+        """Check reply message for errors (True/False).
+
+        Args:
+            record: Record to check.
+
+        Returns:
+            bool: True if no error detected, False if error detected.
+        """
         return not record.getMessage().endswith("returned 404 due to error")
 
 
@@ -27,7 +37,11 @@ spotipy.client.logger.addFilter(SpotipyFilter())
 
 
 class CustomSpotify(spotipy.Spotify):
+    """Custom class based on spotipy.Spotify."""
+
     class Precision(Enum):
+        """Degrees of precision for API requests."""
+
         YEAR = 1
         MONTH = 2
         DAY = 3
@@ -64,14 +78,35 @@ class CustomSpotify(spotipy.Spotify):
 
         raise error
 
-    def podcast_api(self, path: str, *, payload=None, **kwargs) -> Dict:
+    def podcast_api(
+        self,
+        path: str,
+        *,
+        payload: Optional[str] = None,
+        **kwargs,
+    ) -> Dict:
+        """Read data from Podstat Spotify API.
+
+        Args:
+            path (str): path to request data from.
+            payload (Optional[str], optional): Additional payload for API request.
+              Defaults to None.
+
+        Returns:
+            Dict: Results from API.
+        """
         if path.startswith("/"):
             path = path[1:]
 
         url = "https://generic.wg.spotify.com/podcasters-analytics-api/" + path
         return self._internal_call("GET", url, payload, kwargs)
 
-    def licensed_podcasts(self):
+    def licensed_podcasts(self) -> str:
+        """Generate URL element for licensed podcast.
+
+        Returns:
+            str: URL element with LICENSOR_ID (environment variable).
+        """
         return self.podcast_api(f"licensors/{LICENSOR_ID}/podcasts")
 
     def podcast_data(
@@ -81,14 +116,25 @@ class CustomSpotify(spotipy.Spotify):
         date: Union[dt.date, dt.datetime],
         *,
         precision: Precision = Precision.DAY,
-    ):
+    ) -> dict:
+        """Read data from Podstat Spotify API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+            agg_type (str): Aggregation type.
+            date (Union[dt.date, dt.datetime]): Date to request data for.
+            precision (Precision, optional): Degree of precision. Defaults to
+              Precision.DAY.
+
+        Returns:
+            dict: Results from API.
+        """
         path_components = [date.year, date.month, date.day]
 
         if isinstance(date, dt.datetime):
             path_components.append(date.hour)
 
         sub_path = "/".join(map(str, path_components[: precision.value]))
-
         return self.podcast_api(
             f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/{agg_type}/{sub_path}/total"
         )["aggregation"][agg_type]["counts"]
@@ -98,9 +144,22 @@ class CustomSpotify(spotipy.Spotify):
         podcast_id: str,
         agg_type: str,
         *,
-        start: dt.date = None,
-        end: dt.date = None,
-    ):
+        start: Optional[dt.date] = None,
+        end: Optional[dt.date] = None,
+    ) -> dict:
+        """Read data from Podstat Spotify API for specific period of time.
+
+        Args:
+            podcast_id (str): Podcast ID.
+            agg_type (str): Aggregation type.
+            start (Optional[dt.date], optional): Earliest date to request data for.
+              Defaults to None. Will be set to 01/01/2016 if None.
+            end (Optional[dt.date], optional): Latest date to request data for.
+              Defaults to None. Will be set to yesterday's date if None.
+
+        Returns:
+            dict: Results from API.
+        """
         if start is None:
             start = dt.date(2016, 1, 1)
         if end is None:
@@ -112,17 +171,42 @@ class CustomSpotify(spotipy.Spotify):
             end=end.isoformat(),
         )["aggregation"][agg_type]["counts"]
 
-    def podcast_followers(self, podcast_id: str):
+    def podcast_followers(self, podcast_id: str) -> dict:
+        """Read followers data from Podstat Spotify API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+
+        Returns:
+            dict: Results from API.
+        """
         return self.podcast_api(
             f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/followers/total",
         )["aggregation"]["followers"]["counts"]
 
-    def podcast_episodes(self, podcast_id: str):
+    def podcast_episodes(self, podcast_id: str) -> dict:
+        """Read episodes data from Podstat Spotify API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+
+        Returns:
+            dict: Results from API.
+        """
         return self.podcast_api(
             f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes",
         )
 
-    def podcast_episode_meta(self, podcast_id: str, episode_id: str):
+    def podcast_episode_meta(self, podcast_id: str, episode_id: str) -> dict:
+        """Read meta data for specific episode from Podstat Spotify API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+            episode_id (str): Episode ID.
+
+        Returns:
+            dict: Results from API.
+        """
         return self.podcast_api(
             f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes/{episode_id}/metadata",
         )
@@ -133,7 +217,18 @@ class CustomSpotify(spotipy.Spotify):
         episode_id: str,
         agg_type: str,
         date: dt.date,
-    ):
+    ) -> dict:
+        """Read data for specific episode on specific date from Podstat Spotify API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+            episode_id (str): Episode ID.
+            agg_type (str): Aggregation type.
+            date (dt.date): Date to request data for.
+
+        Returns:
+            dict: Results from API.
+        """
         return self.podcast_api(
             f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/episodes/{episode_id}/{agg_type}/{date.year}/{date.month}/{date.day}/total",
         )["aggregation"][agg_type]["counts"]
@@ -143,8 +238,20 @@ class CustomSpotify(spotipy.Spotify):
         podcast_id: str,
         episode_id: str,
         agg_type: str,
-        end: dt.date = None,
-    ):
+        end: Optional[dt.date] = None,
+    ) -> dict:
+        """Read long-term data for specific episode from Podstat Spotify API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+            episode_id (str): Episode ID.
+            agg_type (str): Aggregation type.
+            end (Optional[dt.date], optional): Latest date to include in request.
+              Defaults to None. Will be set to yesterday's date if None.
+
+        Returns:
+            dict:  Results from API.
+        """
         if end is None:
             end = local_yesterday()
 
@@ -165,7 +272,7 @@ def _divide_chunks(l: List[T], n: int) -> Iterator[List[T]]:
 
 
 def fetch_all(
-    fn: callable,
+    fn: Callable,
     ids: List[str],
     result_key: str,
     chunk_size: int = 50,
