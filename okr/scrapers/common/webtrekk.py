@@ -13,6 +13,7 @@ WEBTREKK_PASSWORD = os.environ.get("WEBTREKK_PASSWORD")
 
 class WebtrekkError(Exception):
     """Error class for Webtrekk."""
+
     pass
 
 
