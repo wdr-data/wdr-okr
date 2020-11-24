@@ -37,7 +37,9 @@ def scrape_full(property: Property):
 
 
 def scrape_gsc(
-    *, start_date: Optional[dt.date] = None, property_filter: Optional[Q] = None
+    *,
+    start_date: Optional[dt.date] = None,
+    property_filter: Optional[Q] = None,
 ):
     """Scrape from Google Search Console API and update Page and PageDataGSC in the
     database.
@@ -153,7 +155,8 @@ def scrape_sophora(*, property_filter: Optional[Q] = None):
 
             if "teaser" in sophora_page:
                 editorial_update = dt.datetime.fromtimestamp(
-                    sophora_page["teaser"]["redaktionellerStand"], tz=BERLIN
+                    sophora_page["teaser"]["redaktionellerStand"],
+                    tz=BERLIN,
                 )
                 headline = sophora_page["teaser"]["schlagzeile"]
                 teaser = "\n".join(sophora_page["teaser"]["teaserText"])
@@ -165,7 +168,8 @@ def scrape_sophora(*, property_filter: Optional[Q] = None):
 
             elif sophora_page.get("mediaType") in ["audio", "video"]:
                 editorial_update = dt.datetime.fromtimestamp(
-                    sophora_page["lastModified"] / 1000, tz=BERLIN
+                    sophora_page["lastModified"] / 1000,
+                    tz=BERLIN,
                 )
                 headline = sophora_page["title"]
                 teaser = "\n".join(sophora_page.get("teaserText", []))

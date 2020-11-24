@@ -42,7 +42,7 @@ def get_insta_insights(
     profile_id: int,
     *,
     interval: str = "daily",
-    start_date: Optional[datetime.date] = None
+    start_date: Optional[datetime.date] = None,
 ) -> pd.DataFrame:
     """Read data for posts on Instagram profile via Quintly API.
 
@@ -50,7 +50,7 @@ def get_insta_insights(
         profile_id (int): ID of profile to request data for.
         interval (str, optional): Description of interval. Defaults to "daily".
         start_date ([type], optional): Date of earliest data to request. Defaults to
-          None. Will be set to nearest possible date if None.
+          None. Will be set to include at least two intervals if None.
 
     Returns:
         pd.DataFrame: API response data.
@@ -99,7 +99,9 @@ def get_insta_insights(
 
 @requires_quintly
 def get_insta_stories(
-    profile_id: int, *, start_date: Optional[datetime.date] = None
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
 ) -> pd.DataFrame:
     """Read data for stories on Instagram profile via Quintly API.
 
@@ -137,7 +139,9 @@ def get_insta_stories(
 
 @requires_quintly
 def get_insta_posts(
-    profile_id: int, *, start_date: Optional[datetime.date] = None
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
 ) -> pd.DataFrame:
     """Read data for posts on Instagram profile via Quintly API.
 
@@ -179,7 +183,7 @@ def get_youtube_analytics(
     profile_id: int,
     *,
     interval: str = "daily",
-    start_date: Optional[datetime.date] = None
+    start_date: Optional[datetime.date] = None,
 ) -> pd.DataFrame:
     """Read YouTube data via Quintly API.
 
@@ -217,7 +221,12 @@ def get_youtube_analytics(
     ]
 
     df = quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval=interval,
     )
 
     df.time = df.time.str[:10]
