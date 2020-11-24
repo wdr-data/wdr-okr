@@ -1,4 +1,4 @@
-""" Database models for pages
+"""Database models for pages
 """
 
 from django.db import models
@@ -7,12 +7,12 @@ from .base import Product
 
 
 class Property(Product):
-    """ Parent object for pages of a particular website.
+    """Parent object for pages of a particular website.
     Equivalent to a property in Google Search Console.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "property"
@@ -25,12 +25,12 @@ class Property(Product):
 
 
 class Page(models.Model):
-    """ Base data on individual pages.
+    """Base data on individual pages.
     Unique pages are identified by their URL.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "page"
@@ -64,11 +64,11 @@ class Page(models.Model):
 
 
 class PageMeta(models.Model):
-    """ Metadata about individual pages based on Sophora data.
+    """Metadata about individual pages based on Sophora data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "page_meta"
@@ -97,11 +97,11 @@ class PageMeta(models.Model):
 
 
 class PageDataGSC(models.Model):
-    """ Daily page SEO-performance based on Google Search Console data.
+    """Daily page SEO-performance based on Google Search Console data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "page_data_gsc"
@@ -111,7 +111,7 @@ class PageDataGSC(models.Model):
         unique_together = ["date", "page", "device"]
 
     class DeviceType(models.TextChoices):
-        """ Available device types
+        """Available device types
         """
 
         MOBILE = "MOBILE", "Mobil"

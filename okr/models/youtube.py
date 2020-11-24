@@ -1,4 +1,4 @@
-""" Database models for YouTube
+"""Database models for YouTube
 """
 
 from django.db import models
@@ -6,11 +6,11 @@ from .base import Quintly
 
 
 class YouTube(Quintly):
-    """ Youtube accounts, based on data from Quintly.
+    """Youtube accounts, based on data from Quintly.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube"
@@ -20,11 +20,11 @@ class YouTube(Quintly):
 
 
 class YouTubeAnalytics(models.Model):
-    """ Performance data of YouTube accounts, based on data from YouTube analytics.
+    """Performance data of YouTube accounts, based on data from YouTube analytics.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_analytics"
@@ -34,7 +34,7 @@ class YouTubeAnalytics(models.Model):
         ordering = ["-date"]
 
     class Interval(models.TextChoices):
-        """ Available update intervals.
+        """Available update intervals.
         """
 
         DAILY = "daily", "Täglich"
@@ -71,11 +71,11 @@ class YouTubeAnalytics(models.Model):
 
 
 class YouTubeTrafficSource(models.Model):
-    """ Performance data of YouTube accounts, based on YouTube traffic source data.
+    """Performance data of YouTube accounts, based on YouTube traffic source data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_traffic_source"
@@ -102,11 +102,11 @@ class YouTubeTrafficSource(models.Model):
 
 
 class YouTubeAgeRangeBase(models.Model):
-    """ Performance data of YouTube accounts, based on YouTube traffic source data.
+    """Performance data of YouTube accounts, based on YouTube traffic source data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         abstract = True
@@ -114,7 +114,7 @@ class YouTubeAgeRangeBase(models.Model):
         ordering = ["-date"]
 
     class Interval(models.TextChoices):
-        """ Available update intervals.
+        """Available update intervals.
         """
 
         DAILY = "daily", "Täglich"
@@ -142,11 +142,11 @@ class YouTubeAgeRangeBase(models.Model):
 
 
 class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
-    """ Performance data of YouTube accounts, based on YouTube age range duration data.
+    """Performance data of YouTube accounts, based on YouTube age range duration data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_age_range_duration"
@@ -164,11 +164,11 @@ class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
 
 
 class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
-    """ Performance data of YouTube accounts, based on YouTube age range percentage data.
+    """Performance data of YouTube accounts, based on YouTube age range percentage data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_age_range_percentage"
@@ -200,12 +200,12 @@ class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
 
 
 class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
-    """ Performance data of YouTube accounts, based on YouTube age range average
+    """Performance data of YouTube accounts, based on YouTube age range average
     view duration data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_age_range_average_view_duration"
@@ -216,12 +216,12 @@ class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
 
 
 class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
-    """ Performance data of YouTube accounts, based on YouTube age range average view
+    """Performance data of YouTube accounts, based on YouTube age range average view
     percentage data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_age_range_average_view_percentage"
@@ -232,12 +232,12 @@ class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
 
 
 class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
-    """ Performance data of YouTube accounts, based on YouTube age range watch time
+    """Performance data of YouTube accounts, based on YouTube age range watch time
     percentage data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_age_range_watch_time_percentage"
@@ -248,12 +248,12 @@ class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
 
 
 class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
-    """ Performance data of YouTube accounts, based on YouTube age range views
+    """Performance data of YouTube accounts, based on YouTube age range views
     percentage data.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "youtube_age_range_views_percentage"

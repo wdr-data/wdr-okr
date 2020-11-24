@@ -1,4 +1,4 @@
-"""  Database models for instagram.
+""" Database models for instagram.
 """
 
 from django.db import models
@@ -6,11 +6,11 @@ from .base import Quintly
 
 
 class Insta(Quintly):
-    """ Instagram accounts, based on data from Quintly.
+    """Instagram accounts, based on data from Quintly.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "instagram"
@@ -20,11 +20,11 @@ class Insta(Quintly):
 
 
 class InstaInsight(models.Model):
-    """ Performance data of Instagram accounts, based on data from Instagram Insights.
+    """Performance data of Instagram accounts, based on data from Instagram Insights.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "instagram_insights"
@@ -34,7 +34,7 @@ class InstaInsight(models.Model):
         ordering = ["-date"]
 
     class Interval(models.TextChoices):
-        """ Available update intervals.
+        """Available update intervals.
         """
 
         DAILY = "daily", "Täglich"
@@ -68,11 +68,11 @@ class InstaInsight(models.Model):
 
 
 class InstaPost(models.Model):
-    """ Data on individual Instagram posts.
+    """Data on individual Instagram posts.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "instagram_post"
@@ -103,11 +103,11 @@ class InstaPost(models.Model):
 
 
 class InstaStory(models.Model):
-    """ Data on individual Instagram stories.
+    """Data on individual Instagram stories.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "instagram_story"
@@ -138,11 +138,11 @@ class InstaStory(models.Model):
 
 
 class InstaCollaborationType(models.Model):
-    """ Data on Instagram collaboration types.
+    """Data on Instagram collaboration types.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "instagram_collaboration_type"
@@ -157,11 +157,11 @@ class InstaCollaborationType(models.Model):
 
 
 class InstaCollaboration(models.Model):
-    """ Data on Instagram collaborations.
+    """Data on Instagram collaborations.
     """
 
     class Meta:
-        """ Model meta options.
+        """Model meta options.
         """
 
         db_table = "instagram_collaboration"
