@@ -131,7 +131,7 @@ class YouTubeAgeRangeBase(models.Model):
 
 
 class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
-    """Performance data of YouTube accounts, based on YouTube age range duration data."""
+    """Demographics data of YouTube accounts, based on YouTube age range duration data."""
 
     class Meta:
         """Model meta options."""
@@ -151,7 +151,7 @@ class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
 
 
 class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
-    """Performance data of YouTube accounts, based on YouTube age range percentage data."""
+    """Demographics data of YouTube accounts, based on YouTube age range percentage data."""
 
     class Meta:
         """Model meta options."""
@@ -185,7 +185,7 @@ class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
 
 
 class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
-    """Performance data of YouTube accounts, based on YouTube age range average
+    """Demographics data of YouTube accounts, based on YouTube age range average
     view duration data.
     """
 
@@ -200,7 +200,7 @@ class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
 
 
 class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
-    """Performance data of YouTube accounts, based on YouTube age range average view
+    """Demographics data of YouTube accounts, based on YouTube age range average view
     percentage data.
     """
 
@@ -215,7 +215,7 @@ class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
 
 
 class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
-    """Performance data of YouTube accounts, based on YouTube age range watch time
+    """Demographics data of YouTube accounts, based on YouTube age range watch time
     percentage data.
     """
 
@@ -230,7 +230,7 @@ class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
 
 
 class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
-    """Performance data of YouTube accounts, based on YouTube age range views
+    """Demographics data of YouTube accounts, based on YouTube age range views
     percentage data.
     """
 
