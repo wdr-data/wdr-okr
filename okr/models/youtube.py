@@ -94,7 +94,7 @@ class YouTubeTrafficSource(models.Model):
 
 
 class YouTubeAgeRangeBase(models.Model):
-    """Performance data of YouTube accounts, based on YouTube traffic source data."""
+    """Base class for demographics data of YouTube accounts."""
 
     class Meta:
         """Model meta options."""

@@ -128,7 +128,7 @@ class InstaStory(models.Model):
 
 
 class InstaCollaborationType(models.Model):
-    """Data on Instagram collaboration types."""
+    """Data on Instagram collaboration types. These are created manually via Django Admin."""
 
     class Meta:
         """Model meta options."""
@@ -145,7 +145,7 @@ class InstaCollaborationType(models.Model):
 
 
 class InstaCollaboration(models.Model):
-    """Data on Instagram collaborations."""
+    """Data on Instagram collaborations. These are created manually via Django Admin."""
 
     class Meta:
         """Model meta options."""

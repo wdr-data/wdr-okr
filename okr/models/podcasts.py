@@ -6,7 +6,7 @@ from .base import Product
 
 
 class Podcast(Product):
-    """Individual Podcast series, based on data from XML feed."""
+    """Individual Podcast series, based on data from XML feed and Spotify APIs."""
 
     class Meta:
         """Model meta options."""
@@ -27,7 +27,7 @@ class Podcast(Product):
 
 
 class PodcastDataSpotify(models.Model):
-    """Individual Podcast series, based on data from Spotify."""
+    """Listener statistics on Podcast level, based on data from Spotify."""
 
     class Meta:
         """Model meta options."""
@@ -58,7 +58,7 @@ class PodcastDataSpotify(models.Model):
 
 
 class PodcastDataSpotifyHourly(models.Model):
-    """Individual Podcast series, based on hourly Spotify data."""
+    """Listening statistics on Podcast level, based on hourly Spotify data."""
 
     class Meta:
         """Model meta options."""
@@ -85,7 +85,7 @@ class PodcastDataSpotifyHourly(models.Model):
 
 
 class PodcastEpisode(models.Model):
-    """Individual Podcast episodes, based on data from XML feed."""
+    """Individual Podcast episodes, based on data from XML feed and Spotify APIs."""
 
     class Meta:
         """Model meta options."""
@@ -121,7 +121,7 @@ class PodcastEpisode(models.Model):
 
 
 class PodcastEpisodeDataSpotify(models.Model):
-    """Individual Podcast episodes, based on data from Spotify."""
+    """Listening statistics for individual Podcast episodes, based on data from Spotify."""
 
     class Meta:
         """Model meta options."""
@@ -152,7 +152,7 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
-    """User data for individual Podcast episodes, based on data from Spotify."""
+    """Demographics data for individual Podcast episodes, based on data from Spotify."""
 
     class Meta:
         """Model meta options."""
@@ -193,7 +193,7 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 
 class PodcastEpisodeDataPodstat(models.Model):
-    """Individual Podcast episodes, based on data from Podstat."""
+    """Listening statistics for individual Podcast episodes, based on data from Podstat."""
 
     class Meta:
         """Model meta options."""
