@@ -187,7 +187,8 @@ def get_youtube_analytics(
         profile_id (int): ID of profile to request data for.
         interval (str, optional): Description of interval. Defaults to "daily".
         start_date (Optional[datetime.date], optional): Date of earliest data to
-          request. Defaults to None. Will be set to nearest possible date if None.
+          request. Defaults to None. Will be set to include at least two intervals
+          if None.
 
 
     Returns:
