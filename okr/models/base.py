@@ -1,5 +1,4 @@
-"""Base classes for database models.
-"""
+"""Base classes for database models."""
 
 from django.db import models
 
