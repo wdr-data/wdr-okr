@@ -65,7 +65,10 @@ class YouTubeAnalytics(models.Model):
 
 
 class YouTubeTrafficSource(models.Model):
-    """Performance data of YouTube accounts, based on YouTube traffic source data."""
+    """Performance data of YouTube accounts, based on YouTube traffic source data.
+
+    This data is manually exported from YouTube Analytics and uploaded via Django Admin.
+    """
 
     class Meta:
         """Model meta options."""
@@ -131,7 +134,10 @@ class YouTubeAgeRangeBase(models.Model):
 
 
 class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
-    """Demographics data of YouTube accounts, based on YouTube age range duration data."""
+    """Demographics data of YouTube accounts, based on YouTube age range duration data.
+
+    This data is manually exported from YouTube Analytics and uploaded via Django Admin.
+    """
 
     class Meta:
         """Model meta options."""
@@ -151,7 +157,10 @@ class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
 
 
 class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
-    """Demographics data of YouTube accounts, based on YouTube age range percentage data."""
+    """Demographics data of YouTube accounts, based on YouTube age range percentage data.
+
+    This data is manually exported from YouTube Analytics and uploaded via Django Admin.
+    """
 
     class Meta:
         """Model meta options."""
@@ -187,6 +196,8 @@ class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
 class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
     """Demographics data of YouTube accounts, based on YouTube age range average
     view duration data.
+
+    This data is manually exported from YouTube Analytics and uploaded via Django Admin.
     """
 
     class Meta:
@@ -202,6 +213,8 @@ class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
 class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
     """Demographics data of YouTube accounts, based on YouTube age range average view
     percentage data.
+
+    This data is manually exported from YouTube Analytics and uploaded via Django Admin.
     """
 
     class Meta:
@@ -217,6 +230,8 @@ class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
 class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
     """Demographics data of YouTube accounts, based on YouTube age range watch time
     percentage data.
+
+    This data is manually exported from YouTube Analytics and uploaded via Django Admin.
     """
 
     class Meta:
@@ -232,6 +247,8 @@ class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
 class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
     """Demographics data of YouTube accounts, based on YouTube age range views
     percentage data.
+
+    This data is manually exported from YouTube Analytics and uploaded via Django Admin.
     """
 
     class Meta:
