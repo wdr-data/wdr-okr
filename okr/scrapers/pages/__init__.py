@@ -1,3 +1,5 @@
+""" Init module"""
+
 import re
 import datetime as dt
 from typing import Optional
@@ -7,12 +9,18 @@ from json.decoder import JSONDecodeError
 from django.db.models import Q
 from sentry_sdk import capture_exception
 
+from ...models import Property
 from okr.models.pages import Page, PageMeta, Property, PageDataGSC
 from okr.scrapers.common.utils import date_range, local_today, local_yesterday, BERLIN
 from okr.scrapers.pages import gsc, sophora
 
 
-def scrape_full(property):
+def scrape_full(property: Property):
+    """Run full scrape of property from Google and Sophora APIs (most recent 30 days).
+
+    Args:
+        property (Property): Property to scrape data for.
+    """
     print("Running full scrape of property", property)
 
     property_filter = Q(id=property.id)
@@ -29,10 +37,17 @@ def scrape_full(property):
 
 
 def scrape_gsc(
-    *,
-    start_date: Optional[dt.date] = None,
-    property_filter: Optional[Q] = None,
+    *, start_date: Optional[dt.date] = None, property_filter: Optional[Q] = None
 ):
+    """Scrape from Google Search Console API and update Page and PageDataGSC in the
+    database.
+
+    Args:
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+          Defaults to None. Will be set to two days before yesterday if None.
+        property_filter (Optional[Q], optional): Filter to select a subset of
+          properties. Defaults to None.
+    """
     today = local_today()
     yesterday = local_yesterday()
 
@@ -58,6 +73,7 @@ def scrape_gsc(
             for row in data:
                 url, device = row["keys"]
 
+                # Match Google data to Sophora ID, if possible
                 try:
                     match = re.match(r".*/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$", url)
 
@@ -103,6 +119,12 @@ def scrape_gsc(
 
 
 def scrape_sophora(*, property_filter: Optional[Q] = None):
+    """Scrape data from Sophora API and update PageMeta.
+
+    Args:
+        property_filter (Optional[Q], optional): Filter to select a subset of
+          properties. Defaults to None.
+    """
     properties = Property.objects.all()
 
     if property_filter:
