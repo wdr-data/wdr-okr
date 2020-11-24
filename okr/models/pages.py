@@ -1,15 +1,18 @@
+"""Database models for pages."""
+
 from django.db import models
 from pandas.io import html
 from .base import Product
 
 
 class Property(Product):
-    """
-    Parent object for pages of a particular website.
+    """Parent object for pages of a particular website.
     Equivalent to a property in Google Search Console.
     """
 
     class Meta:
+        """Model meta options."""
+
         db_table = "property"
         verbose_name = "Property"
         verbose_name_plural = "Properties"
@@ -20,12 +23,13 @@ class Property(Product):
 
 
 class Page(models.Model):
-    """
-    Describes a single page and some of it's static metadata.
+    """Base data on individual pages.
     Unique pages are identified by their URL.
     """
 
     class Meta:
+        """Model meta options."""
+
         db_table = "page"
         verbose_name = "Seite"
         verbose_name_plural = "Seiten"
@@ -40,10 +44,7 @@ class Page(models.Model):
     )
 
     url = models.URLField(verbose_name="URL", unique=True)
-    sophora_id = models.CharField(
-        verbose_name="Sophora ID",
-        max_length=512,
-    )
+    sophora_id = models.CharField(verbose_name="Sophora ID", max_length=512)
     sophora_page = models.IntegerField(
         verbose_name="Sophora-Seite",
         null=True,
@@ -60,11 +61,11 @@ class Page(models.Model):
 
 
 class PageMeta(models.Model):
-    """
-    Metadata about a page sourced from Sophora.
-    """
+    """Metadata about individual pages based on Sophora data."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "page_meta"
         verbose_name = "Seiten-Metadaten"
         verbose_name_plural = "Seiten-Metadaten"
@@ -82,12 +83,8 @@ class PageMeta(models.Model):
     editorial_update = models.DateTimeField(
         verbose_name="Redaktioneller Stand", null=True
     )
-    headline = models.TextField(
-        verbose_name="Titel",
-    )
-    teaser = models.TextField(
-        verbose_name="Teaser",
-    )
+    headline = models.TextField(verbose_name="Titel")
+    teaser = models.TextField(verbose_name="Teaser")
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
@@ -95,11 +92,11 @@ class PageMeta(models.Model):
 
 
 class PageDataGSC(models.Model):
-    """
-    Daily page SEO-performance statistics from Google Search Console.
-    """
+    """Daily page SEO-performance based on Google Search Console data."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "page_data_gsc"
         verbose_name = "Seiten-Daten (GSC)"
         verbose_name_plural = "Seiten-Daten (GSC)"
@@ -107,6 +104,8 @@ class PageDataGSC(models.Model):
         unique_together = ["date", "page", "device"]
 
     class DeviceType(models.TextChoices):
+        """Available device types."""
+
         MOBILE = "MOBILE", "Mobil"
         DESKTOP = "DESKTOP", "Desktop"
         TABLET = "TABLET", "Tablet"
@@ -123,18 +122,10 @@ class PageDataGSC(models.Model):
         verbose_name="Gerätetyp", choices=DeviceType.choices, max_length=16
     )
 
-    clicks = models.IntegerField(
-        verbose_name="Klicks",
-    )
-    impressions = models.IntegerField(
-        verbose_name="Impressions",
-    )
-    ctr = models.FloatField(
-        verbose_name="CTR",
-    )
-    position = models.FloatField(
-        verbose_name="Durchschnittliche Position",
-    )
+    clicks = models.IntegerField(verbose_name="Klicks")
+    impressions = models.IntegerField(verbose_name="Impressions")
+    ctr = models.FloatField(verbose_name="CTR")
+    position = models.FloatField(verbose_name="Durchschnittliche Position")
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):

@@ -1,5 +1,4 @@
-"""
-Collect page data from the Sophora API
+"""Collect page data from the Sophora API
 """
 import os
 
@@ -15,5 +14,13 @@ def _sophora_api_url(*path: str) -> str:
 
 
 def get_page(page: Page) -> dict:
+    """Read data about page from Sophora API.
+
+    Args:
+        page (Page): Page to request data for.
+
+    Returns:
+        dict: JSON dict of response data.
+    """
     url = _sophora_api_url("getDocumentBySophoraId", page.sophora_id)
     return requests.get(url).json()

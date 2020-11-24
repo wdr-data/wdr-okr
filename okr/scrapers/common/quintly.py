@@ -1,11 +1,12 @@
-""" Basic functions to connect to Quintly API.
-"""
+"""Basic functions to connect to Quintly API."""
 
 import os
 import datetime
 import functools
+from typing import Optional
 
 import numpy as np
+import pandas as pd
 
 from analytics.quintly import QuintlyAPI
 
@@ -13,7 +14,16 @@ from analytics.quintly import QuintlyAPI
 quintly = None
 
 
-def requires_quintly(func):
+def requires_quintly(func: function) -> function:
+    """Decorator function to set up Quintly API.
+
+    Args:
+        func (function): Function to set up Quintly access for.
+
+    Returns:
+        function: Wrapper function.
+    """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         global quintly
@@ -28,7 +38,23 @@ def requires_quintly(func):
 
 
 @requires_quintly
-def get_insta_insights(profile_id, *, interval="daily", start_date=None):
+def get_insta_insights(
+    profile_id: int,
+    *,
+    interval: str = "daily",
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for posts on Instagram profile via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        interval (str, optional): Description of interval. Defaults to "daily".
+        start_date ([type], optional): Date of earliest data to request. Defaults to
+          None. Will be set to include at least two intervals if None.
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
     profile_ids = [profile_id]
 
     if start_date is None:
@@ -50,16 +76,9 @@ def get_insta_insights(profile_id, *, interval="daily", start_date=None):
 
     table = "instagramInsights"
 
-    fields = [
-        "time",
-        "reach",
-        "impressions",
-    ]
+    fields = ["time", "reach", "impressions"]
     if interval == "daily":
-        fields += [
-            "textMessageClicksDay",
-            "emailContactsDay",
-        ]
+        fields += ["textMessageClicksDay", "emailContactsDay"]
 
     df_insta_insights = quintly.run_query(
         profile_ids, table, fields, start_date, end_date, interval=interval
@@ -79,7 +98,22 @@ def get_insta_insights(profile_id, *, interval="daily", start_date=None):
 
 
 @requires_quintly
-def get_insta_stories(profile_id, *, start_date=None):
+def get_insta_stories(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for stories on Instagram profile via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date (Optional[datetime.date], optional): Date of earliest possible
+          data to request. Defaults to None. Will be set to today's date one week ago if
+          None.
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
     profile_ids = [profile_id]
     table = "instagramInsightsStories"
     fields = [
@@ -104,17 +138,25 @@ def get_insta_stories(profile_id, *, start_date=None):
 
 
 @requires_quintly
-def get_insta_posts(profile_id, *, start_date=None):
+def get_insta_posts(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for posts on Instagram profile via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date (Optional[datetime.date], optional): Date of earliest possible
+          data to request. Defaults to None. Will be set to today's date one week ago if
+          None.
+
+    Returns:
+        pd.DataFrame:  API response data.
+    """
     profile_ids = [profile_id]
     table = "instagramOwnPosts"
-    fields = [
-        "externalId",
-        "time",
-        "message",
-        "comments",
-        "type",
-        "link",
-    ]
+    fields = ["externalId", "time", "message", "comments", "type", "link"]
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
 
@@ -122,13 +164,7 @@ def get_insta_posts(profile_id, *, start_date=None):
 
     table = "instagramInsightsOwnPosts"
 
-    fields = [
-        "externalId",
-        "time",
-        "likes",
-        "reach",
-        "impressions",
-    ]
+    fields = ["externalId", "time", "likes", "reach", "impressions"]
 
     df_posts_insights = quintly.run_query(
         profile_ids, table, fields, start_date, end_date
@@ -143,7 +179,25 @@ def get_insta_posts(profile_id, *, start_date=None):
 
 
 @requires_quintly
-def get_youtube_analytics(profile_id, *, interval="daily", start_date=None):
+def get_youtube_analytics(
+    profile_id: int,
+    *,
+    interval: str = "daily",
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read YouTube data via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        interval (str, optional): Description of interval. Defaults to "daily".
+        start_date (Optional[datetime.date], optional): Date of earliest data to
+          request. Defaults to None. Will be set to include at least two intervals
+          if None.
+
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
     profile_ids = [profile_id]
     table = "youtubeAnalytics"
 
@@ -167,7 +221,12 @@ def get_youtube_analytics(profile_id, *, interval="daily", start_date=None):
     ]
 
     df = quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval=interval,
     )
 
     df.time = df.time.str[:10]

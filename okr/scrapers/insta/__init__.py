@@ -1,5 +1,8 @@
+"""Init module."""
+
 from datetime import date, datetime
 from time import sleep
+from typing import Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
@@ -24,7 +27,12 @@ def scrape_full(insta):
     scrape_posts(start_date=start_date, insta_filter=insta_filter)
 
 
-def scrape_insights(interval, *, start_date=None, insta_filter=None):
+def scrape_insights(
+    interval: str,
+    *,
+    start_date: Optional[date] = None,
+    insta_filter: Optional[Q] = None,
+):
     instas = Insta.objects.all()
 
     if insta_filter:
@@ -32,9 +40,7 @@ def scrape_insights(interval, *, start_date=None, insta_filter=None):
 
     for insta in instas:
         df = quintly.get_insta_insights(
-            insta.quintly_profile_id,
-            interval=interval,
-            start_date=start_date,
+            insta.quintly_profile_id, interval=interval, start_date=start_date
         )
 
         for index, row in df.iterrows():
@@ -70,7 +76,9 @@ def scrape_insights(interval, *, start_date=None, insta_filter=None):
                 )
 
 
-def scrape_stories(*, start_date=None, insta_filter=None):
+def scrape_stories(
+    *, start_date: Optional[date] = None, insta_filter: Optional[Q] = None
+):
     instas = Insta.objects.all()
 
     if insta_filter:
@@ -93,9 +101,7 @@ def scrape_stories(*, start_date=None, insta_filter=None):
 
             try:
                 obj, created = InstaStory.objects.update_or_create(
-                    insta=insta,
-                    external_id=row.externalId,
-                    defaults=defaults,
+                    insta=insta, external_id=row.externalId, defaults=defaults
                 )
             except IntegrityError as e:
                 capture_exception(e)
@@ -106,7 +112,9 @@ def scrape_stories(*, start_date=None, insta_filter=None):
                 )
 
 
-def scrape_posts(*, start_date=None, insta_filter=None):
+def scrape_posts(
+    *, start_date: Optional[date] = None, insta_filter: Optional[Q] = None
+):
     instas = Insta.objects.all()
 
     if insta_filter:
@@ -129,9 +137,7 @@ def scrape_posts(*, start_date=None, insta_filter=None):
 
             try:
                 obj, created = InstaPost.objects.update_or_create(
-                    insta=insta,
-                    external_id=row.externalId,
-                    defaults=defaults,
+                    insta=insta, external_id=row.externalId, defaults=defaults
                 )
             except IntegrityError as e:
                 capture_exception(e)

@@ -1,4 +1,4 @@
-""" Wrapper for Spotify APIs (using the spotipy library)
+"""Wrapper for Spotify APIs (using the spotipy library)
 """
 
 import os

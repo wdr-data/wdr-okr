@@ -1,5 +1,4 @@
-""" Database models for podcasts
-"""
+"""Database models for podcasts."""
 
 from django.db import models
 
@@ -7,14 +6,11 @@ from .base import Product
 
 
 class Podcast(Product):
-    """Create schema for db table "podcast".
-
-    Table contains basic data for each podcast.
-
-    Extends Product class.
-    """
+    """Individual Podcast series, based on data from XML feed and Spotify APIs."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast"
         verbose_name = "Podcast"
         verbose_name_plural = "Podcasts"
@@ -25,22 +21,17 @@ class Podcast(Product):
     image = models.URLField(max_length=1024, verbose_name="Bild")
     description = models.TextField(verbose_name="Beschreibung")
 
-    spotify_id = models.CharField(
-        max_length=32,
-        verbose_name="Spotify ID",
-        null=True,
-    )
+    spotify_id = models.CharField(max_length=32, verbose_name="Spotify ID", null=True)
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
 
 class PodcastDataSpotify(models.Model):
-    """Create schema for db table "podcast_data_spotify".
-
-    Table contains basic Spotify data for each podcast that is available on Spotify.
-    """
+    """Listener statistics on Podcast level, based on data from Spotify."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_data_spotify"
         verbose_name = "Podcast-Spotify-Nutzer"
         verbose_name_plural = "Podcast-Spotify-Nutzer"
@@ -67,12 +58,11 @@ class PodcastDataSpotify(models.Model):
 
 
 class PodcastDataSpotifyHourly(models.Model):
-    """Create schema for db table "podcast_data_spotify_hourly".
-
-    Table contains hourly Spotify data for each podcast that is available on Spotify.
-    """
+    """Listening statistics on Podcast level, based on hourly Spotify data."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_data_spotify_hourly"
         verbose_name = "Podcast-Spotify-Abruf (stündlich)"
         verbose_name_plural = "Podcast-Spotify-Abrufe (stündlich)"
@@ -95,12 +85,11 @@ class PodcastDataSpotifyHourly(models.Model):
 
 
 class PodcastEpisode(models.Model):
-    """Create schema for db table "podcast_episode".
-
-    Table contains basic data for each podcast episode.
-    """
+    """Individual Podcast episodes, based on data from XML feed and Spotify APIs."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_episode"
         verbose_name = "Podcast-Episode"
         verbose_name_plural = "Podcast-Episoden"
@@ -119,11 +108,7 @@ class PodcastEpisode(models.Model):
     media = models.URLField(max_length=1024, verbose_name="Media-URL")
     zmdb_id = models.IntegerField(verbose_name="ZMDB-ID", unique=True)
 
-    spotify_id = models.CharField(
-        max_length=32,
-        verbose_name="Spotify ID",
-        null=True,
-    )
+    spotify_id = models.CharField(max_length=32, verbose_name="Spotify ID", null=True)
 
     duration = models.DurationField(verbose_name="Audio-Länge")
 
@@ -136,12 +121,11 @@ class PodcastEpisode(models.Model):
 
 
 class PodcastEpisodeDataSpotify(models.Model):
-    """Create schema for db table "podcast_episode_data_spotify".
-
-    Table contains basic Spotify data for each episode that is available on Spotify.
-    """
+    """Listening statistics for individual Podcast episodes, based on data from Spotify."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_episode_data_spotify"
         verbose_name = "Podcast-Episoden-Abruf (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Abrufe (Spotify)"
@@ -168,12 +152,11 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
-    """Create schema for db table "podcast_episode_data_spotify_user".
-
-    Table contains Spotify user data for each episode that is available on Spotify.
-    """
+    """Demographics data for individual Podcast episodes, based on data from Spotify."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_episode_data_spotify_user"
         verbose_name = "Podcast-Episoden-Nutzer (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Nutzer (Spotify)"
@@ -210,12 +193,11 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 
 class PodcastEpisodeDataPodstat(models.Model):
-    """Create schema for db table "podcast_episode_data_podstat".
-
-    Table contains Podstat data for each episode.
-    """
+    """Listening statistics for individual Podcast episodes, based on data from Podstat."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_episode_data_podstat"
         verbose_name = "Podcast-Episoden-Abruf (Podstat)"
         verbose_name_plural = "Podcast-Episoden-Abrufe (Podstat)"
@@ -240,13 +222,11 @@ class PodcastEpisodeDataPodstat(models.Model):
 
 
 class PodcastEpisodeDataSpotifyPerformance(models.Model):
-    """Create schema for db table "podcast_episode_data_spotify_performance".
-
-    Table contains Spotify performance data for each episode that is available on
-      Spotify.
-    """
+    """Performance data for individual Podcast episodes, based on Spotify data."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_episode_data_spotify_performance"
         verbose_name = "Podcast-Episoden-Performance (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Performance (Spotify)"
@@ -277,12 +257,11 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
 
 
 class PodcastEpisodeDataWebtrekkPerformance(models.Model):
-    """Create schema for db table "podcast_episode_data_webtrekk_performance".
-
-    Table contains Webtrekk data for each episode.
-    """
+    """Performance data for individual Podcast episodes, based on Webtrekk data."""
 
     class Meta:
+        """Model meta options."""
+
         db_table = "podcast_episode_data_webtrekk_performance"
         verbose_name = "Podcast-Episoden-Performance (Webtrekk)"
         verbose_name_plural = "Podcast-Episoden-Performance (Webtrekk)"

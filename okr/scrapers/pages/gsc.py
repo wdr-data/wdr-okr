@@ -1,5 +1,4 @@
-"""
-Collect and clean up data from the Google Search Console API.
+"""Collect and clean up data from the Google Search Console API.
 """
 
 import datetime as dt
@@ -17,11 +16,20 @@ def fetch_day(
     *,
     dimensions: Optional[List[Dimension]] = None,
 ) -> List[Dict[str, Any]]:
-    if dimensions is None:
-        dimensions = [
-            "page",
-            "device",
+    """Query Google Search Console API for data of a specific day.
+
+    Args:
+        property (Property): Property to request data for.
+        date (dt.date): Specific day to request information for.
+        dimensions (Optional[List[Dimension]], optional): Dimensions to request from
+        API. Defaults to None. Will be set to ["page", "device"] if None.
         ]
+
+    Returns:
+        List[Dict[str, Any]]: Response from API.
+    """
+    if dimensions is None:
+        dimensions = ["page", "device"]
 
     request = {
         "startDate": date.isoformat(),
