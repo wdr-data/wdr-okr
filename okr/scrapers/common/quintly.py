@@ -3,7 +3,7 @@
 import os
 import datetime
 import functools
-from typing import Optional
+from typing import Optional, Callable
 
 import numpy as np
 import pandas as pd
@@ -14,11 +14,11 @@ from analytics.quintly import QuintlyAPI
 quintly = None
 
 
-def requires_quintly(func: function) -> function:
+def requires_quintly(func: Callable) -> Callable:
     """Decorator function to set up Quintly API.
 
     Args:
-        func (function): Function to set up Quintly access for.
+        func (Callable): Function to set up Quintly access for.
 
     Returns:
         function: Wrapper function.
