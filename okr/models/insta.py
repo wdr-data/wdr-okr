@@ -1,9 +1,18 @@
+"""  Database models for instagram.
+"""
+
 from django.db import models
 from .base import Quintly
 
 
 class Insta(Quintly):
+    """ Instagram accounts, based on data from Quintly.
+    """
+
     class Meta:
+        """ Model meta options.
+        """
+
         db_table = "instagram"
         verbose_name = "Instagram-Account"
         verbose_name_plural = "Instagram-Accounts"
@@ -11,7 +20,13 @@ class Insta(Quintly):
 
 
 class InstaInsight(models.Model):
+    """ Performance data of Instagram accounts, based on data from Instagram Insights.
+    """
+
     class Meta:
+        """ Model meta options.
+        """
+
         db_table = "instagram_insights"
         verbose_name = "Instagram-Insight"
         verbose_name_plural = "Instagram-Insights"
@@ -19,6 +34,9 @@ class InstaInsight(models.Model):
         ordering = ["-date"]
 
     class Interval(models.TextChoices):
+        """ Available update intervals.
+        """
+
         DAILY = "daily", "Täglich"
         WEEKLY = "weekly", "Wöchentlich"
         MONTHLY = "monthly", "Monatlich"
@@ -50,7 +68,13 @@ class InstaInsight(models.Model):
 
 
 class InstaPost(models.Model):
+    """ Data on individual Instagram posts.
+    """
+
     class Meta:
+        """ Model meta options.
+        """
+
         db_table = "instagram_post"
         verbose_name = "Instagram-Post"
         verbose_name_plural = "Instagram-Posts"
@@ -79,7 +103,13 @@ class InstaPost(models.Model):
 
 
 class InstaStory(models.Model):
+    """ Data on individual Instagram stories.
+    """
+
     class Meta:
+        """ Model meta options.
+        """
+
         db_table = "instagram_story"
         verbose_name = "Instagram-Story"
         verbose_name_plural = "Instagram-Stories"
@@ -108,7 +138,13 @@ class InstaStory(models.Model):
 
 
 class InstaCollaborationType(models.Model):
+    """ Data on Instagram collaboration types.
+    """
+
     class Meta:
+        """ Model meta options.
+        """
+
         db_table = "instagram_collaboration_type"
         verbose_name = "Instagram-Collaboration Format"
         verbose_name_plural = "Instagram-Collaboration Formate"
@@ -121,7 +157,13 @@ class InstaCollaborationType(models.Model):
 
 
 class InstaCollaboration(models.Model):
+    """ Data on Instagram collaborations.
+    """
+
     class Meta:
+        """ Model meta options.
+        """
+
         db_table = "instagram_collaboration"
         verbose_name = "Instagram-Collaboration"
         verbose_name_plural = "Instagram-Collaborations"
