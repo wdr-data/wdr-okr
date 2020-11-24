@@ -5,12 +5,10 @@ from django.db import models
 
 
 class Product(models.Model):
-    """Base model for products.
-    """
+    """Base model for products."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         abstract = True
         ordering = ["name"]
@@ -22,12 +20,10 @@ class Product(models.Model):
 
 
 class Quintly(Product):
-    """Base model for Quintly data.
-    """
+    """Base model for Quintly data."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         abstract = True
         ordering = Product.Meta.ordering

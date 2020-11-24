@@ -1,5 +1,4 @@
-"""Database models for podcasts
-"""
+"""Database models for podcasts."""
 
 from django.db import models
 
@@ -7,12 +6,10 @@ from .base import Product
 
 
 class Podcast(Product):
-    """Individual Podcast series, based on data from XML feed.
-    """
+    """Individual Podcast series, based on data from XML feed."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast"
         verbose_name = "Podcast"
@@ -30,12 +27,10 @@ class Podcast(Product):
 
 
 class PodcastDataSpotify(models.Model):
-    """Individual Podcast series, based on data from Spotify.
-    """
+    """Individual Podcast series, based on data from Spotify."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_data_spotify"
         verbose_name = "Podcast-Spotify-Nutzer"
@@ -63,12 +58,10 @@ class PodcastDataSpotify(models.Model):
 
 
 class PodcastDataSpotifyHourly(models.Model):
-    """Individual Podcast series, based on hourly Spotify data.
-    """
+    """Individual Podcast series, based on hourly Spotify data."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_data_spotify_hourly"
         verbose_name = "Podcast-Spotify-Abruf (stündlich)"
@@ -92,12 +85,10 @@ class PodcastDataSpotifyHourly(models.Model):
 
 
 class PodcastEpisode(models.Model):
-    """Individual Podcast episodes, based on data from XML feed.
-    """
+    """Individual Podcast episodes, based on data from XML feed."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_episode"
         verbose_name = "Podcast-Episode"
@@ -130,12 +121,10 @@ class PodcastEpisode(models.Model):
 
 
 class PodcastEpisodeDataSpotify(models.Model):
-    """Individual Podcast episodes, based on data from Spotify.
-    """
+    """Individual Podcast episodes, based on data from Spotify."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_episode_data_spotify"
         verbose_name = "Podcast-Episoden-Abruf (Spotify)"
@@ -163,12 +152,10 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
-    """User data for individual Podcast episodes, based on data from Spotify.
-    """
+    """User data for individual Podcast episodes, based on data from Spotify."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_episode_data_spotify_user"
         verbose_name = "Podcast-Episoden-Nutzer (Spotify)"
@@ -206,12 +193,10 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 
 class PodcastEpisodeDataPodstat(models.Model):
-    """Individual Podcast episodes, based on data from Podstat.
-    """
+    """Individual Podcast episodes, based on data from Podstat."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_episode_data_podstat"
         verbose_name = "Podcast-Episoden-Abruf (Podstat)"
@@ -237,12 +222,10 @@ class PodcastEpisodeDataPodstat(models.Model):
 
 
 class PodcastEpisodeDataSpotifyPerformance(models.Model):
-    """Performance data for individual Podcast episodes, based on Spotify data.
-    """
+    """Performance data for individual Podcast episodes, based on Spotify data."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_episode_data_spotify_performance"
         verbose_name = "Podcast-Episoden-Performance (Spotify)"
@@ -274,12 +257,10 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
 
 
 class PodcastEpisodeDataWebtrekkPerformance(models.Model):
-    """Performance data for individual Podcast episodes, based on Webtrekk data.
-    """
+    """Performance data for individual Podcast episodes, based on Webtrekk data."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "podcast_episode_data_webtrekk_performance"
         verbose_name = "Podcast-Episoden-Performance (Webtrekk)"

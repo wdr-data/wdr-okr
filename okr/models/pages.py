@@ -1,5 +1,4 @@
-"""Database models for pages
-"""
+"""Database models for pages."""
 
 from django.db import models
 from pandas.io import html
@@ -12,8 +11,7 @@ class Property(Product):
     """
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "property"
         verbose_name = "Property"
@@ -30,8 +28,7 @@ class Page(models.Model):
     """
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "page"
         verbose_name = "Seite"
@@ -64,12 +61,10 @@ class Page(models.Model):
 
 
 class PageMeta(models.Model):
-    """Metadata about individual pages based on Sophora data.
-    """
+    """Metadata about individual pages based on Sophora data."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "page_meta"
         verbose_name = "Seiten-Metadaten"
@@ -97,12 +92,10 @@ class PageMeta(models.Model):
 
 
 class PageDataGSC(models.Model):
-    """Daily page SEO-performance based on Google Search Console data.
-    """
+    """Daily page SEO-performance based on Google Search Console data."""
 
     class Meta:
-        """Model meta options.
-        """
+        """Model meta options."""
 
         db_table = "page_data_gsc"
         verbose_name = "Seiten-Daten (GSC)"
@@ -111,8 +104,7 @@ class PageDataGSC(models.Model):
         unique_together = ["date", "page", "device"]
 
     class DeviceType(models.TextChoices):
-        """Available device types
-        """
+        """Available device types."""
 
         MOBILE = "MOBILE", "Mobil"
         DESKTOP = "DESKTOP", "Desktop"

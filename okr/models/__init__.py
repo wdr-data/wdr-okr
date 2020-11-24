@@ -1,5 +1,4 @@
-"""Init module.
-"""
+"""Init module."""
 
 from .base import *
 from .insta import *
