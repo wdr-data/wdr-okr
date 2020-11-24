@@ -2,7 +2,7 @@
 """
 
 import os
-from typing import Dict, List, Iterator, Optional, TypeVar
+from typing import Dict, List, Iterator, TypeVar, Union
 import datetime as dt
 from enum import Enum
 from time import sleep
@@ -78,7 +78,7 @@ class CustomSpotify(spotipy.Spotify):
         self,
         podcast_id: str,
         agg_type: str,
-        date: Optional[datetime.date],
+        date: Union[dt.date, dt.datetime],
         *,
         precision: Precision = Precision.DAY,
     ):
