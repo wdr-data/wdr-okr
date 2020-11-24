@@ -1,5 +1,4 @@
-"""Provides helper functions for dates.
-"""
+"""Provides helper functions for dates."""
 
 import datetime as dt
 from typing import List
@@ -11,19 +10,19 @@ UTC = pytz.UTC
 
 
 def local_today() -> dt.date:
-    """Generate current date (Berlin time zone)
+    """Generate current date (Berlin time zone).
 
     Returns:
-        dt.date: Today's date
+        dt.date: Today's date.
     """
     return dt.datetime.now(BERLIN).date()
 
 
 def local_yesterday() -> dt.date:
-    """Generate yesterday's date (Berlin time zone)
+    """Generate yesterday's date (Berlin time zone).
 
     Returns:
-        dt.date: Yesterday's date
+        dt.date: Yesterday's date.
     """
     return local_today() - dt.timedelta(days=1)
 
@@ -33,11 +32,11 @@ def date_range(start: dt.date, end: dt.date) -> List[dt.date]:
     inclusive.
 
     Args:
-        start (dt.date): Start date for range
-        end (dt.date): End date for range
+        start (dt.date): Start date for range.
+        end (dt.date): End date for range.
 
     Returns:
-        List[dt.date]: List of dates between start and end
+        List[dt.date]: List of dates between start and end.
     """
 
     delta = (end - start).days
