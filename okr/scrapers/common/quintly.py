@@ -3,7 +3,7 @@
 import os
 import datetime
 import functools
-from typing import Union
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -42,7 +42,7 @@ def get_insta_insights(
     profile_id: int,
     *,
     interval: str = "daily",
-    start_date: Union[datetime.date, None] = None
+    start_date: Optional[datetime.date] = None
 ) -> pd.DataFrame:
     """Read data for posts on Instagram profile via Quintly API.
 
@@ -99,13 +99,13 @@ def get_insta_insights(
 
 @requires_quintly
 def get_insta_stories(
-    profile_id: int, *, start_date: Union[datetime.date, None] = None
+    profile_id: int, *, start_date: Optional[datetime.date] = None
 ) -> pd.DataFrame:
     """Read data for stories on Instagram profile via Quintly API.
 
     Args:
         profile_id (int): ID of profile to request data for.
-        start_date (Union[datetime.date, None], optional): Date of earliest possible
+        start_date (Optional[datetime.date], optional): Date of earliest possible
           data to request. Defaults to None. Will be set to today's date one week ago if
           None.
 
@@ -137,13 +137,13 @@ def get_insta_stories(
 
 @requires_quintly
 def get_insta_posts(
-    profile_id: int, *, start_date: Union[datetime.date, None] = None
+    profile_id: int, *, start_date: Optional[datetime.date] = None
 ) -> pd.DataFrame:
     """Read data for posts on Instagram profile via Quintly API.
 
     Args:
         profile_id (int): ID of profile to request data for.
-        start_date (Union[datetime.date, None], optional): Date of earliest possible
+        start_date (Optional[datetime.date], optional): Date of earliest possible
           data to request. Defaults to None. Will be set to today's date one week ago if
           None.
 
@@ -179,14 +179,14 @@ def get_youtube_analytics(
     profile_id: int,
     *,
     interval: str = "daily",
-    start_date: Union[datetime.date, None] = None
+    start_date: Optional[datetime.date] = None
 ) -> pd.DataFrame:
     """Read YouTube data via Quintly API.
 
     Args:
         profile_id (int): ID of profile to request data for.
         interval (str, optional): Description of interval. Defaults to "daily".
-        start_date (Union[datetime.date, None], optional): Date of earliest data to
+        start_date (Optional[datetime.date], optional): Date of earliest data to
           request. Defaults to None. Will be set to nearest possible date if None.
 
 

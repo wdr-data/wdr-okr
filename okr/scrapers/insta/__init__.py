@@ -24,7 +24,7 @@ def scrape_full(insta):
     scrape_posts(start_date=start_date, insta_filter=insta_filter)
 
 
-def scrape_insights(interval, *, start_date=None, insta_filter=None):
+def scrape_insights(interval: str, *, start_date: date=None, insta_filter: Q=None):
     instas = Insta.objects.all()
 
     if insta_filter:

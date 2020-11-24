@@ -1,8 +1,8 @@
-""" Wrapper for Spotify APIs (using the spotipy library)
+"""Wrapper for Spotify APIs (using the spotipy library)
 """
 
 import os
-from typing import Dict, List, Iterator, TypeVar, Union
+from typing import Dict, List, Iterator, Optional, TypeVar
 import datetime as dt
 from enum import Enum
 from time import sleep
@@ -78,7 +78,7 @@ class CustomSpotify(spotipy.Spotify):
         self,
         podcast_id: str,
         agg_type: str,
-        date: Union[dt.date, dt.datetime],
+        date: Optional[datetime.date],
         *,
         precision: Precision = Precision.DAY,
     ):
