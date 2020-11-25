@@ -6,8 +6,11 @@ from .base import Product
 
 
 class Property(Product):
-    """Parent object for pages of a particular website.
-    Equivalent to a property in Google Search Console.
+    """Grundlegende Website-Daten. Jeder Eintrag entspricht einer Property in der Google
+    Search Console.
+
+    Die Tabelle :model:`okr.Page` nimmt auf die in "ID" vergebenen Schlüssel (als
+    foreign key namens ``property``) Bezug.
     """
 
     class Meta:
@@ -18,13 +21,28 @@ class Property(Product):
         verbose_name_plural = "Properties"
         ordering = Product.Meta.ordering
 
-    url = models.URLField(verbose_name="URL", unique=True)
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+    url = models.URLField(
+        verbose_name="URL",
+        help_text="URL der Website",
+        unique=True,
+    )
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Datum der letzten Datenaktualisierung",
+        auto_now=True,
+    )
 
 
 class Page(models.Model):
-    """Base data on individual pages.
-    Unique pages are identified by their URL.
+    """Grundlegende Daten einzelner Nachrichtenartikel.
+
+    Verknüpft mit :model:`okr.Property` über den foreign key ``property``.
+
+    Die folgenden Tabellen nehmen auf die in "ID"" vergebenen Schlüssel (als foreign key
+    namens ``page``) Bezug:
+
+    * :model:`okr.PageDataGSC`
+    * :model:`okr.PageMeta`
     """
 
     class Meta:
@@ -41,27 +59,44 @@ class Page(models.Model):
         on_delete=models.CASCADE,
         related_name="pages",
         related_query_name="page",
+        help_text="Globale ID der Website",
     )
 
-    url = models.URLField(verbose_name="URL", unique=True)
-    sophora_id = models.CharField(verbose_name="Sophora ID", max_length=512)
+    url = models.URLField(
+        verbose_name="URL",
+        help_text="URL des Nachrichtenartikels",
+        unique=True,
+    )
+    sophora_id = models.CharField(
+        verbose_name="Sophora ID",
+        help_text="Sophora ID des Nachrichtenartikels",
+        max_length=512,
+    )
     sophora_page = models.IntegerField(
         verbose_name="Sophora-Seite",
         null=True,
-        help_text=(
-            "Wenn unter der Sophora ID ein mehrseitiger Artikel ist "
-            "und eine Unterseite besucht wird, steht hier ein Wert"
-        ),
+        help_text="Mehrseitiger Nachrichtenartikel (nur falls zutreffend)",
     )
-    first_seen = models.DateField(verbose_name="Zuerst gesehen", auto_now=True)
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+    first_seen = models.DateField(
+        verbose_name="Zuerst gesehen",
+        help_text="Erstellungsdatum des Datenpunktes",
+        auto_now=True,
+    )
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Jüngste Aktualisierung des Datenpunktes",
+        auto_now=True,
+    )
 
     def __str__(self):
         return f"{self.url} ({self.first_seen})"
 
 
 class PageMeta(models.Model):
-    """Metadata about individual pages based on Sophora data."""
+    """Metadaten zu einer individuellen Seite basierend auf Sophora-Daten.
+
+    Verknüpft mit :model:`okr.Page` über den foreign key ``page``.
+    """
 
     class Meta:
         """Model meta options."""
@@ -74,6 +109,7 @@ class PageMeta(models.Model):
     page = models.ForeignKey(
         to=Page,
         verbose_name="Seite",
+        help_text="Globale ID des Nachrichtenartikels",
         on_delete=models.CASCADE,
         related_name="metas",
         related_query_name="meta",
@@ -81,18 +117,33 @@ class PageMeta(models.Model):
     )
 
     editorial_update = models.DateTimeField(
-        verbose_name="Redaktioneller Stand", null=True
+        verbose_name="Redaktioneller Stand",
+        help_text="Von Redaktion gesetzes Standdatum",
+        null=True,
     )
-    headline = models.TextField(verbose_name="Titel")
-    teaser = models.TextField(verbose_name="Teaser")
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+    headline = models.TextField(
+        verbose_name="Titel",
+        help_text="Schlagzeile des Nachrichtenartikels",
+    )
+    teaser = models.TextField(
+        verbose_name="Teaser",
+        help_text="Teasertext des Nachrichtenartikels",
+    )
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Aktualisierung des Datenpunktes",
+        auto_now=True,
+    )
 
     def __str__(self):
         return self.headline
 
 
 class PageDataGSC(models.Model):
-    """Daily page SEO-performance based on Google Search Console data."""
+    """SEO-Performance pro Tag, basierend auf Daten der Google Search Console.
+
+    Verknüpft mit :model:`okr.Page` über den foreign key ``page``.
+    """
 
     class Meta:
         """Model meta options."""
@@ -110,23 +161,46 @@ class PageDataGSC(models.Model):
         DESKTOP = "DESKTOP", "Desktop"
         TABLET = "TABLET", "Tablet"
 
-    date = models.DateField(verbose_name="Datum")
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum der SEO-Daten",
+    )
     page = models.ForeignKey(
         to=Page,
         verbose_name="Seite",
+        help_text="Globale ID des Nachrichtenartikels",
         on_delete=models.CASCADE,
         related_name="data_gsc",
         related_query_name="data_gsc",
     )
     device = models.CharField(
-        verbose_name="Gerätetyp", choices=DeviceType.choices, max_length=16
+        verbose_name="Gerätetyp",
+        help_text="Gerätetyp (Mobil, Desktop oder Tablet)",
+        choices=DeviceType.choices,
+        max_length=16,
     )
 
-    clicks = models.IntegerField(verbose_name="Klicks")
-    impressions = models.IntegerField(verbose_name="Impressions")
-    ctr = models.FloatField(verbose_name="CTR")
-    position = models.FloatField(verbose_name="Durchschnittliche Position")
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+    clicks = models.IntegerField(
+        verbose_name="Klicks",
+        help_text="Klicks (pro Tag)",
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        help_text="Impressions (pro Tag)",
+    )
+    ctr = models.FloatField(
+        verbose_name="CTR",
+        help_text="Click-Through Rate (pro Tag)",
+    )
+    position = models.FloatField(
+        verbose_name="Position",
+        help_text="Durchschnittliche Position in den Suchergebnissen",
+    )
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Letzte Aktualisierung des Datenpunktes",
+        auto_now=True,
+    )
 
     def __str__(self):
         return f"{self.date} - {self.page.url}"
