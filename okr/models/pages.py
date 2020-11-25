@@ -93,7 +93,7 @@ class Page(models.Model):
 
 
 class PageMeta(models.Model):
-    """Metadata about individual pages based on Sophora data.
+    """Metadaten zu einer individuellen Seite basierend auf Sophora-Daten.
 
     Verknüpft mit :model:`okr.Page` über den foreign key ``page``.
     """
