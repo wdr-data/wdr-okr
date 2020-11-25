@@ -21,7 +21,7 @@ def requires_quintly(func: Callable) -> Callable:
         func (Callable): Function to set up Quintly access for.
 
     Returns:
-        function: Wrapper function.
+        Callable: Wrapper function.
     """
 
     @functools.wraps(func)

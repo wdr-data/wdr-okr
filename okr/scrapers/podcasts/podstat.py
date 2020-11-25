@@ -1,5 +1,4 @@
-"""Wrapper for Podstat API
-"""
+"""Wrapper for Podstat API."""
 
 import os
 import functools
@@ -29,11 +28,17 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
     Base = automap_base()
 
     class classes:
+        """Classes for connection to Podstat API"""
+
         class PodcastCount(Base):
+            """Class for podcast count"""
+
             __tablename__ = "podcast_ucount_tag"
             urlid = Column(Integer, ForeignKey("podcast_url.urlid"), primary_key=True)
 
         class PodcastMediaUrl(Base):
+            """Class for media URL of podcast"""
+
             __tablename__ = "podcast_murl"
             podcast_url_collection = relationship(
                 "PodcastUrl",
@@ -44,6 +49,8 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
             )
 
         class PodcastUrl(Base):
+            """Class for podcast URL"""
+
             __tablename__ = "podcast_url"
 
             murlid = Column(Integer, ForeignKey("podcast_murl.murlid"))
@@ -56,6 +63,8 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
             )
 
         class PodcastMediaCount(Base):
+            """Class for podcast media count"""
+
             __tablename__ = "podcast_mucount_tag"
 
     Base.prepare(engine, reflect=True)
