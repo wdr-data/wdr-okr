@@ -190,7 +190,7 @@ class CustomSpotify(spotipy.Spotify):
         )["aggregation"]["followers"]["counts"]
 
     def podcast_episodes(self, podcast_id: str) -> dict:
-        """Read episodes data from Spotify Podcaster API.
+        """Get a list of episodes of a specific podcast from Spotify Podcaster API.
 
         Args:
             podcast_id (str): Podcast ID.
