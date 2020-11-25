@@ -26,6 +26,7 @@ django-bulk-sync = "*"
 sentry-sdk = "*"
 spotipy = "*"
 google-api-python-client = "*"
+docutils = "*"
 
 [requires]
 python_version = "3.8"
