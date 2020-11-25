@@ -103,11 +103,11 @@ class CustomSpotify(spotipy.Spotify):
         url = "https://generic.wg.spotify.com/podcasters-analytics-api/" + path
         return self._internal_call("GET", url, payload, kwargs)
 
-    def licensed_podcasts(self) -> str:
-        """Generate URL element for licensed podcast.
+    def licensed_podcasts(self) -> Dict:
+        """Get a list of all licensed podcasts.
 
         Returns:
-            str: URL element with LICENSOR_ID (environment variable).
+            Dict: Results from API.
         """
         return self.podcast_api(f"licensors/{LICENSOR_ID}/podcasts")
 
