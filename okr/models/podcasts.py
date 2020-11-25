@@ -6,7 +6,17 @@ from .base import Product
 
 
 class Podcast(Product):
-    """Individual Podcast series, based on data from XML feed and Spotify APIs."""
+    """Enthält Daten zu den einzelnen Podcast-Reihen, basierend auf Daten aus dem XML
+    feed and Spotify APIs.
+
+    Die folgenden Tabellen nehmen auf die in der Spalte "id" vergebenen Schlüssel (als
+    foreign key namens "podcast_id") Bezug:
+
+    * :model:`okr.PodcastDataSpotify`
+    * :model:`PodcastDataSpotifyHourly`
+    * :model:`PodcastEpisode`
+
+    """
 
     class Meta:
         """Model meta options."""
@@ -16,14 +26,38 @@ class Podcast(Product):
         verbose_name_plural = "Podcasts"
         ordering = Product.Meta.ordering
 
-    feed_url = models.URLField(max_length=1024, verbose_name="Feed-URL", unique=True)
-    author = models.CharField(max_length=200, verbose_name="Autor")
-    image = models.URLField(max_length=1024, verbose_name="Bild")
-    description = models.TextField(verbose_name="Beschreibung")
+    feed_url = models.URLField(
+        max_length=1024,
+        verbose_name="Feed-URL",
+        help_text="Adresse des RSS-Feeds des Podcasts",
+        unique=True,
+    )
+    author = models.CharField(
+        max_length=200,
+        verbose_name="Autor*in",
+        help_text="Urheber*in des Podcasts",
+    )
+    image = models.URLField(
+        max_length=1024,
+        verbose_name="Bild",
+        help_text="URL zum Coverbild des Podcasts",
+    )
+    description = models.TextField(
+        verbose_name="Beschreibung", help_text="Beschreibungstext des Podcasts"
+    )
 
-    spotify_id = models.CharField(max_length=32, verbose_name="Spotify ID", null=True)
+    spotify_id = models.CharField(
+        max_length=32,
+        verbose_name="Spotify ID",
+        help_text="Spotify ID, falls vorhanden",
+        null=True,
+    )
 
-    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Datum der letzten Daten-Aktualisierung",
+        auto_now=True,
+    )
 
 
 class PodcastDataSpotify(models.Model):
