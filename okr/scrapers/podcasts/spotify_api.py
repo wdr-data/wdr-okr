@@ -1,7 +1,7 @@
 """Wrapper for Spotify APIs (using the spotipy library)"""
 
 import os
-from typing import Dict, List, Iterator, TypeVar, Union
+from typing import Dict, List, Iterator, Literal, TypeVar, Union
 import datetime as dt
 from enum import Enum
 from time import sleep
@@ -17,6 +17,9 @@ from ..common.utils import local_yesterday
 from ..common import types
 
 LICENSOR_ID = os.environ.get("SPOTIFY_LICENSOR_ID")
+
+# "followers" is omitted here since we have a special function for that
+AggregationType = Literal["starts", "streams", "listeners"]
 
 
 class SpotipyFilter(logging.Filter):
@@ -114,7 +117,7 @@ class CustomSpotify(spotipy.Spotify):
     def podcast_data(
         self,
         podcast_id: str,
-        agg_type: str,
+        agg_type: AggregationType,
         date: Union[dt.date, dt.datetime],
         *,
         precision: Precision = Precision.DAY,
@@ -123,7 +126,7 @@ class CustomSpotify(spotipy.Spotify):
 
         Args:
             podcast_id (str): Podcast ID.
-            agg_type (str): Aggregation type.
+            agg_type (AggregationType): Aggregation type.
             date (Union[dt.date, dt.datetime]): Date to request data for.
             precision (Precision, optional): Degree of precision. Defaults to
               Precision.DAY.
@@ -144,7 +147,7 @@ class CustomSpotify(spotipy.Spotify):
     def podcast_data_date_range(
         self,
         podcast_id: str,
-        agg_type: str,
+        agg_type: AggregationType,
         *,
         start: Optional[dt.date] = None,
         end: Optional[dt.date] = None,
@@ -153,7 +156,7 @@ class CustomSpotify(spotipy.Spotify):
 
         Args:
             podcast_id (str): Podcast ID.
-            agg_type (str): Aggregation type.
+            agg_type (AggregationType): Aggregation type.
             start (Optional[dt.date], optional): Earliest date to request data for.
               Defaults to None. Will be set to 01/01/2016 if None.
             end (Optional[dt.date], optional): Latest date to request data for.
@@ -217,7 +220,7 @@ class CustomSpotify(spotipy.Spotify):
         self,
         podcast_id: str,
         episode_id: str,
-        agg_type: str,
+        agg_type: AggregationType,
         date: dt.date,
     ) -> dict:
         """Read data for specific episode on specific date from Spotify Podcaster API.
@@ -225,7 +228,7 @@ class CustomSpotify(spotipy.Spotify):
         Args:
             podcast_id (str): Podcast ID.
             episode_id (str): Episode ID.
-            agg_type (str): Aggregation type.
+            agg_type (AggregationType): Aggregation type.
             date (dt.date): Date to request data for.
 
         Returns:
@@ -239,7 +242,7 @@ class CustomSpotify(spotipy.Spotify):
         self,
         podcast_id: str,
         episode_id: str,
-        agg_type: str,
+        agg_type: AggregationType,
         end: Optional[dt.date] = None,
     ) -> dict:
         """Read long-term data for specific episode from Spotify Podcaster API.
@@ -247,7 +250,7 @@ class CustomSpotify(spotipy.Spotify):
         Args:
             podcast_id (str): Podcast ID.
             episode_id (str): Episode ID.
-            agg_type (str): Aggregation type.
+            agg_type (AggregationType): Aggregation type.
             end (Optional[dt.date], optional): Latest date to include in request.
               Defaults to None. Will be set to yesterday's date if None.
 
