@@ -86,7 +86,7 @@ class CustomSpotify(spotipy.Spotify):
         payload: Optional[types.JSON] = None,
         **kwargs,
     ) -> Dict:
-        """Base method to read data from Podstat Spotify API.
+        """Base method to read data from Spotify Podcaster API.
 
         Args:
             path (str): path to request data from.
@@ -119,7 +119,7 @@ class CustomSpotify(spotipy.Spotify):
         *,
         precision: Precision = Precision.DAY,
     ) -> dict:
-        """Read data from Podstat Spotify API.
+        """Read data from Spotify Podcaster API.
 
         Args:
             podcast_id (str): Podcast ID.
@@ -149,7 +149,7 @@ class CustomSpotify(spotipy.Spotify):
         start: Optional[dt.date] = None,
         end: Optional[dt.date] = None,
     ) -> dict:
-        """Read data from Podstat Spotify API for specific period of time.
+        """Read data from Spotify Podcaster API for specific period of time.
 
         Args:
             podcast_id (str): Podcast ID.
@@ -174,7 +174,7 @@ class CustomSpotify(spotipy.Spotify):
         )["aggregation"][agg_type]["counts"]
 
     def podcast_followers(self, podcast_id: str) -> dict:
-        """Read followers data from Podstat Spotify API.
+        """Read followers data from Spotify Podcaster API.
 
         Args:
             podcast_id (str): Podcast ID.
@@ -187,7 +187,7 @@ class CustomSpotify(spotipy.Spotify):
         )["aggregation"]["followers"]["counts"]
 
     def podcast_episodes(self, podcast_id: str) -> dict:
-        """Read episodes data from Podstat Spotify API.
+        """Read episodes data from Spotify Podcaster API.
 
         Args:
             podcast_id (str): Podcast ID.
@@ -200,7 +200,7 @@ class CustomSpotify(spotipy.Spotify):
         )
 
     def podcast_episode_meta(self, podcast_id: str, episode_id: str) -> dict:
-        """Read meta data for specific episode from Podstat Spotify API.
+        """Read meta data for specific episode from Spotify Podcaster API.
 
         Args:
             podcast_id (str): Podcast ID.
@@ -220,7 +220,7 @@ class CustomSpotify(spotipy.Spotify):
         agg_type: str,
         date: dt.date,
     ) -> dict:
-        """Read data for specific episode on specific date from Podstat Spotify API.
+        """Read data for specific episode on specific date from Spotify Podcaster API.
 
         Args:
             podcast_id (str): Podcast ID.
@@ -242,7 +242,7 @@ class CustomSpotify(spotipy.Spotify):
         agg_type: str,
         end: Optional[dt.date] = None,
     ) -> dict:
-        """Read long-term data for specific episode from Podstat Spotify API.
+        """Read long-term data for specific episode from Spotify Podcaster API.
 
         Args:
             podcast_id (str): Podcast ID.
