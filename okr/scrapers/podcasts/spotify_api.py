@@ -14,6 +14,7 @@ from spotipy.exceptions import SpotifyException
 from requests.exceptions import ReadTimeout
 
 from ..common.utils import local_yesterday
+from ..common import types
 
 LICENSOR_ID = os.environ.get("SPOTIFY_LICENSOR_ID")
 
@@ -82,15 +83,16 @@ class CustomSpotify(spotipy.Spotify):
         self,
         path: str,
         *,
-        payload: Optional[str] = None,
+        payload: Optional[types.JSON] = None,
         **kwargs,
     ) -> Dict:
-        """Read data from Podstat Spotify API.
+        """Base method to read data from Podstat Spotify API.
 
         Args:
             path (str): path to request data from.
-            payload (Optional[str], optional): Additional payload for API request.
-              Defaults to None.
+            payload (Optional[types.JSON], optional): Additional payload
+              for API request. Must be a str if a Content-Type is specified,
+              otherwise anything json-serializable. Defaults to None.
 
         Returns:
             Dict: Results from API.
