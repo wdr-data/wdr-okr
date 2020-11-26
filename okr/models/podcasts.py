@@ -485,7 +485,7 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
 
 
 class PodcastEpisodeDataWebtrekkPerformance(models.Model):
-    """zusätzliche Abruf-Daten von Webtrekk für die einzelnen Folgen.
+    """Zusätzliche Abruf-Daten von Webtrekk für die einzelnen Folgen.
 
     Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``episode``.
     """
