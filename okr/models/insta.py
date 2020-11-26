@@ -5,7 +5,16 @@ from .base import Quintly
 
 
 class Insta(Quintly):
-    """Instagram accounts, based on data from Quintly."""
+    """Instagram-Accounts, basierend auf Daten von Quintly.
+
+    Die folgenden Tabellen nehmen auf die in "ID"" vergebenen Schlüssel (als foreign key
+    namens ``insta``) Bezug:
+
+    * :model:`okr.InstaCollaboration`
+    * :model:`okr.InstaInsight`
+    * :model:`okr.InstaPost`
+    * :model:`okr.InstaStory`
+    """
 
     class Meta:
         """Model meta options."""
@@ -17,7 +26,11 @@ class Insta(Quintly):
 
 
 class InstaInsight(models.Model):
-    """Performance data of Instagram accounts, based on data from Instagram Insights."""
+    """Performance-Daten einzelner Instagram-Accounts, basierend auf Daten von Instagram
+    Insights.
+
+    Verknüpft mit :model:`okr.Insta` über den foreign key ``insta``.
+    """
 
     class Meta:
         """Model meta options."""
@@ -37,6 +50,7 @@ class InstaInsight(models.Model):
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
         to=Insta,
         on_delete=models.CASCADE,
         related_name="insights",
@@ -44,7 +58,10 @@ class InstaInsight(models.Model):
     )
     date = models.DateField(verbose_name="Datum")
     interval = models.CharField(
-        verbose_name="Zeitraum", choices=Interval.choices, max_length=10
+        verbose_name="Zeitraum",
+        help_text="Intervall (täglich, wöchentlich oder monatlich)",
+        choices=Interval.choices,
+        max_length=10,
     )
     reach = models.IntegerField(verbose_name="Reichweite", null=True)
     impressions = models.IntegerField(verbose_name="Impressions", null=True)
@@ -62,7 +79,10 @@ class InstaInsight(models.Model):
 
 
 class InstaPost(models.Model):
-    """Data on individual Instagram posts."""
+    """Grundlegende Daten zu einzelnen Instagram-Postings.
+
+    Verknüpft mit :model:`okr.Insta` über den foreign key ``insta``.
+    """
 
     class Meta:
         """Model meta options."""
@@ -74,20 +94,29 @@ class InstaPost(models.Model):
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
         to=Insta,
         on_delete=models.CASCADE,
         related_name="posts",
         related_query_name="post",
     )
-    external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
-    message = models.TextField(verbose_name="Text")
-    created_at = models.DateTimeField(verbose_name="Erstellt")
-    post_type = models.CharField(verbose_name="Typ", max_length=20)
-    comments = models.IntegerField(verbose_name="Kommentare")
-    likes = models.IntegerField(verbose_name="Likes")
+    external_id = models.CharField(
+        verbose_name="Externe ID", max_length=25, unique=True
+    )
+    message = models.TextField(verbose_name="Text", help_text="Volltext des Postings")
+    created_at = models.DateTimeField(verbose_name="Erstellungsdatum")
+    post_type = models.CharField(
+        verbose_name="Typ",
+        help_text="Art des Postings (Image, Carousel, etc)",
+        max_length=20,
+    )
+    comments = models.IntegerField(
+        verbose_name="Kommentare", help_text="Anzahl der Kommentare"
+    )
+    likes = models.IntegerField(verbose_name="Likes", help_text="Anzahl der Likes")
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
-    link = models.URLField(verbose_name="Link")
+    link = models.URLField(verbose_name="Link", help_text="URL des Postings")
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
@@ -95,7 +124,13 @@ class InstaPost(models.Model):
 
 
 class InstaStory(models.Model):
-    """Data on individual Instagram stories."""
+    """Daten zu einzelnen Instagram Stories.
+
+    Jede Zeile der Datenbank entählt Daten zu einem Story-Element. Eine Insta-Story
+    besteht in der Regel aus mehreren Story-Elementen.
+
+    Verknüpft mit :model:`okr.Insta` über den foreign key ``insta``.
+    """
 
     class Meta:
         """Model meta options."""
@@ -107,20 +142,40 @@ class InstaStory(models.Model):
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
         to=Insta,
         on_delete=models.CASCADE,
         related_name="stories",
         related_query_name="story",
     )
-    external_id = models.CharField(verbose_name="ID", max_length=25, unique=True)
-    caption = models.TextField(verbose_name="Text", null=True)
-    created_at = models.DateTimeField(verbose_name="Erstellt")
-    story_type = models.CharField(verbose_name="Typ", max_length=200)
-    replies = models.IntegerField(verbose_name="Antworten")
-    exits = models.IntegerField(verbose_name="Exits")
+    external_id = models.CharField(
+        verbose_name="Externe ID",
+        max_length=25,
+        unique=True,
+    )
+    caption = models.TextField(
+        verbose_name="Text",
+        help_text="Volltext des Story-Elements",
+        null=True,
+    )
+    created_at = models.DateTimeField(verbose_name="Erstellungszeitpunkt")
+    story_type = models.CharField(
+        verbose_name="Typ",
+        help_text="Art des Story-Elements (Image/Video)",
+        max_length=200,
+    )
+    replies = models.IntegerField(
+        verbose_name="Antworten",
+        help_text="Anzahl der Antworten",
+    )
+    exits = models.IntegerField(verbose_name="Exits", help_text="Anzahl der Ausstiege")
     reach = models.IntegerField(verbose_name="Reichweite")
     impressions = models.IntegerField(verbose_name="Impressions")
-    link = models.URLField(verbose_name="Link", max_length=1024)
+    link = models.URLField(
+        verbose_name="Link",
+        help_text="URL des Story-Elements",
+        max_length=1024,
+    )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
@@ -128,7 +183,12 @@ class InstaStory(models.Model):
 
 
 class InstaCollaborationType(models.Model):
-    """Data on Instagram collaboration types. These are created manually via Django Admin."""
+    """Liste der verfügbaren Collaborations-Typen.
+
+    Manuell via Django Admin angelegt. Die Tabelle :model:`okr.InstaCollaboration` nimmt
+    auf die in "ID"" vergebenen Schlüssel (als foreign key namens
+    ``collaboration_type``) Bezug:
+    """
 
     class Meta:
         """Model meta options."""
@@ -138,14 +198,24 @@ class InstaCollaborationType(models.Model):
         verbose_name_plural = "Instagram-Collaboration Formate"
         ordering = ["name"]
 
-    name = models.CharField("Name", max_length=200, null=False, blank=False)
+    name = models.CharField(
+        "Name",
+        help_text="Bezeichnung der Art von Collaboration",
+        max_length=200,
+        null=False,
+        blank=False,
+    )
 
     def __str__(self):
         return self.name
 
 
 class InstaCollaboration(models.Model):
-    """Data on Instagram collaborations. These are created manually via Django Admin."""
+    """Daten über Instagram collaborations.
+
+    Manuell angelegt via Django Admin. Verknüpft mit :model:`okr.Insta` über den foreign
+    key ``collaboration_type``.
+    """
 
     class Meta:
         """Model meta options."""
@@ -175,6 +245,7 @@ class InstaCollaboration(models.Model):
         null=True,
         related_name="collaboration",
         verbose_name="Format",
+        help_text="Bezeichnung der Art von Collaboration",
     )
     topic = models.TextField(verbose_name="Thema", help_text="Thema der Kollaboration")
     description = models.TextField(verbose_name="Notiz", blank=True)
