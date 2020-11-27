@@ -7,7 +7,7 @@ from .base import Quintly
 class Insta(Quintly):
     """Instagram-Accounts, basierend auf Daten von Quintly.
 
-    Die folgenden Tabellen nehmen auf die in "ID"" vergebenen Schlüssel (als foreign key
+    Die folgenden Tabellen nehmen auf die in "ID" vergebenen Schlüssel (als foreign key
     namens ``insta``) Bezug:
 
     * :model:`okr.InstaCollaboration`
@@ -186,7 +186,7 @@ class InstaCollaborationType(models.Model):
     """Liste der verfügbaren Collaborations-Typen.
 
     Manuell via Django Admin angelegt. Die Tabelle :model:`okr.InstaCollaboration` nimmt
-    auf die in "ID"" vergebenen Schlüssel (als foreign key namens
+    auf die in "ID" vergebenen Schlüssel (als foreign key namens
     ``collaboration_type``) Bezug:
     """
 
