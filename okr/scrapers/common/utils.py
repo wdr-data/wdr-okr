@@ -9,6 +9,15 @@ BERLIN = pytz.timezone("Europe/Berlin")
 UTC = pytz.UTC
 
 
+def local_now() -> dt.datetime:
+    """Generate current datetime (Berlin time zone).
+
+    Returns:
+        dt.datetime: Current datetime.
+    """
+    return dt.datetime.now(tz=BERLIN)
+
+
 def local_today() -> dt.date:
     """Generate current date (Berlin time zone).
 
