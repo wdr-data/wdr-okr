@@ -149,6 +149,8 @@ class SophoraDocumentMeta(models.Model):
             "headline",
             "teaser",
             "document_type",
+            "sophora_id",
+            "node",
         )
 
     sophora_document = models.ForeignKey(

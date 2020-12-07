@@ -240,13 +240,13 @@ def _handle_sophora_document(
 
     SophoraDocumentMeta.objects.get_or_create(
         sophora_document=sophora_document,
-        editorial_update=editorial_update,
+        headline=headline,
+        teaser=teaser,
+        document_type=document_type,
+        sophora_id=sophora_id,
+        node=node,
         defaults=dict(
-            headline=headline,
-            teaser=teaser,
-            sophora_id=sophora_id,
-            node=node,
-            document_type=document_type,
+            editorial_update=editorial_update,
         ),
     )
     return True
