@@ -125,13 +125,13 @@ def start():
 
     # Pages
     scheduler.add_job(
-        pages.scrape_gsc,
+        pages.scrape_sophora_nodes,
         trigger="cron",
-        hour="16",
-        minute="0",
+        hour="*",
+        minute="45",
     )
     scheduler.add_job(
-        pages.scrape_sophora,
+        pages.scrape_gsc,
         trigger="cron",
         hour="17",
         minute="0",
