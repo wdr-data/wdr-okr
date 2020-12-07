@@ -10,6 +10,7 @@ def remove_pages(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ("okr", "0030_auto_20201126_1641"),
