@@ -174,12 +174,6 @@ def _handle_sophora_document(
         headline = sophora_document_info["teaser"]["schlagzeile"]
         teaser = "\n".join(sophora_document_info["teaser"]["teaserText"])
 
-    elif sophora_document_info.get("mediaType") == "imageGallery":
-        return True  # TODO handle this better?
-        editorial_update = None
-        headline = sophora_document_info["schlagzeile"]
-        teaser = "\n".join(sophora_document_info["teaserText"])
-
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
         editorial_update = dt.datetime.fromtimestamp(
             sophora_document_info["lastModified"] / 1000,
@@ -187,7 +181,8 @@ def _handle_sophora_document(
         )
         headline = sophora_document_info["title"]
         teaser = "\n".join(sophora_document_info.get("teaserText", []))
-    elif sophora_document_info.get("mediaType") == "link":
+
+    elif sophora_document_info.get("mediaType") in ["link", "imageGallery"]:
         return True
 
     else:
@@ -202,15 +197,6 @@ def _handle_sophora_document(
     if editorial_update is not None and editorial_update < max_age:
         return False
 
-    try:
-        document_type = sophora_document_info.get("mediaType")
-        if document_type is None:
-            document_type = sophora_document_info["teaser"]["mediaType"]
-    except Exception as error:
-        print(sophora_document_info)
-        capture_exception(error)
-        return True
-
     # Parse Sophora ID and uuid
     if "teaser" in sophora_document_info:
         contains_info = sophora_document_info["teaser"]
@@ -222,12 +208,20 @@ def _handle_sophora_document(
     except KeyError as error:
         print("No shareLink found:")
         print(sophora_document_info)
+        capture_exception(error)
         return True
     except AttributeError as error:
         capture_exception(error)
         return True
 
     export_uuid = contains_info["uuid"]
+
+    try:
+        document_type = contains_info.get("mediaType")
+    except Exception as error:
+        print(sophora_document_info)
+        capture_exception(error)
+        return True
 
     sophora_document, created = SophoraDocument.objects.get_or_create(
         export_uuid=export_uuid,
