@@ -176,10 +176,15 @@ def _handle_sophora_document(
         teaser = "\n".join(sophora_document_info["teaser"]["teaserText"])
 
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
-        editorial_update = dt.datetime.fromtimestamp(
-            sophora_document_info["lastModified"] / 1000,
-            tz=BERLIN,
-        )
+        # Sometimes this is not set to sane value
+        if sophora_document_info["lastModified"] < 1:
+            editorial_update = None
+        else:
+            editorial_update = dt.datetime.fromtimestamp(
+                sophora_document_info["lastModified"] / 1000,
+                tz=BERLIN,
+            )
+
         headline = sophora_document_info["title"]
         teaser = "\n".join(sophora_document_info.get("teaserText", []))
 
