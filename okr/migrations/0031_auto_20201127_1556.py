@@ -16,7 +16,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(remove_pages, atomic=False),
         migrations.CreateModel(
             name="SophoraDocument",
             fields=[
@@ -269,4 +268,5 @@ class Migration(migrations.Migration):
                 verbose_name="Sophora-Dokument",
             ),
         ),
+        migrations.RunPython(remove_pages),
     ]
