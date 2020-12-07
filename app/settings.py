@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "tz_detect",
+    "django_extensions",
     "okr.apps.OkrConfig",
 ]
 
