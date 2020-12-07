@@ -188,7 +188,12 @@ def _handle_sophora_document(
         headline = sophora_document_info["title"]
         teaser = "\n".join(sophora_document_info.get("teaserText", []))
 
-    elif sophora_document_info.get("mediaType") in ["link", "imageGallery"]:
+    elif sophora_document_info.get("mediaType") == "imageGallery":
+        editorial_update = None
+        headline = sophora_document_info["schlagzeile"]
+        teaser = "\n".join(sophora_document_info["teaserText"])
+
+    elif sophora_document_info.get("mediaType") == "link":
         return True
 
     else:
@@ -200,10 +205,15 @@ def _handle_sophora_document(
         print(sophora_document_info)
         return True
 
+    # Cancel when editorial update is too old
     if editorial_update is not None and editorial_update < max_age:
+        print(
+            f"Done scraping this feed. editorial_update: {editorial_update}, max_age={max_age}"
+        )
+        print(sophora_document_info)
         return False
 
-    # Parse Sophora ID and uuid
+    # Parse Sophora ID, uuid and documentType
     if "teaser" in sophora_document_info:
         contains_info = sophora_document_info["teaser"]
     else:
@@ -212,6 +222,10 @@ def _handle_sophora_document(
     try:
         sophora_id, node, _ = _parse_sophora_url(contains_info["shareLink"])
     except KeyError as error:
+        # Don't send error to Sentry for image galleries
+        if contains_info.get("mediaType") == "imageGallery":
+            return True
+
         print("No shareLink found:")
         print(sophora_document_info)
         capture_exception(error)
