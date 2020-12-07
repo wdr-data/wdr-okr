@@ -47,7 +47,7 @@ class SophoraNode(models.Model):
 
     node = models.CharField(
         verbose_name="Sophora Knoten",
-        help_text="",
+        help_text='Sophora-Knoten in der Form "/wdr/nachrichten" (ohne trailing slash)',
         max_length=128,
         unique=True,
     )
