@@ -1,7 +1,6 @@
 """Database models for pages."""
 
 from django.db import models
-from pandas.io import html
 from .base import Product
 
 
@@ -33,8 +32,177 @@ class Property(Product):
     )
 
 
+class SophoraNode(models.Model):
+    """Die Sophora-Datenbank wird anhand der Sophora-Knoten durchsucht, um neue und aktualisierte
+    :model:`okr.SophoraDocument` zu finden.
+    """
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "sophora_node"
+        verbose_name = "Sophora-Knoten"
+        verbose_name_plural = "Sophora-Knoten"
+        ordering = ["node"]
+
+    node = models.CharField(
+        verbose_name="Sophora Knoten",
+        help_text='Sophora-Knoten in der Form "/wdr/nachrichten" (ohne trailing slash)',
+        max_length=128,
+        unique=True,
+    )
+    use_exact_search = models.BooleanField(
+        verbose_name="Ignoriere Unterknoten",
+        help_text="Wenn dieser Haken gesetzt ist, werden Unterknoten ignoriert",
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Jüngste Aktualisierung des Datenpunktes",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return self.node
+
+
+class SophoraDocument(models.Model):
+    """Repräsentation eines einzelnen Dokuments in Sophora."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "sophora_document"
+        verbose_name = "Sophora-Dokument"
+        verbose_name_plural = "Sophora-Dokumente"
+        ordering = ["-created"]
+
+    sophora_node = models.ForeignKey(
+        to=SophoraNode,
+        verbose_name="Sophora-Knoten",
+        on_delete=models.CASCADE,
+        related_name="documents",
+        related_query_name="document",
+        help_text="Der Sophora-Knoten, unter dem dieses Dokument gefunden wurde",
+    )
+
+    export_uuid = models.CharField(
+        verbose_name="UUID",
+        help_text="Die ID, die dem Dokument vom Export-System zugewiesen wurde",
+        max_length=64,
+        unique=True,
+    )
+
+    created = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erstellung",
+        help_text="Der Zeitpunkt, an dem dieser Eintrag in der Datenbank angelegt wurde",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.export_uuid}"
+
+
+class SophoraID(models.Model):
+    """Speichert Sophora-IDs die zu einem Dokument gehörten."""
+
+    sophora_document = models.ForeignKey(
+        to=SophoraDocument,
+        verbose_name="Sophora-Dokument",
+        on_delete=models.CASCADE,
+        related_name="sophora_ids",
+        related_query_name="sophora_id",
+        help_text="Das Sophora-Dokument, zu dem diese ID gehört (hat)",
+    )
+
+    sophora_id = models.CharField(
+        verbose_name="Sophora ID",
+        help_text="Sophora ID des Dokuments",
+        max_length=128,
+        unique=True,
+    )
+
+    created = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erstellung",
+        help_text="Der Zeitpunkt, an dem dieser Eintrag in der Datenbank angelegt wurde",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return self.sophora_id
+
+
+class SophoraDocumentMeta(models.Model):
+    """Meta-Informationen zu einem bestimmten Dokument. Es kann mehrere Meta-Einträge zum selben
+    Dokument geben, wenn z. B. die Überschrift geändert wird.
+    """
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "sophora_document_meta"
+        verbose_name = "Sophora-Dokument-Meta"
+        verbose_name_plural = "Sophora-Dokument-Metas"
+        ordering = ["-created"]
+        unique_together = (
+            "sophora_document",
+            "headline",
+            "teaser",
+            "document_type",
+            "sophora_id",
+            "node",
+        )
+
+    sophora_document = models.ForeignKey(
+        to=SophoraDocument,
+        verbose_name="Sophora-Dokument",
+        on_delete=models.CASCADE,
+        related_name="metas",
+        related_query_name="meta",
+        help_text="Das Sophora-Dokument, zu dem diese Daten gehören",
+    )
+
+    editorial_update = models.DateTimeField(
+        verbose_name="Redaktioneller Stand",
+        help_text="Von Redaktion gesetzes Standdatum",
+        null=True,
+    )
+    node = models.CharField(
+        verbose_name="Strukturknoten",
+        help_text="Der Sophora-Strukturknoten, unter dem das Dokument momentan abgelegt ist",
+        max_length=128,
+    )
+    sophora_id = models.CharField(
+        verbose_name="Sophora ID",
+        help_text="Momentane Sophora ID des Dokuments",
+        max_length=128,
+    )
+    headline = models.TextField(
+        verbose_name="Titel",
+        help_text="Schlagzeile des Sophora-Dokuments",
+    )
+    teaser = models.TextField(
+        verbose_name="Teaser",
+        help_text="Teasertext des Sophora-Dokuments",
+    )
+    document_type = models.CharField(
+        verbose_name="Beitragstyp",
+        help_text="Der Typ des Sophora-Beitrags",
+        max_length=64,
+    )
+
+    created = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erstellung",
+        help_text="Der Zeitpunkt, an dem diese Metadaten abgerufen wurden",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.sophora_id} ({self.created})"
+
+
 class Page(models.Model):
-    """Grundlegende Daten einzelner Nachrichtenartikel.
+    """Grundlegende Daten einzelner URLs.
 
     Verknüpft mit :model:`okr.Property` über den foreign key ``property``.
 
@@ -59,18 +227,23 @@ class Page(models.Model):
         on_delete=models.CASCADE,
         related_name="pages",
         related_query_name="page",
-        help_text="Globale ID der Website",
+        help_text="Die GSC-Property, unter der diese Seite gefunden wurde",
+    )
+    sophora_document = models.ForeignKey(
+        to=SophoraDocument,
+        verbose_name="Sophora-Dokument",
+        on_delete=models.CASCADE,
+        related_name="pages",
+        related_query_name="page",
+        help_text="Das Sophora-Dokument, auf das diese Seite zeigt",
+        null=True,
     )
 
     url = models.URLField(
         verbose_name="URL",
         help_text="URL des Nachrichtenartikels",
         unique=True,
-    )
-    sophora_id = models.CharField(
-        verbose_name="Sophora ID",
-        help_text="Sophora ID des Nachrichtenartikels",
-        max_length=512,
+        max_length=1024,
     )
     sophora_page = models.IntegerField(
         verbose_name="Sophora-Seite",
@@ -90,53 +263,6 @@ class Page(models.Model):
 
     def __str__(self):
         return f"{self.url} ({self.first_seen})"
-
-
-class PageMeta(models.Model):
-    """Metadaten zu einer individuellen Seite basierend auf Sophora-Daten.
-
-    Verknüpft mit :model:`okr.Page` über den foreign key ``page``.
-    """
-
-    class Meta:
-        """Model meta options."""
-
-        db_table = "page_meta"
-        verbose_name = "Seiten-Metadaten"
-        verbose_name_plural = "Seiten-Metadaten"
-        ordering = ["-editorial_update"]
-
-    page = models.ForeignKey(
-        to=Page,
-        verbose_name="Seite",
-        help_text="Globale ID des Nachrichtenartikels",
-        on_delete=models.CASCADE,
-        related_name="metas",
-        related_query_name="meta",
-        unique=True,
-    )
-
-    editorial_update = models.DateTimeField(
-        verbose_name="Redaktioneller Stand",
-        help_text="Von Redaktion gesetzes Standdatum",
-        null=True,
-    )
-    headline = models.TextField(
-        verbose_name="Titel",
-        help_text="Schlagzeile des Nachrichtenartikels",
-    )
-    teaser = models.TextField(
-        verbose_name="Teaser",
-        help_text="Teasertext des Nachrichtenartikels",
-    )
-    last_updated = models.DateTimeField(
-        verbose_name="Zuletzt upgedated",
-        help_text="Aktualisierung des Datenpunktes",
-        auto_now=True,
-    )
-
-    def __str__(self):
-        return self.headline
 
 
 class PageDataGSC(models.Model):

@@ -1,6 +1,7 @@
 """Configure scheduler to call scraper modules.
 """
 
+from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
 from django.conf import settings
@@ -124,13 +125,13 @@ def start():
 
     # Pages
     scheduler.add_job(
-        pages.scrape_gsc,
+        pages.scrape_sophora_nodes,
         trigger="cron",
-        hour="16",
-        minute="0",
+        hour="*",
+        minute="45",
     )
     scheduler.add_job(
-        pages.scrape_sophora,
+        pages.scrape_gsc,
         trigger="cron",
         hour="17",
         minute="0",
@@ -186,4 +187,17 @@ def property_created(instance: Property, created: bool, **kwargs):
     """
     print(instance, created)
     if created:
-        scheduler.add_job(pages.scrape_full, args=[instance], max_instances=1)
+        scheduler.add_job(pages.scrape_full_gsc, args=[instance], max_instances=1)
+
+
+@receiver(post_save, sender=SophoraNode)
+def sophora_node_created(instance: SophoraNode, created: bool, **kwargs):
+    """Start scraper run for newly added Sophora node.
+
+    Args:
+        instance (SophoraNode): A SophoraNode instance
+        created (bool): Start scraper if set to True
+    """
+    print(instance, created)
+    if created:
+        scheduler.add_job(pages.scrape_full_sophora, args=[instance], max_instances=1)
