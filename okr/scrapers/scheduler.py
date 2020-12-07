@@ -191,7 +191,7 @@ def property_created(instance: Property, created: bool, **kwargs):
 
 
 @receiver(post_save, sender=SophoraNode)
-def property_created(instance: SophoraNode, created: bool, **kwargs):
+def sophora_node_created(instance: SophoraNode, created: bool, **kwargs):
     """Start scraper run for newly added Sophora node.
 
     Args:
