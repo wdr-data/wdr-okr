@@ -241,6 +241,7 @@ class Page(models.Model):
         verbose_name="URL",
         help_text="URL des Nachrichtenartikels",
         unique=True,
+        max_length=1024,
     )
     sophora_page = models.IntegerField(
         verbose_name="Sophora-Seite",
