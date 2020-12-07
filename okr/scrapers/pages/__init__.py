@@ -294,7 +294,8 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
             max_age = now - dt.timedelta(days=365)
         else:
             max_age = (
-                sophora_node.documents.all()
+                SophoraDocumentMeta.objects.all()
+                .filter(sophora_document__sophora_node=sophora_node)
                 .order_by("-editorial_update")[0]
                 .editorial_update
             ) - dt.timedelta(minutes=1)
