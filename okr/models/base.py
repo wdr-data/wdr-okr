@@ -12,7 +12,11 @@ class Product(models.Model):
         abstract = True
         ordering = ["name"]
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(
+        verbose_name="Name",
+        help_text="Name des Accounts",
+        max_length=200,
+    )
 
     def __str__(self):
         return self.name
@@ -27,4 +31,4 @@ class Quintly(Product):
         abstract = True
         ordering = Product.Meta.ordering
 
-    quintly_profile_id = models.IntegerField()
+    quintly_profile_id = models.IntegerField(verbose_name="Quintly Profil-ID")

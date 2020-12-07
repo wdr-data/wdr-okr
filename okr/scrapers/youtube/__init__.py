@@ -1,5 +1,7 @@
 from datetime import date
+from okr.models.podcasts import Podcast
 from time import sleep
+from typing import Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
@@ -9,7 +11,13 @@ from ...models.youtube import *
 from ..common import quintly
 
 
-def scrape_full(youtube):
+def scrape_full(youtube: YouTube):
+    """Initiate scraping for daily, weekly, and monthly data.
+
+    Args:
+        youtube (YouTube): YouTube object to scrape data for.
+    """
+
     youtube_filter = Q(id=youtube.id)
     start_date = date(2019, 1, 1)
 
@@ -20,7 +28,21 @@ def scrape_full(youtube):
     scrape_analytics("monthly", start_date=start_date, youtube_filter=youtube_filter)
 
 
-def scrape_analytics(interval, *, start_date=None, youtube_filter=None):
+def scrape_analytics(
+    interval: str,
+    *,
+    start_date: Optional[date] = None,
+    youtube_filter: Optional[Q] = None,
+):
+    """Read YouTube analytics data from Quintly and store in database.
+
+    Args:
+        interval (str): Interval to request data for ("daily", "weekly", or "monthly").
+        start_date (Optional[date], optional): Earliest data to request data for.
+            Defaults to None.
+        youtube_filter (Optional[Q], optional): Q object to filter data with.
+            Defaults to None.
+    """
     youtubes = YouTube.objects.all()
 
     if youtube_filter:
