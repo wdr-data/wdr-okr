@@ -27,6 +27,7 @@ sentry-sdk = "*"
 spotipy = "*"
 google-api-python-client = "*"
 docutils = "*"
+django-extensions = "*"
 
 [requires]
 python_version = "3.8"
