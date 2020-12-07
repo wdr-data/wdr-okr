@@ -135,6 +135,7 @@ def scrape_gsc(
                     except SophoraID.DoesNotExist:
                         sophora_document = None
 
+                    # TODO: Update this when Webtrekk for pages is added
                     page, created = Page.objects.get_or_create(
                         url=url,
                         defaults=dict(
