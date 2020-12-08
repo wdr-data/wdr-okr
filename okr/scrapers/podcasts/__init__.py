@@ -16,8 +16,16 @@ from . import feed
 from . import spotify
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
+from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
 from .webtrekk import cleaned_webtrekk_audio_data
-from ..common.utils import local_today, local_yesterday, date_range, BERLIN, UTC
+from ..common.utils import (
+    date_param,
+    local_today,
+    local_yesterday,
+    date_range,
+    BERLIN,
+    UTC,
+)
 from ...models import (
     Podcast,
     PodcastEpisode,
@@ -28,6 +36,7 @@ from ...models import (
     PodcastDataSpotifyHourly,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataWebtrekkPerformance,
+    PodcastEpisodeDataSpotifyDemographics,
 )
 
 
@@ -55,7 +64,19 @@ def scrape_full(
     scrape_feed(podcast_filter=podcast_filter)
 
     sleep(1)
+    scrape_spotify_experimental_performance(
+        podcast_filter=podcast_filter,
+    )
+
+    sleep(1)
     scrape_spotify_mediatrend(
+        start_date=start_date,
+        end_date=end_date,
+        podcast_filter=podcast_filter,
+    )
+
+    sleep(1)
+    scrape_spotify_experimental_demographics(
         start_date=start_date,
         end_date=end_date,
         podcast_filter=podcast_filter,
@@ -225,8 +246,17 @@ def scrape_spotify_api(
             print("No Spotify ID for", podcast)
             continue
 
-        # Retrieve follower and listener data for podcast
-        follower_data = spotify_api.podcast_followers(podcast.spotify_id)
+        # Retrieve follower for podcast from experimental API
+        follower_data = experimental_spotify_podcast_api.podcast_followers(
+            podcast.spotify_id,
+            start=start_date,
+            end=end_date,
+        )
+        # Transform to date-based dict
+        follower_data = {
+            dt.date.fromisoformat(item["date"]): item["count"]
+            for item in follower_data["counts"]
+        }
 
         first_episode_date = podcast.episodes.order_by("publication_date_time")[
             0
@@ -279,21 +309,13 @@ def scrape_spotify_api(
                 "listeners_monthly": listener_monthly_data["total"],
             }
 
-            if date == yesterday:
-                defaults["followers"] = follower_data["total"]
+            defaults["followers"] = follower_data[date]
 
-            existing = PodcastDataSpotify.objects.filter(
+            PodcastDataSpotify.objects.update_or_create(
                 podcast=podcast,
                 date=date,
+                defaults=defaults,
             )
-            if existing.count() > 0:
-                existing.update(**defaults)
-            else:
-                if "followers" not in defaults:
-                    defaults["followers"] = 0
-
-                obj = PodcastDataSpotify(podcast=podcast, date=date, **defaults)
-                obj.save()
 
             # Read hourly data
             if date < dt.date(2019, 12, 1):
@@ -405,7 +427,7 @@ def scrape_spotify_mediatrend(
 
     for podcast in podcasts:
         with spotify.make_connection_meta() as connection_meta:
-            print("Scraping spotify for", podcast)
+            print("Scraping mediatrend db for", podcast)
             try:
                 spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
             except IndexError as e:
@@ -478,55 +500,126 @@ def scrape_spotify_mediatrend(
                         ),
                     )
 
-                    time = additional_data.average_listen
-                    average_listen = dt.timedelta(
-                        hours=time.hour,
-                        minutes=time.minute,
-                        seconds=time.second,
-                    )
-
-                    PodcastEpisodeDataSpotifyPerformance.objects.update_or_create(
-                        episode=podcast_episode,
-                        date=additional_data.datum,
-                        # average_listen ist time --> durationfield
-                        defaults=dict(
-                            average_listen=average_listen,
-                            quartile_1=additional_data.first_quartile,
-                            quartile_2=additional_data.second_quartile,
-                            quartile_3=additional_data.third_quartile,
-                            complete=additional_data.complete,
-                        ),
-                    )
-
-                    dates.add(additional_data.datum)
-
         del connection_meta
         gc.collect()
 
 
-def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
-    if additional_data.datum is None:
-        print(f"Date for performacne data of episode {podcast_episode} is NULL")
-        return
+def scrape_spotify_experimental_performance(
+    *,
+    podcast_filter: Optional[Q] = None,
+):
+    today = local_today()
 
-    time = getattr(additional_data, "average_listen")
-    average_listen = dt.timedelta(
-        hours=time.hour,
-        minutes=time.minute,
-        seconds=time.second,
+    podcasts = Podcast.objects.all()
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
+    for podcast in podcasts:
+        print(
+            "Scraping spotify performance data for",
+            podcast,
+            "from experimental API",
+        )
+        for podcast_episode in podcast.episodes.all():
+            print(
+                "Scraping spotify episode performance data for",
+                podcast_episode,
+                "from experimental API",
+            )
+
+            performance_data = experimental_spotify_podcast_api.episode_performance(
+                podcast_episode.spotify_id
+            )
+
+            average_listen = dt.timedelta(
+                seconds=performance_data["medianCompletion"]["seconds"],
+            )
+
+            PodcastEpisodeDataSpotifyPerformance.objects.update_or_create(
+                episode=podcast_episode,
+                date=today,
+                defaults=dict(
+                    average_listen=average_listen,
+                    quartile_1=performance_data["percentiles"]["25"],
+                    quartile_2=performance_data["percentiles"]["50"],
+                    quartile_3=performance_data["percentiles"]["75"],
+                    complete=performance_data["percentiles"]["100"],
+                ),
+            )
+
+
+def scrape_spotify_experimental_demographics(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
+):
+    today = local_today()
+    yesterday = local_yesterday()
+    default_start = today - dt.timedelta(days=2)
+
+    start_date = date_param(
+        start_date,
+        default=default_start,
+        earliest=default_start,
+        latest=yesterday,
+    )
+    end_date = date_param(
+        end_date,
+        default=yesterday,
+        earliest=start_date,
+        latest=yesterday,
     )
 
-    return PodcastEpisodeDataSpotifyPerformance(
-        # Use getattr because the column name has a minus in it
-        episode=podcast_episode,
-        date=additional_data.datum,
-        # average_listen ist time --> durationfield
-        average_listen=average_listen,
-        quartile_1=getattr(additional_data, "first_quartile"),
-        quartile_2=getattr(additional_data, "second_quartile"),
-        quartile_3=getattr(additional_data, "third_quartile"),
-        complete=getattr(additional_data, "complete"),
-    )
+    podcasts = Podcast.objects.all()
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
+    for podcast in podcasts:
+        print(
+            "Scraping spotify demographics data for",
+            podcast,
+            "from experimental API",
+        )
+
+        first_episode_date = podcast.episodes.order_by("publication_date_time")[
+            0
+        ].publication_date_time.date()
+
+        if start_date < first_episode_date:
+            start_date = first_episode_date
+
+        for podcast_episode in podcast.episodes.all():
+            for date in reversed(date_range(start_date, end_date)):
+                print(
+                    "Scraping spotify episode demographics data for",
+                    podcast_episode,
+                    "from experimental API",
+                )
+
+                aggregate_data = experimental_spotify_podcast_api.episode_aggregate(
+                    podcast_episode.spotify_id,
+                    start=date,
+                )
+
+                for age_range, age_range_data in aggregate_data[
+                    "ageFacetedCounts"
+                ].items():
+                    for gender, gender_data in age_range_data["counts"].items():
+
+                        PodcastEpisodeDataSpotifyDemographics.objects.update_or_create(
+                            episode=podcast_episode,
+                            date=date,
+                            age_range=PodcastEpisodeDataSpotifyDemographics.AgeRange(
+                                age_range
+                            ),
+                            gender=PodcastEpisodeDataSpotifyDemographics.Gender(gender),
+                            defaults=dict(
+                                count=gender_data,
+                            ),
+                        )
 
 
 def scrape_podstat(
@@ -708,12 +801,18 @@ def scrape_episode_data_webtrekk_performance(
     today = local_today()
     yesterday = local_yesterday()
 
-    if start_date is None:
-        start_date = yesterday - dt.timedelta(days=2)
-    start_date = max(start_date, today - dt.timedelta(days=7))
-
-    end_date = end_date or yesterday
-    start_date = min(start_date, end_date)
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=2),
+        earliest=today - dt.timedelta(days=7),
+        latest=yesterday,
+    )
+    end_date = date_param(
+        end_date,
+        default=yesterday,
+        earliest=start_date,
+        latest=yesterday,
+    )
 
     for date in reversed(date_range(start_date, end_date)):
         data = cleaned_webtrekk_audio_data(date)

@@ -20,6 +20,7 @@ from okr.models.pages import (
     SophoraID,
 )
 from okr.scrapers.common.utils import (
+    date_param,
     date_range,
     local_now,
     local_today,
@@ -96,11 +97,12 @@ def scrape_gsc(
     today = local_today()
     yesterday = local_yesterday()
 
-    if start_date is None:
-        start_date = yesterday - dt.timedelta(days=2)
-
-    start_date = max(start_date, today - dt.timedelta(days=30))
-    start_date = min(start_date, yesterday)
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=2),
+        earliest=today - dt.timedelta(days=30),
+        latest=yesterday,
+    )
 
     properties = Property.objects.all()
 
