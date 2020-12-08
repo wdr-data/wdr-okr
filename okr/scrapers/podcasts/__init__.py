@@ -16,6 +16,7 @@ from . import feed
 from . import spotify
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
+from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
 from .webtrekk import cleaned_webtrekk_audio_data
 from ..common.utils import local_today, local_yesterday, date_range, BERLIN, UTC
 from ...models import (
@@ -225,8 +226,17 @@ def scrape_spotify_api(
             print("No Spotify ID for", podcast)
             continue
 
-        # Retrieve follower and listener data for podcast
-        follower_data = spotify_api.podcast_followers(podcast.spotify_id)
+        # Retrieve follower for podcast from experimental API
+        follower_data = experimental_spotify_podcast_api.podcast_followers(
+            podcast.spotify_id,
+            start=start_date,
+            end=end_date,
+        )
+        # Transform to date-based dict
+        follower_data = {
+            dt.date.fromisoformat(item["date"]): item["count"]
+            for item in follower_data["counts"]
+        }
 
         first_episode_date = podcast.episodes.order_by("publication_date_time")[
             0
@@ -279,21 +289,13 @@ def scrape_spotify_api(
                 "listeners_monthly": listener_monthly_data["total"],
             }
 
-            if date == yesterday:
-                defaults["followers"] = follower_data["total"]
+            defaults["followers"] = follower_data[date]
 
-            existing = PodcastDataSpotify.objects.filter(
+            PodcastDataSpotify.objects.update_or_create(
                 podcast=podcast,
                 date=date,
+                defaults=defaults,
             )
-            if existing.count() > 0:
-                existing.update(**defaults)
-            else:
-                if "followers" not in defaults:
-                    defaults["followers"] = 0
-
-                obj = PodcastDataSpotify(podcast=podcast, date=date, **defaults)
-                obj.save()
 
             # Read hourly data
             if date < dt.date(2019, 12, 1):

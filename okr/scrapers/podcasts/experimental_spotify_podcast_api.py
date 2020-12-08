@@ -110,3 +110,6 @@ class ExperimentalSpotifyPodcastAPI:
             params=self._date_params(start, end),
         )
         return self._request(url)
+
+
+experimental_spotify_podcast_api = ExperimentalSpotifyPodcastAPI()
