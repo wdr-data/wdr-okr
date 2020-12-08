@@ -3,10 +3,12 @@ import django
 import os
 import sys
 
-
 from tabulate import tabulate
 
-sys.path.insert(0, os.path.abspath("../"))
+DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(DOCS_DIR)
+
+sys.path.insert(0, BASE_DIR)
 os.environ["DJANGO_SETTINGS_MODULE"] = "app.settings"
 django.setup()
 
@@ -82,6 +84,7 @@ if __name__ == "__main__":
     html_page = build_html(APP_LABELS, HTML_TOP, HTML_BOTTOM)
 
     # write output to file
-    with open(FILENAME, "wt") as output_file:
+    filepath = os.path.join(DOCS_DIR, FILENAME)
+    with open(filepath, "wt") as output_file:
         output_file.write(html_page)
-    print(f"Data written to {FILENAME}")
+    print(f"Data written to {filepath}")
