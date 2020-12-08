@@ -9,6 +9,8 @@ Cookies supposedly last 1 year.
 import os
 from typing import Dict, Optional
 import datetime as dt
+from time import sleep
+
 import requests
 
 BASE_URL = os.environ.get("EXPERIMENTAL_SPOTIFY_BASE_URL")
@@ -19,6 +21,7 @@ SP_DC = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_DC")
 SP_KEY = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_KEY")
 
 API_BASE_URL = "https://generic.wg.spotify.com/podcasters/v0/"
+DELAY_BASE = 2.0
 
 
 class ExperimentalSpotifyPodcastAPI:
@@ -66,12 +69,27 @@ class ExperimentalSpotifyPodcastAPI:
         }
 
     def _request(self, url: str) -> dict:
-        self._ensure_auth()
-        response = requests.get(
-            url,
-            headers={"Authorization": f"Bearer {self._bearer}"},
-        )
-        return response.json()
+        delay = DELAY_BASE
+        for _ in range(6):
+            sleep(delay)
+            self._ensure_auth()
+            response = requests.get(
+                url,
+                headers={"Authorization": f"Bearer {self._bearer}"},
+            )
+
+            if response.status_code == 429:
+                delay *= 2
+                print("Got 429, next delay:", delay)
+                continue
+
+            if not response.ok:
+                print("Error in experimental API:")
+                print(response.status_code)
+                print(response.headers)
+                print(response.text)
+
+            return response.json()
 
     def podcast_followers(self, podcast_id: str, start: dt.date, end: dt.date) -> dict:
         """Loads historic follower data for podcast."""
