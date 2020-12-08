@@ -32,6 +32,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
 
     for label in app_labels:
 
+        # read basic data with django_extensions.management.modelviz
         data = generate_graph_data([label])
 
         for db_table in data["graphs"][0]["models"]:
@@ -46,23 +47,23 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
 
             output_table_dict[db_table["db_table_name"]] = [db_table["docstring"], table_fields]
 
-    # sort tables alphabetically
+    # sort dict of database tables alphabetically
     output_sorted = collections.OrderedDict(sorted(output_table_dict.items()))
 
-    # Collect HTML items in a string
+    # collect HTML items in a string
     html_tables = ""
     for table_name, table_infos in output_sorted.items():
         # embed output table in HTML
         html_tables += (
             f"<h3>Database Tabellenname: {table_name}</h3>"
-            + f"<div>{table_infos[0]}</div>"
+            + f"<div class='docstring'>{table_infos[0]}</div>"
             + "\n"
             + tabulate(
                 table_infos[1],
                 headers=["Name", "Type", "Beschreibung"],
                 tablefmt="html",
             )
-            + "\n\n"
+            + "\n"
         )
 
     return str(html_top + html_tables + html_bottom)

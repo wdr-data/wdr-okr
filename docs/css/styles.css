@@ -9,6 +9,10 @@ h3 {
     margin-top: 80px;
 }
 
+.docstring {
+    margin-bottom: 15px;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
