@@ -123,16 +123,16 @@ def start():
         minute="0",
     )
     scheduler.add_job(
-        podcasts.scrape_spotify_experimental_performance,
+        podcasts.scrape_spotify_experimental_demographics,
         trigger="cron",
-        hour="8",
+        hour="9",
         minute="0",
     )
     scheduler.add_job(
-        podcasts.scrape_spotify_experimental_demographics,
+        podcasts.scrape_spotify_experimental_performance,
         trigger="cron",
-        hour="8",
-        minute="15",
+        hour="3",
+        minute="0",
     )
 
     # Pages
