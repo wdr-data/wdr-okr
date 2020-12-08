@@ -12,7 +12,7 @@ django.setup()
 
 from django_extensions.management.modelviz import generate_graph_data
 
-from database_tables_config import APP_LABELS, HTML_TOP, HTML_BOTTOM
+from database_tables_config import APP_LABELS, HTML_TOP, HTML_BOTTOM, FILENAME
 
 
 def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
@@ -44,20 +44,21 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                     description = field["verbose_name"]
                 table_fields.append([field["name"], field["type"], description])
 
-            output_table_dict[db_table["db_table_name"]] = table_fields
+            output_table_dict[db_table["db_table_name"]] = [db_table["docstring"], table_fields]
 
     # sort tables alphabetically
     output_sorted = collections.OrderedDict(sorted(output_table_dict.items()))
 
     # Collect HTML items in a string
     html_tables = ""
-    for table, fields in output_sorted.items():
+    for table_name, table_infos in output_sorted.items():
         # embed output table in HTML
         html_tables += (
-            f"<h3>Database Tabellenname: {table}</h3>"
+            f"<h3>Database Tabellenname: {table_name}</h3>"
+            + f"<div>{table_infos[0]}</div>"
             + "\n"
             + tabulate(
-                fields,
+                table_infos[1],
                 headers=["Name", "Type", "Beschreibung"],
                 tablefmt="html",
             )
@@ -69,10 +70,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
 
 if __name__ == "__main__":
 
-    # set name for completed html file
-    FILENAME = "index.html"
-
-    # generate html page
+    # generate html page (based on constants from database_tables_config)
     html_page = build_html(APP_LABELS, HTML_TOP, HTML_BOTTOM)
 
     # write output to file

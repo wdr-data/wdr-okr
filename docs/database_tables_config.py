@@ -30,3 +30,6 @@ HTML_BOTTOM = """
 </body>
 </html>
 """
+
+# set name for completed html file
+FILENAME = "index.html"
