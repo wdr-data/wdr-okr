@@ -526,31 +526,6 @@ def scrape_spotify_mediatrend(
         gc.collect()
 
 
-def _scrape_episode_data_spotify_performance(podcast_episode, additional_data):
-    if additional_data.datum is None:
-        print(f"Date for performacne data of episode {podcast_episode} is NULL")
-        return
-
-    time = getattr(additional_data, "average_listen")
-    average_listen = dt.timedelta(
-        hours=time.hour,
-        minutes=time.minute,
-        seconds=time.second,
-    )
-
-    return PodcastEpisodeDataSpotifyPerformance(
-        # Use getattr because the column name has a minus in it
-        episode=podcast_episode,
-        date=additional_data.datum,
-        # average_listen ist time --> durationfield
-        average_listen=average_listen,
-        quartile_1=getattr(additional_data, "first_quartile"),
-        quartile_2=getattr(additional_data, "second_quartile"),
-        quartile_3=getattr(additional_data, "third_quartile"),
-        complete=getattr(additional_data, "complete"),
-    )
-
-
 def scrape_spotify_experimental_performance(
     *,
     podcast_filter: Optional[Q] = None,
