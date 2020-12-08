@@ -5,7 +5,7 @@ def patch():
     class CustomModelGraph(modelviz.ModelGraph):
         def get_appmodel_context(self, appmodel, appmodel_abstracts):
             context = super().get_appmodel_context(appmodel, appmodel_abstracts)
-            context["db_table"] = appmodel._meta.db_table
+            context["db_table_name"] = appmodel._meta.db_table
             return context
 
         def add_attributes(self, field, abstract_fields):

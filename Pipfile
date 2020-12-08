@@ -28,6 +28,7 @@ spotipy = "*"
 google-api-python-client = "*"
 docutils = "*"
 django-extensions = "*"
+tabulate = "*"
 
 [requires]
 python_version = "3.8"
