@@ -579,7 +579,7 @@ def scrape_spotify_experimental_demographics(
 ):
     today = local_today()
     yesterday = local_yesterday()
-    default_start = today - dt.timedelta(days=3)
+    default_start = today - dt.timedelta(days=2)
 
     start_date = date_param(
         start_date,
