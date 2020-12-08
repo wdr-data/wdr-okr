@@ -45,7 +45,8 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                     description = field["verbose_name"]
                 table_fields.append([field["name"], field["type"], description])
 
-            output_table_dict[db_table["db_table_name"]] = [db_table["docstring"], table_fields]
+            if db_table["fields"][0]["name"] == "id" and db_table["fields"][0]["type"] == "AutoField":
+                output_table_dict[db_table["db_table_name"]] = [db_table["docstring"], table_fields]
 
     # sort dict of database tables alphabetically
     output_sorted = collections.OrderedDict(sorted(output_table_dict.items()))
