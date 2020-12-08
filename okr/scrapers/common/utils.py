@@ -50,3 +50,22 @@ def date_range(start: dt.date, end: dt.date) -> List[dt.date]:
 
     delta = (end - start).days
     return [start + dt.timedelta(days=delta_days) for delta_days in range(delta + 1)]
+
+
+def date_param(
+    date: dt.date,
+    *,
+    default: dt.date = None,
+    earliest: dt.date = None,
+    latest: dt.date = None,
+) -> dt.date:
+    if date is None:
+        return default
+
+    if earliest:
+        date = max(earliest, date)
+
+    if latest:
+        date = min(latest, date)
+
+    return date
