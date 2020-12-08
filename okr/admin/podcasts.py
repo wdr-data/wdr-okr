@@ -138,7 +138,7 @@ class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
         "listeners_all_time",
     ]
     list_display_links = ["episode", "date"]
-    list_filter = []
+    list_filter = ["episode__podcast"]
     date_hierarchy = "date"
 
 
@@ -162,7 +162,7 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
         "gender_not_specified",
     ]
     list_display_links = ["episode", "date"]
-    list_filter = []
+    list_filter = ["episode__podcast"]
     date_hierarchy = "date"
 
 
@@ -194,7 +194,7 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
         "complete",
     ]
     list_display_links = ["episode", "date"]
-    list_filter = []
+    list_filter = ["episode__podcast"]
     date_hierarchy = "date"
 
 
@@ -209,7 +209,7 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
         "playing_time",
     ]
     list_display_links = ["episode", "date"]
-    list_filter = []
+    list_filter = ["episode__podcast"]
     date_hierarchy = "date"
 
 
@@ -223,7 +223,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
         "ondemand",
     ]
     list_display_links = ["episode", "date"]
-    list_filter = []
+    list_filter = ["episode__podcast"]
     date_hierarchy = "date"
 
 
