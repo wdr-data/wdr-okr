@@ -848,12 +848,18 @@ def scrape_episode_data_webtrekk_performance(
     today = local_today()
     yesterday = local_yesterday()
 
-    if start_date is None:
-        start_date = yesterday - dt.timedelta(days=2)
-    start_date = max(start_date, today - dt.timedelta(days=7))
-
-    end_date = end_date or yesterday
-    start_date = min(start_date, end_date)
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=2),
+        earliest=today - dt.timedelta(days=7),
+        latest=yesterday,
+    )
+    end_date = date_param(
+        end_date,
+        default=yesterday,
+        earliest=start_date,
+        latest=yesterday,
+    )
 
     for date in reversed(date_range(start_date, end_date)):
         data = cleaned_webtrekk_audio_data(date)
