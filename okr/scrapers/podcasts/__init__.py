@@ -418,7 +418,7 @@ def scrape_spotify_mediatrend(
     if start_date is None:
         start_date = dt.date.today() - dt.timedelta(days=20)
 
-    end_date = end_date or local_yesterday()
+    end_date = end_date or local_today()
 
     podcasts = Podcast.objects.all()
 
@@ -499,28 +499,6 @@ def scrape_spotify_mediatrend(
                             gender_not_specified=additional_data.gender_not_specified,
                         ),
                     )
-
-                    time = additional_data.average_listen
-                    average_listen = dt.timedelta(
-                        hours=time.hour,
-                        minutes=time.minute,
-                        seconds=time.second,
-                    )
-
-                    PodcastEpisodeDataSpotifyPerformance.objects.update_or_create(
-                        episode=podcast_episode,
-                        date=additional_data.datum,
-                        # average_listen ist time --> durationfield
-                        defaults=dict(
-                            average_listen=average_listen,
-                            quartile_1=additional_data.first_quartile,
-                            quartile_2=additional_data.second_quartile,
-                            quartile_3=additional_data.third_quartile,
-                            complete=additional_data.complete,
-                        ),
-                    )
-
-                    dates.add(additional_data.datum)
 
         del connection_meta
         gc.collect()
