@@ -45,7 +45,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                     description = field["help_text"]
                 else:
                     description = field["verbose_name"]
-                table_fields.append([field["name"], field["type"], description])
+                table_fields.append([field["name"], field["db_type"], description])
 
             if (
                 db_table["fields"][0]["name"] == "id"
