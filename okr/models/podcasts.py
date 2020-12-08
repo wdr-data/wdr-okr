@@ -388,7 +388,7 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
     class Meta:
         """Model meta options."""
 
-        db_table = "podcast_episode_data_spotify_user_experimental"
+        db_table = "podcast_episode_data_spotify_demographics"
         verbose_name = "Podcast-Episoden-Demografiedaten (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Demografiedaten (Spotify)"
         unique_together = ("date", "episode", "age_range", "gender")
