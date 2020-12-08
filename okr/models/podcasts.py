@@ -402,6 +402,7 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
         AGE_35_44 = "35-44", "35-44"
         AGE_45_59 = "45-59", "45-59"
         AGE_60_150 = "60-150", "60-150"
+        UNKNOWN = "unknown", "Unbekannt"
 
     class Gender(models.TextChoices):
         NOT_SPECIFIED = "NOT_SPECIFIED", "Nicht Angegeben"
@@ -444,6 +445,9 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
         help_text="Zeitpunkt der Datenaktualisierung",
         auto_now=True,
     )
+
+    def __str__(self):
+        return f"{self.episode.title}: {self.AgeRange(self.age_range).label} - {self.AgeRange(self.age_range).label}"
 
 
 class PodcastEpisodeDataPodstat(models.Model):

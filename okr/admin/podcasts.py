@@ -20,6 +20,7 @@ from ..models import (
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
     PodcastEpisodeDataWebtrekkPerformance,
+    PodcastEpisodeDataSpotifyDemographics,
 )
 from .base import ProductAdmin
 from ..scrapers.podcasts import feed
@@ -165,6 +166,21 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
+class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify episode demographics data to edit"""
+
+    list_display = [
+        "episode",
+        "date",
+        "age_range",
+        "gender",
+        "count",
+    ]
+    list_display_links = ["episode", "date"]
+    list_filter = ["age_range", "gender", "episode__podcast"]
+    date_hierarchy = "date"
+
+
 class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify episode performance data to edit"""
 
@@ -217,6 +233,9 @@ admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)
 admin.site.register(PodcastEpisodeDataSpotifyUser, EpisodeDataSpotifyUserAdmin)
+admin.site.register(
+    PodcastEpisodeDataSpotifyDemographics, EpisodeDataSpotifyDemographicsAdmin
+)
 admin.site.register(
     PodcastEpisodeDataSpotifyPerformance, EpisodeDataSpotifyPerformanceAdmin
 )
