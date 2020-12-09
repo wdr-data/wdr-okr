@@ -22,6 +22,7 @@ class PageAdmin(admin.ModelAdmin):
         "property",
         "url",
         "sophora_document",
+        "sophora_id",
         "first_seen",
     ]
     list_display_links = ["url"]
