@@ -106,6 +106,14 @@ class SophoraDocument(models.Model):
 class SophoraID(models.Model):
     """Speichert Sophora-IDs die zu einem Dokument gehörten."""
 
+    class Meta:
+        """Model meta options."""
+
+        db_table = "sophora_id"
+        verbose_name = "Sophora-ID"
+        verbose_name_plural = "Sophora-IDs"
+        ordering = ["-created"]
+
     sophora_document = models.ForeignKey(
         to=SophoraDocument,
         verbose_name="Sophora-Dokument",
@@ -113,6 +121,7 @@ class SophoraID(models.Model):
         related_name="sophora_ids",
         related_query_name="sophora_id",
         help_text="Das Sophora-Dokument, zu dem diese ID gehört (hat)",
+        null=True,
     )
 
     sophora_id = models.CharField(
@@ -172,10 +181,13 @@ class SophoraDocumentMeta(models.Model):
         help_text="Der Sophora-Strukturknoten, unter dem das Dokument momentan abgelegt ist",
         max_length=128,
     )
-    sophora_id = models.CharField(
+    sophora_id = models.ForeignKey(
+        to=SophoraID,
         verbose_name="Sophora ID",
+        on_delete=models.CASCADE,
+        related_name="metas",
+        related_query_name="meta",
         help_text="Momentane Sophora ID des Dokuments",
-        max_length=128,
     )
     headline = models.TextField(
         verbose_name="Titel",
@@ -238,7 +250,15 @@ class Page(models.Model):
         help_text="Das Sophora-Dokument, auf das diese Seite zeigt",
         null=True,
     )
-
+    sophora_id = models.ForeignKey(
+        to=SophoraID,
+        verbose_name="Sophora ID",
+        help_text="Sophora ID der Seite",
+        on_delete=models.CASCADE,
+        related_name="pages",
+        related_query_name="page",
+        null=True,
+    )
     url = models.URLField(
         verbose_name="URL",
         help_text="URL des Nachrichtenartikels",
