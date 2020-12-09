@@ -9,7 +9,7 @@ import functools
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception, capture_message
 from spotipy.exceptions import SpotifyException
 
 from . import feed
@@ -171,6 +171,11 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
 
         # Read data from RSS feed
         d = feed.parse(podcast.feed_url)
+        if len(d.entries) == 0:
+            print(f"RSS Feed for Podcast {podcast} is empty.")
+            capture_message(f"RSS Feed for podcast {podcast} is empty.")
+            continue
+
         for entry in d.entries:
             spotify_id = spotify_episode_id_by_name.get(entry.title)
 
