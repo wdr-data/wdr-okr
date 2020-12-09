@@ -67,13 +67,16 @@ def scrape_full_sophora(sophora_node: SophoraNode):
     print("Finished full scrape of Sophora node", sophora_node)
 
 
-def _parse_sophora_url(url: str) -> Tuple[str, Optional[int]]:
+def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
     parsed = urlparse(url)
     match = re.match(r"(.*)/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$", parsed.path)
     node = match.group(1)
     sophora_id = match.group(2)
     # Cut off any other weird Sophora parameters
     sophora_id = re.sub(f"~.*", "", sophora_id)
+    if sophora_id == "index":
+        sophora_id = f"{node}/{sophora_id}"
+
     sophora_page = match.group(3)
     if sophora_page is not None:
         sophora_page = int(sophora_page)
@@ -122,7 +125,7 @@ def scrape_gsc(
 
                 # Match Google data to Sophora ID, if possible
                 try:
-                    sophora_id, node, sophora_page = _parse_sophora_url(url)
+                    sophora_id_str, node, sophora_page = _parse_sophora_url(url)
                 except AttributeError as error:
                     capture_exception(error)
                     continue
@@ -130,12 +133,13 @@ def scrape_gsc(
                 if url in page_cache:
                     page = page_cache[url]
                 else:
-                    try:
-                        sophora_document = SophoraID.objects.get(
-                            sophora_id=sophora_id,
-                        ).sophora_document
-                    except SophoraID.DoesNotExist:
-                        sophora_document = None
+                    sophora_id, created = SophoraID.objects.get_or_create(
+                        sophora_id=sophora_id_str,
+                        defaults=dict(
+                            sophora_document=None,
+                        ),
+                    )
+                    sophora_document = sophora_id.sophora_document
 
                     # TODO: Update this when Webtrekk for pages is added
                     page, created = Page.objects.get_or_create(
@@ -144,6 +148,7 @@ def scrape_gsc(
                             property=property,
                             sophora_document=sophora_document,
                             sophora_page=sophora_page,
+                            sophora_id=sophora_id,
                         ),
                     )
                     page_cache[url] = page
@@ -222,7 +227,7 @@ def _handle_sophora_document(
         contains_info = sophora_document_info
 
     try:
-        sophora_id, node, _ = _parse_sophora_url(contains_info["shareLink"])
+        sophora_id_str, node, _ = _parse_sophora_url(contains_info["shareLink"])
     except KeyError as error:
         # Don't send error to Sentry for image galleries
         if contains_info.get("mediaType") == "imageGallery":
@@ -252,12 +257,16 @@ def _handle_sophora_document(
         ),
     )
 
-    sophora_id_obj, created = SophoraID.objects.get_or_create(
-        sophora_id=sophora_id,
+    sophora_id, created = SophoraID.objects.get_or_create(
+        sophora_id=sophora_id_str,
         defaults=dict(
             sophora_document=sophora_document,
         ),
     )
+
+    if sophora_id.sophora_document is None:
+        sophora_id.sophora_document = sophora_document
+        sophora_id.save()
 
     SophoraDocumentMeta.objects.get_or_create(
         sophora_document=sophora_document,
