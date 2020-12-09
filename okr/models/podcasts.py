@@ -226,6 +226,11 @@ class PodcastEpisode(models.Model):
         help_text="Länge der Mediendatei",
     )
 
+    available = models.BooleanField(
+        verbose_name="Verfügbar",
+        help_text="Indikator, ob diese Episode momentan im Feed verfügbar ist",
+    )
+
     last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated",
         help_text="Letzte Aktualisierung des Datenpunktes",

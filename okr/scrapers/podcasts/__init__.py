@@ -176,6 +176,7 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
             capture_message(f"RSS Feed for podcast {podcast} is empty.")
             continue
 
+        available_episode_ids = []
         for entry in d.entries:
             spotify_id = spotify_episode_id_by_name.get(entry.title)
 
@@ -199,6 +200,7 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
                 "media": media_url,
                 "spotify_id": spotify_id,
                 "duration": duration,
+                "available": True,
             }
 
             try:
@@ -206,6 +208,7 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
                     zmdb_id=zmdb_id,
                     defaults=defaults,
                 )
+                available_episode_ids.append(obj.id)
             except IntegrityError as e:
                 capture_exception(e)
                 print(
@@ -213,6 +216,10 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
                     defaults,
                     sep="\n",
                 )
+
+        podcast.episodes.exclude(id__in=available_episode_ids).update(
+            available=False,
+        )
 
 
 def scrape_spotify_api(
@@ -352,7 +359,9 @@ def scrape_spotify_api(
                 )
 
         # Retrieve data for individual episodes
-        for podcast_episode in podcast.episodes.exclude(spotify_id=None):
+        for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
+            available=True
+        ):
             print("Scraping spotify episode data for", podcast_episode)
 
             # Scrape stream stats for episode
@@ -525,7 +534,9 @@ def scrape_spotify_experimental_performance(
             podcast,
             "from experimental API",
         )
-        for podcast_episode in podcast.episodes.exclude(spotify_id=None):
+        for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
+            available=True
+        ):
             print(
                 "Scraping spotify episode performance data for",
                 podcast_episode,
@@ -595,7 +606,9 @@ def scrape_spotify_experimental_demographics(
         if start_date < first_episode_date:
             start_date = first_episode_date
 
-        for podcast_episode in podcast.episodes.exclude(spotify_id=None):
+        for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
+            available=True
+        ):
             for date in reversed(date_range(start_date, end_date)):
                 print(
                     "Scraping spotify episode demographics data for",
@@ -675,7 +688,7 @@ def scrape_podstat(
         with podstat.make_connection_meta() as connection_meta:
             print("Scraping podstat for", podcast)
 
-            for podcast_episode in podcast.episodes.all():
+            for podcast_episode in podcast.episodes.filter(available=True):
                 print("Scraping podstat episode data for", podcast_episode)
                 podstat_episode_variants = podstat.get_episode(
                     connection_meta, podcast_episode.zmdb_id

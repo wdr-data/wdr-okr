@@ -120,9 +120,10 @@ class EpisodeAdmin(admin.ModelAdmin):
         "zmdb_id",
         "spotify_id",
         "duration",
+        "available",
     ]
     list_display_links = ["title"]
-    list_filter = ["podcast"]
+    list_filter = ["podcast", "available"]
     date_hierarchy = "publication_date_time"
 
 
