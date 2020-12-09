@@ -20,7 +20,6 @@ SP_AC = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_AC")
 SP_DC = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_DC")
 SP_KEY = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_KEY")
 
-API_BASE_URL = "https://generic.wg.spotify.com/podcasters/v0/"
 DELAY_BASE = 2.0
 
 
@@ -33,7 +32,7 @@ class ExperimentalSpotifyPodcastAPI:
         """Retrieves a Bearer token for the experimental Spotify API, valid 1 hour."""
         print("Retrieving Bearer for experimental Spotify API")
         response = requests.get(
-            f"https://generic.wg.spotify.com/creator-auth-proxy/v1/web/token?client_id={CLIENT_ID}",
+            f"{AUTH_URL}?client_id={CLIENT_ID}",
             cookies={
                 "sp_ac": SP_AC,
                 "sp_dc": SP_DC,
@@ -59,7 +58,7 @@ class ExperimentalSpotifyPodcastAPI:
         if params is not None:
             qs = "?" + "&".join(f"{key}={val}" for key, val in params.items())
 
-        return f"{API_BASE_URL}{'/'.join(path)}{qs}"
+        return f"{BASE_URL}{'/'.join(path)}{qs}"
 
     @staticmethod
     def _date_params(start: dt.date, end: dt.date) -> Dict[str, str]:
