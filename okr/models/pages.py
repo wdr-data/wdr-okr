@@ -7,9 +7,6 @@ from .base import Product
 class Property(Product):
     """Grundlegende Website-Daten. Jeder Eintrag entspricht einer Property in der Google
     Search Console.
-
-    Die Tabelle :model:`okr.Page` nimmt auf die in "ID" vergebenen Schlüssel (als
-    foreign key namens ``property``) Bezug.
     """
 
     class Meta:
@@ -34,7 +31,7 @@ class Property(Product):
 
 class SophoraNode(models.Model):
     """Die Sophora-Datenbank wird anhand der Sophora-Knoten durchsucht, um neue und aktualisierte
-    :model:`okr.SophoraDocument` zu finden.
+    Sophora-Dokumente zu finden.
     """
 
     class Meta:
@@ -67,7 +64,8 @@ class SophoraNode(models.Model):
 
 
 class SophoraDocument(models.Model):
-    """Repräsentation eines einzelnen Dokuments in Sophora."""
+    """Repräsentation eines einzelnen Dokuments in Sophora.
+    """
 
     class Meta:
         """Model meta options."""
@@ -104,7 +102,9 @@ class SophoraDocument(models.Model):
 
 
 class SophoraID(models.Model):
-    """Speichert Sophora-IDs die zu einem Dokument gehörten."""
+    """Speichert Sophora-IDs, die zu einem Sophora-Dokument gehören. Enthält auch
+    ehemalige Sophora-IDs, falls der ID-Stamm des Sophora-Dokuments geändert wurde.
+    """
 
     class Meta:
         """Model meta options."""
@@ -142,8 +142,8 @@ class SophoraID(models.Model):
 
 
 class SophoraDocumentMeta(models.Model):
-    """Meta-Informationen zu einem bestimmten Dokument. Es kann mehrere Meta-Einträge zum selben
-    Dokument geben, wenn z. B. die Überschrift geändert wird.
+    """Meta-Informationen zu einem bestimmten Sophora-Dokument. Es kann mehrere
+    Meta-Einträge zum selben Dokument geben, wenn z. B. die Überschrift geändert wurde.
     """
 
     class Meta:
@@ -199,7 +199,7 @@ class SophoraDocumentMeta(models.Model):
     )
     document_type = models.CharField(
         verbose_name="Beitragstyp",
-        help_text="Der Typ des Sophora-Beitrags",
+        help_text="Der Beitragstyp des Sophora-Beitrags",
         max_length=64,
     )
 
@@ -215,14 +215,6 @@ class SophoraDocumentMeta(models.Model):
 
 class Page(models.Model):
     """Grundlegende Daten einzelner URLs.
-
-    Verknüpft mit :model:`okr.Property` über den foreign key ``property``.
-
-    Die folgenden Tabellen nehmen auf die in "ID"" vergebenen Schlüssel (als foreign key
-    namens ``page``) Bezug:
-
-    * :model:`okr.PageDataGSC`
-    * :model:`okr.PageMeta`
     """
 
     class Meta:
@@ -268,7 +260,7 @@ class Page(models.Model):
     sophora_page = models.IntegerField(
         verbose_name="Sophora-Seite",
         null=True,
-        help_text="Mehrseitiger Nachrichtenartikel (nur falls zutreffend)",
+        help_text="Seitennummer bei mehrseitigen Nachrichtenartikeln (nur falls zutreffend)",
     )
     first_seen = models.DateField(
         verbose_name="Zuerst gesehen",
@@ -287,8 +279,6 @@ class Page(models.Model):
 
 class PageDataGSC(models.Model):
     """SEO-Performance pro Tag, basierend auf Daten der Google Search Console.
-
-    Verknüpft mit :model:`okr.Page` über den foreign key ``page``.
     """
 
     class Meta:
@@ -314,7 +304,7 @@ class PageDataGSC(models.Model):
     page = models.ForeignKey(
         to=Page,
         verbose_name="Seite",
-        help_text="Globale ID des Nachrichtenartikels",
+        help_text="Globale ID der Online-Seite",
         on_delete=models.CASCADE,
         related_name="data_gsc",
         related_query_name="data_gsc",

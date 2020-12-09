@@ -6,14 +6,6 @@ from .base import Quintly
 
 class Insta(Quintly):
     """Instagram-Accounts, basierend auf Daten von Quintly.
-
-    Die folgenden Tabellen nehmen auf die in "ID" vergebenen Schlüssel (als foreign key
-    namens ``insta``) Bezug:
-
-    * :model:`okr.InstaCollaboration`
-    * :model:`okr.InstaInsight`
-    * :model:`okr.InstaPost`
-    * :model:`okr.InstaStory`
     """
 
     class Meta:
@@ -28,8 +20,6 @@ class Insta(Quintly):
 class InstaInsight(models.Model):
     """Performance-Daten einzelner Instagram-Accounts, basierend auf Daten von Instagram
     Insights.
-
-    Verknüpft mit :model:`okr.Insta` über den foreign key ``insta``.
     """
 
     class Meta:
@@ -80,8 +70,6 @@ class InstaInsight(models.Model):
 
 class InstaPost(models.Model):
     """Grundlegende Daten zu einzelnen Instagram-Postings.
-
-    Verknüpft mit :model:`okr.Insta` über den foreign key ``insta``.
     """
 
     class Meta:
@@ -128,8 +116,6 @@ class InstaStory(models.Model):
 
     Jede Zeile der Datenbank entählt Daten zu einem Story-Element. Eine Insta-Story
     besteht in der Regel aus mehreren Story-Elementen.
-
-    Verknüpft mit :model:`okr.Insta` über den foreign key ``insta``.
     """
 
     class Meta:
@@ -185,9 +171,7 @@ class InstaStory(models.Model):
 class InstaCollaborationType(models.Model):
     """Liste der verfügbaren Collaborations-Typen.
 
-    Manuell via Django Admin angelegt. Die Tabelle :model:`okr.InstaCollaboration` nimmt
-    auf die in "ID" vergebenen Schlüssel (als foreign key namens
-    ``collaboration_type``) Bezug:
+    Manuell via Django Admin angelegt.
     """
 
     class Meta:
@@ -213,8 +197,7 @@ class InstaCollaborationType(models.Model):
 class InstaCollaboration(models.Model):
     """Daten über Instagram collaborations.
 
-    Manuell angelegt via Django Admin. Verknüpft mit :model:`okr.Insta` über den foreign
-    key ``collaboration_type``.
+    Manuell angelegt via Django Admin.
     """
 
     class Meta:
