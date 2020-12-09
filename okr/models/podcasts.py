@@ -53,8 +53,7 @@ class Podcast(Product):
 
 
 class PodcastDataSpotify(models.Model):
-    """Daten zu Hörer*innen-Zahlen pro Podcast-Reihe, basierend auf Daten von Spotify.
-    """
+    """Daten zu Hörer*innen-Zahlen pro Podcast-Reihe, basierend auf Daten von Spotify."""
 
     class Meta:
         """Model meta options."""
@@ -274,8 +273,7 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
-    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen.
-    """
+    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen."""
 
     class Meta:
         """Model meta options."""
@@ -358,8 +356,7 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 
 class PodcastEpisodeDataSpotifyDemographics(models.Model):
-    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen.
-    """
+    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen."""
 
     class Meta:
         """Model meta options."""
@@ -428,7 +425,7 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
 
 class PodcastEpisodeDataPodstat(models.Model):
     """Hörer*innenzahlen einzelner Podcast-Folgen, basierend auf Daten von
-        Podstat/Spotify.
+    Podstat/Spotify.
     """
 
     class Meta:
@@ -472,8 +469,7 @@ class PodcastEpisodeDataPodstat(models.Model):
 
 
 class PodcastEpisodeDataSpotifyPerformance(models.Model):
-    """Performance-Daten zu den auf Spotify verfügbaren Folgen.
-    """
+    """Performance-Daten zu den auf Spotify verfügbaren Folgen."""
 
     class Meta:
         """Model meta options."""
@@ -528,8 +524,7 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
 
 
 class PodcastEpisodeDataWebtrekkPerformance(models.Model):
-    """Zusätzliche Abruf-Daten von Webtrekk für die einzelnen Folgen.
-    """
+    """Zusätzliche Abruf-Daten von Webtrekk für die einzelnen Folgen."""
 
     class Meta:
         """Model meta options."""

@@ -64,8 +64,7 @@ class SophoraNode(models.Model):
 
 
 class SophoraDocument(models.Model):
-    """Repräsentation eines einzelnen Dokuments in Sophora.
-    """
+    """Repräsentation eines einzelnen Dokuments in Sophora."""
 
     class Meta:
         """Model meta options."""
@@ -214,8 +213,7 @@ class SophoraDocumentMeta(models.Model):
 
 
 class Page(models.Model):
-    """Grundlegende Daten einzelner URLs.
-    """
+    """Grundlegende Daten einzelner URLs."""
 
     class Meta:
         """Model meta options."""
@@ -278,8 +276,7 @@ class Page(models.Model):
 
 
 class PageDataGSC(models.Model):
-    """SEO-Performance pro Tag, basierend auf Daten der Google Search Console.
-    """
+    """SEO-Performance pro Tag, basierend auf Daten der Google Search Console."""
 
     class Meta:
         """Model meta options."""

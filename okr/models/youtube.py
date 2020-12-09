@@ -5,8 +5,7 @@ from .base import Quintly
 
 
 class YouTube(Quintly):
-    """YouTube-Accounts, basierend auf Daten von Quintly.
-    """
+    """YouTube-Accounts, basierend auf Daten von Quintly."""
 
     class Meta:
         """Model meta options."""

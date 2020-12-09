@@ -5,8 +5,7 @@ from .base import Quintly
 
 
 class Insta(Quintly):
-    """Instagram-Accounts, basierend auf Daten von Quintly.
-    """
+    """Instagram-Accounts, basierend auf Daten von Quintly."""
 
     class Meta:
         """Model meta options."""
@@ -69,8 +68,7 @@ class InstaInsight(models.Model):
 
 
 class InstaPost(models.Model):
-    """Grundlegende Daten zu einzelnen Instagram-Postings.
-    """
+    """Grundlegende Daten zu einzelnen Instagram-Postings."""
 
     class Meta:
         """Model meta options."""
