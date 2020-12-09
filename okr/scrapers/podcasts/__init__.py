@@ -234,17 +234,13 @@ def scrape_spotify_api(
 
     end_date = end_date or yesterday
 
-    podcasts = Podcast.objects.all()
+    podcasts = Podcast.objects.exclude(spotify_id=None)
 
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
 
     for podcast in podcasts:
         print("Scraping spotify API for", podcast)
-
-        if not podcast.spotify_id:
-            print("No Spotify ID for", podcast)
-            continue
 
         # Retrieve follower for podcast from experimental API
         follower_data = experimental_spotify_podcast_api.podcast_followers(
@@ -344,12 +340,8 @@ def scrape_spotify_api(
                 )
 
         # Retrieve data for individual episodes
-        for podcast_episode in podcast.episodes.all():
+        for podcast_episode in podcast.episodes.exclude(spotify_id=None):
             print("Scraping spotify episode data for", podcast_episode)
-
-            if not podcast_episode.spotify_id:
-                print("No Spotify ID for", podcast_episode)
-                continue
 
             # Scrape stream stats for episode
             for date in date_range(start_date, end_date):
@@ -510,7 +502,7 @@ def scrape_spotify_experimental_performance(
 ):
     today = local_today()
 
-    podcasts = Podcast.objects.all()
+    podcasts = Podcast.objects.exclude(spotify_id=None)
 
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
@@ -521,7 +513,7 @@ def scrape_spotify_experimental_performance(
             podcast,
             "from experimental API",
         )
-        for podcast_episode in podcast.episodes.all():
+        for podcast_episode in podcast.episodes.exclude(spotify_id=None):
             print(
                 "Scraping spotify episode performance data for",
                 podcast_episode,
@@ -572,7 +564,7 @@ def scrape_spotify_experimental_demographics(
         latest=yesterday,
     )
 
-    podcasts = Podcast.objects.all()
+    podcasts = Podcast.objects.exclude(spotify_id=None)
 
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
@@ -591,7 +583,7 @@ def scrape_spotify_experimental_demographics(
         if start_date < first_episode_date:
             start_date = first_episode_date
 
-        for podcast_episode in podcast.episodes.all():
+        for podcast_episode in podcast.episodes.exclude(spotify_id=None):
             for date in reversed(date_range(start_date, end_date)):
                 print(
                     "Scraping spotify episode demographics data for",
