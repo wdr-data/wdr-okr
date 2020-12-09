@@ -59,7 +59,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                 and db_table["fields"][0]["type"] == "AutoField"
             ):
                 # create table info text from docstring
-                docstring_html = db_table["docstring"].replace("\n", "<br />\n")
+                docstring_html = db_table["docstring"].replace("\n\n", "<br />\n")
                 info_text = f"<p>{docstring_html}</p>"
 
                 # if table uses foreign keys: create a list of foreign keys with links
