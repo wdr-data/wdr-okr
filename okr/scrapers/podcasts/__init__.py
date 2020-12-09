@@ -181,8 +181,15 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
 
             media_url = entry.enclosures[0].href
             zmdb_id = int(media_url.split("/")[-2])
-            t = dt.datetime.strptime(entry.itunes_duration, "%H:%M:%S")
-            duration = dt.timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
+
+            if "itunes_duration" in entry:
+                t = dt.datetime.strptime(entry.itunes_duration, "%H:%M:%S")
+                duration = dt.timedelta(
+                    hours=t.hour, minutes=t.minute, seconds=t.second
+                )
+            else:
+                duration = dt.timedelta(seconds=0)
+
             publication_date_time = dt.datetime(*entry.published_parsed[:6], tzinfo=UTC)
             defaults = {
                 "podcast": podcast,
