@@ -22,4 +22,10 @@ def patch():
             attrs["unique"] = field.unique
             return attrs
 
+        def get_relation_context(self, target_model, field, label, extras):
+            relation = super().get_relation_context(target_model, field, label, extras)
+            relation["column_name"] = force_str(field.column)
+            relation["target_table_name"] = force_str(target_model._meta.db_table)
+            return relation
+
     modelviz.ModelGraph = CustomModelGraph

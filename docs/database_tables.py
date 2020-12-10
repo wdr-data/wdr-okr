@@ -74,7 +74,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                     foreign_key_text = ""
                     for relation in db_table["relations"]:
                         if relation["type"] == "ForeignKey":
-                            foreign_key_text += f'<li>Den Foreign Key <a href="#{relation["target"]}">"{relation["name"]}"</a></li>'
+                            foreign_key_text += f'<li>Zu <a href="#{relation["target"]}">{relation["target_table_name"]}</a> via <code>{relation["column_name"]}</code></li>'
                     if foreign_key_text:
                         info_text += "<p>Diese Tabelle nutzt folgende Foreign Keys:</p>"
                         info_text += "<ul>"
