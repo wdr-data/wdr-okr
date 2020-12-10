@@ -10,6 +10,7 @@ import os
 from typing import Dict, Optional
 import datetime as dt
 from time import sleep
+from threading import RLock
 
 import requests
 
@@ -27,29 +28,34 @@ class ExperimentalSpotifyPodcastAPI:
     def __init__(self):
         self._bearer: Optional[str] = None
         self._bearer_expires: Optional[dt.datetime] = None
+        self._auth_lock = RLock()
 
     def _authenticate(self):
         """Retrieves a Bearer token for the experimental Spotify API, valid 1 hour."""
-        print("Retrieving Bearer for experimental Spotify API")
-        response = requests.get(
-            f"{AUTH_URL}?client_id={CLIENT_ID}",
-            cookies={
-                "sp_ac": SP_AC,
-                "sp_dc": SP_DC,
-                "sp_key": SP_KEY,
-            },
-        )
-        response_json = response.json()
-        self._bearer = response_json["access_token"]
-        expires_in = response_json["expires_in"]
-        self._bearer_expires = dt.datetime.now() + dt.timedelta(seconds=expires_in)
+
+        with self._auth_lock:
+            print("Retrieving Bearer for experimental Spotify API")
+            response = requests.get(
+                f"{AUTH_URL}?client_id={CLIENT_ID}",
+                cookies={
+                    "sp_ac": SP_AC,
+                    "sp_dc": SP_DC,
+                    "sp_key": SP_KEY,
+                },
+            )
+            response_json = response.json()
+            self._bearer = response_json["access_token"]
+            expires_in = response_json["expires_in"]
+            self._bearer_expires = dt.datetime.now() + dt.timedelta(seconds=expires_in)
 
     def _ensure_auth(self):
         """Checks if Bearer token expires soon. If so, requests a new one."""
-        if self._bearer is None or self._bearer_expires < (
-            dt.datetime.now() - dt.timedelta(minutes=5)
-        ):
-            self._authenticate()
+
+        with self._auth_lock:
+            if self._bearer is None or self._bearer_expires < (
+                dt.datetime.now() - dt.timedelta(minutes=5)
+            ):
+                self._authenticate()
 
     @staticmethod
     def _build_url(*path: str, params: Optional[Dict[str, str]] = None) -> str:
