@@ -81,6 +81,12 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                         info_text += foreign_key_text
                         info_text += "</ul>"
 
+                if db_table["unique_together"]:
+                    info_text += "UNIQUE: <ul>"
+                    for tup in db_table["unique_together"]:
+                        info_text += f"<li>{', '.join(tup)}</li>"
+                    info_text += "</ul>"
+
                 # combine table name, table info text, table fields, and Django model name
                 output_table_dict[db_table["db_table_name"]] = [
                     info_text,

@@ -7,6 +7,7 @@ def patch():
         def get_appmodel_context(self, appmodel, appmodel_abstracts):
             context = super().get_appmodel_context(appmodel, appmodel_abstracts)
             context["db_table_name"] = appmodel._meta.db_table
+            context["unique_together"] = appmodel._meta.unique_together
             context["docstring"] = appmodel.__doc__
             return context
 
