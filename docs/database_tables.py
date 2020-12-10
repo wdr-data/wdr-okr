@@ -57,7 +57,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                 unique = "✅" if field["unique"] else "❌"
 
                 table_fields.append(
-                    [field["name"], data_type, unique, nullable, description]
+                    [field["column_name"], data_type, unique, nullable, description]
                 )
 
             # only include tables that are stored in db

@@ -13,6 +13,7 @@ def patch():
 
         def add_attributes(self, field, abstract_fields):
             attrs = super().add_attributes(field, abstract_fields)
+            attrs["column_name"] = force_str(field.column)
             attrs["verbose_name"] = force_str(field.verbose_name)
             attrs["help_text"] = force_str(field.help_text)
             attrs["internal_type"] = force_str(field.get_internal_type())
