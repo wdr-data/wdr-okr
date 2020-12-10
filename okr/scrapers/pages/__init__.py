@@ -1,18 +1,41 @@
+""" Init module"""
+
 import re
 import datetime as dt
-from typing import Optional
+from typing import Dict, Optional, Tuple
 from time import sleep
-from json.decoder import JSONDecodeError
+from urllib.parse import urlparse
 
 from django.db.models import Q
 from sentry_sdk import capture_exception
 
-from okr.models.pages import Page, PageMeta, Property, PageDataGSC
-from okr.scrapers.common.utils import date_range, local_today, local_yesterday, BERLIN
+from ...models import Property
+from okr.models.pages import (
+    Page,
+    Property,
+    PageDataGSC,
+    SophoraNode,
+    SophoraDocument,
+    SophoraDocumentMeta,
+    SophoraID,
+)
+from okr.scrapers.common.utils import (
+    date_param,
+    date_range,
+    local_now,
+    local_today,
+    local_yesterday,
+    BERLIN,
+)
 from okr.scrapers.pages import gsc, sophora
 
 
-def scrape_full(property):
+def scrape_full_gsc(property: Property):
+    """Run full scrape of property from GSC API (most recent 30 days).
+
+    Args:
+        property (Property): Property to scrape data for.
+    """
     print("Running full scrape of property", property)
 
     property_filter = Q(id=property.id)
@@ -22,10 +45,42 @@ def scrape_full(property):
     sleep(1)
     scrape_gsc(start_date=start_date, property_filter=property_filter)
 
-    sleep(1)
-    scrape_sophora(property_filter=property_filter)
+    # sleep(1)
+    # scrape_sophora(property_filter=property_filter)
 
     print("Finished full scrape of property", property)
+
+
+def scrape_full_sophora(sophora_node: SophoraNode):
+    """Run full scrape of node from Sophora API.
+
+    Args:
+        sophora_node (SophoraNode): Sophora node to scrape data for.
+    """
+    print("Running full scrape of Sophora node", sophora_node)
+
+    sophora_node_filter = Q(id=sophora_node.id)
+
+    sleep(1)
+    scrape_sophora_nodes(sophora_node_filter=sophora_node_filter)
+
+    print("Finished full scrape of Sophora node", sophora_node)
+
+
+def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
+    parsed = urlparse(url)
+    match = re.match(r"(.*)/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$", parsed.path)
+    node = match.group(1)
+    sophora_id = match.group(2)
+    # Cut off any other weird Sophora parameters
+    sophora_id = re.sub(f"~.*", "", sophora_id)
+    if sophora_id == "index":
+        sophora_id = f"{node}/{sophora_id}"
+
+    sophora_page = match.group(3)
+    if sophora_page is not None:
+        sophora_page = int(sophora_page)
+    return sophora_id, node, sophora_page
 
 
 def scrape_gsc(
@@ -33,14 +88,24 @@ def scrape_gsc(
     start_date: Optional[dt.date] = None,
     property_filter: Optional[Q] = None,
 ):
+    """Scrape from Google Search Console API and update Page and PageDataGSC in the
+    database.
+
+    Args:
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+          Defaults to None. Will be set to two days before yesterday if None.
+        property_filter (Optional[Q], optional): Filter to select a subset of
+          properties. Defaults to None.
+    """
     today = local_today()
     yesterday = local_yesterday()
 
-    if start_date is None:
-        start_date = yesterday - dt.timedelta(days=2)
-
-    start_date = max(start_date, today - dt.timedelta(days=30))
-    start_date = min(start_date, yesterday)
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=2),
+        earliest=today - dt.timedelta(days=30),
+        latest=yesterday,
+    )
 
     properties = Property.objects.all()
 
@@ -58,18 +123,9 @@ def scrape_gsc(
             for row in data:
                 url, device = row["keys"]
 
+                # Match Google data to Sophora ID, if possible
                 try:
-                    match = re.match(r".*/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$", url)
-
-                    sophora_id = match.group(1)
-                    # Cut off any other weird Sophora parameters
-                    sophora_id = re.sub(f"~.*", "", sophora_id)
-
-                    sophora_page = match.group(2)
-
-                    if sophora_page is not None:
-                        sophora_page = int(sophora_page)
-
+                    sophora_id_str, node, sophora_page = _parse_sophora_url(url)
                 except AttributeError as error:
                     capture_exception(error)
                     continue
@@ -77,12 +133,22 @@ def scrape_gsc(
                 if url in page_cache:
                     page = page_cache[url]
                 else:
+                    sophora_id, created = SophoraID.objects.get_or_create(
+                        sophora_id=sophora_id_str,
+                        defaults=dict(
+                            sophora_document=None,
+                        ),
+                    )
+                    sophora_document = sophora_id.sophora_document
+
+                    # TODO: Update this when Webtrekk for pages is added
                     page, created = Page.objects.get_or_create(
                         url=url,
                         defaults=dict(
                             property=property,
-                            sophora_id=sophora_id,
+                            sophora_document=sophora_document,
                             sophora_page=sophora_page,
+                            sophora_id=sophora_id,
                         ),
                     )
                     page_cache[url] = page
@@ -102,64 +168,172 @@ def scrape_gsc(
         print(f"Finished Google Search Console scrape for property {property}.")
 
 
-def scrape_sophora(*, property_filter: Optional[Q] = None):
-    properties = Property.objects.all()
+def _handle_sophora_document(
+    sophora_node: SophoraNode,
+    sophora_document_info: Dict,
+    max_age: dt.datetime,
+) -> bool:
+    # Extract attributes depending on media type
+    if "teaser" in sophora_document_info:
+        editorial_update = dt.datetime.fromtimestamp(
+            sophora_document_info["teaser"]["redaktionellerStand"],
+            tz=BERLIN,
+        )
+        headline = sophora_document_info["teaser"]["schlagzeile"]
+        teaser = "\n".join(sophora_document_info["teaser"]["teaserText"])
 
-    if property_filter:
-        properties = properties.filter(property_filter)
+    elif sophora_document_info.get("mediaType") in ["audio", "video"]:
+        # Sometimes this is not set to sane value
+        if sophora_document_info["lastModified"] < 1:
+            editorial_update = None
+        else:
+            editorial_update = dt.datetime.fromtimestamp(
+                sophora_document_info["lastModified"] / 1000,
+                tz=BERLIN,
+            )
 
-    for property in properties:
-        print(f"Scraping Sophora API for pages of {property}")
+        headline = sophora_document_info["title"]
+        teaser = "\n".join(sophora_document_info.get("teaserText", []))
 
-        for page in property.pages.all():
-            if page.sophora_id == "index":
-                continue
+    elif sophora_document_info.get("mediaType") == "imageGallery":
+        editorial_update = None
+        headline = sophora_document_info["schlagzeile"]
+        teaser = "\n".join(sophora_document_info["teaserText"])
 
-            if len(page.metas.all()) > 0:
-                print("skipping")
-                continue
+    elif sophora_document_info.get("mediaType") == "link":
+        return True
 
-            try:
-                sophora_page = sophora.get_page(page)
-            except JSONDecodeError:
-                print(f"Failed to decode JSON response for page {page}")
-                continue
+    else:
+        try:
+            raise Exception("Unknown page type")
+        except Exception as e:
+            capture_exception(e)
 
-            if "userMessage" in sophora_page:
-                print(sophora_page["userMessage"], page.url)
-                continue
+        print(sophora_document_info)
+        return True
 
-            if "teaser" in sophora_page:
-                editorial_update = dt.datetime.fromtimestamp(
-                    sophora_page["teaser"]["redaktionellerStand"], tz=BERLIN
-                )
-                headline = sophora_page["teaser"]["schlagzeile"]
-                teaser = "\n".join(sophora_page["teaser"]["teaserText"])
+    # Cancel when editorial update is too old
+    if editorial_update is not None and editorial_update < max_age:
+        print(
+            f"Done scraping this feed. editorial_update: {editorial_update}, max_age={max_age}"
+        )
+        print(sophora_document_info)
+        return False
 
-            elif sophora_page.get("mediaType") == "imageGallery":
-                editorial_update = None
-                headline = sophora_page["schlagzeile"]
-                teaser = "\n".join(sophora_page["teaserText"])
+    # Parse Sophora ID, uuid and documentType
+    if "teaser" in sophora_document_info:
+        contains_info = sophora_document_info["teaser"]
+    else:
+        contains_info = sophora_document_info
 
-            elif sophora_page.get("mediaType") in ["audio", "video"]:
-                editorial_update = dt.datetime.fromtimestamp(
-                    sophora_page["lastModified"] / 1000, tz=BERLIN
-                )
-                headline = sophora_page["title"]
-                teaser = "\n".join(sophora_page.get("teaserText", []))
+    try:
+        sophora_id_str, node, _ = _parse_sophora_url(contains_info["shareLink"])
+    except KeyError as error:
+        # Don't send error to Sentry for image galleries
+        if contains_info.get("mediaType") == "imageGallery":
+            return True
 
-            else:
-                try:
-                    raise Exception("Unknown page type")
-                except Exception as e:
-                    capture_exception(e)
+        print("No shareLink found:")
+        print(sophora_document_info)
+        capture_exception(error)
+        return True
+    except AttributeError as error:
+        capture_exception(error)
+        return True
 
-                print(page, sophora_page)
-                continue
+    export_uuid = contains_info["uuid"]
 
-            PageMeta(
-                page=page,
-                editorial_update=editorial_update,
-                headline=headline,
-                teaser=teaser,
-            ).save()
+    try:
+        document_type = contains_info.get("mediaType")
+    except Exception as error:
+        print(sophora_document_info)
+        capture_exception(error)
+        return True
+
+    sophora_document, created = SophoraDocument.objects.get_or_create(
+        export_uuid=export_uuid,
+        defaults=dict(
+            sophora_node=sophora_node,
+        ),
+    )
+
+    sophora_id, created = SophoraID.objects.get_or_create(
+        sophora_id=sophora_id_str,
+        defaults=dict(
+            sophora_document=sophora_document,
+        ),
+    )
+
+    if sophora_id.sophora_document is None:
+        sophora_id.sophora_document = sophora_document
+        sophora_id.save()
+
+    SophoraDocumentMeta.objects.get_or_create(
+        sophora_document=sophora_document,
+        headline=headline,
+        teaser=teaser,
+        document_type=document_type,
+        sophora_id=sophora_id,
+        node=node,
+        defaults=dict(
+            editorial_update=editorial_update,
+        ),
+    )
+    return True
+
+
+def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
+    """Scrape data from Sophora API to discover new SophoraDocuments.
+
+    Args:
+        sophora_node_filter (Optional[Q], optional): Filter to select a subset of
+          sophora_nodes. Defaults to None.
+    """
+
+    now = local_now()
+
+    sophora_nodes = SophoraNode.objects.all()
+
+    if sophora_node_filter:
+        sophora_nodes = sophora_nodes.filter(sophora_node_filter)
+
+    for sophora_node in sophora_nodes:
+        print(f"Scraping Sophora API for pages of {sophora_node}")
+
+        if sophora_node.documents.count() == 0:
+            print("No existing documents found, search history")
+            max_age = now - dt.timedelta(days=365)
+        else:
+            max_age = (
+                SophoraDocumentMeta.objects.all()
+                .filter(sophora_document__sophora_node=sophora_node)
+                .exclude(editorial_update=None)
+                .order_by("-editorial_update")[0]
+                .editorial_update
+            ) - dt.timedelta(minutes=1)
+
+        print("Scraping exact node matches")
+        for sophora_document_info in sophora.get_documents_in_node(
+            sophora_node,
+            force_exact=True,
+        ):
+            should_continue = _handle_sophora_document(
+                sophora_node,
+                sophora_document_info,
+                max_age,
+            )
+            if not should_continue:
+                break
+
+        if sophora_node.use_exact_search:
+            continue
+
+        print("Scraping sub-node matches")
+        for sophora_document_info in sophora.get_documents_in_node(sophora_node):
+            should_continue = _handle_sophora_document(
+                sophora_node,
+                sophora_document_info,
+                max_age,
+            )
+            if not should_continue:
+                break

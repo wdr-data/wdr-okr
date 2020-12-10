@@ -25,6 +25,7 @@ def trigger_error(request):
 
 
 urlpatterns = [
+    path("admin/doc/", include("django.contrib.admindocs.urls")),
     path("admin/", admin.site.urls),
     path("okr/", include("okr.urls")),
     url(r"^$", RedirectView.as_view(url="/admin")),

@@ -75,3 +75,6 @@ venv.bak/
 
 # Service account
 google-credentials.json
+
+# Built docs
+/docs/index.html

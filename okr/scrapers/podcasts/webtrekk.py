@@ -1,5 +1,4 @@
-""" Retrieve and process data from Webtrekk API
-"""
+"""Retrieve and process data from Webtrekk API."""
 
 import datetime as dt
 from typing import Dict, Optional

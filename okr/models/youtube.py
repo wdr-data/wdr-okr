@@ -1,9 +1,15 @@
+"""Database models for YouTube."""
+
 from django.db import models
 from .base import Quintly
 
 
 class YouTube(Quintly):
+    """YouTube-Accounts, basierend auf Daten von Quintly."""
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube"
         verbose_name = "YouTube-Account"
         verbose_name_plural = "YouTube-Accounts"
@@ -11,7 +17,13 @@ class YouTube(Quintly):
 
 
 class YouTubeAnalytics(models.Model):
+    """Performance-Daten gesamter YouTube-Accounts, basierend auf Daten von YouTube
+    Analytics.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_analytics"
         verbose_name = "YouTube-Analytics"
         verbose_name_plural = "YouTube-Analytics"
@@ -19,12 +31,15 @@ class YouTubeAnalytics(models.Model):
         ordering = ["-date"]
 
     class Interval(models.TextChoices):
+        """Available update intervals."""
+
         DAILY = "daily", "Täglich"
         WEEKLY = "weekly", "Wöchentlich"
         MONTHLY = "monthly", "Monatlich"
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
+        help_text="Globale ID des YouTube-Accouts",
         to=YouTube,
         on_delete=models.CASCADE,
         related_name="analytic",
@@ -32,7 +47,10 @@ class YouTubeAnalytics(models.Model):
     )
     date = models.DateField(verbose_name="Datum")
     interval = models.CharField(
-        verbose_name="Zeitraum", choices=Interval.choices, max_length=10
+        verbose_name="Zeitraum",
+        help_text="Intervall (täglich, wöchentlich, monatlich)",
+        choices=Interval.choices,
+        max_length=10,
     )
 
     views = models.IntegerField(verbose_name="Views", null=True)
@@ -53,7 +71,15 @@ class YouTubeAnalytics(models.Model):
 
 
 class YouTubeTrafficSource(models.Model):
+    """Performance-Daten gesamter YouTube-Accounts, basierend auf Daten von YouTube
+    Traffic Source.
+
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_traffic_source"
         verbose_name = "YouTube-TrafficSource"
         verbose_name_plural = "YouTube-TrafficSources"
@@ -62,6 +88,7 @@ class YouTubeTrafficSource(models.Model):
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
+        help_text="Globale ID des YouTube-Accounts",
         to=YouTube,
         on_delete=models.CASCADE,
         related_name="traffic_source",
@@ -78,12 +105,18 @@ class YouTubeTrafficSource(models.Model):
 
 
 class YouTubeAgeRangeBase(models.Model):
+    """Base class for demographics data of YouTube accounts."""
+
     class Meta:
+        """Model meta options."""
+
         abstract = True
         unique_together = ("youtube", "date", "interval")
         ordering = ["-date"]
 
     class Interval(models.TextChoices):
+        """Available update intervals."""
+
         DAILY = "daily", "Täglich"
         WEEKLY = "weekly", "Wöchentlich"
         MONTHLY = "monthly", "Monatlich"
@@ -97,7 +130,10 @@ class YouTubeAgeRangeBase(models.Model):
     )
     date = models.DateField(verbose_name="Datum")
     interval = models.CharField(
-        verbose_name="Zeitraum", choices=Interval.choices, max_length=10
+        verbose_name="Zeitraum",
+        help_text="Intervall (täglich, wöchentlich, monatlich)",
+        choices=Interval.choices,
+        max_length=10,
     )
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
@@ -109,7 +145,15 @@ class YouTubeAgeRangeBase(models.Model):
 
 
 class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
+    """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
+    Duration.
+
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_age_range_duration"
         abstract = True
         unique_together = YouTubeAgeRangeBase.Meta.unique_together
@@ -125,7 +169,15 @@ class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
 
 
 class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
+    """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
+    Percentage.
+
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_age_range_percentage"
         abstract = True
         unique_together = YouTubeAgeRangeBase.Meta.unique_together
@@ -155,7 +207,15 @@ class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
 
 
 class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
+    """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
+    Average View Duration.
+
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_age_range_average_view_duration"
         verbose_name = "YouTube Age-Range (Average View Duration)"
         verbose_name_plural = "YouTube Age-Ranges (Average View Duration)"
@@ -164,7 +224,15 @@ class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
 
 
 class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
+    """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
+    Average View Percentage.
+
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_age_range_average_view_percentage"
         verbose_name = "YouTube Age-Range (Average Percentage Viewed)"
         verbose_name_plural = "YouTube Age-Ranges (Average Percentage Viewed)"
@@ -173,7 +241,15 @@ class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
 
 
 class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
+    """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
+    Watch Time Percentage.
+
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_age_range_watch_time_percentage"
         verbose_name = "YouTube Age-Range (Watch Time - Hours)"
         verbose_name_plural = "YouTube Age-Ranges (Watch Time - Hours)"
@@ -182,7 +258,15 @@ class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
 
 
 class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
+    """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
+    Views Percentage.
+
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
+    """
+
     class Meta:
+        """Model meta options."""
+
         db_table = "youtube_age_range_views_percentage"
         verbose_name = "YouTube Age-Range (Views)"
         verbose_name_plural = "YouTube Age-Ranges (Views)"

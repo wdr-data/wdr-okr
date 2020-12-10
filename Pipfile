@@ -6,6 +6,7 @@ verify_ssl = true
 [scripts]
 format = "black . --exclude wheels"
 manage = "python manage.py"
+db_tables = "python docs/database_tables.py"
 
 [dev-packages]
 
@@ -26,6 +27,9 @@ django-bulk-sync = "*"
 sentry-sdk = "*"
 spotipy = "*"
 google-api-python-client = "*"
+docutils = "*"
+django-extensions = "*"
+tabulate = "*"
 
 [requires]
 python_version = "3.8"

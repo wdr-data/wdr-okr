@@ -1,5 +1,4 @@
-""" Wrapper for Webtrekk API.
-"""
+"""Wrapper for Webtrekk API."""
 
 import requests
 import os
@@ -13,21 +12,23 @@ WEBTREKK_PASSWORD = os.environ.get("WEBTREKK_PASSWORD")
 
 
 class WebtrekkError(Exception):
+    """Error class for Webtrekk."""
+
     pass
 
 
 class Webtrekk:
-    """Webtrekk API Object Class
+    """Webtrekk API Object Class.
 
     Requires the following environment variables: WEBTREKK_LOGIN, WEBTREKK_PASSWORD,
-    WEBTREKK_ACCOUNT_LIVE_ID
+    WEBTREKK_ACCOUNT_LIVE_ID.
 
     Provides the following methods: get_report_data(), get_analysis_data(),
-    get_dimensions_metrics(), get_report_list()
+    get_dimensions_metrics(), get_report_list().
     """
 
     def __init__(self):
-        """Set up login information for Webtrekk JSON/RPC API"""
+        """Set up login information for Webtrekk JSON/RPC API."""
         self.token = None
         self.account = os.environ.get("WEBTREKK_ACCOUNT_LIVE_ID")
         self.name = f"{WEBTREKK_LOGIN}-LIVE-account"
@@ -38,7 +39,7 @@ class Webtrekk:
         return f"{WEBTREKK_LOGIN} ist not connected to {self.name}."
 
     def login(self):
-        """Login to JSON/RPC API"""
+        """Login to JSON/RPC API."""
         params = {
             "login": WEBTREKK_LOGIN,
             "pass": WEBTREKK_PASSWORD,
@@ -62,7 +63,7 @@ class Webtrekk:
             self.logout()
 
     def _get_response(self, method: str, params: Dict[str, str] = {}) -> Any:
-        """Call Webtrekk JSON/RPC API Method with params
+        """Call Webtrekk JSON/RPC API Method with params.
 
         Args:
             method (str): API request method as defined by the API. For example:
@@ -103,7 +104,7 @@ class Webtrekk:
         start_date: Optional[dt.date] = None,
         end_date: Optional[dt.date] = None,
     ) -> Dict:
-        """Call getReportData method at Webtrekk's JSON/RPC API
+        """Call getReportData method at Webtrekk's JSON/RPC API.
 
         Args:
             name (str): id of the report to retrieve
@@ -114,7 +115,7 @@ class Webtrekk:
               for. Defaults to None.
 
         Returns:
-            Dict: Reply from API
+            Dict: Reply from API.
         """
 
         params = {"report_name": name}
@@ -130,31 +131,31 @@ class Webtrekk:
         return self._get_response("getReportData", params)
 
     def get_analysis_data(self, analysis_config: str) -> Dict:
-        """Call getAnalysisData method at Webtrekk's JSON/RPC API
+        """Call getAnalysisData method at Webtrekk's JSON/RPC API.
 
         Args:
             analysis_config (str): Config information for analysis (according to API
-            documentation)
+            documentation).
 
         Returns:
-            Dict: Reply from API
+            Dict: Reply from API.
         """
         params = {"analysisConfig": analysis_config}
         data = self._get_response("getAnalysisData", params)
         return data
 
     def get_dimensions_metrics(self) -> Dict:
-        """Call getAnalysisObjectsAndMetricsList method at Webtrekk's JSON/RPC API
+        """Call getAnalysisObjectsAndMetricsList method at Webtrekk's JSON/RPC API.
 
         Returns:
-            Dict:  Reply from API
+            Dict:  Reply from API.
         """
         return self._get_response("getAnalysisObjectsAndMetricsList")
 
     def get_report_list(self) -> Dict:
-        """Call getAnalysisObjectsAndMetricsList method at Webtrekk's JSON/RPC API
+        """Call getAnalysisObjectsAndMetricsList method at Webtrekk's JSON/RPC API.
 
         Returns:
-            Dict:  Reply from API
+            Dict:  Reply from API.
         """
         return self._get_response("getCustomReportsList")

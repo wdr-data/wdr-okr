@@ -1,6 +1,7 @@
 """Configure scheduler to call scraper modules.
 """
 
+from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
 from django.conf import settings
@@ -106,31 +107,43 @@ def start():
     scheduler.add_job(
         podcasts.scrape_spotify_api,
         trigger="cron",
-        hour="12",
+        hour="6",
         minute="0",
     )
     scheduler.add_job(
         podcasts.scrape_podstat,
         trigger="cron",
-        hour="8",
-        minute="30",
+        hour="4",
+        minute="0",
     )
     scheduler.add_job(
         podcasts.scrape_episode_data_webtrekk_performance,
         trigger="cron",
-        hour="4",
+        hour="12",
+        minute="0",
+    )
+    scheduler.add_job(
+        podcasts.scrape_spotify_experimental_demographics,
+        trigger="cron",
+        hour="9",
+        minute="0",
+    )
+    scheduler.add_job(
+        podcasts.scrape_spotify_experimental_performance,
+        trigger="cron",
+        hour="3",
         minute="0",
     )
 
     # Pages
     scheduler.add_job(
-        pages.scrape_gsc,
+        pages.scrape_sophora_nodes,
         trigger="cron",
-        hour="16",
-        minute="0",
+        hour="*",
+        minute="45",
     )
     scheduler.add_job(
-        pages.scrape_sophora,
+        pages.scrape_gsc,
         trigger="cron",
         hour="17",
         minute="0",
@@ -186,4 +199,17 @@ def property_created(instance: Property, created: bool, **kwargs):
     """
     print(instance, created)
     if created:
-        scheduler.add_job(pages.scrape_full, args=[instance], max_instances=1)
+        scheduler.add_job(pages.scrape_full_gsc, args=[instance], max_instances=1)
+
+
+@receiver(post_save, sender=SophoraNode)
+def sophora_node_created(instance: SophoraNode, created: bool, **kwargs):
+    """Start scraper run for newly added Sophora node.
+
+    Args:
+        instance (SophoraNode): A SophoraNode instance
+        created (bool): Start scraper if set to True
+    """
+    print(instance, created)
+    if created:
+        scheduler.add_job(pages.scrape_full_sophora, args=[instance], max_instances=1)
