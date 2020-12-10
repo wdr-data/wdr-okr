@@ -82,6 +82,10 @@ class ExperimentalSpotifyPodcastAPI:
                 print("Got 429, next delay:", delay)
                 continue
 
+            elif response.status_code == 401:
+                self._authenticate()
+                continue
+
             if not response.ok:
                 print("Error in experimental API:")
                 print(response.status_code)
