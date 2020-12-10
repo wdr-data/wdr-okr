@@ -44,6 +44,7 @@ def convert_sophora_id_to_foreignkey(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ("okr", "0036_podcastepisode_available"),
