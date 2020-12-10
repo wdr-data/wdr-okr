@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
             model_name="sophoradocumentmeta",
             name="sophora_id_new",
             field=models.ForeignKey(
-                default=1,
+                null=True,
                 help_text="Momentane Sophora ID des Dokuments",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="metas",
@@ -103,7 +103,6 @@ class Migration(migrations.Migration):
                 to="okr.sophoraid",
                 verbose_name="Sophora ID",
             ),
-            preserve_default=False,
         ),
         migrations.RunPython(convert_sophora_id_to_foreignkey),
         migrations.AlterUniqueTogether(
@@ -120,6 +119,18 @@ class Migration(migrations.Migration):
             model_name="sophoradocumentmeta",
             old_name="sophora_id_new",
             new_name="sophora_id",
+        ),
+        migrations.AlterField(
+            model_name="sophoradocumentmeta",
+            name="sophora_id",
+            field=models.ForeignKey(
+                help_text="Momentane Sophora ID des Dokuments",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="metas",
+                related_query_name="meta",
+                to="okr.sophoraid",
+                verbose_name="Sophora ID",
+            ),
         ),
         migrations.AlterUniqueTogether(
             name="sophoradocumentmeta",
