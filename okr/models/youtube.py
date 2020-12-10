@@ -5,14 +5,7 @@ from .base import Quintly
 
 
 class YouTube(Quintly):
-    """YouTube-Accounts, basierend auf Daten von Quintly.
-
-    Die folgenden Tabellen nehmen auf die in "ID"" vergebenen Schlüssel (als foreign key
-    namens ``youtube``) Bezug:
-
-    * :model:`okr.YouTubeAnalytics`
-    * :model:`okr.YouTubeTrafficSource`
-    """
+    """YouTube-Accounts, basierend auf Daten von Quintly."""
 
     class Meta:
         """Model meta options."""
@@ -26,8 +19,6 @@ class YouTube(Quintly):
 class YouTubeAnalytics(models.Model):
     """Performance-Daten gesamter YouTube-Accounts, basierend auf Daten von YouTube
     Analytics.
-
-    Verknüpft mit :model:`okr.YouTube` über den foreign key ``youtube``.
     """
 
     class Meta:
@@ -83,8 +74,7 @@ class YouTubeTrafficSource(models.Model):
     """Performance-Daten gesamter YouTube-Accounts, basierend auf Daten von YouTube
     Traffic Source.
 
-    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt. Verknüpft
-    mit :model:`okr.YouTube` über den foreign key ``youtube``.
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
     """
 
     class Meta:
@@ -158,8 +148,7 @@ class YouTubeAgeRangeDuration(YouTubeAgeRangeBase):
     """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
     Duration.
 
-    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt. Verknüpft
-    mit :model:`okr.YouTube` über den foreign key ``youtube``.
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
     """
 
     class Meta:
@@ -183,8 +172,7 @@ class YouTubeAgeRangePercentage(YouTubeAgeRangeBase):
     """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
     Percentage.
 
-    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt. Verknüpft
-    mit :model:`okr.YouTube` über den foreign key ``youtube``.
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
     """
 
     class Meta:
@@ -222,8 +210,7 @@ class YouTubeAgeRangeAverageViewDuration(YouTubeAgeRangeDuration):
     """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
     Average View Duration.
 
-    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt. Verknüpft
-    mit :model:`okr.YouTube` über den foreign key ``youtube``.
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
     """
 
     class Meta:
@@ -240,8 +227,7 @@ class YouTubeAgeRangeAverageViewPercentage(YouTubeAgeRangePercentage):
     """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
     Average View Percentage.
 
-    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt. Verknüpft
-    mit :model:`okr.YouTube` über den foreign key ``youtube``.
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
     """
 
     class Meta:
@@ -258,8 +244,7 @@ class YouTubeAgeRangeWatchTimePercentage(YouTubeAgeRangePercentage):
     """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
     Watch Time Percentage.
 
-    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt. Verknüpft
-    mit :model:`okr.YouTube` über den foreign key ``youtube``.
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
     """
 
     class Meta:
@@ -276,8 +261,7 @@ class YouTubeAgeRangeViewsPercentage(YouTubeAgeRangePercentage):
     """Demografische Daten gesamter YouTube-Accounts, basierend auf YouTube Age Range
     Views Percentage.
 
-    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt. Verknüpft
-    mit :model:`okr.YouTube` über den foreign key ``youtube``.
+    Manuell aus YouTube Analytics exportiert und via Django Admin angelegt.
     """
 
     class Meta:

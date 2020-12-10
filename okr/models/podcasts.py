@@ -7,15 +7,7 @@ from .base import Product
 
 class Podcast(Product):
     """Enthält grundlegende Daten zu den einzelnen Podcast-Reihen, basierend auf Daten
-    aus dem XML-Feed und von Spotify.
-
-    Die folgenden Tabellen nehmen auf die in der Spalte "id" vergebenen Schlüssel (als
-    foreign key namens ``podcast``) Bezug:
-
-    * :model:`okr.PodcastDataSpotify`
-    * :model:`okr.PodcastDataSpotifyHourly`
-    * :model:`okr.PodcastEpisode`
-
+    aus dem jeweiligen XML-Feed und von Spotify.
     """
 
     class Meta:
@@ -35,7 +27,7 @@ class Podcast(Product):
     author = models.CharField(
         max_length=200,
         verbose_name="Autor*in",
-        help_text="Urheber*in des Podcasts",
+        help_text="Autor*in des Podcasts",
     )
     image = models.URLField(
         max_length=1024,
@@ -61,10 +53,7 @@ class Podcast(Product):
 
 
 class PodcastDataSpotify(models.Model):
-    """Daten zu Hörer*innen-Zahlen pro Podcast-Reihe, basierend auf Daten von Spotify.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``podcast``.
-    """
+    """Daten zu Hörer*innen-Zahlen pro Podcast-Reihe, basierend auf Daten von Spotify."""
 
     class Meta:
         """Model meta options."""
@@ -120,8 +109,6 @@ class PodcastDataSpotify(models.Model):
 class PodcastDataSpotifyHourly(models.Model):
     """Daten über die stündliche Nutzung der Podcast-Reihen, die auf Spotify verfügbar
     sind.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``podcast``.
     """
 
     class Meta:
@@ -161,17 +148,6 @@ class PodcastDataSpotifyHourly(models.Model):
 class PodcastEpisode(models.Model):
     """Daten zu den einzelnen Folgen der Podcasts, basierend auf Daten aus dem XML-Feed
     und von Spotify.
-
-    Verknüpft mit :model:`okr.Podcast` über den foreign key ``podcast``.
-
-    Die folgenden Tabellen nehmen auf die in der Spalte "id" vergebenen Schlüssel (als
-    foreign key namens ``episode``) Bezug:
-
-    * :model:`okr.PodcastEpisodeDataPodstat`
-    * :model:`okr.PodcastEpisodeDataSpotify`
-    * :model:`okr.PodcastEpisodeDataSpotifyPerformance`
-    * :model:`okr.PodcastEpisodeDataSpotifyUser`
-    * :model:`okr.PodcastEpisodeDataWebtrekkPerformance`
     """
 
     class Meta:
@@ -246,8 +222,6 @@ class PodcastEpisode(models.Model):
 class PodcastEpisodeDataSpotify(models.Model):
     """Zusätzliche Daten zu einzelnen Podcast-Folgen. Nur für Podcasts, die auf Spotify
     verfügbar sind.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``episode``.
     """
 
     class Meta:
@@ -299,10 +273,7 @@ class PodcastEpisodeDataSpotify(models.Model):
 
 
 class PodcastEpisodeDataSpotifyUser(models.Model):
-    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``episode``.
-    """
+    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen."""
 
     class Meta:
         """Model meta options."""
@@ -385,10 +356,7 @@ class PodcastEpisodeDataSpotifyUser(models.Model):
 
 
 class PodcastEpisodeDataSpotifyDemographics(models.Model):
-    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``episode``.
-    """
+    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Folgen."""
 
     class Meta:
         """Model meta options."""
@@ -457,9 +425,7 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
 
 class PodcastEpisodeDataPodstat(models.Model):
     """Hörer*innenzahlen einzelner Podcast-Folgen, basierend auf Daten von
-        Podstat/Spotify.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``episode``.
+    Podstat/Spotify.
     """
 
     class Meta:
@@ -503,10 +469,7 @@ class PodcastEpisodeDataPodstat(models.Model):
 
 
 class PodcastEpisodeDataSpotifyPerformance(models.Model):
-    """Performance-Daten zu den auf Spotify verfügbaren Folgen.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``episode``.
-    """
+    """Performance-Daten zu den auf Spotify verfügbaren Folgen."""
 
     class Meta:
         """Model meta options."""
@@ -561,10 +524,7 @@ class PodcastEpisodeDataSpotifyPerformance(models.Model):
 
 
 class PodcastEpisodeDataWebtrekkPerformance(models.Model):
-    """Zusätzliche Abruf-Daten von Webtrekk für die einzelnen Folgen.
-
-    Verknüpft mit :model:`okr.PodcastEpisode` über den foreign key ``episode``.
-    """
+    """Zusätzliche Abruf-Daten von Webtrekk für die einzelnen Folgen."""
 
     class Meta:
         """Model meta options."""
