@@ -107,9 +107,7 @@ class Migration(migrations.Migration):
         migrations.RunPython(convert_sophora_id_to_foreignkey),
         migrations.AlterUniqueTogether(
             name="sophoradocumentmeta",
-            unique_together={
-                ("sophora_document", "headline", "teaser", "document_type", "node")
-            },
+            unique_together=set(),
         ),
         migrations.RemoveField(
             model_name="sophoradocumentmeta",
