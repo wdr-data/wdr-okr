@@ -23,10 +23,11 @@ class PageAdmin(admin.ModelAdmin):
         "url",
         "sophora_document",
         "sophora_id",
+        "node",
         "first_seen",
     ]
     list_display_links = ["url"]
-    list_filter = ["property"]
+    list_filter = ["property", "node"]
     date_hierarchy = "first_seen"
 
 

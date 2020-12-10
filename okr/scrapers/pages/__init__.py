@@ -149,6 +149,7 @@ def scrape_gsc(
                             sophora_document=sophora_document,
                             sophora_page=sophora_page,
                             sophora_id=sophora_id,
+                            node=node,
                         ),
                     )
                     page_cache[url] = page

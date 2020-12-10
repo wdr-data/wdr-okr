@@ -249,6 +249,12 @@ class Page(models.Model):
         related_query_name="page",
         null=True,
     )
+    node = models.CharField(
+        verbose_name="Strukturknoten",
+        help_text="Der Sophora-Strukturknoten, unter dem der Nachrichtenartikel gefunden wurde",
+        max_length=128,
+        null=True,
+    )
     url = models.URLField(
         verbose_name="URL",
         help_text="URL des Nachrichtenartikels",
