@@ -30,6 +30,8 @@ google-api-python-client = "*"
 docutils = "*"
 django-extensions = "*"
 tabulate = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
 
 [requires]
 python_version = "3.8"

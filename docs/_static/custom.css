@@ -1,0 +1,25 @@
+#db_tables table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+}
+
+#db_tables td {
+    border: 1px solid black;
+    padding: 5px;
+    width: 20%;
+}
+
+#db_tables th {
+    border: 1px solid black;
+    background-color: grey;
+    padding: 6px;
+}
+
+#db_tables tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#db_tables tr:hover {
+    background-color: rgb(216, 216, 216);
+}
