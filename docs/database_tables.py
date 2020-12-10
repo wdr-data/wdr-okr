@@ -48,6 +48,8 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
 
                 if field["relation"]:
                     data_type = f'{field["db_type"]} ({field["internal_type"]})'
+                elif field["type"] == "AutoField":
+                    data_type = f'{field["db_type"]} ({field["type"]})'
                 else:
                     data_type = f'{field["db_type"]}'
 
