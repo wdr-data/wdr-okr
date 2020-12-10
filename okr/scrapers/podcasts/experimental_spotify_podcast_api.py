@@ -91,8 +91,11 @@ class ExperimentalSpotifyPodcastAPI:
                 print(response.status_code)
                 print(response.headers)
                 print(response.text)
+                response.raise_for_status()
 
             return response.json()
+
+        raise Exception("All retries failed!")
 
     def podcast_followers(self, podcast_id: str, start: dt.date, end: dt.date) -> dict:
         """Loads historic follower data for podcast."""
