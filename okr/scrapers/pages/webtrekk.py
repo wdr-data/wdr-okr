@@ -3,6 +3,9 @@
 import datetime as dt
 from typing import Dict, Optional
 import re
+import html
+
+from rfc3986 import urlparse
 
 from ..common.webtrekk import Webtrekk
 
@@ -21,40 +24,75 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
 
     with webtrekk.session():
         report_data = webtrekk.get_report_data(
-            "web_url_daily_export_newslab", start_date=date
+            "url_seiten_daily_export_newslab", start_date=date
         )
 
     data = report_data["analyses"][0]
-    search_data = report_data["analyses"][1]
+    data_search = report_data["analyses"][1]
     date_start = data["timeStart"]
     date_end = data["timeStop"]
-    print(f"Start scraping Webtrekk Data between {date_start} and {date_end}.")
+    print(
+        f"Start scraping Webtrekk Data for pages between {date_start} and {date_end}."
+    )
 
-    # Loop over episodes
-    head = data["analysisTabHead"]
     data_dict = {}
     for element in data["analysisData"]:
+        key = _parse_row(element)
 
-        # Find ZMDB ID
-        match = re.match(r".*?mdb-(\d+)(_AMP)?$", element[0])
-
-        if not match:
+        if key is None:
             continue
 
-        zmdb_id = int(match.group(1))
-
-        # Process data
         item = {
-            "media_views": int(element[1]),
-            "media_views_complete": int(element[2]),
-            "playing_time": dt.timedelta(seconds=int(element[3])),
+            "visits": int(element[2]),
+            "entries": int(element[3]),
+            "visits_campaign": int(element[4]),
+            "bounces": int(element[5]),
+            "length_of_stay": int(element[6]),
+            "impressions": int(element[7]),
+            "exits": int(element[8]),
         }
 
-        if zmdb_id in data_dict:
-            data_dict[zmdb_id]["media_views"] += item["media_views"]
-            data_dict[zmdb_id]["media_views_complete"] += item["media_views_complete"]
-            data_dict[zmdb_id]["playing_time"] += item["playing_time"]
+        data_dict[key] = item
+
+    for element in data_search["analysisData"]:
+        key = _parse_row(element)
+
+        if key is None:
+            continue
+
+        item = {
+            "visits_search": int(element[2]),
+            "entries_search": int(element[3]),
+            "visits_campaign_search": int(element[4]),
+            "bounces_search": int(element[5]),
+            "length_of_stay_search": int(element[6]),
+            "impressions_search": int(element[7]),
+            "exits_search": int(element[8]),
+        }
+
+        if key in data_dict:
+            data_dict[key].update(item)
         else:
-            data_dict[zmdb_id] = item
+            data_dict[key] = item
 
     return data_dict
+
+
+def _parse_row(element):
+    if element[1] == "-":
+        return None
+
+    parsed = urlparse(element[0])
+    # check if url part of property
+    if not parsed.host.endswith("wdr.de") or not parsed.path.startswith("/nachrichten"):
+        return None
+
+    # get cononical url and get_parameters
+    get_parameters = parsed.query
+    url = parsed.copy_with(query=None, fragment=None).unsplit()
+
+    # parse headline
+    headline_raw = html.unescape(element[1].split("_")[-1])
+    headline = re.sub(r"<.*?>", "", headline_raw)
+
+    return url, headline, get_parameters

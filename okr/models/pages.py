@@ -343,3 +343,133 @@ class PageDataGSC(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.page.url}"
+
+
+class PageWebtrekkMeta(models.Model):
+    """Meta-Informationen zu einer bestimmten Seite. Es kann mehrere
+    Meta-Einträge zur selben Nachrichtenseite geben, wenn z. B. die Überschrift geändert wurde.
+    """
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "page_webtrekk_meta"
+        verbose_name = "Seiten-Webtrekk-Meta"
+        verbose_name_plural = "Seiten-Webtrekk-Metas"
+        ordering = ["-created"]
+        unique_together = [
+            "page",
+            "headline",
+            "get_parameters",
+        ]
+
+    page = models.ForeignKey(
+        to=Page,
+        verbose_name="Seite",
+        on_delete=models.CASCADE,
+        related_name="webtrekk_metas",
+        related_query_name="webtrekk_meta",
+        help_text="Die Seite, der die Webtrekk-Meta Informationen zugeordnet wurden",
+    )
+    headline = models.TextField(
+        verbose_name="Titel",
+        help_text="Schlagzeile des Nachrichtenartikels",
+    )
+    get_parameters = models.TextField(
+        verbose_name="Get-Parameter",
+        help_text="Extrahierte Get-Parameter der URL",
+    )
+    created = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erstellung",
+        help_text="Der Zeitpunkt, an dem dieser Eintrag in der Datenbank angelegt wurde",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.headline}"
+
+
+class PageDataWebtrekk(models.Model):
+    """Webtrekk-Performance pro Tag, basierend auf Daten des Webanlysetools Mapp (Webtrekk)."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "page_data_webtrekk"
+        verbose_name = "Seiten-Daten (Webtrekk)"
+        verbose_name_plural = "Seiten-Daten (Webtrekk)"
+        ordering = ["-date", "-visits"]
+        unique_together = ["date", "webtrekk_meta"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum der Webtrekk-Daten",
+    )
+    webtrekk_meta = models.ForeignKey(
+        to=PageWebtrekkMeta,
+        verbose_name="Webtrekk-Meta",
+        help_text="Globale ID des Webtrekk-Metas",
+        on_delete=models.CASCADE,
+        related_name="data_webtrekk",
+        related_query_name="data_webtrekk",
+    )
+
+    visits = models.IntegerField(
+        verbose_name="Visits",
+        help_text="Visits (pro Tag)",
+    )
+    visits_search = models.IntegerField(
+        verbose_name="Visits via Suchmaschine",
+        help_text="Visits via Suchmaschine (pro Tag)",
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        help_text="Impressions (pro Tag)",
+    )
+    impressions_search = models.IntegerField(
+        verbose_name="Impressions via Suchmaschine",
+        help_text="Impressions via Suchmaschine (pro Tag)",
+    )
+    visits_campaign = models.IntegerField(
+        verbose_name="Kampagnen-Visits",
+        help_text="Kampagnen-Visits (pro Tag)",
+    )
+    visits_campaign_search = models.IntegerField(
+        verbose_name="Kampagnen-Visits via Suchmaschine",
+        help_text="Kampagnen-Visits via Suchmaschine (pro Tag)",
+    )
+    entries = models.IntegerField(
+        verbose_name="Einstiege",
+        help_text="Einstiege (pro Tag)",
+    )
+    entries_search = models.IntegerField(
+        verbose_name="Einstiege via Suchmaschine",
+        help_text="Einstiege via Suchmaschine (pro Tag)",
+    )
+    exits = models.IntegerField(
+        verbose_name="Ausstiege",
+        help_text="Ausstiege (pro Tag)",
+    )
+    exits_search = models.IntegerField(
+        verbose_name="Ausstiege via Suchmaschine",
+        help_text="Ausstiege via Suchmaschine (pro Tag)",
+    )
+    bounces = models.IntegerField(
+        verbose_name="Bounces",
+        help_text="Bounces (pro Tag)",
+    )
+    bounces_search = models.IntegerField(
+        verbose_name="Bounces via Suchmaschine",
+        help_text="Bounces via Suchmaschine (pro Tag)",
+    )
+    length_of_stay = models.DurationField(
+        verbose_name="Verweildauer",
+        help_text="Verweildauer (pro Tag)",
+    )
+    length_of_stay_search = models.DurationField(
+        verbose_name="Verweildauer via Suchmaschine",
+        help_text="Verweildauer via Suchmaschine (pro Tag)",
+    )
+
+    def __str__(self):
+        return f"{self.date} - {self.webtrekk_meta}"

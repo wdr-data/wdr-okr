@@ -30,6 +30,7 @@ google-api-python-client = "*"
 docutils = "*"
 django-extensions = "*"
 tabulate = "*"
+rfc3986 = "*"
 
 [requires]
 python_version = "3.8"

@@ -1,11 +1,12 @@
+from django.contrib import admin
+
 from okr.models.pages import (
     SophoraDocument,
     SophoraDocumentMeta,
     SophoraID,
     SophoraNode,
-)
-from django.contrib import admin
-from ..models import (
+    PageWebtrekkMeta,
+    PageDataWebtrekk,
     Property,
     Page,
     PageDataGSC,
@@ -85,6 +86,33 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
     date_hierarchy = "editorial_update"
 
 
+class PageWebtrekkMetaAdmin(admin.ModelAdmin):
+    list_display = [
+        "page",
+        "headline",
+        "get_parameters",
+    ]
+    list_display_links = ["headline"]
+    list_filter = []
+    date_hierarchy = "created"
+
+
+class PageDataWebtrekkAdmin(admin.ModelAdmin):
+    list_display = [
+        "webtrekk_meta",
+        "date",
+        "visits",
+        "visits_search",
+        "impressions",
+        "impressions_search",
+        "entries",
+        "entries_search",
+    ]
+    list_display_links = ["webtrekk_meta", "date"]
+    list_filter = []
+    date_hierarchy = "date"
+
+
 admin.site.register(Property, PropertyAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(SophoraNode, SophoraNodeAdmin)
@@ -92,3 +120,5 @@ admin.site.register(SophoraDocument, SophoraDocumentAdmin)
 admin.site.register(SophoraID, SophoraIDAdmin)
 admin.site.register(SophoraDocumentMeta, SophoraDocumentMetaAdmin)
 admin.site.register(PageDataGSC, PageDataGCSAdmin)
+admin.site.register(PageWebtrekkMeta, PageWebtrekkMetaAdmin)
+admin.site.register(PageDataWebtrekk, PageDataWebtrekkAdmin)
