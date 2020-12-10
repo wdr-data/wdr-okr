@@ -113,5 +113,5 @@ Nun kann das Django-Backend über den folgenden Befehl gestartet werden:
 
 Sobald der Intelligence Layer gestartet ist, ruft er automatisiert Daten über die
 diversen APIs ab. Der Intelligence Layer nutzt dazu den
-`APScheduler <https://pypi.org/project/APScheduler/>`. Die Cron-basierten Regeln sind in
-der Datei ``okr/scrapers/scheduler.py`` anpassbar.
+`APScheduler <https://pypi.org/project/APScheduler/>`_. Die Cron-basierten Regeln sind
+in der Datei ``okr/scrapers/scheduler.py`` anpassbar.

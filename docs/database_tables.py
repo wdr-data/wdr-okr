@@ -1,5 +1,5 @@
-"""Read databse information from Django models and create a HTML table for the
-documentation
+"""Read database information from Django models and create a HTML table for the
+documentation.
 """
 
 import collections
