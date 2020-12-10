@@ -107,13 +107,13 @@ def start():
     scheduler.add_job(
         podcasts.scrape_spotify_api,
         trigger="cron",
-        hour="4",
+        hour="6",
         minute="0",
     )
     scheduler.add_job(
         podcasts.scrape_podstat,
         trigger="cron",
-        hour="6",
+        hour="4",
         minute="0",
     )
     scheduler.add_job(
