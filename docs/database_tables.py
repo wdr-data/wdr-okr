@@ -53,7 +53,12 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                 else:
                     data_type = f'{field["db_type"]}'
 
-                table_fields.append([field["name"], data_type, description])
+                nullable = "✅" if field["null"] else "❌"
+                unique = "✅" if field["unique"] else "❌"
+
+                table_fields.append(
+                    [field["name"], data_type, unique, nullable, description]
+                )
 
             # only include tables that are stored in db
             if (
@@ -96,7 +101,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
             + "\n"
             + tabulate(
                 table_infos[1],
-                headers=["Name", "Type", "Beschreibung"],
+                headers=["Name", "Type", "UNIQUE", "NULL", "Beschreibung"],
                 tablefmt="html",
             )
             + "\n"

@@ -16,6 +16,8 @@ def patch():
             attrs["help_text"] = force_str(field.help_text)
             attrs["internal_type"] = force_str(field.get_internal_type())
             attrs["db_type"] = field.db_type(connection)
+            attrs["null"] = field.null
+            attrs["unique"] = field.unique
             return attrs
 
     modelviz.ModelGraph = CustomModelGraph
