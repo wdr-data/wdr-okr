@@ -11,6 +11,7 @@ from django.db.utils import IntegrityError
 from django.db.models import Q
 from sentry_sdk import capture_exception, capture_message
 from spotipy.exceptions import SpotifyException
+from requests.exceptions import HTTPError
 
 from . import feed
 from . import spotify
@@ -543,9 +544,17 @@ def scrape_spotify_experimental_performance(
                 "from experimental API",
             )
 
-            performance_data = experimental_spotify_podcast_api.episode_performance(
-                podcast_episode.spotify_id
-            )
+            try:
+                performance_data = experimental_spotify_podcast_api.episode_performance(
+                    podcast_episode.spotify_id
+                )
+
+            except HTTPError as e:
+                if e.response.status_code == 404:
+                    print("(404) No data found for", podcast_episode)
+                    continue
+
+                raise
 
             average_listen = dt.timedelta(
                 seconds=performance_data["medianCompletion"]["seconds"],
@@ -616,10 +625,18 @@ def scrape_spotify_experimental_demographics(
                     "from experimental API",
                 )
 
-                aggregate_data = experimental_spotify_podcast_api.episode_aggregate(
-                    podcast_episode.spotify_id,
-                    start=date,
-                )
+                try:
+                    aggregate_data = experimental_spotify_podcast_api.episode_aggregate(
+                        podcast_episode.spotify_id,
+                        start=date,
+                    )
+
+                except HTTPError as e:
+                    if e.response.status_code == 404:
+                        print("(404) No data found for", podcast_episode)
+                        continue
+
+                    raise
 
                 for age_range, age_range_data in aggregate_data[
                     "ageFacetedCounts"
