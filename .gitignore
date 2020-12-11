@@ -77,4 +77,5 @@ venv.bak/
 google-credentials.json
 
 # Built docs
-/docs/index.html
+/docs/*.html
+/docs/_build
