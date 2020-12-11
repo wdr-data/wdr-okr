@@ -88,11 +88,11 @@ def _parse_row(element):
         return None
 
     # get cononical url and get_parameters
-    get_parameters = parsed.query
+    query = parsed.query
     url = parsed.copy_with(query=None, fragment=None).unsplit()
 
     # parse headline
     headline_raw = html.unescape(element[1].split("_")[-1])
     headline = re.sub(r"<.*?>", "", headline_raw)
 
-    return url, headline, get_parameters
+    return url, headline, query
