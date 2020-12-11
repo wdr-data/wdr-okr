@@ -7,6 +7,7 @@ verify_ssl = true
 format = "black . --exclude wheels"
 manage = "python manage.py"
 db_tables = "python docs/database_tables.py"
+docs = "make --directory=docs clean html"
 
 [dev-packages]
 
@@ -30,6 +31,8 @@ google-api-python-client = "*"
 docutils = "*"
 django-extensions = "*"
 tabulate = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
 
 [requires]
 python_version = "3.8"

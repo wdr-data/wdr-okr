@@ -14,7 +14,7 @@ class Product(models.Model):
 
     name = models.CharField(
         verbose_name="Name",
-        help_text="Name des Accounts",
+        help_text="Name des Objekts",
         max_length=200,
     )
 
