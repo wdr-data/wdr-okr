@@ -12,6 +12,8 @@ from rfc3986 import urlparse
 from ...models import Property
 from okr.models.pages import (
     Page,
+    PageDataWebtrekk,
+    PageWebtrekkMeta,
     Property,
     PageDataGSC,
     SophoraNode,
@@ -27,7 +29,7 @@ from okr.scrapers.common.utils import (
     local_yesterday,
     BERLIN,
 )
-from okr.scrapers.pages import gsc, sophora
+from okr.scrapers.pages import gsc, sophora, webtrekk
 
 
 def scrape_full_gsc(property: Property):
@@ -83,6 +85,43 @@ def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
     return sophora_id, node, sophora_page
 
 
+def _page_from_url(
+    url: str,
+    page_cache: Dict[str, Page],
+    *,
+    property: Optional[Property] = None,
+) -> Optional[Page]:
+    try:
+        sophora_id_str, node, sophora_page = _parse_sophora_url(url)
+    except AttributeError as error:
+        capture_exception(error)
+        return None
+
+    if url in page_cache:
+        return page_cache[url]
+    else:
+        sophora_id, created = SophoraID.objects.get_or_create(
+            sophora_id=sophora_id_str,
+            defaults=dict(
+                sophora_document=None,
+            ),
+        )
+        sophora_document = sophora_id.sophora_document
+
+        page, created = Page.objects.get_or_create(
+            url=url,
+            defaults=dict(
+                property=property,
+                sophora_document=sophora_document,
+                sophora_page=sophora_page,
+                sophora_id=sophora_id,
+                node=node,
+            ),
+        )
+        page_cache[url] = page
+        return page
+
+
 def scrape_gsc(
     *,
     start_date: Optional[dt.date] = None,
@@ -123,36 +162,10 @@ def scrape_gsc(
             for row in data:
                 url, device = row["keys"]
 
-                # Match Google data to Sophora ID, if possible
-                try:
-                    sophora_id_str, node, sophora_page = _parse_sophora_url(url)
-                except AttributeError as error:
-                    capture_exception(error)
+                page = _page_from_url(url, page_cache, property=property)
+
+                if page is None:
                     continue
-
-                if url in page_cache:
-                    page = page_cache[url]
-                else:
-                    sophora_id, created = SophoraID.objects.get_or_create(
-                        sophora_id=sophora_id_str,
-                        defaults=dict(
-                            sophora_document=None,
-                        ),
-                    )
-                    sophora_document = sophora_id.sophora_document
-
-                    # TODO: Update this when Webtrekk for pages is added
-                    page, created = Page.objects.get_or_create(
-                        url=url,
-                        defaults=dict(
-                            property=property,
-                            sophora_document=sophora_document,
-                            sophora_page=sophora_page,
-                            sophora_id=sophora_id,
-                            node=node,
-                        ),
-                    )
-                    page_cache[url] = page
 
                 PageDataGSC.objects.update_or_create(
                     page=page,
@@ -338,3 +351,77 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
             )
             if not should_continue:
                 break
+
+
+def scrape_webtrekk(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+):
+    """Load webtrekk report and transfer it into database"""
+    today = local_today()
+    yesterday = local_yesterday()
+
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=1),
+        earliest=today - dt.timedelta(days=30),
+        latest=yesterday,
+    )
+
+    end_date = date_param(
+        end_date,
+        default=yesterday,
+        earliest=start_date,
+        latest=today,
+    )
+
+    page_cache = {}
+
+    try:
+        property = Property.objects.get(url="https://www1.wdr.de/nachrichten/")
+    except Property.DoesNotExist:
+        property = None
+
+    for date in reversed(date_range(start_date, end_date)):
+        print(f"Start Webtrekk SEO scrape for {date}.")
+        data = webtrekk.cleaned_webtrekk_page_data(date)
+
+        for key, item in data.items():
+            url, headline, query = key
+
+            page = _page_from_url(url, page_cache, property=property)
+
+            if page is None:
+                continue
+
+            webtrekk_meta, created = PageWebtrekkMeta.objects.get_or_create(
+                page=page,
+                headline=headline,
+                query=query or "",
+            )
+
+            PageDataWebtrekk.objects.update_or_create(
+                date=date,
+                webtrekk_meta=webtrekk_meta,
+                defaults=dict(
+                    visits=item.get("visits", 0),
+                    entries=item.get("entries", 0),
+                    visits_campaign=item.get("visits_campaign", 0),
+                    bounces=item.get("bounces", 0),
+                    length_of_stay=dt.timedelta(seconds=item.get("length_of_stay", 0)),
+                    impressions=item.get("impressions", 0),
+                    exits=item.get("exits", 0),
+                    visits_search=item.get("visits_search", 0),
+                    entries_search=item.get("entries_search", 0),
+                    visits_campaign_search=item.get("visits_campaign_search", 0),
+                    bounces_search=item.get("bounces_search", 0),
+                    length_of_stay_search=dt.timedelta(
+                        seconds=item.get("length_of_stay_search", 0)
+                    ),
+                    impressions_search=item.get("impressions_search", 0),
+                    exits_search=item.get("exits_search", 0),
+                ),
+            )
+
+    print(f"Finished Webtrekk SEO scrape")
