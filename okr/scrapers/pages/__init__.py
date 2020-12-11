@@ -4,10 +4,10 @@ import re
 import datetime as dt
 from typing import Dict, Optional, Tuple
 from time import sleep
-from urllib.parse import urlparse
 
 from django.db.models import Q
 from sentry_sdk import capture_exception
+from rfc3986 import urlparse
 
 from ...models import Property
 from okr.models.pages import (
