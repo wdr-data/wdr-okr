@@ -360,7 +360,7 @@ class PageWebtrekkMeta(models.Model):
         unique_together = [
             "page",
             "headline",
-            "get_parameters",
+            "query",
         ]
 
     page = models.ForeignKey(
@@ -375,7 +375,7 @@ class PageWebtrekkMeta(models.Model):
         verbose_name="Titel",
         help_text="Schlagzeile des Nachrichtenartikels",
     )
-    get_parameters = models.TextField(
+    query = models.TextField(
         verbose_name="Get-Parameter",
         help_text="Extrahierte Get-Parameter der URL",
     )

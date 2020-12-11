@@ -90,7 +90,7 @@ class PageWebtrekkMetaAdmin(admin.ModelAdmin):
     list_display = [
         "page",
         "headline",
-        "get_parameters",
+        "query",
     ]
     list_display_links = ["headline"]
     list_filter = []

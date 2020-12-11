@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "get_parameters",
+                    "query",
                     models.TextField(
                         help_text="Extrahierte Get-Parameter der URL",
                         verbose_name="Get-Parameter",
@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Seiten-Webtrekk-Metas",
                 "db_table": "page_webtrekk_meta",
                 "ordering": ["-created"],
-                "unique_together": {("page", "headline", "get_parameters")},
+                "unique_together": {("page", "headline", "query")},
             },
         ),
         migrations.CreateModel(
