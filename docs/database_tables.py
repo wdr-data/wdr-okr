@@ -1,3 +1,7 @@
+"""Read database information from Django models and create a HTML table for the
+documentation.
+"""
+
 import collections
 import django
 import os
@@ -17,13 +21,17 @@ from django_extensions.management.modelviz import generate_graph_data
 from database_tables_config import APP_LABELS, HTML_TOP, HTML_BOTTOM, FILENAME
 
 
-def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
+def build_html(
+    app_labels: list = APP_LABELS,
+    html_top: str = HTML_TOP,
+    html_bottom: str = HTML_BOTTOM,
+) -> str:
     """Create an HTML page with a series of html tables for each table in the database.
 
     Args:
-        app_labels (list): List of Django apps to include in HTML page.
-        html_top (str): HTML code to insert above generated table.
-        html_bottom (str): HTML code to insert below generated table.
+        app_labels (list): List of Django apps to include in HTML page. Defaults to APP_LABELS.
+        html_top (str): HTML code to insert above generated table. Defaults to HTML_TOP.
+        html_bottom (str): HTML code to insert below generated table. Defaults to HTML_BOTTOM.
 
     Returns:
         str: HTML page.
@@ -74,7 +82,7 @@ def build_html(app_labels: list, html_top: str, html_bottom: str) -> str:
                     foreign_key_text = ""
                     for relation in db_table["relations"]:
                         if relation["type"] == "ForeignKey":
-                            foreign_key_text += f'<li>Zu <a href="#{relation["target"]}">{relation["target_table_name"]}</a> via <code>{relation["column_name"]}</code></li>'
+                            foreign_key_text += f'<li><code>{relation["column_name"]}</code> aus der Tabelle <a href="#{relation["target"]}">{relation["target_table_name"]}</a></li>'
                     if foreign_key_text:
                         info_text += "<p>Diese Tabelle nutzt folgende Foreign Keys:</p>"
                         info_text += "<ul>"

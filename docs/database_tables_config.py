@@ -14,7 +14,47 @@ HTML_TOP = """
 
 <title>Datenbank-Tabellen WDR OKR</title>
 
-<link rel="stylesheet" href="css/styles.css">
+<style>
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h3 {
+  background-color: #00345e;
+  color: white;
+  padding: 10px;
+  margin-top: 80px;
+}
+
+.docstring {
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+td {
+  border: 1px solid black;
+  padding: 5px;
+  width: 20%;
+}
+
+th {
+  border: 1px solid black;
+  background-color: grey;
+  padding: 6px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+tr:hover {
+  background-color: rgb(216, 216, 216);
+}
+
+</style>
 
 </head>
 
@@ -32,4 +72,4 @@ HTML_BOTTOM = """
 """
 
 # set name for completed html file
-FILENAME = "index.html"
+FILENAME = "database.html"

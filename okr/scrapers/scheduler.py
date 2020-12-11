@@ -107,7 +107,7 @@ def start():
     scheduler.add_job(
         podcasts.scrape_spotify_api,
         trigger="cron",
-        hour="6",
+        hour="9",
         minute="0",
     )
     scheduler.add_job(
@@ -125,7 +125,7 @@ def start():
     scheduler.add_job(
         podcasts.scrape_spotify_experimental_demographics,
         trigger="cron",
-        hour="9",
+        hour="8",
         minute="0",
     )
     scheduler.add_job(
@@ -140,7 +140,7 @@ def start():
         pages.scrape_sophora_nodes,
         trigger="cron",
         hour="*",
-        minute="45",
+        minute="10,30,50",
     )
     scheduler.add_job(
         pages.scrape_gsc,
