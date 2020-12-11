@@ -148,6 +148,12 @@ def start():
         hour="17",
         minute="0",
     )
+    scheduler.add_job(
+        pages.scrape_webtrekk,
+        trigger="cron",
+        hour="14",
+        minute="0",
+    )
 
 
 @receiver(post_save, sender=Podcast)
