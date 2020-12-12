@@ -37,6 +37,15 @@ def get_documents_in_node(
     *,
     force_exact=False,
 ) -> Generator[Dict, None, None]:
+    """Request Sophora documents in a specific node.
+
+    Args:
+        node (SophoraNode): Sohopra node to request data for
+        force_exact (bool, optional): [description]. Defaults to False.
+
+    Yields:
+        Generator[Dict, None, None]: [description]
+    """
     node_str = node.node
     use_exact = force_exact or node.use_exact_search
 
