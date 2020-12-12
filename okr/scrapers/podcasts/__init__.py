@@ -121,6 +121,8 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
     the podcaster API contains information about de-published episodes. Data from both
     APIs is required to make mapping by episode name possible.
 
+    Results are saved to :class:`~okr.models.podcasts.PodcastEpisode`.
+
     Args:
         podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
           Defaults to None.
@@ -231,13 +233,17 @@ def scrape_spotify_api(
 ):
     """Read and process data from Spotify API.
 
-    This method supplies two kinds of Spotify-related data:
+    Supplies two kinds of Spotify-related data:
 
     a) Data about the podcast itself, such as the current number of the podcast's
-    followers
+    followers.
 
     b) Client side usage data for each podcast episode. This includes starts, streams
     (minimum listening duration of 1 minute), or listeners (number of accounts).
+
+    Results are saved in :class:`~okr.models.podcasts.PodcastDataSpotify`,
+    :class:`~okr.models.podcasts.PodcastDataSpotifyHourly`, and
+    :class:`~okr.models.podcasts.PodcastEpisodeDataSpotify`.
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
@@ -421,6 +427,9 @@ def scrape_spotify_mediatrend(
     This method supplies demographical data and other items that are only available
     through Mediatrend (and not through the Spotify API).
 
+    Results are saved in
+    :class:`~okr.models.podcasts.PodcastEpisodeDataSpotifyUser`.
+
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
           None. If not set, "20 days ago" is used.
@@ -522,6 +531,15 @@ def scrape_spotify_experimental_performance(
     *,
     podcast_filter: Optional[Q] = None,
 ):
+    """Request performance data for podcast episodes.
+
+    Results are saved in
+    :class:`~okr.models.podcasts.PodcastEpisodeDataSpotifyPerformance`.
+
+    Args:
+        podcast_filter (Optional[Q], optional): Filter to define a subset of data.
+            Defaults to None.
+    """
     today = local_today()
 
     podcasts = Podcast.objects.exclude(spotify_id=None)
@@ -579,6 +597,19 @@ def scrape_spotify_experimental_demographics(
     end_date: Optional[dt.date] = None,
     podcast_filter: Optional[Q] = None,
 ):
+    """Request demographic data for podcast episodes.
+
+    Results are saved in
+    :class:`~okr.models.podcasts.PodcastEpisodeDataSpotifyDemographics`.
+
+    Args:
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
+        end_date (Optional[dt.date], optional): Most recent date to request data for.
+            Defaults to None.
+        podcast_filter (Optional[Q], optional): Filter to define a subset of data.
+            Defaults to None.
+    """
     today = local_today()
     yesterday = local_yesterday()
     default_start = today - dt.timedelta(days=2)
@@ -664,8 +695,10 @@ def scrape_podstat(
 ):
     """Read and process data from Podstat.
 
-    This method supplies data per episode of self hosted podcasts. Specifically, the
-    number of download and on-demand client requests per media file for each episode.
+    Supplies data per episode of self hosted podcasts. Specifically, the number of
+    download and on-demand client requests per media file for each episode.
+
+    Results are saved in :class:`~okr.models.podcasts.PodcastEpisodeDataPodstat`.
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to
@@ -820,8 +853,10 @@ def scrape_episode_data_webtrekk_performance(
 ):
     """Read and process data from Webtrekk.
 
-    This method supplies episode data from the Webtrekk database based on each episode's
-    ZMDB ID.
+    Supplies episode data from the Webtrekk database based on each episode's ZMDB ID.
+
+    Results are saved in
+    :class:`~okr.models.podcasts.PodcastEpisodeDataWebtrekkPerformance`.
 
     Args:
         start_date (dt.date, optional): Earliest date to request data for. Defaults to

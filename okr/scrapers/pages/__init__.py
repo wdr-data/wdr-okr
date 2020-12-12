@@ -1,4 +1,4 @@
-""" Init module"""
+"""Base module for page data scrapers."""
 
 import re
 import datetime as dt
@@ -127,8 +127,8 @@ def scrape_gsc(
     start_date: Optional[dt.date] = None,
     property_filter: Optional[Q] = None,
 ):
-    """Scrape from Google Search Console API and update Page and PageDataGSC in the
-    database.
+    """Scrape from Google Search Console API and update :class:`~okr.models.pages.Page`
+    and :class:`~okr.models.pages.PageDataGSC` of the database models.
 
     Args:
         start_date (Optional[dt.date], optional): Earliest date to request data for.
@@ -297,7 +297,8 @@ def _handle_sophora_document(
 
 
 def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
-    """Scrape data from Sophora API to discover new SophoraDocuments.
+    """Scrape data from Sophora API to discover new documents to store as
+    :class:`~okr.models.pages.SophoraDocument`.
 
     Args:
         sophora_node_filter (Optional[Q], optional): Filter to select a subset of
@@ -358,7 +359,10 @@ def scrape_webtrekk(
     start_date: Optional[dt.date] = None,
     end_date: Optional[dt.date] = None,
 ):
-    """Load webtrekk report and transfer it into database"""
+    """Load webtrekk report and transfer it into database
+    (:class:`~okr.models.pages.PageWebtrekkMeta` and
+    :class:`~okr.models.pages.PageDataWebtrekk`).
+    """
     today = local_today()
     yesterday = local_yesterday()
 

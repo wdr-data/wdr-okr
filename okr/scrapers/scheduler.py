@@ -18,12 +18,32 @@ scheduler = None
 
 
 def sentry_listener(event):
+    """Forward exception of event to Sentry."""
     if event.exception:
         capture_exception(event.exception)
 
 
 def start():
-    """Add and define scheduler for each scraper module."""
+    """Add and define scheduler for each scraper module.
+
+    Controls schedules for:
+
+    * :meth:`~okr.scrapers.insta.scrape_insights`
+    * :meth:`~okr.scrapers.insta.scrape_stories`
+    * :meth:`~okr.scrapers.insta.scrape_posts`
+    * :meth:`~okr.scrapers.youtube.scrape_analytics`
+    * :meth:`~okr.scrapers.podcasts.scrape_feed`
+    * :meth:`~okr.scrapers.podcasts.scrape_spotify_mediatrend`
+    * :meth:`~okr.scrapers.podcasts.scrape_spotify_api`
+    * :meth:`~okr.scrapers.podcasts.scrape_podstat`
+    * :meth:`~okr.scrapers.podcasts.scrape_episode_data_webtrekk_performance`
+    * :meth:`~okr.scrapers.podcasts.scrape_spotify_experimental_performance`
+    * :meth:`~okr.scrapers.pages.scrape_sophora_nodes`
+    * :meth:`~okr.scrapers.pages.scrape_gsc`
+    * :meth:`~okr.scrapers.pages.scrape_webtrekk`
+
+
+    """
     global scheduler
     scheduler = BackgroundScheduler(timezone=BERLIN)
     scheduler.start()
@@ -158,7 +178,8 @@ def start():
 
 @receiver(post_save, sender=Podcast)
 def podcast_created(instance: Podcast, created: bool, **kwargs):
-    """Start scraper run for newly added podcast.
+    """Start scraper run for newly added podcast
+    (:meth:`okr.scrapers.podcasts.scrape_full`).
 
     Args:
         instance (Podcast): A Podcast instance
@@ -171,7 +192,8 @@ def podcast_created(instance: Podcast, created: bool, **kwargs):
 
 @receiver(post_save, sender=Insta)
 def insta_created(instance: Insta, created: bool, **kwargs):
-    """Start scraper run for newly added Instagram account.
+    """Start scraper run for newly added Instagram account
+    (:meth:`okr.scrapers.insta.scrape_full`).
 
     Args:
         instance (Insta): An Insta instance
@@ -184,7 +206,8 @@ def insta_created(instance: Insta, created: bool, **kwargs):
 
 @receiver(post_save, sender=YouTube)
 def youtube_created(instance: YouTube, created: bool, **kwargs):
-    """Start scraper run for newly added Youtube channel.
+    """Start scraper run for newly added Youtube channel
+    (:meth:`okr.scrapers.youtube.scrape_full`).
 
     Args:
         instance (YouTube): A YouTube instance
@@ -197,7 +220,8 @@ def youtube_created(instance: YouTube, created: bool, **kwargs):
 
 @receiver(post_save, sender=Property)
 def property_created(instance: Property, created: bool, **kwargs):
-    """Start scraper run for newly added property.
+    """Start scraper run for newly added GSC property
+    (:meth:`okr.scrapers.pages.scrape_full_gsc`).
 
     Args:
         instance (Property): A Property instance
@@ -210,7 +234,8 @@ def property_created(instance: Property, created: bool, **kwargs):
 
 @receiver(post_save, sender=SophoraNode)
 def sophora_node_created(instance: SophoraNode, created: bool, **kwargs):
-    """Start scraper run for newly added Sophora node.
+    """Start scraper run for newly added Sophora node
+    (:meth:`okr.scrapers.pages.scrape_full_sophora`).
 
     Args:
         instance (SophoraNode): A SophoraNode instance

@@ -1,4 +1,4 @@
-"""Init module."""
+"""Read and process data for Instagram from Quintly."""
 
 from datetime import date, datetime
 from time import sleep
@@ -13,7 +13,12 @@ from ..common import quintly
 from ..common.utils import BERLIN
 
 
-def scrape_full(insta):
+def scrape_full(insta: Insta):
+    """Initiate scraping for daily, weekly, and monthly Instagram data from Quintly.
+
+    Args:
+        insta (Insta): Instagram object to collect data for.
+    """
     insta_filter = Q(id=insta.id)
     start_date = date(2019, 1, 1)
 
@@ -33,6 +38,17 @@ def scrape_insights(
     start_date: Optional[date] = None,
     insta_filter: Optional[Q] = None,
 ):
+    """Retrieve Instagram insights data from Quintly.
+
+    Results are saved in :class:`~okr.models.insta.InstaInsight`.
+
+    Args:
+        interval (str): Interval to request data for.
+        start_date (Optional[date], optional): Earliest date to request data for.
+        Defaults to None.
+        insta_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.insta.Insta` object. Defaults to None.
+    """
     instas = Insta.objects.all()
 
     if insta_filter:
@@ -79,6 +95,16 @@ def scrape_insights(
 def scrape_stories(
     *, start_date: Optional[date] = None, insta_filter: Optional[Q] = None
 ):
+    """Retrieve data for Instagram stories from Quintly.
+
+    Results are saved in :class:`~okr.models.insta.InstaStory`.
+
+    Args:
+        start_date (Optional[date], optional): Earliest date to request data for.
+        Defaults to None.
+        insta_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.insta.Insta` object. Defaults to None.
+    """
     instas = Insta.objects.all()
 
     if insta_filter:
@@ -115,6 +141,16 @@ def scrape_stories(
 def scrape_posts(
     *, start_date: Optional[date] = None, insta_filter: Optional[Q] = None
 ):
+    """Retrieve data for Instagram posts from Quintly.
+
+    Results are saved in :class:`~okr.models.insta.InstaPost`.
+
+    Args:
+        start_date (Optional[date], optional): Earliest date to request data for.
+        Defaults to None.
+        insta_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.insta.Insta` object. Defaults to None.
+    """
     instas = Insta.objects.all()
 
     if insta_filter:

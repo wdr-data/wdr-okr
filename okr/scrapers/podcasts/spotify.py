@@ -1,4 +1,4 @@
-"""Wrapper for Podstat Spotify API"""
+"""Wrapper for Podstat Spotify API."""
 
 import os
 import functools
@@ -28,10 +28,10 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
     Base = automap_base()
 
     class classes:
-        """Classes for connection to Podstat Spotify API"""
+        """Classes for connection to Podstat Spotify API."""
 
         class Episode(Base):
-            """Class for basic episode data"""
+            """Class for basic episode data."""
 
             __tablename__ = "episodes"
 
@@ -46,7 +46,7 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
             )
 
         class Podcast(Base):
-            """Class for basic podcast data"""
+            """Class for basic podcast data."""
 
             __tablename__ = "podcasts"
 
@@ -75,7 +75,7 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
 
 
 def get_podcast(connection_meta: ConnectionMeta, name: str) -> DeclarativeMeta:
-    """Retrieve podcast data from API.
+    """Retrieve podcast data from Podstat Spotify API.
 
     Args:
         connection_meta (ConnectionMeta): Connection to API.

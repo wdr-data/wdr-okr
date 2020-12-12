@@ -1,3 +1,5 @@
+"""Forms for managing Instagram data."""
+
 from django import forms
 from django.contrib import admin
 from ..models import (
@@ -12,6 +14,8 @@ from .base import QuintlyAdmin
 
 
 class CollaborationModelForm(forms.ModelForm):
+    """Form for editing collaboration models."""
+
     class Meta:
         model = InstaCollaboration
         exclude = ()
@@ -27,6 +31,8 @@ class CollaborationModelForm(forms.ModelForm):
 
 
 class CollaborationAdmin(admin.ModelAdmin):
+    """List for choosing from available collaboration models."""
+
     form = CollaborationModelForm
     list_display = ["date", "influencer", "collaboration_type", "followers"]
     list_display_links = ["influencer"]
@@ -35,6 +41,8 @@ class CollaborationAdmin(admin.ModelAdmin):
 
 
 class InsightAdmin(admin.ModelAdmin):
+    """List for choosing existing insight data to edit."""
+
     list_display = [
         "date",
         "insta",
@@ -50,6 +58,8 @@ class InsightAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
+    """List for choosing existing post data to edit."""
+
     list_display = [
         "external_id",
         "insta",
@@ -65,6 +75,8 @@ class PostAdmin(admin.ModelAdmin):
 
 
 class StoryAdmin(admin.ModelAdmin):
+    """List for choosing existing story data to edit."""
+
     list_display = [
         "external_id",
         "insta",
@@ -80,6 +92,8 @@ class StoryAdmin(admin.ModelAdmin):
 
 
 class CollaborationTypeAdmin(admin.ModelAdmin):
+    """List for choosing existing collaboration types to edit."""
+
     list_display = [
         "name",
     ]

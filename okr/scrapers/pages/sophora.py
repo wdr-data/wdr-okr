@@ -1,5 +1,5 @@
-"""Collect page data from the Sophora API
-"""
+"""Collect page data from the Sophora API."""
+
 import os
 from typing import Dict, Generator, Optional
 

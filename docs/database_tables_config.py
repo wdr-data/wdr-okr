@@ -1,4 +1,4 @@
-""" Set constants for manual run """
+"""Set constants for manual run."""
 
 # which apps to include
 # APP_LABELS = ["okr", "admin"]

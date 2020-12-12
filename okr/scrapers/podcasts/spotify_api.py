@@ -1,4 +1,4 @@
-"""Wrapper for Spotify APIs (using the spotipy library)"""
+"""Wrapper for Spotify APIs (using the spotipy library)."""
 
 import os
 from typing import Dict, List, Iterator, Literal, TypeVar, Union
@@ -23,7 +23,7 @@ AggregationType = Literal["starts", "streams", "listeners"]
 
 
 class SpotipyFilter(logging.Filter):
-    """Filter to check reply message for errors"""
+    """Filter to check reply message for errors."""
 
     def filter(self, record) -> bool:
         """Check reply message for errors (True/False).
@@ -282,6 +282,18 @@ def fetch_all(
     result_key: str,
     chunk_size: int = 50,
 ) -> List[Dict]:
+    """Split up larger API requests into chunks.
+
+    Args:
+        fn (Callable): Function to use for data request.
+        ids (List[str]): IDs to split up into chunks and request data for.
+        result_key (str): Result key results dict.
+        chunk_size (int, optional): Size of chunks to divide the request into. Defaults
+            to 50.
+
+    Returns:
+        List[Dict]: List of dicts containing API response.
+    """
     agg = []
     for chunk in _divide_chunks(ids, chunk_size):
         result = fn(chunk)
