@@ -30,3 +30,6 @@ von digitalen Angeboten: ``insta``, ``pages``, ``podcasts`` und ``youtube``.
 Jeds Modul entählt eine ``__init.py__`` Datei. Diese Datei enthält jeweils die
 grundlegenden Funktionen zum Speichern und Aufbereiten der Daten. Das Abrufen der
 Rohdaten geschieht in den jeweiligen Submodulen.
+
+Details zu den einzelnen Scraping-Modulen befinden sich in der :ref:`modules` im
+Abschnitt :class:`okr.scrapers`.
