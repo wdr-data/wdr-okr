@@ -45,6 +45,7 @@ Diese Dokumentation bezieht sich auf den Intelligence Layer:
    scraper
    database
    backend
+   modules/modules
 
 .. Indices and tables
 .. ==================
