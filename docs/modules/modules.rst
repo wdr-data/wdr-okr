@@ -20,5 +20,3 @@ okr module subpackages
    okr.admin
    okr.models
    okr.scrapers
-   okr.views
-
