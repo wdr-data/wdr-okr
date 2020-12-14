@@ -1,7 +1,7 @@
 """Provides helper functions for dates."""
 
 import datetime as dt
-from typing import List
+from typing import List, Optional
 
 import pytz
 
@@ -53,12 +53,24 @@ def date_range(start: dt.date, end: dt.date) -> List[dt.date]:
 
 
 def date_param(
-    date: dt.date,
+    date: Optional[dt.date],
     *,
-    default: dt.date = None,
-    earliest: dt.date = None,
-    latest: dt.date = None,
-) -> dt.date:
+    default: Optional[dt.date] = None,
+    earliest: Optional[dt.date] = None,
+    latest: Optional[dt.date] = None,
+) -> Optional[dt.date]:
+    """For when you have an optional date parameter in your function but you want to limit the
+    range of dates allowed. Also allows you to set a default.
+
+    Args:
+        date (Optional[dt.date]): The date you want to filter.
+        default (Optional[dt.date]): Provide a default in case the date is None.
+        earliest (Optional[dt.date]): The earliest date you want to allow.
+        latest (Optional[dt.date]): The latest date you want to allow.
+
+    Returns:
+        Optional[dt.date]: The resulting date, or None if both ``date`` and ``default`` are ``None``.
+    """
     if date is None:
         return default
 
