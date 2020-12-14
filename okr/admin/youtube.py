@@ -250,23 +250,51 @@ class ViewerAgeRangeBaseAdmin(UploadFileMixin, admin.ModelAdmin):
         for index, row in df.iterrows():
             if index == "Average view duration":
                 defaults = {
-                    "age_13_17": parse_duration(row["AGE_13_17"]),
-                    "age_18_24": parse_duration(row["AGE_18_24"]),
-                    "age_25_34": parse_duration(row["AGE_25_34"]),
-                    "age_35_44": parse_duration(row["AGE_35_44"]),
-                    "age_45_54": parse_duration(row["AGE_45_54"]),
-                    "age_55_64": parse_duration(row["AGE_55_64"]),
-                    "age_65_plus": parse_duration(row["AGE_65_"]),
+                    "age_13_17": parse_duration(
+                        row.get("AGE_13_17", default=row["13–17 years"])
+                    ),
+                    "age_18_24": parse_duration(
+                        row.get("AGE_18_24", default=row["18–24 years"])
+                    ),
+                    "age_25_34": parse_duration(
+                        row.get("AGE_25_34", default=row["25–34 years"])
+                    ),
+                    "age_35_44": parse_duration(
+                        row.get("AGE_35_44", default=row["35–44 years"])
+                    ),
+                    "age_45_54": parse_duration(
+                        row.get("AGE_45_54", default=row["45–54 years"])
+                    ),
+                    "age_55_64": parse_duration(
+                        row.get("AGE_55_64", default=row["55–64 years"])
+                    ),
+                    "age_65_plus": parse_duration(
+                        row.get("AGE_65_", default=row["65+ years"])
+                    ),
                 }
             else:
                 defaults = {
-                    "age_13_17": Decimal(row["AGE_13_17"]),
-                    "age_18_24": Decimal(row["AGE_18_24"]),
-                    "age_25_34": Decimal(row["AGE_25_34"]),
-                    "age_35_44": Decimal(row["AGE_35_44"]),
-                    "age_45_54": Decimal(row["AGE_45_54"]),
-                    "age_55_64": Decimal(row["AGE_55_64"]),
-                    "age_65_plus": Decimal(row["AGE_65_"]),
+                    "age_13_17": Decimal(
+                        row.get("AGE_13_17", default=row["13–17 years"])
+                    ),
+                    "age_18_24": Decimal(
+                        row.get("AGE_18_24", default=row["18–24 years"])
+                    ),
+                    "age_25_34": Decimal(
+                        row.get("AGE_25_34", default=row["25–34 years"])
+                    ),
+                    "age_35_44": Decimal(
+                        row.get("AGE_35_44", default=row["35–44 years"])
+                    ),
+                    "age_45_54": Decimal(
+                        row.get("AGE_45_54", default=row["45–54 years"])
+                    ),
+                    "age_55_64": Decimal(
+                        row.get("AGE_55_64", default=row["55–64 years"])
+                    ),
+                    "age_65_plus": Decimal(
+                        row.get("AGE_65_", default=row["65+ years"])
+                    ),
                 }
 
             obj, created = model_for_type[index].objects.update_or_create(
