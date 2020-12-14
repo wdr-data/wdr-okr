@@ -1,10 +1,10 @@
 #!/usr/bin/bash
 
 echo "Creating db tables HTML"
-pipenv run db_tables
+python docs/database_tables.py
 
 echo "Building docs"
-pipenv run docs
+make --directory=docs clean html
 
 echo "Copying docs into static files dir"
-pipenv run docs_static
+cp -R docs/_build/html static/docs
