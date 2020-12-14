@@ -1,3 +1,5 @@
+"""Module for Django backend."""
+
 from django.contrib import admin
 from . import insta
 from . import youtube

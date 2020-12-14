@@ -22,9 +22,6 @@ class Webtrekk:
 
     Requires the following environment variables: WEBTREKK_LOGIN, WEBTREKK_PASSWORD,
     WEBTREKK_ACCOUNT_LIVE_ID.
-
-    Provides the following methods: get_report_data(), get_analysis_data(),
-    get_dimensions_metrics(), get_report_list().
     """
 
     def __init__(self):
@@ -50,12 +47,15 @@ class Webtrekk:
         print(f"{WEBTREKK_LOGIN} has been successfully connected to to {self.name}.")
 
     def logout(self):
-        """Logout from JSON/RPC API"""
+        """Logout from JSON/RPC API."""
         self._get_response("logout", {"token": self.token})
         print(f"{WEBTREKK_LOGIN} has been logged out successfully from {self.name}.")
 
     @contextmanager
     def session(self):
+        """Initiate session with :meth:`~okr.scrapers.common.webtrekk.Webtrekk.login`
+        and use :meth:`~okr.scrapers.common.webtrekk.Webtrekk.logout` in case of errors.
+        """
         self.login()
         try:
             yield
@@ -77,6 +77,8 @@ class Webtrekk:
 
         Returns:
             Any: Reply from API. Can be int, str, and dict, for example.
+
+        :meta public:
         """
         url = "https://report2.webtrekk.de/cgi-bin/wt/JSONRPC.cgi"
 

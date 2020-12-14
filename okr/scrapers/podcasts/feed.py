@@ -1,5 +1,4 @@
-"""Parse feed using feedparser
-"""
+"""Parse podcast feed using the feedparser library."""
 
 import feedparser
 

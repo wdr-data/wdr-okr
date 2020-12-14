@@ -1,3 +1,5 @@
+"""Forms for managing YouTube data."""
+
 from collections import defaultdict
 from datetime import date, timedelta
 from decimal import Decimal
@@ -22,6 +24,8 @@ from .uploads import UploadFileMixin, UploadFileForm
 
 
 class UploadFileFormYouTube(UploadFileForm):
+    """Upload form for YouTube data."""
+
     def get_initial_for_field(self, field, field_name):
         if field_name == "youtube":
             youtubes = YouTube.objects.all()[:1]
@@ -33,6 +37,12 @@ class UploadFileFormYouTube(UploadFileForm):
 
 
 class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
+    """Upload form for Traffic Source data.
+
+    Results are saved in
+    :class:`~okr.models.youtube.YouTubeTrafficSource`.
+    """
+
     upload_form_class = UploadFileFormYouTube
 
     list_display = ["date", "youtube"]
@@ -109,12 +119,22 @@ class TrafficSourceAdmin(UploadFileMixin, admin.ModelAdmin):
         self.message_user(request, "Datei wurde erfolgreich eingelesen!")
 
 
-def parse_duration(duration):
+def parse_duration(duration: str) -> timedelta:
+    """Convert duration data from uploaded data files into a timedelta object.
+
+    Args:
+        duration (str): Duration data from uploaded file
+
+    Returns:
+        timedelta: Converted timedelta
+    """
     hours, minutes, seconds = re.match(r"(\d+):(\d+):(\d+)", duration).groups()
     return timedelta(hours=int(hours), minutes=int(minutes), seconds=int(seconds))
 
 
 class ViewerAgeRangeBaseAdmin(UploadFileMixin, admin.ModelAdmin):
+    """Upload form for age range data."""
+
     upload_form_class = UploadFileFormYouTube
 
     list_display = [
@@ -230,6 +250,8 @@ class ViewerAgeRangeBaseAdmin(UploadFileMixin, admin.ModelAdmin):
 
 
 class AnalyticsAdmin(admin.ModelAdmin):
+    """List for choosing existing YouTube data to edit."""
+
     list_display = [
         "date",
         "youtube",

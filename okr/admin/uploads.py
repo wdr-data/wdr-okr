@@ -1,3 +1,5 @@
+"""Basic form for file uploads."""
+
 from zipfile import ZipFile
 import logging
 
@@ -19,8 +21,8 @@ class UploadFileForm(forms.Form):
 class UploadFileMixin:
     """
     Mixin for ModelAdmins to allow file uploads from the change list.
-    Requires the 'process_uploaded_file(self, request, file)' method to be implemented
-    and the attribute 'upload_form_class' must be set on the class.
+    Requires the ``process_uploaded_file(self, request, file)`` method to be implemented
+    and the attribute ``upload_form_class`` must be set on the class.
     """
 
     change_list_template = "admin/okr/change_list_upload.html"
@@ -31,7 +33,7 @@ class UploadFileMixin:
             path("upload-file/", self._upload_file),
         ] + super().get_urls()
 
-    def open_zip(self, zip_file):
+    def open_zip(self, zip_file) -> dict:
         data_zip = ZipFile(zip_file)
         return {name: data_zip.open(name) for name in data_zip.namelist()}
 

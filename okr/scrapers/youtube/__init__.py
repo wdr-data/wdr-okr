@@ -1,3 +1,5 @@
+"""Read and process YouTube data."""
+
 from datetime import date
 from okr.models.podcasts import Podcast
 from time import sleep
@@ -12,7 +14,7 @@ from ..common import quintly
 
 
 def scrape_full(youtube: YouTube):
-    """Initiate scraping for daily, weekly, and monthly data.
+    """Initiate scraping for daily, weekly, and monthly YouTube data from Quintly.
 
     Args:
         youtube (YouTube): YouTube object to scrape data for.
@@ -35,6 +37,9 @@ def scrape_analytics(
     youtube_filter: Optional[Q] = None,
 ):
     """Read YouTube analytics data from Quintly and store in database.
+
+    Results are saved in
+    :class:`~okr.models.youtube.YouTubeAnalytics`.
 
     Args:
         interval (str): Interval to request data for ("daily", "weekly", or "monthly").

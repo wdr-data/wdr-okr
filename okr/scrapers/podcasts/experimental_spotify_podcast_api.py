@@ -1,7 +1,6 @@
-"""
-This module provides a class to connect to an unofficial Spotify API
+"""This module provides a class to connect to an unofficial Spotify API
 that provides podcast analytics. It relies on using cookies generated
-manually by logging in with the appropriate user at podcasters.spotify.com
+manually by logging in with the appropriate user at podcasters.spotify.com.
 
 Cookies supposedly last 1 year.
 """
@@ -25,6 +24,8 @@ DELAY_BASE = 2.0
 
 
 class ExperimentalSpotifyPodcastAPI:
+    """Representation of the experimental Spotify podcast API."""
+
     def __init__(self):
         self._bearer: Optional[str] = None
         self._bearer_expires: Optional[dt.datetime] = None
@@ -104,7 +105,16 @@ class ExperimentalSpotifyPodcastAPI:
         raise Exception("All retries failed!")
 
     def podcast_followers(self, podcast_id: str, start: dt.date, end: dt.date) -> dict:
-        """Loads historic follower data for podcast."""
+        """Loads historic follower data for podcast.
+
+        Args:
+            podcast_id (str): ID of the podcast to request data for.
+            start (dt.date): Earliest date to request data for.
+            end (dt.date): Most recent date to request data for.
+
+        Returns:
+            dict: Response data from API.
+        """
         url = self._build_url(
             "shows",
             podcast_id,
@@ -114,7 +124,14 @@ class ExperimentalSpotifyPodcastAPI:
         return self._request(url)
 
     def episode_performance(self, episode_id: str) -> dict:
-        """Loads episode performance data."""
+        """Loads episode performance data.
+
+        Args:
+            episode_id (str): ID of the podcast to request data for.
+
+        Returns:
+            dict: Response data from API.
+        """
 
         url = self._build_url("episodes", episode_id, "performance")
         return self._request(url)
@@ -125,10 +142,16 @@ class ExperimentalSpotifyPodcastAPI:
         start: dt.date,
         end: Optional[dt.date] = None,
     ) -> dict:
-        """
-        Loads episode demographics data.
+        """Loads episode demographics data.
 
-        If end is None, end == start
+        Args:
+            episode_id (str): ID of the podcast to request data for.
+            start (dt.date): Earliest date to request data for.
+            end (Optional[dt.date], optional): Most recent date to request data for.
+            Defaults to None. Will be set to ``start`` if None.
+
+        Returns:
+            dict: [description]
         """
         if end is None:
             end = start
