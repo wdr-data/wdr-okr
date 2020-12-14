@@ -27,6 +27,9 @@
   "addons": ["heroku-postgresql:hobby-dev"],
   "buildpacks": [
     {
+      "url": "https://github.com/loadsmart/env-buildpack"
+    },
+    {
       "url": "heroku/python"
     },
     {
