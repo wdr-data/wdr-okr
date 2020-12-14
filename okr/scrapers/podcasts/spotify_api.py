@@ -289,5 +289,9 @@ def fetch_all(
     return agg
 
 
-auth_manager = SpotifyClientCredentials()
-spotify_api = CustomSpotify(auth_manager=auth_manager)
+try:
+    auth_manager = SpotifyClientCredentials()
+    spotify_api = CustomSpotify(auth_manager=auth_manager)
+except spotipy.oauth2.SpotifyOauthError:
+    print("Missing Spotipy credentials! Spotify-related scrapers will fail.")
+    spotify_api = None
