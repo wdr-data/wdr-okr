@@ -1,5 +1,5 @@
-"""Collect page data from the Sophora API
-"""
+"""Collect page data from the Sophora API."""
+
 import os
 from typing import Dict, Generator, Optional
 
@@ -37,6 +37,17 @@ def get_documents_in_node(
     *,
     force_exact=False,
 ) -> Generator[Dict, None, None]:
+    """Request all Sophora documents in a specific node.
+
+    Args:
+        node (SophoraNode): Sohopra node to request data for
+        force_exact (bool, optional): If true, forces ``EXACT`` matching type instead of
+            ``STARTS`` for the sophora node, even if ``node.use_exact_search`` is ``False``.
+            Defaults to False.
+
+    Yields:
+        Generator[Dict, None, None]: The parsed JSON of individual Sophora documents as retrieved from the API.
+    """
     node_str = node.node
     use_exact = force_exact or node.use_exact_search
 

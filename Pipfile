@@ -8,6 +8,7 @@ format = "black . --exclude wheels"
 manage = "python manage.py"
 db_tables = "python docs/database_tables.py"
 docs = "make --directory=docs clean html"
+docs_static = "cp -R docs/_build/html static/docs"
 
 [dev-packages]
 

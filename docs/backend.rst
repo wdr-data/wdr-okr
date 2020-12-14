@@ -14,3 +14,6 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
 
 Sobald das System wie im Kapitel :ref:`installation` beschrieben gestartet ist, ist ein
 Login über einen Webbrowser möglich (standardmäßig über ``http://127.0.0.1:8000/``).
+
+Details zu den einzelnen Formularen des Backends befinden sich in der
+:ref:`modules` im Abschnitten :class:`okr.admin`.

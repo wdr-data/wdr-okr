@@ -1,5 +1,4 @@
-""" Custom Sphinx extension to inject database documentation into a ReST document
-"""
+"""Custom Sphinx extension to inject database documentation into a ReST document."""
 
 from docutils import nodes
 from docutils.parsers.rst import Directive

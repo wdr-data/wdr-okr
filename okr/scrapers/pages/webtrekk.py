@@ -15,7 +15,7 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
 
     Args:
         date (Optional[dt.date], optional): Date to request data for. Defaults
-          to None.
+            to None.
 
     Returns:
         Dict: Reply from API.

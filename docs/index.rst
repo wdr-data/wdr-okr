@@ -35,6 +35,8 @@ Diese Dokumentation bezieht sich auf den Intelligence Layer:
 * Informationen zur Benutzung des **Django-basierten Backends** zum Anlegen und
   Editieren von Datenquellen befindet sich im Kapitel :ref:`backend`.
 
+Details zum okr-Modul sowie dessen Submodulen mit allen Klassen und Methoden befinden
+sich in der :ref:`modules`.
 
 .. toctree::
    :maxdepth: 2
@@ -45,6 +47,7 @@ Diese Dokumentation bezieht sich auf den Intelligence Layer:
    scraper
    database
    backend
+   modules/modules
 
 .. Indices and tables
 .. ==================

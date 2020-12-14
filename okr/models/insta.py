@@ -1,4 +1,4 @@
-""" Database models for instagram."""
+"""Database models for Instagram."""
 
 from django.db import models
 from .base import Quintly

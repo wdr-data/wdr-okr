@@ -22,8 +22,7 @@ def fetch_day(
         property (Property): Property to request data for.
         date (dt.date): Specific day to request information for.
         dimensions (Optional[List[Dimension]], optional): Dimensions to request from
-        API. Defaults to None. Will be set to ["page", "device"] if None.
-        ]
+            API. Defaults to None. Will be set to ``["page", "device"]`` if None.
 
     Returns:
         List[Dict[str, Any]]: Response from API.

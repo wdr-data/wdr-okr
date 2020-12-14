@@ -1,4 +1,6 @@
-"""Set up service account credentials and required services."""
+"""Set up Google service account credentials and required services.
+Requires a ``google-credentials.json`` file in the root directory.
+"""
 
 from datetime import date
 from apiclient.discovery import build

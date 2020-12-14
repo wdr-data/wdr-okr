@@ -24,15 +24,19 @@
       "value": ""
     }
   },
-  "addons": [
-    "heroku-postgresql:hobby-dev"
-  ],
+  "addons": ["heroku-postgresql:hobby-dev"],
   "buildpacks": [
+    {
+      "url": "https://github.com/loadsmart/env-buildpack"
+    },
     {
       "url": "heroku/python"
     },
     {
       "url": "https://github.com/heroku/heroku-buildpack-locale"
+    },
+    {
+      "url": "https://github.com/niteoweb/heroku-buildpack-shell"
     }
   ]
 }

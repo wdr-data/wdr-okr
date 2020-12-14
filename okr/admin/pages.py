@@ -1,3 +1,5 @@
+"""Forms for managing page data."""
+
 from django.contrib import admin
 
 from okr.models.pages import (
@@ -15,10 +17,14 @@ from .base import ProductAdmin
 
 
 class PropertyAdmin(ProductAdmin):
+    """List for choosing basic product."""
+
     list_display = ProductAdmin.list_display + ["url"]
 
 
 class PageAdmin(admin.ModelAdmin):
+    """List for choosing existing page to edit."""
+
     list_display = [
         "property",
         "url",
@@ -33,6 +39,8 @@ class PageAdmin(admin.ModelAdmin):
 
 
 class PageDataGCSAdmin(admin.ModelAdmin):
+    """List for choosing existing GSC data to edit."""
+
     list_display = [
         "page",
         "date",
@@ -48,6 +56,8 @@ class PageDataGCSAdmin(admin.ModelAdmin):
 
 
 class SophoraNodeAdmin(admin.ModelAdmin):
+    """List for choosing existing Sophora nodes to edit."""
+
     list_display = [
         "node",
         "use_exact_search",
@@ -56,6 +66,8 @@ class SophoraNodeAdmin(admin.ModelAdmin):
 
 
 class SophoraDocumentAdmin(admin.ModelAdmin):
+    """List for choosing existing Sophora documents to edit."""
+
     list_display = [
         "export_uuid",
         "sophora_node",
@@ -65,6 +77,8 @@ class SophoraDocumentAdmin(admin.ModelAdmin):
 
 
 class SophoraIDAdmin(admin.ModelAdmin):
+    """List for choosing existing Sophora IDs to edit."""
+
     list_display = [
         "sophora_id",
         "sophora_document",
@@ -74,6 +88,8 @@ class SophoraIDAdmin(admin.ModelAdmin):
 
 
 class SophoraDocumentMetaAdmin(admin.ModelAdmin):
+    """List for choosing existing Sophora document meta data to edit."""
+
     list_display = [
         "headline",
         "editorial_update",
@@ -87,6 +103,8 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
 
 
 class PageWebtrekkMetaAdmin(admin.ModelAdmin):
+    """List for choosing existing Webtrekk meta data to edit."""
+
     list_display = [
         "page",
         "headline",
@@ -98,6 +116,8 @@ class PageWebtrekkMetaAdmin(admin.ModelAdmin):
 
 
 class PageDataWebtrekkAdmin(admin.ModelAdmin):
+    """List for choosing existing Webtrekk data to edit."""
+
     list_display = [
         "webtrekk_meta",
         "date",

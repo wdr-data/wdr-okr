@@ -1,5 +1,4 @@
-"""Forms for adding and editing podcasts
-"""
+"""Forms for managing podcast data."""
 
 from datetime import date, timedelta
 from decimal import Decimal
@@ -68,7 +67,7 @@ class FeedForm(forms.ModelForm):
 
 
 class PodcastAdmin(ProductAdmin):
-    """List for choosing an existing podcast to edit"""
+    """List for choosing an existing podcast to edit."""
 
     list_display = ProductAdmin.list_display + ["author", "spotify_id"]
     list_filter = ["author"]
@@ -80,7 +79,7 @@ class PodcastAdmin(ProductAdmin):
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
-    """List for choosing existing Spotify podcast user data to edit"""
+    """List for choosing existing Spotify podcast user data to edit."""
 
     list_display = [
         "podcast",
@@ -97,7 +96,7 @@ class DataSpotifyAdmin(admin.ModelAdmin):
 
 
 class DataSpotifyHourlyAdmin(admin.ModelAdmin):
-    """List for choosing existing Spotify hourly podcast data to edit"""
+    """List for choosing existing Spotify hourly podcast data to edit."""
 
     list_display = [
         "podcast",
@@ -111,7 +110,7 @@ class DataSpotifyHourlyAdmin(admin.ModelAdmin):
 
 
 class EpisodeAdmin(admin.ModelAdmin):
-    """List for choosing existing podcast episode data to edit"""
+    """List for choosing existing podcast episode data to edit."""
 
     list_display = [
         "title",
@@ -128,7 +127,7 @@ class EpisodeAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
-    """List for choosing existing Spotify podcast episode data to edit"""
+    """List for choosing existing Spotify podcast episode data to edit."""
 
     list_display = [
         "episode",
@@ -144,7 +143,7 @@ class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
-    """List for choosing existing Spotify episode user data to edit"""
+    """List for choosing existing Spotify episode user data to edit."""
 
     list_display = [
         "episode",
@@ -168,7 +167,7 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
-    """List for choosing existing Spotify episode demographics data to edit"""
+    """List for choosing existing Spotify episode demographics data to edit."""
 
     list_display = [
         "episode",
@@ -183,7 +182,7 @@ class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
-    """List for choosing existing Spotify episode performance data to edit"""
+    """List for choosing existing Spotify episode performance data to edit."""
 
     list_display = [
         "episode",
@@ -200,7 +199,7 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
-    """List for choosing existing Webtrekk episode performance data to edit"""
+    """List for choosing existing Webtrekk episode performance data to edit."""
 
     list_display = [
         "episode",
@@ -215,7 +214,7 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
 
 
 class EpisodeDataPodstatAdmin(admin.ModelAdmin):
-    """List for choosing existing Podstat episode data to edit"""
+    """List for choosing existing Podstat episode data to edit."""
 
     list_display = [
         "episode",

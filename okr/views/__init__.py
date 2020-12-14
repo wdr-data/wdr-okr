@@ -1,2 +1,1 @@
-from . import insta
-from . import youtube
+"""Module for Django views."""
