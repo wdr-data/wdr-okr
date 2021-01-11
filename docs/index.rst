@@ -30,10 +30,12 @@ Diese Dokumentation bezieht sich auf den Intelligence Layer:
 * Informationen zu den **Scrapern für die einzelnen Datenquellen** (Instagram, Youtube,
   Spotify, Sophora, Webserver-Statistiken, etc.) befinden sich im Kapitel
   :ref:`scraper`.
-* Informationen zu **Struktur und Inhalt der Datenbank** befinden sich im Kapitel
-  :ref:`database`.
 * Informationen zur Benutzung des **Django-basierten Backends** zum Anlegen und
   Editieren von Datenquellen befindet sich im Kapitel :ref:`backend`.
+* Informationen zu **Struktur und Inhalt der Datenbank** befinden sich im Kapitel
+  :ref:`database`.
+* Informationen zu den **einzelnen Python-Modulen** befinden sich im Kapitel
+  :ref:`modules`.
 
 Details zum okr-Modul sowie dessen Submodulen mit allen Klassen und Methoden befinden
 sich in der :ref:`modules`.
@@ -45,8 +47,8 @@ sich in der :ref:`modules`.
 
    installation
    scraper
-   database
    backend
+   database
    modules/modules
 
 .. Indices and tables
