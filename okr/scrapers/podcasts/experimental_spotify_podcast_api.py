@@ -84,9 +84,9 @@ class ExperimentalSpotifyPodcastAPI:
                 headers={"Authorization": f"Bearer {self._bearer}"},
             )
 
-            if response.status_code == 429:
+            if response.status_code in (429, 502, 503):
                 delay *= 2
-                print("Got 429, next delay:", delay)
+                print(f'Got {response.status_code} for URL "{url}", next delay:', delay)
                 continue
 
             elif response.status_code == 401:
