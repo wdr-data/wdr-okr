@@ -14,22 +14,43 @@ Daten-Quellen
 
 Im Moment nutzt der Intelligence Layer die folgenden Daten-Quellen:
 
-* Instagram-Accounts (automatisiert über die Quintly-API)
-* Youtube-Accounts (manuell aus YouTube Analytics exportiert)
-* Webseiten (automatisiert über die APIs der Google Search Console und von Sophora)
-* Podcasts (automatisiert über öffentlich zugängliche RSS-Feeds sowie die APIs von
-  Spotify, Podstat, Mediatrend und Webtrekk)
+Für Daten zu Online-Artikeln:
+  * webtrekk API (`webtrekk Dokumentation`_)
+  * Google Search Console (`GSC Dokumentation`_)
+  * Sophora API ("App-API")
+
+Für Daten zu Instagram:
+  * Quintly API (`Quintly Dokumentation`_)
+  * Manueller Daten-Import für Instagram Collaborations
+
+Für Daten zu Podcasts:
+  * webtrekk API (`webtrekk Dokumentation`_)
+  * Podstat-Datenbank
+  * Spotify Podcast API (`Podcast-API Dokumentation`_)
+  * Spotify Web API (`Web-API Dokumentation`_)
+  * Spotify Analytics
+
+Für Daten zu Youtube:
+  * Quintly API (`Quintly Dokumentation`_)
+  * Manueller Daten-Import
 
 Struktur der Scraping Skripte
 -----------------------------
 
 Die Scripte für das Erfassen und Aufbereiten der Daten befinden sich im Verzeichnis
 ``okr/scrapers/``. Es existieren unterschiedliche Module für die unterschiedlichen Arten
-von digitalen Angeboten: ``insta``, ``pages``, ``podcasts`` und ``youtube``.
+von digitalen Angeboten: :class:`~okr.scrapers.insta`, :class:`~okr.scrapers.pages`,
+:class:`~okr.scrapers.podcasts` und :class:`~okr.scrapers.youtube`.
 
-Jeds Modul entählt eine ``__init.py__`` Datei. Diese Datei enthält jeweils die
+Jedes Modul enthält eine ``__init.py__`` Datei. Diese Datei enthält jeweils die
 grundlegenden Funktionen zum Speichern und Aufbereiten der Daten. Das Abrufen der
 Rohdaten geschieht in den jeweiligen Submodulen.
 
 Details zu den einzelnen Scraping-Modulen befinden sich in der :ref:`modules` im
 Abschnitt :class:`okr.scrapers`.
+
+.. _`GSC Dokumentation`: https://developers.google.com/webmaster-tools
+.. _`Podcast-API Dokumentation`: https://developer.spotify.com/community/news/2020/03/20/introducing-podcasts-api/
+.. _`Quintly Dokumentation`: https://api.quintly.com/
+.. _`Web-API Dokumentation`: https://developer.spotify.com/documentation/web-api/
+.. _`webtrekk Dokumentation`: https://docs.mapp.com/download/attachments/33784075/Webtrekk-JSON-RPC_API_Manual-EN.pdf?version=1&modificationDate=1589549566000&api=v2
