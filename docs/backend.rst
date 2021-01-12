@@ -11,7 +11,7 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
   Podcast-Reihe oder eines neuen Instagram-Kanals.
 
 * **Manuelles Einpflegen von zusätzlichen Daten**: Für manche
-  :ref:`Youtube-Daten <backend_youtube>` sowie für
+  :ref:`YouTube-Daten <backend_youtube>` sowie für
   Daten zu :ref:`Instagram Collaborations <backend_instagram>` müssen Daten noch manuell
   angelegt werden.
 

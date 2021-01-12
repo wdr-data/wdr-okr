@@ -18,9 +18,8 @@ Vorgehen
 
 1. Melde dich im Backend des OKR Intelligence Layer (Django) an.
 2. Wähle in der Liste *OKR - Objectives and Key Results* den Eintrag
-   *Instagram-Collaborations* aus (WICHTIG: Nutze den Link zur Liste, nicht die buttons
-   "Hinzugügen" oder "Ändern")
+   *Instagram-Collaborations* aus.
 3. Nutze den Button *Instagram-Collaboration hinzufügen* rechts oben, um die
-   Eingabemaske zu öffnen
-4. Trage die Daten in die Eingabemaske ein
-5. Klicke zum Abschluss auf *Sichern*
+   Eingabemaske zu öffnen.
+4. Trage die Daten in die Eingabemaske ein.
+5. Klicke zum Abschluss auf *Sichern*.

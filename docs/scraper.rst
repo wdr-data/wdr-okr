@@ -6,7 +6,7 @@ Scraper
 Die Scraper des Intelligence Layer machen externe Datenquellen für die weitere Analyse
 nutzbar. Für jede Datenquelle existiert ein individuell angepasstes Scraping-Modul.
 
-Der Intelligence Layer nutzt sowohl automatisiert abgerufene Daten von diversen APIS als
+Der Intelligence Layer nutzt sowohl automatisiert abgerufene Daten von diversen APIs als
 auch manuell hochgeladene Daten aus statischen Dateien.
 
 Daten-Quellen
@@ -21,18 +21,18 @@ Für Daten zu Online-Artikeln:
 
 Für Daten zu Instagram:
   * Quintly API (`Quintly Dokumentation`_)
-  * Manueller Daten-Import für Instagram Collaborations
+  * Manuelle Dateneingabe für Instagram Collaborations
 
 Für Daten zu Podcasts:
   * webtrekk API (`webtrekk Dokumentation`_)
   * Podstat-Datenbank
-  * Spotify Podcast API (`Podcast-API Dokumentation`_)
+  * Spotify for Podcasters Data API
   * Spotify Web API (`Web-API Dokumentation`_)
   * Spotify Analytics
 
 Für Daten zu Youtube:
   * Quintly API (`Quintly Dokumentation`_)
-  * Manueller Daten-Import
+  * Manueller Daten-Import aus YouTube Studio
 
 Scheduler für den Daten-Abruf
 -----------------------------
@@ -60,7 +60,6 @@ Details zu den einzelnen Scraping-Modulen befinden sich in der :ref:`modules` im
 Abschnitt :class:`okr.scrapers`.
 
 .. _`GSC Dokumentation`: https://developers.google.com/webmaster-tools
-.. _`Podcast-API Dokumentation`: https://developer.spotify.com/community/news/2020/03/20/introducing-podcasts-api/
 .. _`Quintly Dokumentation`: https://api.quintly.com/
 .. _`Web-API Dokumentation`: https://developer.spotify.com/documentation/web-api/
 .. _`webtrekk Dokumentation`: https://docs.mapp.com/download/attachments/33784075/Webtrekk-JSON-RPC_API_Manual-EN.pdf?version=1&modificationDate=1589549566000&api=v2

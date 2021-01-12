@@ -1,17 +1,17 @@
 .. _backend_youtube:
 
-Youtube-Daten anlegen
+YouTube-Daten anlegen
 =====================
 
-Weil momentan noch nicht alle Daten von Youtube zum automatisierten Abruf zur Verfügung
+Weil momentan noch nicht alle Daten von YouTube zum automatisierten Abruf zur Verfügung
 stehen, lassen sich diese Daten über eine Eingabemaske im Backend zur Datenbank
 hinzufügen.
 
 Voraussetzungen
 ---------------
 
-- Zugangsdaten für `studio.YouTube.com <https://studio.YouTube.com>`_ mit den
-  gewünschten Youtube-Kanälen
+- Zugangsdaten für `studio.youtube.com <https://studio.youtube.com/>`_ mit den
+  gewünschten YouTube-Kanälen
 - Zugang zum Backend des OKR Intelligence Layer (Django)
 
 Vorgehen
@@ -19,21 +19,23 @@ Vorgehen
 
 Das Hinzufügen der Daten zur Datenbank besteht aus zwei Schritten:
 
-1. :ref:`Herunterladen der Daten bei Youtube <backend_youtube_herunterladen>`
-2. :ref:`Einfügen der Daten in das Backend des OKR Intelligence Layer<backend_youtube_hochladen>`
+1. :ref:`Herunterladen der Daten bei YouTube <backend_youtube_herunterladen>`
+2. :ref:`Einfügen der Daten in das Backend des OKR Intelligence Layer <backend_youtube_hochladen>`
 
 .. _backend_youtube_herunterladen:
 
-Herunterladen der Daten bei Youtube
+Herunterladen der Daten bei YouTube
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bei Youtube musst du zwei Datenpakete herunterladen: eines mit
+Bei YouTube musst du zwei Datenpakete herunterladen: eines mit
 :ref:`Zielgruppen-Daten <backend_youtube_herunterladen_zielgruppen>` und eines
 mit :ref:`Impressions-Daten <backend_youtube_herunterladen_impressions>`.
 
-Melde dich als erstes im `YouTube Creator Studio <studio.youtube.com>`_ an und wechsle in
+Melde dich als erstes im `YouTube Creator Studio <https://studio.youtube.com/>`_ an und wechsle in
 den gewünschten Account. Anschließend wähle den Analytics Advanced Mode aus:
-*0.1 Analytics* *0.2 ADVANCED MODE*
+
+    1. Wähle den Punkt *Analytics* in der linken Menüleiste
+    2. Klicke oben rechts auf *ADVANCED MODE*
 
 .. _backend_youtube_herunterladen_zielgruppen:
 
