@@ -37,9 +37,6 @@ Diese Dokumentation bezieht sich auf den Intelligence Layer:
 * Informationen zu den **einzelnen Python-Modulen** befinden sich im Kapitel
   :ref:`modules`.
 
-Details zum okr-Modul sowie dessen Submodulen mit allen Klassen und Methoden befinden
-sich in der :ref:`modules`.
-
 .. toctree::
    :maxdepth: 2
    :hidden:
