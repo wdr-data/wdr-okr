@@ -23,3 +23,8 @@
 #db_tables tr:hover {
     background-color: rgb(216, 216, 216);
 }
+
+img {
+    border: 1px solid lightgrey;
+    margin-bottom: 1em;
+}

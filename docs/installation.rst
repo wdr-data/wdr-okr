@@ -53,7 +53,7 @@ Umgebungsvariablen zur Verfügung stehen:
     # Spotify
     SPOTIPY_CLIENT_ID=
     SPOTIPY_CLIENT_SECRET=
-    SPOTIFY_LICENSOR_I
+    SPOTIFY_LICENSOR_ID=
 
     # Spotify Podcast API
     EXPERIMENTAL_SPOTIFY_BASE_URL=
