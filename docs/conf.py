@@ -37,6 +37,7 @@ release = "0.1"
 # ones.
 extensions = [
     "db_tables_extension",
+    "scheduler_table_extension",
     "sphinx_rtd_theme",
     "sphinx.ext.napoleon",
 ]
