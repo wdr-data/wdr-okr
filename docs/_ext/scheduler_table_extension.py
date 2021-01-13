@@ -136,11 +136,10 @@ def build_schedule_html(html_top: str = "<div>", html_bottom: str = "</div>") ->
         str: HTML code.
     """
 
-    # make sure DEBUG is off and retrieve scheduled jobs from okr/scrapers/scheduler.py
-    debug_original = django.conf.settings.DEBUG
-    django.conf.settings.DEBUG = False
-    jobs_list = scheduler.start()
-    django.conf.settings.DEBUG = debug_original
+    # Ensure scheduler is shut down, then re-add jobs and retrieve scheduled jobs from okr/scrapers/scheduler.py
+    scheduler.scheduler.shutdown()
+    scheduler.add_jobs()
+    jobs_list = scheduler.scheduler.get_jobs()
 
     # parse and convert job information into list
     table_lines = []

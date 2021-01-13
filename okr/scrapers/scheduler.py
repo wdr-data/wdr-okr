@@ -23,7 +23,18 @@ def sentry_listener(event):
         capture_exception(event.exception)
 
 
-def start() -> list:
+def setup():
+    global scheduler
+
+    # Prevent setting up multiple schedulers
+    if scheduler:
+        return
+
+    scheduler = BackgroundScheduler(timezone=BERLIN)
+    scheduler.start()
+
+
+def add_jobs():
     """Add and define scheduler for each scraper module.
 
     Controls schedules for:
@@ -41,17 +52,7 @@ def start() -> list:
     * :meth:`~okr.scrapers.pages.scrape_sophora_nodes`
     * :meth:`~okr.scrapers.pages.scrape_gsc`
     * :meth:`~okr.scrapers.pages.scrape_webtrekk`
-
-    Returns:
-        list: List of scheduled jobs.
-
     """
-    global scheduler
-    scheduler = BackgroundScheduler(timezone=BERLIN)
-    scheduler.start()
-
-    if settings.DEBUG:
-        return
 
     scheduler.add_listener(sentry_listener, EVENT_JOB_ERROR)
 
@@ -176,8 +177,6 @@ def start() -> list:
         hour="14",
         minute="0",
     )
-
-    return scheduler.get_jobs()
 
 
 @receiver(post_save, sender=Podcast)
