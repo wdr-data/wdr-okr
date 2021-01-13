@@ -4,7 +4,6 @@
 from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
-from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from sentry_sdk import capture_exception
