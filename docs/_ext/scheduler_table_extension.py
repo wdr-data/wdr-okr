@@ -92,7 +92,9 @@ def parse_job_info_schedule(job: Job) -> str:
         raise ValueError(f"Trigger does not contain minute information {job.trigger}!")
 
     if hours == ["*"]:
-        scheduled_times += f", jeweils {minutes_formatted} Minuten nach jeder vollen Stunde"
+        scheduled_times += (
+            f", jeweils {minutes_formatted} Minuten nach jeder vollen Stunde"
+        )
     elif len(hours) == 1:
         if len(minutes) == 1:
             scheduled_times += f" um {hours[0].zfill(2)}:{minutes_formatted} Uhr"

@@ -179,6 +179,7 @@ def start() -> list:
 
     return scheduler.get_jobs()
 
+
 @receiver(post_save, sender=Podcast)
 def podcast_created(instance: Podcast, created: bool, **kwargs):
     """Start scraper run for newly added podcast
