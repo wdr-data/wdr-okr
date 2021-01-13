@@ -38,10 +38,15 @@ Scheduler für den Daten-Abruf
 -----------------------------
 
 Die Daten werden nach einem festgelegten Zeitplan aus den unterschiedlichen Datenquellen
-abgerufen. Die individuellen Zeitintervalle sind innerhalb der Funktion
+abgerufen. Die individuellen Zeitintervalle für die unterschiedlichen Methoden sind wie
+folgt definiert:
+
+.. schedule_table::
+
+Die einzelnen Zeitpunkte sind innerhalb der Funktion
 :func:`okr.scrapers.scheduler.start` im Modul ``okr/scrapers/scheduler.py`` definiert.
 
-Der Intelligence Layer nutzt dafür die Bibliothek
+Für das Management der Zeitplanung nutzt der Intelligence Layer die Bibliothek
 `Advanced Python Scheduler <https://apscheduler.readthedocs.io/en/latest/>`_.
 
 Struktur der Scraping Skripte
