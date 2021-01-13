@@ -1,5 +1,4 @@
-"""Collect and clean up data from the Google Search Console API.
-"""
+"""Collect and clean up data from the Google Search Console API."""
 
 import datetime as dt
 from typing import Any, Dict, List, Literal, Optional, Union
@@ -35,19 +34,33 @@ def fetch_data(
     if dimensions is None:
         dimensions = ["page", "device"]
 
-    request = {
-        "startDate": start_date.isoformat(),
-        "endDate": end_date.isoformat(),
-        "dimensions": dimensions,
-        "rowLimit": 25000,
-        "startRow": 0,
-        "dataState": "all",
-    }
+    results = []
+    start_row = 0
+    ROW_LIMIT = 25000
 
-    response = (
-        webmasters_service.searchanalytics()
-        .query(siteUrl=property.url, body=request)
-        .execute()
-    )
+    while True:
 
-    return response.get("rows", [])
+        request = {
+            "startDate": start_date.isoformat(),
+            "endDate": end_date.isoformat(),
+            "dimensions": dimensions,
+            "rowLimit": ROW_LIMIT,
+            "startRow": start_row,
+            "dataState": "all",
+        }
+
+        response = (
+            webmasters_service.searchanalytics()
+            .query(siteUrl=property.url, body=request)
+            .execute()
+        )
+
+        start_row += ROW_LIMIT
+
+        result = response.get("rows", [])
+        results.extend(result)
+
+        if len(result) == 0:
+            break
+
+    return results

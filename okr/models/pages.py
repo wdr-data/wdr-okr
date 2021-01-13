@@ -286,6 +286,7 @@ class DataGSC(models.Model):
 
     class Meta:
         """Model meta options."""
+
         abstract = True
 
     clicks = models.IntegerField(
@@ -352,6 +353,7 @@ class PropertyDataGSC(DataGSC):
     def __str__(self):
         return f"{self.date} - {self.property.name}"
 
+
 class PageDataGSC(DataGSC):
     """SEO-Performance pro Tag, basierend auf Daten der Google Search Console."""
 
@@ -388,6 +390,46 @@ class PageDataGSC(DataGSC):
         help_text="Gerätetyp (Mobil, Desktop oder Tablet)",
         choices=DeviceType.choices,
         max_length=16,
+    )
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Letzte Aktualisierung des Datenpunktes",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.date} - {self.page.url}"
+
+
+class PageDataQueryGSC(DataGSC):
+    """SEO-Query-Performance pro Tag pro Seite, basierend auf Daten der Google
+    Search Console.
+    """
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "page_data_query_gsc"
+        verbose_name = "Seiten-Query-Performance (GSC)"
+        verbose_name_plural = "Seiten-Query-Performance (GSC)"
+        ordering = ["-date", "-clicks"]
+        unique_together = ["date", "page", "query"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum der SEO-Daten",
+    )
+    page = models.ForeignKey(
+        to=Page,
+        verbose_name="Seite",
+        help_text="Globale ID der Online-Seite",
+        on_delete=models.CASCADE,
+        related_name="data_query_gsc",
+        related_query_name="data_query_gsc",
+    )
+    query = models.TextField(
+        verbose_name="Query",
+        help_text="Query (Suchanfrage)",
     )
     last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated",
