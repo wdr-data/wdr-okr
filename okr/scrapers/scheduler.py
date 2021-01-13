@@ -23,6 +23,7 @@ def sentry_listener(event):
 
 
 def setup():
+    """Create and start scheduler instance."""
     global scheduler
 
     # Prevent setting up multiple schedulers
