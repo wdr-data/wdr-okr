@@ -265,8 +265,13 @@ def scrape_spotify_api(
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
 
+    start_date_original = start_date
+
     for podcast in podcasts:
         print("Scraping spotify API for", podcast)
+
+        # Restore start date in case we changed it due to the first episode date of previous podcast
+        start_date = start_date_original
 
         # Retrieve follower for podcast from experimental API
         follower_data = experimental_spotify_podcast_api.podcast_followers(
