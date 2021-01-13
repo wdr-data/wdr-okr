@@ -9,6 +9,8 @@ nutzbar. Für jede Datenquelle existiert ein individuell angepasstes Scraping-Mo
 Der Intelligence Layer nutzt sowohl automatisiert abgerufene Daten von diversen APIs als
 auch manuell hochgeladene Daten aus statischen Dateien.
 
+.. _scraper_datenquellen:
+
 Daten-Quellen
 -------------
 
@@ -34,15 +36,23 @@ Für Daten zu Youtube:
   * Quintly API (`Quintly Dokumentation`_)
   * Manueller Daten-Import aus YouTube Studio
 
+.. _scraper_scheduler:
+
 Scheduler für den Daten-Abruf
 -----------------------------
 
 Die Daten werden nach einem festgelegten Zeitplan aus den unterschiedlichen Datenquellen
-abgerufen. Die individuellen Zeitintervalle sind innerhalb der Funktion
+abgerufen. Die individuellen Zeitintervalle für die unterschiedlichen Methoden sind wie
+folgt definiert:
+
+.. schedule_table::
+
+Die einzelnen Zeitpunkte sind innerhalb der Funktion
 :func:`okr.scrapers.scheduler.start` im Modul ``okr/scrapers/scheduler.py`` definiert.
 
-Der Intelligence Layer nutzt dafür die Bibliothek
-`Advanced Python Scheduler <https://apscheduler.readthedocs.io/en/latest/>`_.
+.. seealso::
+   Mehr Informationen zu den Methoden in dieser Tabelle sind im Bereich
+   :class:`okr.scrapers` in der :ref:`modules` zu finden.
 
 Struktur der Scraping Skripte
 -----------------------------
@@ -56,8 +66,9 @@ Jedes Modul enthält eine ``__init.py__`` Datei. Diese Datei enthält jeweils di
 grundlegenden Funktionen zum Speichern und Aufbereiten der Daten. Das Abrufen der
 Rohdaten geschieht in den jeweiligen Submodulen.
 
-Details zu den einzelnen Scraping-Modulen befinden sich in der :ref:`modules` im
-Abschnitt :class:`okr.scrapers`.
+.. seealso::
+   Details zu den einzelnen Scraping-Modulen befinden sich in der :ref:`modules` im
+   Abschnitt :class:`okr.scrapers`.
 
 .. _`GSC Dokumentation`: https://developers.google.com/webmaster-tools
 .. _`Quintly Dokumentation`: https://api.quintly.com/

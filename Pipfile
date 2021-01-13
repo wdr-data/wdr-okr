@@ -8,7 +8,9 @@ format = "black . --exclude wheels"
 manage = "python manage.py"
 db_tables = "python docs/database_tables.py"
 docs = "make --directory=docs clean html"
+docs_rm = "rm -rf static/docs"
 docs_static = "cp -R docs/_build/html static/docs"
+start = "gunicorn app.wsgi -k sync --workers=1"
 
 [dev-packages]
 

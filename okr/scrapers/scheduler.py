@@ -4,7 +4,6 @@
 from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
-from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from sentry_sdk import capture_exception
@@ -23,7 +22,19 @@ def sentry_listener(event):
         capture_exception(event.exception)
 
 
-def start():
+def setup():
+    """Create and start scheduler instance."""
+    global scheduler
+
+    # Prevent setting up multiple schedulers
+    if scheduler:
+        return
+
+    scheduler = BackgroundScheduler(timezone=BERLIN)
+    scheduler.start()
+
+
+def add_jobs():
     """Add and define scheduler for each scraper module.
 
     Controls schedules for:
@@ -41,15 +52,7 @@ def start():
     * :meth:`~okr.scrapers.pages.scrape_sophora_nodes`
     * :meth:`~okr.scrapers.pages.scrape_gsc`
     * :meth:`~okr.scrapers.pages.scrape_webtrekk`
-
-
     """
-    global scheduler
-    scheduler = BackgroundScheduler(timezone=BERLIN)
-    scheduler.start()
-
-    if settings.DEBUG:
-        return
 
     scheduler.add_listener(sentry_listener, EVENT_JOB_ERROR)
 

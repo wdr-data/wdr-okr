@@ -111,7 +111,6 @@ Nun kann das Django-Backend über den folgenden Befehl gestartet werden:
 
     $ pipenv run manage runserver
 
-Sobald der Intelligence Layer gestartet ist, ruft er automatisiert Daten über die
-diversen APIs ab. Der Intelligence Layer nutzt dazu den
-`APScheduler <https://pypi.org/project/APScheduler/>`_. Die Cron-basierten Regeln sind
-in der Datei ``okr/scrapers/scheduler.py`` anpassbar.
+Sobald der Intelligence Layer gestartet ist, ruft er
+:ref:`zeitgesteuert <scraper_scheduler>` Daten über die
+:ref:`diversen APIs <scraper_datenquellen>` ab.

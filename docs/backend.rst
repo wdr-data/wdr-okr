@@ -15,8 +15,9 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
   Daten zu :ref:`Instagram Collaborations <backend_instagram>` müssen Daten noch manuell
   angelegt werden.
 
-Details zu den einzelnen Formularen des Backends befinden sich in der
-:ref:`modules` im Abschnitten :class:`okr.admin`.
+.. seealso::
+   Details zu den einzelnen Formularen des Backends befinden sich in der
+   :ref:`modules` im Abschnitten :class:`okr.admin`.
 
 .. toctree::
     :maxdepth: 2
