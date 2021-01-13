@@ -281,7 +281,32 @@ class Page(models.Model):
         return f"{self.url} ({self.first_seen})"
 
 
-class PageDataGSC(models.Model):
+class DataGSC(models.Model):
+    """Basismodel für Daten der Google Search Console."""
+
+    class Meta:
+        """Model meta options."""
+        abstract = True
+
+    clicks = models.IntegerField(
+        verbose_name="Klicks",
+        help_text="Klicks (pro Tag)",
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        help_text="Impressions (pro Tag)",
+    )
+    ctr = models.FloatField(
+        verbose_name="CTR",
+        help_text="Click-Through Rate (pro Tag)",
+    )
+    position = models.FloatField(
+        verbose_name="Position",
+        help_text="Durchschnittliche Position in den Suchergebnissen",
+    )
+
+
+class PageDataGSC(DataGSC):
     """SEO-Performance pro Tag, basierend auf Daten der Google Search Console."""
 
     class Meta:
@@ -317,23 +342,6 @@ class PageDataGSC(models.Model):
         help_text="Gerätetyp (Mobil, Desktop oder Tablet)",
         choices=DeviceType.choices,
         max_length=16,
-    )
-
-    clicks = models.IntegerField(
-        verbose_name="Klicks",
-        help_text="Klicks (pro Tag)",
-    )
-    impressions = models.IntegerField(
-        verbose_name="Impressions",
-        help_text="Impressions (pro Tag)",
-    )
-    ctr = models.FloatField(
-        verbose_name="CTR",
-        help_text="Click-Through Rate (pro Tag)",
-    )
-    position = models.FloatField(
-        verbose_name="Position",
-        help_text="Durchschnittliche Position in den Suchergebnissen",
     )
     last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated",
