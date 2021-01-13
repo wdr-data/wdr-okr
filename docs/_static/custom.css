@@ -40,9 +40,16 @@
     width: 50%;
 }
 
+#schedule_table tr td:first-child {
+    font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace;
+    font-weight: 700;
+    font-size: 75%;
+}
+
 #schedule_table th {
     border: 1px solid black;
-    background-color: grey;
+    color: white;
+    background-color: #333;
     padding: 6px;
 }
 
