@@ -41,6 +41,7 @@ def fetch_data(
         "dimensions": dimensions,
         "rowLimit": 25000,
         "startRow": 0,
+        "dataState": "all",
     }
 
     response = (
