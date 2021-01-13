@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.conf import settings
 from . import patch_django_extensions
 
 
@@ -9,7 +10,11 @@ class OkrConfig(AppConfig):
     def ready(self):
         from .scrapers import scheduler
 
-        scheduler.start()
+        scheduler.setup()
+
+        if not settings.DEBUG:
+            scheduler.add_jobs()
+
         patch_django_extensions.patch()
 
         return super().ready()
