@@ -35,17 +35,16 @@ def parse_job_info_method(job: Job) -> str:
         str: Parsed method information based on Job object.
     """
     # read full path of method
-    method = inspect.getmodule(job.func).__name__ + "." + job.func.__name__
+    method_string = inspect.getmodule(job.func).__name__ + "." + job.func.__name__
 
-    # add arguments to method string (if any)
+    # add arguments to method_string (if any)
     if job.args:
         args = '", "'.join(job.args)
-        # argument = f'\"{args}\"'
-        method = f'{method}("{args}")'
+        method_string = f'{method_string}("{args}")'
     else:
-        method = f"{method}()"
+        method_string = f"{method_string}()"
 
-    return method
+    return method_string
 
 
 def parse_job_info_schedule(job: Job) -> str:
@@ -82,7 +81,6 @@ def parse_job_info_schedule(job: Job) -> str:
     if len(minutes) == 1 and minutes != ["*"]:
         minutes_formatted = minutes[0].zfill(2)
     elif len(minutes) > 1:
-        # minutes_formatted = ', '.join(minutes)
         minutes_formatted = ", ".join(minutes[:-1]) + " und " + minutes[-1]
     elif minutes == ["*"]:
         raise NotImplementedError(
@@ -98,7 +96,7 @@ def parse_job_info_schedule(job: Job) -> str:
     elif len(hours) == 1:
         if len(minutes) == 1:
             scheduled_times += f" um {hours[0].zfill(2)}:{minutes_formatted} Uhr"
-        elif len(minutes) > 1:  ##############TEST!!!
+        elif len(minutes) > 1:
             minutes_list = []
             for minute in minutes:
                 minutes_list.append(f"{hours[0].zfill(2)}:{minute.zfill(2)}")
@@ -148,7 +146,6 @@ def build_schedule_html(html_top: str = "<div>", html_bottom: str = "</div>") ->
     # parse and convert job information into list
     table_lines = []
     for job in jobs_list:
-        # table_lines.append(parse_job_info(job))
         table_lines.append([parse_job_info_method(job), parse_job_info_schedule(job)])
 
     # sort list by module and reformat to a module.method format (instead of library.module.method)
@@ -185,10 +182,3 @@ def setup(app):
         "parallel_read_safe": True,
         "parallel_write_safe": True,
     }
-
-
-if __name__ == "__main__":
-    build_schedule_html()
-    # tupletest = ("eins", )
-    # print(", ".join(tupletest))
-    # print(build_schedule_html())
