@@ -46,8 +46,9 @@ folgt definiert:
 Die einzelnen Zeitpunkte sind innerhalb der Funktion
 :func:`okr.scrapers.scheduler.start` im Modul ``okr/scrapers/scheduler.py`` definiert.
 
-Für das Management der Zeitplanung nutzt der Intelligence Layer die Bibliothek
-`Advanced Python Scheduler <https://apscheduler.readthedocs.io/en/latest/>`_.
+.. seealso::
+   Mehr Informationen zu den Methoden in dieser Tabelle sind im Bereich
+   :class:`okr.scrapers` in der :ref:`modules` zu finden.
 
 Struktur der Scraping Skripte
 -----------------------------
@@ -61,8 +62,9 @@ Jedes Modul enthält eine ``__init.py__`` Datei. Diese Datei enthält jeweils di
 grundlegenden Funktionen zum Speichern und Aufbereiten der Daten. Das Abrufen der
 Rohdaten geschieht in den jeweiligen Submodulen.
 
-Details zu den einzelnen Scraping-Modulen befinden sich in der :ref:`modules` im
-Abschnitt :class:`okr.scrapers`.
+.. seealso::
+   Details zu den einzelnen Scraping-Modulen befinden sich in der :ref:`modules` im
+   Abschnitt :class:`okr.scrapers`.
 
 .. _`GSC Dokumentation`: https://developers.google.com/webmaster-tools
 .. _`Quintly Dokumentation`: https://api.quintly.com/
