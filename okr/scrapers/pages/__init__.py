@@ -15,6 +15,7 @@ from okr.models.pages import (
     PageDataWebtrekk,
     PageWebtrekkMeta,
     Property,
+    PropertyDataGSC,
     PageDataGSC,
     SophoraNode,
     SophoraDocument,
@@ -122,6 +123,33 @@ def _page_from_url(
         return page
 
 
+def _property_data_gsc(property: Property, start_date: dt.date, end_date: dt.date):
+    """Scrape from Google Search Console API and update :class:`~okr.models.pages.PropertyDataGSC` of the database models.
+
+    Args:
+        property (Property): Selected property.
+        start_date (dt.date): Start date to request data for.
+        end_date (dt.date): End date to request data for.
+    """
+
+    data = gsc.fetch_data(property, start_date, end_date=end_date, dimensions=["date", "device"])
+
+    for row in data:
+        date, device = row["keys"]
+
+        PropertyDataGSC.objects.update_or_create(
+            property=property,
+            date=dt.date.fromisoformat(date),
+            device=device,
+            defaults=dict(
+                clicks=row["clicks"],
+                impressions=row["impressions"],
+                ctr=row["ctr"],
+                position=row["position"],
+            ),
+        )
+
+
 def _page_data_gsc(property: Property, date: dt.date, page_cache: Dict[str, Page]):
     """Scrape from Google Search Console API and update :class:`~okr.models.pages.Page`
     and :class:`~okr.models.pages.PageDataGSC` of the database models.
@@ -132,7 +160,7 @@ def _page_data_gsc(property: Property, date: dt.date, page_cache: Dict[str, Page
         page_cache (Dict[str, Page]): Cache for url to page mapping.
     """
 
-    data = gsc.fetch_day(property, date)
+    data = gsc.fetch_data(property, date)
     for row in data:
         url, device = row["keys"]
 
@@ -159,8 +187,7 @@ def scrape_gsc(
     start_date: Optional[dt.date] = None,
     property_filter: Optional[Q] = None,
 ):
-    """Scrape from Google Search Console API and update :class:`~okr.models.pages.Page`
-    and :class:`~okr.models.pages.PageDataGSC` of the database models.
+    """Scrape from Google Search Console API.
 
     Args:
         start_date (Optional[dt.date], optional): Earliest date to request data for.
@@ -185,6 +212,8 @@ def scrape_gsc(
 
     for property in properties:
         page_cache = {}
+
+        _property_data_gsc(property, start_date, yesterday)
 
         for date in reversed(date_range(start_date, yesterday)):
             print(

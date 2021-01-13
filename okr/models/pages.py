@@ -306,6 +306,52 @@ class DataGSC(models.Model):
     )
 
 
+class PropertyDataGSC(DataGSC):
+    """SEO-Performance der Property pro Tag, basierend auf Daten der Google Search Console."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "property_data_gsc"
+        verbose_name = "Property-Daten (GSC)"
+        verbose_name_plural = "Property-Daten (GSC)"
+        ordering = ["-date", "-clicks"]
+        unique_together = ["date", "property", "device"]
+
+    class DeviceType(models.TextChoices):
+        """Available device types."""
+
+        MOBILE = "MOBILE", "Mobil"
+        DESKTOP = "DESKTOP", "Desktop"
+        TABLET = "TABLET", "Tablet"
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum der SEO-Daten",
+    )
+    property = models.ForeignKey(
+        to=Property,
+        verbose_name="Property",
+        help_text="Globale ID der GSC-Property",
+        on_delete=models.CASCADE,
+        related_name="data_gsc",
+        related_query_name="data_gsc",
+    )
+    device = models.CharField(
+        verbose_name="Gerätetyp",
+        help_text="Gerätetyp (Mobil, Desktop oder Tablet)",
+        choices=DeviceType.choices,
+        max_length=16,
+    )
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Letzte Aktualisierung des Datenpunktes",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.date} - {self.property.name}"
+
 class PageDataGSC(DataGSC):
     """SEO-Performance pro Tag, basierend auf Daten der Google Search Console."""
 

@@ -10,29 +10,34 @@ from ...models import Property
 Dimension = Literal["page", "device", "date", "query", "country", "searchAppearance"]
 
 
-def fetch_day(
+def fetch_data(
     property: Property,
-    date: dt.date,
+    start_date: dt.date,
     *,
+    end_date: Optional[dt.date] = None,
     dimensions: Optional[List[Dimension]] = None,
 ) -> List[Dict[str, Any]]:
-    """Query Google Search Console API for data of a specific day.
+    """Query Google Search Console API for data.
 
     Args:
         property (Property): Property to request data for.
-        date (dt.date): Specific day to request information for.
+        start_date (dt.date): Earliest day to request information for.
+        end_date (Optional[dt.date]): Latest day to request information for. Default to ``None``. Will be set to ``start_date`` if ``None``.
         dimensions (Optional[List[Dimension]], optional): Dimensions to request from
-            API. Defaults to None. Will be set to ``["page", "device"]`` if None.
+            API. Defaults to ``None``. Will be set to ``["page", "device"]`` if ``None``.
 
     Returns:
         List[Dict[str, Any]]: Response from API.
     """
+    if end_date is None:
+        end_date = start_date
+
     if dimensions is None:
         dimensions = ["page", "device"]
 
     request = {
-        "startDate": date.isoformat(),
-        "endDate": date.isoformat(),
+        "startDate": start_date.isoformat(),
+        "endDate": end_date.isoformat(),
         "dimensions": dimensions,
         "rowLimit": 25000,
         "startRow": 0,
