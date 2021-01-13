@@ -23,7 +23,7 @@ def sentry_listener(event):
         capture_exception(event.exception)
 
 
-def start():
+def start() -> list:
     """Add and define scheduler for each scraper module.
 
     Controls schedules for:
@@ -42,6 +42,8 @@ def start():
     * :meth:`~okr.scrapers.pages.scrape_gsc`
     * :meth:`~okr.scrapers.pages.scrape_webtrekk`
 
+    Returns:
+        list: List of scheduled jobs.
 
     """
     global scheduler
@@ -175,6 +177,7 @@ def start():
         minute="0",
     )
 
+    return scheduler.get_jobs()
 
 @receiver(post_save, sender=Podcast)
 def podcast_created(instance: Podcast, created: bool, **kwargs):
