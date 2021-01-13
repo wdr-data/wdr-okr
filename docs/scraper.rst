@@ -9,6 +9,8 @@ nutzbar. Für jede Datenquelle existiert ein individuell angepasstes Scraping-Mo
 Der Intelligence Layer nutzt sowohl automatisiert abgerufene Daten von diversen APIs als
 auch manuell hochgeladene Daten aus statischen Dateien.
 
+.. _scraper_datenquellen:
+
 Daten-Quellen
 -------------
 
@@ -33,6 +35,8 @@ Für Daten zu Podcasts:
 Für Daten zu Youtube:
   * Quintly API (`Quintly Dokumentation`_)
   * Manueller Daten-Import aus YouTube Studio
+
+.. _scraper_scheduler:
 
 Scheduler für den Daten-Abruf
 -----------------------------
