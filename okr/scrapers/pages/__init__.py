@@ -122,6 +122,38 @@ def _page_from_url(
         return page
 
 
+def _page_data_gsc(property: Property, date: dt.date, page_cache: Dict[str, Page]):
+    """Scrape from Google Search Console API and update :class:`~okr.models.pages.Page`
+    and :class:`~okr.models.pages.PageDataGSC` of the database models.
+
+    Args:
+        property (Property): Selected property.
+        date (dt.date): Date to request data for.
+        page_cache (Dict[str, Page]): Cache for url to page mapping.
+    """
+
+    data = gsc.fetch_day(property, date)
+    for row in data:
+        url, device = row["keys"]
+
+        page = _page_from_url(url, page_cache, property=property)
+
+        if page is None:
+            continue
+
+        PageDataGSC.objects.update_or_create(
+            page=page,
+            date=date,
+            device=device,
+            defaults=dict(
+                clicks=row["clicks"],
+                impressions=row["impressions"],
+                ctr=row["ctr"],
+                position=row["position"],
+            ),
+        )
+
+
 def scrape_gsc(
     *,
     start_date: Optional[dt.date] = None,
@@ -158,26 +190,7 @@ def scrape_gsc(
             print(
                 f"Start scrape Google Search Console data for property {property} from {date}."
             )
-            data = gsc.fetch_day(property, date)
-            for row in data:
-                url, device = row["keys"]
-
-                page = _page_from_url(url, page_cache, property=property)
-
-                if page is None:
-                    continue
-
-                PageDataGSC.objects.update_or_create(
-                    page=page,
-                    date=date,
-                    device=device,
-                    defaults=dict(
-                        clicks=row["clicks"],
-                        impressions=row["impressions"],
-                        ctr=row["ctr"],
-                        position=row["position"],
-                    ),
-                )
+            _page_data_gsc(property, date, page_cache)
 
         print(f"Finished Google Search Console scrape for property {property}.")
 
