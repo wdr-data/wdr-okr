@@ -38,11 +38,10 @@ def parse_job_info_method(job: Job) -> str:
     method_string = inspect.getmodule(job.func).__name__ + "." + job.func.__name__
 
     # add arguments to method_string (if any)
-    if job.args:
-        args = '", "'.join(job.args)
-        method_string = f'{method_string}("{args}")'
-    else:
-        method_string = f"{method_string}()"
+    args = ", ".join(map(repr, job.args))
+    kwargs = ", ".join(f"{key}={repr(value)}" for key, value in job.kwargs.items())
+
+    method_string = f"{method_string}({args}{', ' + kwargs if kwargs else ''})"
 
     return method_string
 
@@ -151,7 +150,12 @@ def build_schedule_html(html_top: str = "<div>", html_bottom: str = "</div>") ->
     # sort list by module and reformat to a module.method format (instead of library.module.method)
     formatted_list = sorted(table_lines, key=itemgetter(0))
     for entry in formatted_list:
-        entry[0] = f"{entry[0].split('.')[-2]}.{entry[0].split('.')[-1]}"
+        args_idx = entry[0].index("(")
+        path = entry[0][:args_idx]
+        rest = entry[0][args_idx:]
+
+        path = ".".join(path.split(".")[-2:])
+        entry[0] = f"{path}{rest}"
 
     # convert jobs list into HTML table
     table_contents = tabulate(
