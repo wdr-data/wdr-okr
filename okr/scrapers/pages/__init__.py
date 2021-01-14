@@ -16,6 +16,7 @@ from okr.models.pages import (
     PageWebtrekkMeta,
     Property,
     PropertyDataGSC,
+    PropertyDataQueryGSC,
     PageDataGSC,
     PageDataQueryGSC,
     SophoraNode,
@@ -154,6 +155,38 @@ def _property_data_gsc(property: Property, start_date: dt.date, end_date: dt.dat
         )
 
 
+def _property_data_query_gsc(
+    property: Property, start_date: dt.date, end_date: dt.date
+):
+    """Scrape data from Google Search Console API and update
+    :class:`~okr.models.pages.PropertyDataQueryGSC` of the database models.
+
+        Args:
+            property (Property): Property to request data for.
+            start_date (dt.date): Start date to request data for.
+            end_date (dt.date): End date to request data for.
+    """
+
+    data = gsc.fetch_data(
+        property, start_date, end_date=end_date, dimensions=["date", "query"]
+    )
+
+    for row in data:
+        date, query = row["keys"]
+
+        PropertyDataQueryGSC.objects.update_or_create(
+            property=property,
+            date=dt.date.fromisoformat(date),
+            query=query,
+            defaults=dict(
+                clicks=row["clicks"],
+                impressions=row["impressions"],
+                ctr=row["ctr"],
+                position=row["position"],
+            ),
+        )
+
+
 def _page_data_gsc(property: Property, date: dt.date, page_cache: Dict[str, Page]):
     """Scrape from Google Search Console API and update
     :class:`~okr.models.pages.Page` and :class:`~okr.models.pages.PageDataGSC`
@@ -240,7 +273,7 @@ def scrape_gsc(
     start_date = date_param(
         start_date,
         default=yesterday - dt.timedelta(days=2),
-        earliest=today - dt.timedelta(days=30),
+        earliest=today - dt.timedelta(days=3),
         latest=yesterday,
     )
 
@@ -253,6 +286,7 @@ def scrape_gsc(
         page_cache = {}
 
         _property_data_gsc(property, start_date, yesterday)
+        _property_data_query_gsc(property, start_date, yesterday)
 
         for date in reversed(date_range(start_date, yesterday)):
             print(

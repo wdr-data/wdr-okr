@@ -14,6 +14,7 @@ from okr.models.pages import (
     PageDataGSC,
     PageDataQueryGSC,
     PropertyDataGSC,
+    PropertyDataQueryGSC,
 )
 from .base import ProductAdmin
 
@@ -54,6 +55,23 @@ class PropertyDataGSCAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["property", "date"]
     list_filter = ["property"]
+    date_hierarchy = "date"
+
+
+class PropertyDataQueryGSCAdmin(admin.ModelAdmin):
+    """List for choosing existing GSC property query data to edit."""
+
+    list_display = [
+        "property",
+        "date",
+        "query",
+        "clicks",
+        "impressions",
+        "ctr",
+        "position",
+    ]
+    list_display_links = ["property", "date"]
+    search_fields = ["query"]
     date_hierarchy = "date"
 
 
@@ -176,6 +194,7 @@ admin.site.register(SophoraDocument, SophoraDocumentAdmin)
 admin.site.register(SophoraID, SophoraIDAdmin)
 admin.site.register(SophoraDocumentMeta, SophoraDocumentMetaAdmin)
 admin.site.register(PropertyDataGSC, PropertyDataGSCAdmin)
+admin.site.register(PropertyDataQueryGSC, PropertyDataQueryGSCAdmin)
 admin.site.register(PageDataGSC, PageDataGSCAdmin)
 admin.site.register(PageDataQueryGSC, PageDataQueryGSCAdmin)
 admin.site.register(PageWebtrekkMeta, PageWebtrekkMetaAdmin)

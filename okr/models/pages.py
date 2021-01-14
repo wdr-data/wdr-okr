@@ -308,7 +308,8 @@ class DataGSC(models.Model):
 
 
 class PropertyDataGSC(DataGSC):
-    """SEO-Performance der Property pro Tag, basierend auf Daten der Google Search Console."""
+    """SEO-Performance der gesamten Property pro Tag, basierend auf Daten der Google
+    Search Console."""
 
     class Meta:
         """Model meta options."""
@@ -328,7 +329,7 @@ class PropertyDataGSC(DataGSC):
 
     date = models.DateField(
         verbose_name="Datum",
-        help_text="Datum der SEO-Daten",
+        help_text="Datum der GSC-Daten",
     )
     property = models.ForeignKey(
         to=Property,
@@ -343,6 +344,45 @@ class PropertyDataGSC(DataGSC):
         help_text="Gerätetyp (Mobil, Desktop oder Tablet)",
         choices=DeviceType.choices,
         max_length=16,
+    )
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Letzte Aktualisierung des Datenpunktes",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.date} - {self.property.name}"
+
+
+class PropertyDataQueryGSC(DataGSC):
+    """SEO-Query-Performance der gesamten Property pro Tag, basierend auf Daten der
+    Google Search Console."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "property_data_query_gsc"
+        verbose_name = "Property-Query-Daten (GSC)"
+        verbose_name_plural = "Property-Query-Daten (GSC)"
+        ordering = ["-date", "-clicks"]
+        unique_together = ["date", "property", "query"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum der GSC-Daten",
+    )
+    property = models.ForeignKey(
+        to=Property,
+        verbose_name="Property",
+        help_text="Globale ID der GSC-Property",
+        on_delete=models.CASCADE,
+        related_name="data_query_gsc",
+        related_query_name="data_query_gsc",
+    )
+    query = models.TextField(
+        verbose_name="Query",
+        help_text="Query (Suchanfrage)",
     )
     last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated",
@@ -375,7 +415,7 @@ class PageDataGSC(DataGSC):
 
     date = models.DateField(
         verbose_name="Datum",
-        help_text="Datum der SEO-Daten",
+        help_text="Datum der GSC-Daten",
     )
     page = models.ForeignKey(
         to=Page,
@@ -417,7 +457,7 @@ class PageDataQueryGSC(DataGSC):
 
     date = models.DateField(
         verbose_name="Datum",
-        help_text="Datum der SEO-Daten",
+        help_text="Datum der GSC-Daten",
     )
     page = models.ForeignKey(
         to=Page,

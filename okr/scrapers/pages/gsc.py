@@ -21,9 +21,11 @@ def fetch_data(
     Args:
         property (Property): Property to request data for.
         start_date (dt.date): Earliest day to request information for.
-        end_date (Optional[dt.date]): Latest day to request information for. Default to ``None``. Will be set to ``start_date`` if ``None``.
+        end_date (Optional[dt.date]): Latest day to request information for. Default to
+            ``None``. Will be set to ``start_date`` if ``None``.
         dimensions (Optional[List[Dimension]], optional): Dimensions to request from
-            API. Defaults to ``None``. Will be set to ``["page", "device"]`` if ``None``.
+            API. Defaults to ``None``. Will be set to ``["page", "device"]`` if
+            ``None``.
 
     Returns:
         List[Dict[str, Any]]: Response from API.
