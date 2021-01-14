@@ -1,3 +1,6 @@
+"""Classes for requesting custom analyses through webtrekk's "getAnalysisData"
+method."""
+
 from typing import (
     Any,
     Iterable,
@@ -16,6 +19,9 @@ from okr.scrapers.common.types import JSON
 
 
 class WebtrekkType:
+    """Base class for dataclasses for requesting custom analyses. Converts
+    types of all values in dict to correct JSON string format.
+    """
     @classmethod
     def _format_value(cls, value: Any) -> JSON:
 
@@ -56,6 +62,7 @@ MetricComparator = Literal["=", "<", ">", "between"]
 
 @dataclass
 class AnalysisObject(WebtrekkType):
+    """Class reflecting "analysisObject" of Webtrekk API."""
     title: str
     sort_order: Optional[Literal["asc", "desc", ""]] = None
     alias: Optional[str] = None
@@ -64,6 +71,7 @@ class AnalysisObject(WebtrekkType):
 
 @dataclass
 class FilterRule(WebtrekkType):
+    """Class reflecting "filterRule" of Webtrekk API."""
     object_title: str
     comparator: Union[AnalysisComparator, MetricComparator]
     filter: str
@@ -75,11 +83,13 @@ class FilterRule(WebtrekkType):
 
 @dataclass
 class Filter(WebtrekkType):
+    """Class reflecting "filter" of Webtrekk API."""
     filter_rules: List[FilterRule]
 
 
 @dataclass
 class Metric(WebtrekkType):
+    """Class reflecting "metric" of Webtrekk API."""
     title: str
     sort_order: Optional[Literal["asc", "desc", ""]] = None
     metric_filter: Optional[Filter] = None
@@ -88,6 +98,7 @@ class Metric(WebtrekkType):
 
 @dataclass
 class AnalysisConfig(WebtrekkType):
+    """Class reflecting "analysisConfig" of Webtrekk API."""
     analysis_objects: List[AnalysisObject]
     metrics: Optional[List[Metric]] = None
     analysis_filter: Optional[Filter] = None
