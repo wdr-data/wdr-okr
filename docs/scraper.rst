@@ -17,7 +17,7 @@ Daten-Quellen
 Im Moment nutzt der Intelligence Layer die folgenden Daten-Quellen:
 
 Für Daten zu Online-Artikeln:
-  * webtrekk API (`webtrekk Dokumentation`_)
+  * Webtrekk API (`Webtrekk Dokumentation`_)
   * Google Search Console (`GSC Dokumentation`_)
   * Sophora API ("App-API")
 
@@ -26,7 +26,7 @@ Für Daten zu Instagram:
   * Manuelle Dateneingabe für Instagram Collaborations
 
 Für Daten zu Podcasts:
-  * webtrekk API (`webtrekk Dokumentation`_)
+  * Webtrekk API (`Webtrekk Dokumentation`_)
   * Podstat-Datenbank
   * Spotify for Podcasters Data API
   * Spotify Web API (`Web-API Dokumentation`_)
@@ -73,4 +73,4 @@ Rohdaten geschieht in den jeweiligen Submodulen.
 .. _`GSC Dokumentation`: https://developers.google.com/webmaster-tools
 .. _`Quintly Dokumentation`: https://api.quintly.com/
 .. _`Web-API Dokumentation`: https://developer.spotify.com/documentation/web-api/
-.. _`webtrekk Dokumentation`: https://docs.mapp.com/download/attachments/33784075/Webtrekk-JSON-RPC_API_Manual-EN.pdf?version=1&modificationDate=1589549566000&api=v2
+.. _`Webtrekk Dokumentation`: https://docs.mapp.com/download/attachments/33784075/Webtrekk-JSON-RPC_API_Manual-EN.pdf?version=1&modificationDate=1589549566000&api=v2

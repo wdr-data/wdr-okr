@@ -1,4 +1,4 @@
-"""Classes for requesting custom analyses through webtrekk's "getAnalysisData"
+"""Classes for requesting custom analyses through Webtrekk's "getAnalysisData"
 method."""
 
 from typing import (
