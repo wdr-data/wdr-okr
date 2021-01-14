@@ -273,7 +273,7 @@ def scrape_gsc(
     start_date = date_param(
         start_date,
         default=yesterday - dt.timedelta(days=2),
-        earliest=today - dt.timedelta(days=3),
+        earliest=today - dt.timedelta(days=30),
         latest=yesterday,
     )
 
