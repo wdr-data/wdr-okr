@@ -65,8 +65,8 @@ class AnalysisObject(WebtrekkType):
 @dataclass
 class FilterRule(WebtrekkType):
     object_title: str
-    filter: str
     comparator: Union[AnalysisComparator, MetricComparator]
+    filter: str
     filter2: Optional[str] = None
     link: Optional[Literal["and", "or", ""]] = None
     case_sens: Optional[bool] = None

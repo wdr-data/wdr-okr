@@ -63,7 +63,7 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
         metrics=metrics,
         analysis_filter=Filter(
             filter_rules=[
-                FilterRule("CG2", "Nachrichten", "="),
+                FilterRule("CG2", "=", "Nachrichten"),
             ],
         ),
         start_time=date,
@@ -75,8 +75,8 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
         metrics=metrics,
         analysis_filter=Filter(
             filter_rules=[
-                FilterRule("CG2", "Nachrichten", "="),
-                FilterRule("Einstiegsquellen-Typen", "Suchmaschinen", "=", link="and"),
+                FilterRule("CG2", "=", "Nachrichten"),
+                FilterRule("Einstiegsquellen-Typen", "=", "Suchmaschinen", link="and"),
             ],
         ),
         start_time=date,

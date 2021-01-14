@@ -43,8 +43,8 @@ def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
         ],
         analysis_filter=Filter(
             filter_rules=[
-                FilterRule("Medien", "*audio*", "="),
-                FilterRule("Medien", "*Livestream*", "!=", link="and"),
+                FilterRule("Medien", "=", "*audio*"),
+                FilterRule("Medien", "!=", "*Livestream*", link="and"),
             ],
         ),
         start_time=date,
