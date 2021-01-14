@@ -5,6 +5,13 @@ from typing import Dict, Optional
 import re
 
 from ..common.webtrekk import Webtrekk
+from ..common.webtrekk.types import (
+    AnalysisConfig,
+    AnalysisObject,
+    Filter,
+    FilterRule,
+    Metric,
+)
 
 
 def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
@@ -17,22 +24,47 @@ def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
     Returns:
         Dict: Reply from API.
     """
+
+    config = AnalysisConfig(
+        [
+            AnalysisObject("Medien"),
+        ],
+        metrics=[
+            Metric(
+                "Medienansichten",
+                sort_order="desc",
+            ),
+            Metric(
+                "Medienansichten vollständig",
+            ),
+            Metric(
+                "Spieldauer",
+            ),
+        ],
+        analysis_filter=Filter(
+            filter_rules=[
+                FilterRule("Medien", "*audio*", "="),
+                FilterRule("Medien", "*Livestream*", "!=", link="and"),
+            ],
+        ),
+        start_time=date,
+        stop_time=date,
+        row_limit=10000,
+    )
+
     webtrekk = Webtrekk()
 
     with webtrekk.session():
-        report_data = webtrekk.get_report_data(
-            "audio_daily_export_newslab", start_date=date
-        )
+        analysis = webtrekk.get_analysis_data(dict(config))
 
-    data = report_data["analyses"][0]
-    date_start = data["timeStart"]
-    date_end = data["timeStop"]
+    data = analysis["analysisData"]
+    date_start = analysis["timeStart"]
+    date_end = analysis["timeStop"]
     print(f"Start scraping Webtrekk Data between {date_start} and {date_end}.")
 
     # Loop over episodes
-    head = data["analysisTabHead"]
     data_dict = {}
-    for element in data["analysisData"]:
+    for element in data:
 
         # Find ZMDB ID
         match = re.match(r".*?mdb-(\d+)(_AMP)?$", element[0])
