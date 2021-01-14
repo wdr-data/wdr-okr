@@ -123,10 +123,9 @@ class SophoraID(models.Model):
         null=True,
     )
 
-    sophora_id = models.CharField(
+    sophora_id = models.TextField(
         verbose_name="Sophora ID",
         help_text="Sophora ID des Dokuments",
-        max_length=128,
         unique=True,
     )
 
