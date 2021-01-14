@@ -15,7 +15,10 @@ from okr.models.pages import (
     PageDataWebtrekk,
     PageWebtrekkMeta,
     Property,
+    PropertyDataGSC,
+    PropertyDataQueryGSC,
     PageDataGSC,
+    PageDataQueryGSC,
     SophoraNode,
     SophoraDocument,
     SophoraDocumentMeta,
@@ -122,13 +125,141 @@ def _page_from_url(
         return page
 
 
+def _property_data_gsc(property: Property, start_date: dt.date, end_date: dt.date):
+    """Scrape from Google Search Console API and update
+    :class:`~okr.models.pages.PropertyDataGSC` of the database models.
+
+    Args:
+        property (Property): Selected property.
+        start_date (dt.date): Start date to request data for.
+        end_date (dt.date): End date to request data for.
+    """
+
+    data = gsc.fetch_data(
+        property, start_date, end_date=end_date, dimensions=["date", "device"]
+    )
+
+    for row in data:
+        date, device = row["keys"]
+
+        PropertyDataGSC.objects.update_or_create(
+            property=property,
+            date=dt.date.fromisoformat(date),
+            device=device,
+            defaults=dict(
+                clicks=row["clicks"],
+                impressions=row["impressions"],
+                ctr=row["ctr"],
+                position=row["position"],
+            ),
+        )
+
+
+def _property_data_query_gsc(
+    property: Property, start_date: dt.date, end_date: dt.date
+):
+    """Scrape data from Google Search Console API and update
+    :class:`~okr.models.pages.PropertyDataQueryGSC` of the database models.
+
+        Args:
+            property (Property): Property to request data for.
+            start_date (dt.date): Start date to request data for.
+            end_date (dt.date): End date to request data for.
+    """
+
+    data = gsc.fetch_data(
+        property, start_date, end_date=end_date, dimensions=["date", "query"]
+    )
+
+    for row in data:
+        date, query = row["keys"]
+
+        PropertyDataQueryGSC.objects.update_or_create(
+            property=property,
+            date=dt.date.fromisoformat(date),
+            query=query,
+            defaults=dict(
+                clicks=row["clicks"],
+                impressions=row["impressions"],
+                ctr=row["ctr"],
+                position=row["position"],
+            ),
+        )
+
+
+def _page_data_gsc(property: Property, date: dt.date, page_cache: Dict[str, Page]):
+    """Scrape from Google Search Console API and update
+    :class:`~okr.models.pages.Page` and :class:`~okr.models.pages.PageDataGSC`
+    of the database models.
+
+    Args:
+        property (Property): Selected property.r.
+        page_cache (Dict[str, Page]): Cache for url to page mapping.
+    """
+
+    data = gsc.fetch_data(property, date)
+    for row in data:
+        url, device = row["keys"]
+
+        page = _page_from_url(url, page_cache, property=property)
+
+        if page is None:
+            continue
+
+        PageDataGSC.objects.update_or_create(
+            page=page,
+            date=date,
+            device=device,
+            defaults=dict(
+                clicks=row["clicks"],
+                impressions=row["impressions"],
+                ctr=row["ctr"],
+                position=row["position"],
+            ),
+        )
+
+
+def _page_data_query_gsc(
+    property: Property, date: dt.date, page_cache: Dict[str, Page]
+):
+    """Scrape from Google Search Console API and update
+    :class:`~okr.models.pages.Page` and
+    :class:`~okr.models.pages.PageDataQueryGSC` of the database models.
+
+    Args:
+        property (Property): Selected property.
+        date (dt.date): Date to request data for.
+        page_cache (Dict[str, Page]): Cache for url to page mapping.
+    """
+
+    data = gsc.fetch_data(property, date, dimensions=["page", "query"])
+    for row in data:
+        url, query = row["keys"]
+
+        page = _page_from_url(url, page_cache, property=property)
+
+        if page is None:
+            continue
+
+        PageDataQueryGSC.objects.update_or_create(
+            page=page,
+            date=date,
+            query=query,
+            defaults=dict(
+                clicks=row["clicks"],
+                impressions=row["impressions"],
+                ctr=row["ctr"],
+                position=row["position"],
+            ),
+        )
+
+
 def scrape_gsc(
     *,
     start_date: Optional[dt.date] = None,
     property_filter: Optional[Q] = None,
 ):
-    """Scrape from Google Search Console API and update :class:`~okr.models.pages.Page`
-    and :class:`~okr.models.pages.PageDataGSC` of the database models.
+    """Scrape from Google Search Console API.
 
     Args:
         start_date (Optional[dt.date], optional): Earliest date to request data for.
@@ -154,30 +285,15 @@ def scrape_gsc(
     for property in properties:
         page_cache = {}
 
+        _property_data_gsc(property, start_date, yesterday)
+        _property_data_query_gsc(property, start_date, yesterday)
+
         for date in reversed(date_range(start_date, yesterday)):
             print(
                 f"Start scrape Google Search Console data for property {property} from {date}."
             )
-            data = gsc.fetch_day(property, date)
-            for row in data:
-                url, device = row["keys"]
-
-                page = _page_from_url(url, page_cache, property=property)
-
-                if page is None:
-                    continue
-
-                PageDataGSC.objects.update_or_create(
-                    page=page,
-                    date=date,
-                    device=device,
-                    defaults=dict(
-                        clicks=row["clicks"],
-                        impressions=row["impressions"],
-                        ctr=row["ctr"],
-                        position=row["position"],
-                    ),
-                )
+            _page_data_gsc(property, date, page_cache)
+            _page_data_query_gsc(property, date, page_cache)
 
         print(f"Finished Google Search Console scrape for property {property}.")
 

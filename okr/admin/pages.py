@@ -12,6 +12,9 @@ from okr.models.pages import (
     Property,
     Page,
     PageDataGSC,
+    PageDataQueryGSC,
+    PropertyDataGSC,
+    PropertyDataQueryGSC,
 )
 from .base import ProductAdmin
 
@@ -38,8 +41,42 @@ class PageAdmin(admin.ModelAdmin):
     date_hierarchy = "first_seen"
 
 
-class PageDataGCSAdmin(admin.ModelAdmin):
-    """List for choosing existing GSC data to edit."""
+class PropertyDataGSCAdmin(admin.ModelAdmin):
+    """List for choosing existing GSC property data to edit."""
+
+    list_display = [
+        "property",
+        "date",
+        "device",
+        "clicks",
+        "impressions",
+        "ctr",
+        "position",
+    ]
+    list_display_links = ["property", "date"]
+    list_filter = ["property"]
+    date_hierarchy = "date"
+
+
+class PropertyDataQueryGSCAdmin(admin.ModelAdmin):
+    """List for choosing existing GSC property query data to edit."""
+
+    list_display = [
+        "property",
+        "date",
+        "query",
+        "clicks",
+        "impressions",
+        "ctr",
+        "position",
+    ]
+    list_display_links = ["property", "date"]
+    search_fields = ["query"]
+    date_hierarchy = "date"
+
+
+class PageDataGSCAdmin(admin.ModelAdmin):
+    """List for choosing existing GSC page data to edit."""
 
     list_display = [
         "page",
@@ -51,7 +88,24 @@ class PageDataGCSAdmin(admin.ModelAdmin):
         "position",
     ]
     list_display_links = ["page", "date"]
-    list_filter = []
+    list_filter = ["device"]
+    date_hierarchy = "date"
+
+
+class PageDataQueryGSCAdmin(admin.ModelAdmin):
+    """List for choosing existing GSC page query data to edit."""
+
+    list_display = [
+        "page",
+        "date",
+        "query",
+        "clicks",
+        "impressions",
+        "ctr",
+        "position",
+    ]
+    list_display_links = ["page", "date"]
+    search_fields = ["query"]
     date_hierarchy = "date"
 
 
@@ -139,6 +193,9 @@ admin.site.register(SophoraNode, SophoraNodeAdmin)
 admin.site.register(SophoraDocument, SophoraDocumentAdmin)
 admin.site.register(SophoraID, SophoraIDAdmin)
 admin.site.register(SophoraDocumentMeta, SophoraDocumentMetaAdmin)
-admin.site.register(PageDataGSC, PageDataGCSAdmin)
+admin.site.register(PropertyDataGSC, PropertyDataGSCAdmin)
+admin.site.register(PropertyDataQueryGSC, PropertyDataQueryGSCAdmin)
+admin.site.register(PageDataGSC, PageDataGSCAdmin)
+admin.site.register(PageDataQueryGSC, PageDataQueryGSCAdmin)
 admin.site.register(PageWebtrekkMeta, PageWebtrekkMetaAdmin)
 admin.site.register(PageDataWebtrekk, PageDataWebtrekkAdmin)
