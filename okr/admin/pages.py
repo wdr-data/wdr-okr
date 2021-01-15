@@ -150,6 +150,7 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
         "node",
         "sophora_id",
         "document_type",
+        "word_count",
     ]
     list_display_links = ["headline"]
     list_filter = ["node", "document_type"]

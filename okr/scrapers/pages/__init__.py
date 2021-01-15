@@ -402,10 +402,19 @@ def _handle_sophora_document(
         sophora_id.sophora_document = sophora_document
         sophora_id.save()
 
+    # count the number of words in the body text (copytext and subheadlines)
+    all_words = ""
+    paragraph_filter = ["copytext", "headline"]
+    for paragraph in sophora_document_info["detail"]["messageBody"]:
+        if paragraph["paragraphType"] in paragraph_filter:
+            all_words += paragraph["paragraphValue"] + " "
+    word_count = len(all_words.strip().split(" "))
+
     SophoraDocumentMeta.objects.get_or_create(
         sophora_document=sophora_document,
         headline=headline,
         teaser=teaser,
+        word_count=word_count,
         document_type=document_type,
         sophora_id=sophora_id,
         node=node,
