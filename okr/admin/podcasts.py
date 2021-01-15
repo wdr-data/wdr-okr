@@ -124,6 +124,7 @@ class EpisodeAdmin(admin.ModelAdmin):
     list_display_links = ["title"]
     list_filter = ["podcast", "available"]
     date_hierarchy = "publication_date_time"
+    search_fields = ["title"]
 
 
 class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
@@ -140,6 +141,7 @@ class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
     list_display_links = ["episode", "date"]
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
+    search_fields = ["episode__title"]
 
 
 class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
@@ -164,6 +166,7 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
     list_display_links = ["episode", "date"]
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
+    search_fields = ["episode__title"]
 
 
 class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
@@ -179,6 +182,7 @@ class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
     list_display_links = ["episode", "date"]
     list_filter = ["age_range", "gender", "episode__podcast"]
     date_hierarchy = "date"
+    search_fields = ["episode__title"]
 
 
 class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
@@ -196,6 +200,7 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     list_display_links = ["episode", "date"]
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
+    search_fields = ["episode__title"]
 
 
 class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
@@ -211,6 +216,7 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
     list_display_links = ["episode", "date"]
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
+    search_fields = ["episode__title"]
 
 
 class EpisodeDataPodstatAdmin(admin.ModelAdmin):
@@ -225,6 +231,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
     list_display_links = ["episode", "date"]
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
+    search_fields = ["episode__title"]
 
 
 admin.site.register(Podcast, PodcastAdmin)
