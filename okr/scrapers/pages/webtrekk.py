@@ -8,6 +8,14 @@ import html
 from rfc3986 import urlparse
 
 from ..common.webtrekk import Webtrekk
+from ..common.webtrekk.types import (
+    AnalysisConfig,
+    AnalysisObject,
+    Filter,
+    FilterRule,
+    Metric,
+)
+from okr.scrapers.common.utils import local_yesterday
 
 
 def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
@@ -20,23 +28,78 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
     Returns:
         Dict: Reply from API.
     """
+    date = local_yesterday()
+    analysis_objects = [
+        AnalysisObject("Seiten-URL"),
+        AnalysisObject("Seiten"),
+    ]
+    metrics = [
+        Metric(
+            "Visits",
+        ),
+        Metric(
+            "Einstiege",
+            sort_order="desc",
+        ),
+        Metric(
+            "Visits (Kampagnen)",
+        ),
+        Metric(
+            "Bounces",
+        ),
+        Metric(
+            "Verweildauer (Sekunden)",
+        ),
+        Metric(
+            "Page Impressions",
+        ),
+        Metric(
+            "Ausstiege",
+        ),
+    ]
+
+    config_all = AnalysisConfig(
+        analysis_objects,
+        metrics=metrics,
+        analysis_filter=Filter(
+            filter_rules=[
+                FilterRule("CG2", "=", "Nachrichten"),
+            ],
+        ),
+        start_time=date,
+        stop_time=date,
+        row_limit=10,
+    )
+    config_search = AnalysisConfig(
+        analysis_objects,
+        metrics=metrics,
+        analysis_filter=Filter(
+            filter_rules=[
+                FilterRule("CG2", "=", "Nachrichten"),
+                FilterRule("Einstiegsquellen-Typen", "=", "Suchmaschinen", link="and"),
+            ],
+        ),
+        start_time=date,
+        stop_time=date,
+        row_limit=10,
+    )
+
     webtrekk = Webtrekk()
 
     with webtrekk.session():
-        report_data = webtrekk.get_report_data(
-            "url_seiten_daily_export_newslab", start_date=date
-        )
+        analysis_all = webtrekk.get_analysis_data(dict(config_all))
+        analysis_search = webtrekk.get_analysis_data(dict(config_search))
 
-    data = report_data["analyses"][0]
-    data_search = report_data["analyses"][1]
-    date_start = data["timeStart"]
-    date_end = data["timeStop"]
+    data_all = analysis_all["analysisData"]
+    data_search = analysis_search["analysisData"]
+    date_start = analysis_all["timeStart"]
+    date_end = analysis_all["timeStop"]
     print(
         f"Start scraping Webtrekk Data for pages between {date_start} and {date_end}."
     )
 
     data_dict = {}
-    for element in data["analysisData"]:
+    for element in data_all:
         key = _parse_row(element)
 
         if key is None:
@@ -54,7 +117,7 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
 
         data_dict[key] = item
 
-    for element in data_search["analysisData"]:
+    for element in data_search:
         key = _parse_row(element)
 
         if key is None:

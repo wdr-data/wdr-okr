@@ -39,6 +39,7 @@ class PageAdmin(admin.ModelAdmin):
     list_display_links = ["url"]
     list_filter = ["property", "node"]
     date_hierarchy = "first_seen"
+    search_fields = ["url"]
 
 
 class PropertyDataGSCAdmin(admin.ModelAdmin):
@@ -71,8 +72,8 @@ class PropertyDataQueryGSCAdmin(admin.ModelAdmin):
         "position",
     ]
     list_display_links = ["property", "date"]
-    search_fields = ["query"]
     date_hierarchy = "date"
+    search_fields = ["query"]
 
 
 class PageDataGSCAdmin(admin.ModelAdmin):
@@ -90,6 +91,7 @@ class PageDataGSCAdmin(admin.ModelAdmin):
     list_display_links = ["page", "date"]
     list_filter = ["device"]
     date_hierarchy = "date"
+    search_fields = ["page__url"]
 
 
 class PageDataQueryGSCAdmin(admin.ModelAdmin):
@@ -105,8 +107,8 @@ class PageDataQueryGSCAdmin(admin.ModelAdmin):
         "position",
     ]
     list_display_links = ["page", "date"]
-    search_fields = ["query"]
     date_hierarchy = "date"
+    search_fields = ["query"]
 
 
 class SophoraNodeAdmin(admin.ModelAdmin):
@@ -117,6 +119,7 @@ class SophoraNodeAdmin(admin.ModelAdmin):
         "use_exact_search",
     ]
     list_display_links = ["node"]
+    search_fields = ["node"]
 
 
 class SophoraDocumentAdmin(admin.ModelAdmin):
@@ -128,6 +131,7 @@ class SophoraDocumentAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["export_uuid"]
     date_hierarchy = "created"
+    search_fields = ["export_uuid"]
 
 
 class SophoraIDAdmin(admin.ModelAdmin):
@@ -139,6 +143,7 @@ class SophoraIDAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["sophora_id"]
     date_hierarchy = "created"
+    search_fields = ["sophora_id"]
 
 
 class SophoraDocumentMetaAdmin(admin.ModelAdmin):
@@ -150,10 +155,12 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
         "node",
         "sophora_id",
         "document_type",
+        "word_count",
     ]
     list_display_links = ["headline"]
     list_filter = ["node", "document_type"]
     date_hierarchy = "editorial_update"
+    search_fields = ["headline"]
 
 
 class PageWebtrekkMetaAdmin(admin.ModelAdmin):
@@ -167,6 +174,7 @@ class PageWebtrekkMetaAdmin(admin.ModelAdmin):
     list_display_links = ["headline"]
     list_filter = []
     date_hierarchy = "created"
+    search_fields = ["headline"]
 
 
 class PageDataWebtrekkAdmin(admin.ModelAdmin):
@@ -185,6 +193,7 @@ class PageDataWebtrekkAdmin(admin.ModelAdmin):
     list_display_links = ["webtrekk_meta", "date"]
     list_filter = []
     date_hierarchy = "date"
+    search_fields = ["webtrekk_meta__headline"]
 
 
 admin.site.register(Property, PropertyAdmin)

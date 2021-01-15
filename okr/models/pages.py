@@ -155,6 +155,7 @@ class SophoraDocumentMeta(models.Model):
             "sophora_document",
             "headline",
             "teaser",
+            "word_count",
             "document_type",
             "sophora_id",
             "node",
@@ -194,6 +195,11 @@ class SophoraDocumentMeta(models.Model):
     teaser = models.TextField(
         verbose_name="Teaser",
         help_text="Teasertext des Sophora-Dokuments",
+    )
+    word_count = models.IntegerField(
+        verbose_name="Word Count",
+        null=True,
+        help_text="Anzahl der Wörter im Fließtext (incl. Zwischenüberschriften)",
     )
     document_type = models.CharField(
         verbose_name="Beitragstyp",
