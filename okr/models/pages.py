@@ -198,6 +198,7 @@ class SophoraDocumentMeta(models.Model):
     )
     word_count = models.IntegerField(
         verbose_name="Word Count",
+        null=True,
         help_text="Anzahl der Wörter im Fließtext (incl. Zwischenüberschriften)",
     )
     document_type = models.CharField(
