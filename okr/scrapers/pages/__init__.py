@@ -8,6 +8,7 @@ from time import sleep
 from django.db.models import Q
 from sentry_sdk import capture_exception
 from rfc3986 import urlparse
+from urllib.parse import unquote
 
 from ...models import Property
 from okr.models.pages import (
@@ -74,7 +75,10 @@ def scrape_full_sophora(sophora_node: SophoraNode):
 
 def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
     parsed = urlparse(url)
-    match = re.match(r"(.*)/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$", parsed.path)
+    match = re.match(
+        r"(.*)/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$",
+        unquote(parsed.path),
+    )
     node = match.group(1)
     sophora_id = match.group(2)
     # Cut off any other weird Sophora parameters
