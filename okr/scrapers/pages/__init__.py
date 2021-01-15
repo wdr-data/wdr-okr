@@ -384,22 +384,26 @@ def _handle_sophora_document(
         capture_exception(error)
         return True
 
-    # count the number of words in the body text (copytext and subheadlines)
+    # Count the number of words in the body text (copytext and subheadlines)
     all_words = ""
     paragraph_filter = ["copytext", "headline"]
-    if "detail" in sophora_document_info.keys():
+
+    if "detail" in sophora_document_info:
         for paragraph in sophora_document_info["detail"]["messageBody"]:
             if paragraph["paragraphType"] in paragraph_filter:
                 all_words += paragraph["paragraphValue"] + " "
-    elif "galleryBody" in sophora_document_info.keys():
+
+    elif "galleryBody" in sophora_document_info:
         for paragraph in sophora_document_info["galleryBody"]:
             if paragraph["paragraphType"] in paragraph_filter:
                 all_words += paragraph["paragraphValue"] + " "
+
     if len(all_words) > 0:
         word_count = len(all_words.strip().split(" "))
     else:
         word_count = 0
 
+    # Create objects in DB
     sophora_document, created = SophoraDocument.objects.get_or_create(
         export_uuid=export_uuid,
         defaults=dict(
