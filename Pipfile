@@ -37,6 +37,7 @@ tabulate = "*"
 rfc3986 = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
+inflection = "*"
 
 [requires]
 python_version = "3.8"

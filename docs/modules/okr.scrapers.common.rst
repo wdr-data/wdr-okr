@@ -1,6 +1,14 @@
 okr.scrapers.common package
 ===========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   okr.scrapers.common.webtrekk
+
 Submodules
 ----------
 
@@ -36,10 +44,10 @@ okr.scrapers.common.utils module
    :undoc-members:
    :show-inheritance:
 
-okr.scrapers.common.webtrekk module
------------------------------------
+Module contents
+---------------
 
-.. automodule:: okr.scrapers.common.webtrekk
+.. automodule:: okr.scrapers.common
    :members:
    :undoc-members:
    :show-inheritance:
