@@ -384,6 +384,22 @@ def _handle_sophora_document(
         capture_exception(error)
         return True
 
+    # count the number of words in the body text (copytext and subheadlines)
+    all_words = ""
+    paragraph_filter = ["copytext", "headline"]
+    if "detail" in sophora_document_info.keys():
+        for paragraph in sophora_document_info["detail"]["messageBody"]:
+            if paragraph["paragraphType"] in paragraph_filter:
+                all_words += paragraph["paragraphValue"] + " "
+    elif "galleryBody" in sophora_document_info.keys():
+        for paragraph in sophora_document_info["galleryBody"]:
+            if paragraph["paragraphType"] in paragraph_filter:
+                all_words += paragraph["paragraphValue"] + " "
+    if len(all_words) > 0:
+        word_count = len(all_words.strip().split(" "))
+    else:
+        word_count = 0
+
     sophora_document, created = SophoraDocument.objects.get_or_create(
         export_uuid=export_uuid,
         defaults=dict(
@@ -401,22 +417,6 @@ def _handle_sophora_document(
     if sophora_id.sophora_document is None:
         sophora_id.sophora_document = sophora_document
         sophora_id.save()
-
-    # count the number of words in the body text (copytext and subheadlines)
-    all_words = ""
-    paragraph_filter = ["copytext", "headline"]
-    if "detail" in sophora_document_info.keys():
-        for paragraph in sophora_document_info["detail"]["messageBody"]:
-            if paragraph["paragraphType"] in paragraph_filter:
-                all_words += paragraph["paragraphValue"] + " "
-    elif "galleryBody" in sophora_document_info.keys():
-        for paragraph in sophora_document_info["galleryBody"]:
-            if paragraph["paragraphType"] in paragraph_filter:
-                all_words += paragraph["paragraphValue"] + " "
-    if len(all_words) > 0:
-        word_count = len(all_words.strip().split(" "))
-    else:
-        word_count = 0
 
     SophoraDocumentMeta.objects.get_or_create(
         sophora_document=sophora_document,
