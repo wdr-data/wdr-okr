@@ -416,7 +416,7 @@ def _handle_sophora_document(
     if len(all_words) > 0:
         word_count = len(all_words.strip().split(" "))
     else:
-        word_count= 0
+        word_count = 0
 
     SophoraDocumentMeta.objects.get_or_create(
         sophora_document=sophora_document,
