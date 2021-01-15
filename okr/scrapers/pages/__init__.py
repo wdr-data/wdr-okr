@@ -302,6 +302,11 @@ def scrape_gsc(
         print(f"Finished Google Search Console scrape for property {property}.")
 
 
+def _count_words(string: str) -> int:
+    """Counts words. Hyphenated words are counted as separate words."""
+    return len(re.findall(r"\w+", string))
+
+
 def _handle_sophora_document(
     sophora_node: SophoraNode,
     sophora_document_info: Dict,
@@ -384,6 +389,27 @@ def _handle_sophora_document(
         capture_exception(error)
         return True
 
+    # Count the number of words in the body text (copytext and subheadlines)
+    found_paragraphs = False
+    word_count = 0
+    paragraph_filter = ["copytext", "headline"]
+
+    if "detail" in sophora_document_info:
+        for paragraph in sophora_document_info["detail"]["messageBody"]:
+            if paragraph["paragraphType"] in paragraph_filter:
+                found_paragraphs = True
+                word_count += _count_words(paragraph["paragraphValue"])
+
+    elif "galleryBody" in sophora_document_info:
+        for paragraph in sophora_document_info["galleryBody"]:
+            if paragraph["paragraphType"] in paragraph_filter:
+                found_paragraphs = True
+                word_count += _count_words(paragraph["paragraphValue"])
+
+    if word_count == 0 and not found_paragraphs:
+        word_count = None
+
+    # Create objects in DB
     sophora_document, created = SophoraDocument.objects.get_or_create(
         export_uuid=export_uuid,
         defaults=dict(
@@ -406,6 +432,7 @@ def _handle_sophora_document(
         sophora_document=sophora_document,
         headline=headline,
         teaser=teaser,
+        word_count=word_count,
         document_type=document_type,
         sophora_id=sophora_id,
         node=node,
