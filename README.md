@@ -5,21 +5,14 @@
 This _Django_-Project is part of a process to establish the
 [OKR Framework](https://de.wikipedia.org/wiki/Objectives_and_Key_Results) within
 the organization of WDR.
-After identifying the correct KPI for each product, we seek to collect the
-corresponding data to visualize the data in form of a dashboard.
-
-Data is collected from:
-
-- Analytics platform APIs
-- Manual data exports from analytics platforms
-- Manually generated entries
-
+After identifying the correct KPI for each product, this library collects and
+processes the corresponding data to visualize the data in form of a dashboard.
 ## Local development
 
 ### Environment variables
 
-To run the Django framework, you'll need to set the following environment
-variables:
+To run the Django framework for this project, you'll need to set the following
+environment variables:
 
 ```env
 # Django
@@ -101,13 +94,6 @@ are located in `okr/admin`.
 
 Our intelligence layer is managed via the Django ORM. Models are defined in
 `okr/models/` with generally self-contained submodules for each product type.
-
-## Data sources
-
-- [Quintly API](https://api.quintly.com/)
-- YouTube Analytics .csv export (studio.youtube.com)
-- Creators data
-- In-house SQL databases
 
 ## License
 
