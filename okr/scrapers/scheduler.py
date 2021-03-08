@@ -44,7 +44,6 @@ def add_jobs():
     * :meth:`~okr.scrapers.insta.scrape_posts`
     * :meth:`~okr.scrapers.youtube.scrape_analytics`
     * :meth:`~okr.scrapers.podcasts.scrape_feed`
-    * :meth:`~okr.scrapers.podcasts.scrape_spotify_mediatrend`
     * :meth:`~okr.scrapers.podcasts.scrape_spotify_api`
     * :meth:`~okr.scrapers.podcasts.scrape_podstat`
     * :meth:`~okr.scrapers.podcasts.scrape_episode_data_webtrekk_performance`
@@ -120,12 +119,6 @@ def add_jobs():
         trigger="cron",
         hour="1,11",
         minute="0",
-    )
-    scheduler.add_job(
-        podcasts.scrape_spotify_mediatrend,
-        trigger="cron",
-        hour="2",
-        minute="30",
     )
     scheduler.add_job(
         podcasts.scrape_spotify_api,

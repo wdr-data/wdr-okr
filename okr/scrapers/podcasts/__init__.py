@@ -14,7 +14,6 @@ from spotipy.exceptions import SpotifyException
 from requests.exceptions import HTTPError
 
 from . import feed
-from . import spotify
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
@@ -33,7 +32,6 @@ from ...models import (
     PodcastEpisode,
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
-    PodcastEpisodeDataSpotifyUser,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
     PodcastEpisodeDataSpotifyPerformance,
@@ -67,13 +65,6 @@ def scrape_full(
 
     sleep(1)
     scrape_spotify_experimental_performance(
-        podcast_filter=podcast_filter,
-    )
-
-    sleep(1)
-    scrape_spotify_mediatrend(
-        start_date=start_date,
-        end_date=end_date,
         podcast_filter=podcast_filter,
     )
 
@@ -433,133 +424,6 @@ def _scrape_spotify_api_podcast(
                     streams=episode_data["streams"]["total"],
                     listeners=episode_data["listeners"]["total"],
                     listeners_all_time=episode_data["listeners_all_time"]["total"],
-                ),
-            )
-
-
-def scrape_spotify_mediatrend(
-    *,
-    start_date: Optional[dt.date] = None,
-    end_date: Optional[dt.date] = None,
-    podcast_filter: Optional[Q] = None,
-):
-    """Read and process data from Spotify Mediatrend.
-
-    This method supplies demographical data and other items that are only available
-    through Mediatrend (and not through the Spotify API).
-
-    Results are saved in
-    :class:`~okr.models.podcasts.PodcastEpisodeDataSpotifyUser`.
-
-    Args:
-        start_date (dt.date, optional): Earliest date to request data for. Defaults to
-          None. If not set, "20 days ago" is used.
-        end_date (dt.date, optional): Latest date to request data for. Defaults to
-          None. If not set, "today" is used.
-        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
-          Defaults to None.
-    """
-    if start_date is None:
-        start_date = dt.date.today() - dt.timedelta(days=20)
-
-    end_date = end_date or local_today()
-
-    podcasts = Podcast.objects.all()
-
-    if podcast_filter:
-        podcasts = podcasts.filter(podcast_filter)
-
-    for podcast in podcasts:
-        with spotify.make_connection_meta() as connection_meta:
-            try:
-                _scrape_spotify_mediatrend_podcast(
-                    connection_meta,
-                    podcast,
-                    start_date,
-                    end_date,
-                )
-            except Exception as e:
-                print("Failed! Capturing exception and skipping.")
-                capture_exception(e)
-
-        del connection_meta
-        gc.collect()
-
-
-def _scrape_spotify_mediatrend_podcast(
-    connection_meta: ConnectionMeta,
-    podcast: Podcast,
-    start_date: dt.date,
-    end_date: dt.date,
-):
-    print("Scraping mediatrend db for", podcast)
-    try:
-        spotify_podcast = spotify.get_podcast(connection_meta, podcast.name)
-    except IndexError as e:
-        capture_exception(e)
-        print("No Spotify data for", podcast)
-        return
-
-    # Create mapping from episode title to Spotify dataset for faster lookups
-    spotify_episodes = {}
-    for ep in spotify_podcast.episodes_collection:
-        if ep.episode in spotify_episodes:
-            print(
-                "Found multiple matches for Spotify episode",
-                ep.episode,
-                "in external database.",
-            )
-
-        spotify_episodes[ep.episode] = ep
-
-    for podcast_episode in podcast.episodes.all():
-        print("Scraping spotify episode data for", podcast_episode)
-
-        try:
-            spotify_episode = spotify_episodes[podcast_episode.title]
-        except KeyError:
-            # Don't log to Sentry as the database lags behind a week
-            print(
-                "Could not find Spotify episode",
-                podcast_episode,
-                "in external database.",
-            )
-            continue
-
-        # Scrape user stats for episode
-        Additional = connection_meta.classes.Additional
-        dates = set()
-        for (
-            additional_data
-        ) in spotify_episode.episode_data_additional_collection.filter(
-            Additional.datum >= start_date,
-            Additional.datum <= end_date,
-        ):
-            if additional_data.datum in dates:
-                print("Multiple spotify user stats for", additional_data.datum)
-                continue
-
-            if additional_data.datum is None:
-                print(f"Date for stream data of episode {podcast_episode} is NULL")
-                continue
-
-            PodcastEpisodeDataSpotifyUser.objects.update_or_create(
-                episode=podcast_episode,
-                date=additional_data.datum,
-                # Use getattr because the column name has a minus in it
-                defaults=dict(
-                    age_0_17=getattr(additional_data, "age_0-17"),
-                    age_18_22=getattr(additional_data, "age_18-22"),
-                    age_23_27=getattr(additional_data, "age_23-27"),
-                    age_28_34=getattr(additional_data, "age_28-34"),
-                    age_35_44=getattr(additional_data, "age_35-44"),
-                    age_45_59=getattr(additional_data, "age_45-59"),
-                    age_60_150=getattr(additional_data, "age_60-150"),
-                    age_unknown=additional_data.age_unknown,
-                    gender_female=additional_data.gender_female,
-                    gender_male=additional_data.gender_male,
-                    gender_non_binary=additional_data.gender_non_binary,
-                    gender_not_specified=additional_data.gender_not_specified,
                 ),
             )
 
