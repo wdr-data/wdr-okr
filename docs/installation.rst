@@ -47,7 +47,6 @@ Umgebungsvariablen zur Verfügung stehen:
     MYSQL_PODCAST_HOST=
     MYSQL_PODCAST_USER=
     MYSQL_PODCAST_PASSWORD=
-    MYSQL_PODCAST_DATABASE_SPOTIFY=
     MYSQL_PODCAST_DATABASE_PODSTAT=
 
     # Spotify
