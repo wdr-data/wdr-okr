@@ -93,7 +93,7 @@ class SophoraDocument(models.Model):
     created = models.DateTimeField(
         verbose_name="Zeitpunkt der Erstellung",
         help_text="Der Zeitpunkt, an dem dieser Eintrag in der Datenbank angelegt wurde",
-        auto_now=True,
+        auto_now_add=True,
     )
 
     def __str__(self):
@@ -132,7 +132,7 @@ class SophoraID(models.Model):
     created = models.DateTimeField(
         verbose_name="Zeitpunkt der Erstellung",
         help_text="Der Zeitpunkt, an dem dieser Eintrag in der Datenbank angelegt wurde",
-        auto_now=True,
+        auto_now_add=True,
     )
 
     def __str__(self):
@@ -210,7 +210,7 @@ class SophoraDocumentMeta(models.Model):
     created = models.DateTimeField(
         verbose_name="Zeitpunkt der Erstellung",
         help_text="Der Zeitpunkt, an dem diese Metadaten abgerufen wurden",
-        auto_now=True,
+        auto_now_add=True,
     )
 
     def __str__(self):
@@ -274,7 +274,7 @@ class Page(models.Model):
     first_seen = models.DateField(
         verbose_name="Zuerst gesehen",
         help_text="Erstellungsdatum des Datenpunktes",
-        auto_now=True,
+        auto_now_add=True,
     )
     last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated",
@@ -523,7 +523,7 @@ class PageWebtrekkMeta(models.Model):
     created = models.DateTimeField(
         verbose_name="Zeitpunkt der Erstellung",
         help_text="Der Zeitpunkt, an dem dieser Eintrag in der Datenbank angelegt wurde",
-        auto_now=True,
+        auto_now_add=True,
     )
 
     def __str__(self):
