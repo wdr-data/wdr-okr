@@ -11,6 +11,7 @@ from sentry_sdk import capture_exception
 from ..models import Podcast, Insta, YouTube, Property
 from . import insta, youtube, podcasts, pages
 from .common.utils import BERLIN
+from .db_cleanup import run_db_cleanup
 
 
 scheduler = None
@@ -55,6 +56,14 @@ def add_jobs():
     """
 
     scheduler.add_listener(sentry_listener, EVENT_JOB_ERROR)
+
+    # Meta
+    scheduler.add_job(
+        run_db_cleanup,
+        trigger="cron",
+        hour="19",
+        minute="0",
+    )
 
     # Instagram
     scheduler.add_job(
