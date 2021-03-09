@@ -360,7 +360,6 @@ def _handle_sophora_document(
         print(
             f"Done scraping this feed. editorial_update: {editorial_update}, max_age={max_age}"
         )
-        print(sophora_document_info)
         return False
 
     # Parse Sophora ID, uuid and documentType
