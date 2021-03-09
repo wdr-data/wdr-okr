@@ -24,6 +24,7 @@ from okr.models.pages import (
     SophoraDocument,
     SophoraDocumentMeta,
     SophoraID,
+    SophoraKeywords,
 )
 from okr.scrapers.common.utils import (
     date_param,
@@ -325,6 +326,9 @@ def _handle_sophora_document(
         headline = sophora_document_info["teaser"]["schlagzeile"]
         teaser = "\n".join(sophora_document_info["teaser"]["teaserText"])
 
+        tags = sophora_document_info["teaser"]["tags"]
+        tags = " ".join(tags).lower().split(", ")  # fix broken tag export and normalize
+
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
         # Sometimes this is not set to sane value
         if sophora_document_info["lastModified"] < 1:
@@ -444,6 +448,15 @@ def _handle_sophora_document(
             editorial_update=editorial_update,
         ),
     )
+
+    if "tags" in locals():
+        for keyword in tags:
+            keyword_db_row = SophoraKeywords.objects.get_or_create(
+                keyword=keyword,
+            )[0]
+            keyword_db_row.save()
+            keyword_db_row.sophora_documents.add(sophora_document)
+
     return True
 
 

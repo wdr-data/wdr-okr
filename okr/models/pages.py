@@ -217,6 +217,43 @@ class SophoraDocumentMeta(models.Model):
         return f"{self.sophora_id} ({self.created})"
 
 
+class SophoraKeywords(models.Model):
+    """Keywords ("tags"), die in Sophora-Dokumenten genutzt werden."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "sophora_keywords"
+        verbose_name = "Sophora-Keywords"
+        verbose_name_plural = "Sophora-Keywords"
+        ordering = ["-first_seen"]
+        unique_together = ("keyword", "first_seen")
+
+    sophora_documents = models.ManyToManyField(
+        to=SophoraDocument,
+        verbose_name="Sophora-Dokumente",
+        db_table="sophora_document_meta_keywords",
+        related_name="keywords",
+        related_query_name="keyword",
+        help_text="Die Sophora-Dokumente, die dieses Keyword nutzen.",
+    )
+
+    keyword = models.CharField(
+        verbose_name="Keyword",
+        help_text="Das Keyword",
+        max_length=512,
+    )
+
+    first_seen = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erst-Erfassung",
+        help_text="Der Zeitpunkt, zu dem dieses Keyword erstmals im Intelligence Layer erfasst wurde.",
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return f"{self.keyword} ({self.first_seen})"
+
+
 class Page(models.Model):
     """Grundlegende Daten einzelner URLs."""
 
