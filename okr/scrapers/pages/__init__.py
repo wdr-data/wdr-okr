@@ -330,9 +330,7 @@ def _handle_sophora_document(
 
         tags = sophora_document_info["teaser"].get("tags", [])
         if "," in " ".join(tags):  # detect if API export parsing is still broken
-            tags = (
-                " ".join(tags).lower().split(", ")
-            )  # fix broken tag export and normalize
+            tags = " ".join(tags).lower().split(", ")  # fix broken tags and normalize
         else:
             tags = [tag.lower() for tag in tags]  # normalize only
 
