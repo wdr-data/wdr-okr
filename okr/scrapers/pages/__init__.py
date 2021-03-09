@@ -24,7 +24,7 @@ from okr.models.pages import (
     SophoraDocument,
     SophoraDocumentMeta,
     SophoraID,
-    SophoraKeywords,
+    SophoraKeyword,
 )
 from okr.scrapers.common.utils import (
     date_param,
@@ -318,6 +318,8 @@ def _handle_sophora_document(
     max_age: dt.datetime,
 ) -> bool:
     # Extract attributes depending on media type
+    tags = []
+
     if "teaser" in sophora_document_info:
         editorial_update = dt.datetime.fromtimestamp(
             sophora_document_info["teaser"]["redaktionellerStand"],
@@ -436,7 +438,7 @@ def _handle_sophora_document(
         sophora_id.sophora_document = sophora_document
         sophora_id.save()
 
-    SophoraDocumentMeta.objects.get_or_create(
+    sophora_document_meta, created = SophoraDocumentMeta.objects.get_or_create(
         sophora_document=sophora_document,
         headline=headline,
         teaser=teaser,
@@ -449,13 +451,11 @@ def _handle_sophora_document(
         ),
     )
 
-    if "tags" in locals():
-        for keyword in tags:
-            keyword_db_row = SophoraKeywords.objects.get_or_create(
-                keyword=keyword,
-            )[0]
-            keyword_db_row.save()
-            keyword_db_row.sophora_documents.add(sophora_document)
+    for keyword in tags:
+        sophora_keyword, created = SophoraKeyword.objects.get_or_create(
+            keyword=keyword,
+        )
+        sophora_document_meta.keywords.add(sophora_keyword)
 
     return True
 

@@ -7,7 +7,7 @@ from okr.models.pages import (
     SophoraDocumentMeta,
     SophoraID,
     SophoraNode,
-    SophoraKeywords,
+    SophoraKeyword,
     PageWebtrekkMeta,
     PageDataWebtrekk,
     Property,
@@ -164,7 +164,7 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
     search_fields = ["headline"]
 
 
-class SophoraKeywordsAdmin(admin.ModelAdmin):
+class SophoraKeywordAdmin(admin.ModelAdmin):
     """List for choosing existing Sophora keywords to edit."""
 
     list_display = ["keyword", "first_seen"]
@@ -212,7 +212,7 @@ admin.site.register(SophoraNode, SophoraNodeAdmin)
 admin.site.register(SophoraDocument, SophoraDocumentAdmin)
 admin.site.register(SophoraID, SophoraIDAdmin)
 admin.site.register(SophoraDocumentMeta, SophoraDocumentMetaAdmin)
-admin.site.register(SophoraKeywords, SophoraKeywordsAdmin)
+admin.site.register(SophoraKeyword, SophoraKeywordAdmin)
 admin.site.register(PropertyDataGSC, PropertyDataGSCAdmin)
 admin.site.register(PropertyDataQueryGSC, PropertyDataQueryGSCAdmin)
 admin.site.register(PageDataGSC, PageDataGSCAdmin)

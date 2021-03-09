@@ -139,6 +139,33 @@ class SophoraID(models.Model):
         return self.sophora_id
 
 
+class SophoraKeyword(models.Model):
+    """Keywords ("tags"), die in Sophora-Dokumenten genutzt werden."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "sophora_keyword"
+        verbose_name = "Sophora-Keyword"
+        verbose_name_plural = "Sophora-Keywords"
+        ordering = ["-first_seen"]
+
+    keyword = models.TextField(
+        verbose_name="Keyword",
+        help_text="Das Keyword",
+        unique=True,
+    )
+
+    first_seen = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erst-Erfassung",
+        help_text="Der Zeitpunkt, zu dem dieses Keyword erstmals im Intelligence Layer erfasst wurde.",
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return self.keyword
+
+
 class SophoraDocumentMeta(models.Model):
     """Meta-Informationen zu einem bestimmten Sophora-Dokument. Es kann mehrere
     Meta-Einträge zum selben Dokument geben, wenn z. B. die Überschrift geändert wurde.
@@ -168,6 +195,15 @@ class SophoraDocumentMeta(models.Model):
         related_name="metas",
         related_query_name="meta",
         help_text="Das Sophora-Dokument, zu dem diese Daten gehören",
+    )
+
+    keywords = models.ManyToManyField(
+        to=SophoraKeyword,
+        verbose_name="Keywords",
+        db_table="sophora_document_meta_sophora_keyword",
+        related_name="metas",
+        related_query_name="meta",
+        help_text="Die Keywords, mit denen das Sophora-Dokument zu diesem Zeitpunkt getaggt war",
     )
 
     editorial_update = models.DateTimeField(
@@ -215,43 +251,6 @@ class SophoraDocumentMeta(models.Model):
 
     def __str__(self):
         return f"{self.sophora_id} ({self.created})"
-
-
-class SophoraKeywords(models.Model):
-    """Keywords ("tags"), die in Sophora-Dokumenten genutzt werden."""
-
-    class Meta:
-        """Model meta options."""
-
-        db_table = "sophora_keywords"
-        verbose_name = "Sophora-Keywords"
-        verbose_name_plural = "Sophora-Keywords"
-        ordering = ["-first_seen"]
-        unique_together = ("keyword", "first_seen")
-
-    sophora_documents = models.ManyToManyField(
-        to=SophoraDocument,
-        verbose_name="Sophora-Dokumente",
-        db_table="sophora_document_meta_keywords",
-        related_name="keywords",
-        related_query_name="keyword",
-        help_text="Die Sophora-Dokumente, die dieses Keyword nutzen.",
-    )
-
-    keyword = models.CharField(
-        verbose_name="Keyword",
-        help_text="Das Keyword",
-        max_length=512,
-    )
-
-    first_seen = models.DateTimeField(
-        verbose_name="Zeitpunkt der Erst-Erfassung",
-        help_text="Der Zeitpunkt, zu dem dieses Keyword erstmals im Intelligence Layer erfasst wurde.",
-        auto_now_add=True,
-    )
-
-    def __str__(self):
-        return f"{self.keyword} ({self.first_seen})"
 
 
 class Page(models.Model):
