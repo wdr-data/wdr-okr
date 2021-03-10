@@ -3,7 +3,7 @@
 
 import datetime as dt
 from time import sleep
-from typing import Optional
+from typing import Dict, List, Optional
 import gc
 import functools
 
@@ -124,16 +124,46 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
 
+    # Fetch licensed podcasts and their names so we can match them to find
+    # Spotify IDs of podcasts that were published on Spotify later
+    licensed_podcasts = spotify_api.licensed_podcasts()
+    spotify_podcasts = fetch_all(
+        functools.partial(spotify_api.shows, market="DE"),
+        list(
+            uri.replace("spotify:show:", "")
+            for uri in licensed_podcasts["shows"].keys()
+        ),
+        "shows",
+    )
+
     for podcast in podcasts:
         try:
-            _scrape_feed_podcast(podcast)
+            _scrape_feed_podcast(podcast, spotify_podcasts)
         except Exception as e:
             print("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
 
-def _scrape_feed_podcast(podcast: Podcast):
+def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     print("Scraping feed for", podcast)
+
+    # Read data from RSS feed
+    d = feed.parse(podcast.feed_url)
+    if len(d.entries) == 0:
+        print(f"RSS Feed for Podcast {podcast} is empty.")
+        capture_message(f"RSS Feed for podcast {podcast} is empty.")
+
+    # Attempt to find Spotify ID if there is none yet
+    if not podcast.spotify_id:
+        spotify_podcast_id = next(
+            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title),
+            None,
+        )
+
+        if spotify_podcast_id:
+            print("Found new Spotify ID", spotify_podcast_id, "for", podcast)
+            podcast.spotify_id = spotify_podcast_id
+            podcast.save()
 
     # For podcasts that are available on Spotify: Map episode title to Spotify ID
     # for faster lookups
@@ -173,12 +203,7 @@ def _scrape_feed_podcast(podcast: Podcast):
     else:
         spotify_episode_id_by_name = {}
 
-    # Read data from RSS feed
-    d = feed.parse(podcast.feed_url)
-    if len(d.entries) == 0:
-        print(f"RSS Feed for Podcast {podcast} is empty.")
-        capture_message(f"RSS Feed for podcast {podcast} is empty.")
-
+    # Loop feed entries to find new episodes
     available_episode_ids = []
     for entry in d.entries:
         spotify_id = spotify_episode_id_by_name.get(entry.title)
