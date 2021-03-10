@@ -40,8 +40,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "Podcast manuelle Kategorie",
-                "verbose_name_plural": "Podcast manuelle Kategorien",
+                "verbose_name": "Podcasts manuelle Kategorie",
+                "verbose_name_plural": "Podcasts manuelle Kategorien",
                 "db_table": "podcast_manual_category",
                 "ordering": ["-first_seen"],
             },

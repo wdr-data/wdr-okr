@@ -12,8 +12,8 @@ class PodcastManualCategory(models.Model):
         """Model meta options."""
 
         db_table = "podcast_manual_category"
-        verbose_name = "Podcast manuelle Kategorie"
-        verbose_name_plural = "Podcast Manuelle Kategorien"
+        verbose_name = "Podcasts manuelle Kategorie"
+        verbose_name_plural = "Podcasts manuelle Kategorien"
         ordering = ["-first_seen"]
 
     manual_category = models.TextField(
