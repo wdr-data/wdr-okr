@@ -180,6 +180,7 @@ class SophoraDocumentMeta(models.Model):
         ordering = ["-created"]
         unique_together = (
             "sophora_document",
+            "keywords_list",
             "headline",
             "teaser",
             "word_count",
@@ -204,6 +205,12 @@ class SophoraDocumentMeta(models.Model):
         related_name="metas",
         related_query_name="meta",
         help_text="Die Keywords, mit denen das Sophora-Dokument zu diesem Zeitpunkt getaggt war",
+    )
+
+    keywords_list = models.TextField(
+        blank=True,
+        verbose_name="Keywords-Liste",
+        help_text="Eine Liste der verwendeten Keywords",
     )
 
     editorial_update = models.DateTimeField(

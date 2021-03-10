@@ -161,7 +161,7 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
     list_display_links = ["headline"]
     list_filter = ["node", "document_type"]
     date_hierarchy = "editorial_update"
-    search_fields = ["headline"]
+    search_fields = ["headline", "keywords_list"]
 
 
 class SophoraKeywordAdmin(admin.ModelAdmin):

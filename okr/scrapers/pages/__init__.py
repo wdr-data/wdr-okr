@@ -333,7 +333,8 @@ def _handle_sophora_document(
         # Detect if API export parsing is still broken
         if "," in " ".join(tags):
             # Fix broken tags and normalize
-            tags = " ".join(tags).lower().split(", ").strip()
+            tags = " ".join(tags).lower().split(", ")
+            tags = [tag.strip() for tag in tags]
         else:
             # Normalize only
             tags = [tag.lower().strip() for tag in tags]
@@ -450,6 +451,7 @@ def _handle_sophora_document(
         headline=headline,
         teaser=teaser,
         word_count=word_count,
+        keywords_list = ", ".join(tags),
         document_type=document_type,
         sophora_id=sophora_id,
         node=node,
