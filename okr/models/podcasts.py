@@ -5,6 +5,33 @@ from django.db import models
 from .base import Product
 
 
+class PodcastManualCategory(models.Model):
+    """Manuell vergebene Kategorien für Podcasts."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_manual_category"
+        verbose_name = "Podcast manuelle Kategorie"
+        verbose_name_plural = "Podcast Manuelle Kategorien"
+        ordering = ["-first_seen"]
+
+    manual_category = models.TextField(
+        verbose_name="Manuelle Kategorie",
+        help_text="Manuell vergebene Kategorie.",
+        unique=True,
+    )
+
+    first_seen = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erst-Erfassung",
+        help_text="Der Zeitpunkt, zu dem diese Kategorie erstmals im Intelligence Layer gespeichert wurde.",
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return self.manual_category
+
+
 class Podcast(Product):
     """Enthält grundlegende Daten zu den einzelnen Podcast-Reihen, basierend auf Daten
     aus dem jeweiligen XML-Feed und von Spotify.
@@ -36,6 +63,15 @@ class Podcast(Product):
     )
     description = models.TextField(
         verbose_name="Beschreibung", help_text="Beschreibungstext des Podcasts"
+    )
+
+    manual_categories = models.ManyToManyField(
+        to=PodcastManualCategory,
+        verbose_name="Manuelle Kategorien",
+        db_table="podcast_podcast_manual_category",
+        related_name="categories",
+        related_query_name="category",
+        help_text="Die für den Podcast hier manuell vergebenen Kategorien",
     )
 
     itunes_category = models.TextField(

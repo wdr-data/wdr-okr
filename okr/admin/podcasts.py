@@ -20,6 +20,7 @@ from ..models import (
     PodcastEpisodeDataPodstat,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
+    PodcastManualCategory,
 )
 from .base import ProductAdmin
 from ..scrapers.podcasts import feed
@@ -83,6 +84,15 @@ class PodcastAdmin(ProductAdmin):
         if obj is None:
             return FeedForm
         return super().get_form(request, obj=obj, **kwargs)
+
+
+class PodcastManualCategoryAdmin(admin.ModelAdmin):
+    """List for choosing existing manual podcast categories to edit."""
+
+    list_display = ["manual_category", "first_seen"]
+    list_display_links = ["manual_category"]
+    date_hierarchy = "first_seen"
+    search_fields = ["manual_category"]
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
@@ -243,6 +253,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
+admin.site.register(PodcastManualCategory, PodcastManualCategoryAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)
