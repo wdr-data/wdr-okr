@@ -57,12 +57,27 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name='sophoradocumentmeta',
-            name='keywords_list',
-            field=models.TextField(blank=True, help_text='Eine Liste der verwendeten Keywords', verbose_name='Keywords-Liste'),
+            model_name="sophoradocumentmeta",
+            name="keywords_list",
+            field=models.TextField(
+                blank=True,
+                help_text="Eine Liste der verwendeten Keywords",
+                verbose_name="Keywords-Liste",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='sophoradocumentmeta',
-            unique_together={('sophora_document', 'keywords_list', 'headline', 'teaser', 'word_count', 'document_type', 'sophora_id', 'node')},
+            name="sophoradocumentmeta",
+            unique_together={
+                (
+                    "sophora_document",
+                    "keywords_list",
+                    "headline",
+                    "teaser",
+                    "word_count",
+                    "document_type",
+                    "sophora_id",
+                    "node",
+                )
+            },
         ),
     ]

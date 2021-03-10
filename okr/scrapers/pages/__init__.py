@@ -451,7 +451,7 @@ def _handle_sophora_document(
         headline=headline,
         teaser=teaser,
         word_count=word_count,
-        keywords_list = ", ".join(tags),
+        keywords_list=", ".join(tags),
         document_type=document_type,
         sophora_id=sophora_id,
         node=node,
