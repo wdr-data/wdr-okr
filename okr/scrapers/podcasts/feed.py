@@ -4,13 +4,15 @@ import html
 import re
 
 import feedparser
+import requests
+import bs4
 
 
 def parse(url: str) -> feedparser.util.FeedParserDict:
-    """Parse feed from url into FeedParserDict.
+    """Parse feed from ``url`` into ``FeedParserDict``.
 
-    Also adds the property ``feed.itunes_categories`` which is usually not supported by
-    feedparser.
+    Also adds the properties ``feed.itunes_category`` and ``feed.itunes_subcategory``
+    which are usually not supported by ``feedparser``.
 
     Args:
         url (str): Url to be parsed.
@@ -19,38 +21,20 @@ def parse(url: str) -> feedparser.util.FeedParserDict:
         feedparser.util.FeedParserDict: Parsed data.
     """
 
-    # Hijacking a private function - might be better to use urllib2 directly.
-    # However, that would be an additional dependency...
-    result = feedparser.util.FeedParserDict(
-        bozo=False,
-        entries=[],
-        feed=feedparser.util.FeedParserDict(),
-        headers={},
-    )
-    raw_xml = feedparser.api._open_resource(
-        url_file_stream_or_string=url,
-        etag=None,
-        modified=None,
-        agent=feedparser.USER_AGENT,
-        referrer=None,
-        handlers=None,
-        request_headers=None,
-        result=result,
-    )
-
-    # this regex finds categories and sub-categories
-    category_regex = r"<itunes:category text=\".*?[\"|\/]>"
-
-    categories_raw = re.findall(category_regex, str(raw_xml))
-
-    categories = []
-    for category in categories_raw:
-        category = category.split('"')[1]
-        category = html.unescape(category)  # e.g. for 'Society & Culture'
-        categories.append(category)
-
+    raw_xml = requests.get(url).content
     parsed_xml = feedparser.parse(raw_xml)
 
-    parsed_xml.feed.itunes_categories = categories
+    # Extract itunes:category manually cause feedparser mixes them with keywords
+    soup = bs4.BeautifulSoup(markup=raw_xml, features="lxml-xml")
+
+    # Parse categories like Apple does
+    # https://help.apple.com/itc/podcasts_connect/#/itcb54353390
+    category = soup.channel.find("itunes:category", recursive=False)
+    parsed_xml.feed.itunes_category = category and category.attrs["text"]
+    parsed_xml.feed.itunes_subcategory = None
+
+    if category:
+        subcategory = category.find("itunes:category")
+        parsed_xml.feed.itunes_subcategory = subcategory and subcategory.attrs["text"]
 
     return parsed_xml
