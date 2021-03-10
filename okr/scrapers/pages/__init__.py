@@ -24,6 +24,7 @@ from okr.models.pages import (
     SophoraDocument,
     SophoraDocumentMeta,
     SophoraID,
+    SophoraKeyword,
 )
 from okr.scrapers.common.utils import (
     date_param,
@@ -317,6 +318,8 @@ def _handle_sophora_document(
     max_age: dt.datetime,
 ) -> bool:
     # Extract attributes depending on media type
+    tags = []
+
     if "teaser" in sophora_document_info:
         editorial_update = dt.datetime.fromtimestamp(
             sophora_document_info["teaser"]["redaktionellerStand"],
@@ -324,6 +327,17 @@ def _handle_sophora_document(
         )
         headline = sophora_document_info["teaser"]["schlagzeile"]
         teaser = "\n".join(sophora_document_info["teaser"]["teaserText"])
+
+        tags = sophora_document_info["teaser"].get("tags", [])
+
+        # Detect if API export parsing is still broken
+        if "," in " ".join(tags):
+            # Fix broken tags and normalize
+            tags = " ".join(tags).lower().split(", ")
+            tags = [tag.strip() for tag in tags]
+        else:
+            # Normalize only
+            tags = [tag.lower().strip() for tag in tags]
 
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
         # Sometimes this is not set to sane value
@@ -431,11 +445,12 @@ def _handle_sophora_document(
         sophora_id.sophora_document = sophora_document
         sophora_id.save()
 
-    SophoraDocumentMeta.objects.get_or_create(
+    sophora_document_meta, created = SophoraDocumentMeta.objects.get_or_create(
         sophora_document=sophora_document,
         headline=headline,
         teaser=teaser,
         word_count=word_count,
+        keywords_list=", ".join(tags),
         document_type=document_type,
         sophora_id=sophora_id,
         node=node,
@@ -443,6 +458,13 @@ def _handle_sophora_document(
             editorial_update=editorial_update,
         ),
     )
+
+    for keyword in tags:
+        sophora_keyword, created = SophoraKeyword.objects.get_or_create(
+            keyword=keyword,
+        )
+        sophora_document_meta.keywords.add(sophora_keyword)
+
     return True
 
 
