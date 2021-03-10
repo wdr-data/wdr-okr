@@ -329,10 +329,14 @@ def _handle_sophora_document(
         teaser = "\n".join(sophora_document_info["teaser"]["teaserText"])
 
         tags = sophora_document_info["teaser"].get("tags", [])
-        if "," in " ".join(tags):  # detect if API export parsing is still broken
-            tags = " ".join(tags).lower().split(", ")  # fix broken tags and normalize
+
+        # Detect if API export parsing is still broken
+        if "," in " ".join(tags):
+            # Fix broken tags and normalize
+            tags = " ".join(tags).lower().split(", ").strip()
         else:
-            tags = [tag.lower() for tag in tags]  # normalize only
+            # Normalize only
+            tags = [tag.lower().strip() for tag in tags]
 
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
         # Sometimes this is not set to sane value
