@@ -20,7 +20,6 @@ from ..models import (
     PodcastEpisodeDataPodstat,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
-    PodcastCategory,
 )
 from .base import ProductAdmin
 from ..scrapers.podcasts import feed
@@ -48,6 +47,8 @@ class FeedForm(forms.ModelForm):
         self.instance.author = d.feed.author
         self.instance.image = d.feed.image.href
         self.instance.description = d.feed.description
+        self.instance.itunes_category = d.feed.itunes_category
+        self.instance.itunes_subcategory = d.feed.itunes_subcategory
 
         licensed_podcasts = spotify_api.licensed_podcasts()
         spotify_podcasts = fetch_all(
@@ -64,36 +65,24 @@ class FeedForm(forms.ModelForm):
         )
         self.instance.spotify_id = spotify_podcast_id
 
-        self.instance.save()
-
-        for category in d.feed.itunes_categories:
-            itunes_category, created = PodcastCategory.objects.get_or_create(
-                itunes_category=category,
-            )
-            self.instance.itunes_categories.add(itunes_category)
-
         return super().save(commit=commit)
 
 
 class PodcastAdmin(ProductAdmin):
     """List for choosing an existing podcast to edit."""
 
-    list_display = ProductAdmin.list_display + ["author", "spotify_id"]
+    list_display = ProductAdmin.list_display + [
+        "author",
+        "spotify_id",
+        "itunes_category",
+        "itunes_subcategory",
+    ]
     list_filter = ["author"]
 
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
             return FeedForm
         return super().get_form(request, obj=obj, **kwargs)
-
-
-class PodcastCategoryAdmin(admin.ModelAdmin):
-    """List for choosing existing podcast categories to edit."""
-
-    list_display = ["itunes_category", "first_seen"]
-    list_display_links = ["itunes_category"]
-    date_hierarchy = "first_seen"
-    search_fields = ["itunes_category"]
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
@@ -253,7 +242,6 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Podcast, PodcastAdmin)
-admin.site.register(PodcastCategory, PodcastCategoryAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
