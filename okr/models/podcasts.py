@@ -5,6 +5,34 @@ from django.db import models
 from .base import Product
 
 
+class PodcastCategory(models.Model):
+    """iTunes Categories, die für Podcasts vergeben wurden."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_category"
+        verbose_name = "Podcast-Category"
+        verbose_name_plural = "Podcast-Categories"
+        ordering = ["-first_seen"]
+
+    itunes_category = models.CharField(
+        max_length=256,
+        verbose_name="iTunes Category",
+        help_text="Die iTunes Category.",
+        unique=True,
+    )
+
+    first_seen = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erst-Erfassung",
+        help_text="Der Zeitpunkt, zu dem diese Category erstmals im Intelligence Layer erfasst wurde.",
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return self.itunes_category
+
+
 class Podcast(Product):
     """Enthält grundlegende Daten zu den einzelnen Podcast-Reihen, basierend auf Daten
     aus dem jeweiligen XML-Feed und von Spotify.
@@ -36,6 +64,15 @@ class Podcast(Product):
     )
     description = models.TextField(
         verbose_name="Beschreibung", help_text="Beschreibungstext des Podcasts"
+    )
+
+    itunes_categories = models.ManyToManyField(
+        to=PodcastCategory,
+        verbose_name="iTunes Categories",
+        db_table="podcast_podcast_category",
+        related_name="categories",
+        related_query_name="category",
+        help_text="Die für den Podcast vergebenen iTunes Categories",
     )
 
     spotify_id = models.CharField(

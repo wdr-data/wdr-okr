@@ -20,6 +20,7 @@ from ..models import (
     PodcastEpisodeDataPodstat,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
+    PodcastCategory,
 )
 from .base import ProductAdmin
 from ..scrapers.podcasts import feed
@@ -63,6 +64,14 @@ class FeedForm(forms.ModelForm):
         )
         self.instance.spotify_id = spotify_podcast_id
 
+        self.instance.save()
+
+        for category in d.feed.itunes_categories:
+            itunes_category, created = PodcastCategory.objects.get_or_create(
+                itunes_category=category,
+            )
+            self.instance.itunes_categories.add(itunes_category)
+
         return super().save(commit=commit)
 
 
@@ -76,6 +85,15 @@ class PodcastAdmin(ProductAdmin):
         if obj is None:
             return FeedForm
         return super().get_form(request, obj=obj, **kwargs)
+
+
+class PodcastCategoryAdmin(admin.ModelAdmin):
+    """List for choosing existing podcast categories to edit."""
+
+    list_display = ["itunes_category", "first_seen"]
+    list_display_links = ["itunes_category"]
+    date_hierarchy = "first_seen"
+    search_fields = ["itunes_category"]
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
@@ -235,6 +253,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Podcast, PodcastAdmin)
+admin.site.register(PodcastCategory, PodcastCategoryAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
