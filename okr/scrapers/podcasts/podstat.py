@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from typing import Iterator, List
 
 from sqlalchemy import create_engine, Column, Integer, ForeignKey
-from sqlalchemy.orm import Session, relationship
+from sqlalchemy.orm import Session, joinedload, relationship
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.ext.declarative.api import DeclarativeMeta
 
@@ -92,21 +92,10 @@ def get_episode(connection_meta: ConnectionMeta, zmdb_id: int) -> List[Declarati
     PodcastUrl = connection_meta.classes.PodcastUrl
     # Actually returns (hopefully) 2 items, one for ondemand and one for downloads
     return list(
-        connection_meta.session.query(PodcastUrl).filter(
-            PodcastUrl.titel.like(f"% {zmdb_id}")
+        connection_meta.session.query(PodcastUrl)
+        .filter(PodcastUrl.titel.like(f"% {zmdb_id}"))
+        .options(
+            # Prevents insane RAM usage due to DB weirdness
+            joinedload(PodcastUrl.podcast_murl)
         )
     )
-
-    """
-    print(podcast.titel, "\n")
-    print(vars(podcast), "\n")
-    print(vars(podcast.podcast_murl), "\n")
-    print("Found", len(podcast.podcast_ucount_tag_collection), "ucounts")
-
-    for day_data in podcast.podcast_ucount_tag_collection:
-        print(vars(day_data))
-    """
-
-
-if __name__ == "__main__":
-    get_podcast(1505468)

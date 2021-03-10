@@ -36,14 +36,6 @@ okr.scrapers.podcasts.podstat module
    :undoc-members:
    :show-inheritance:
 
-okr.scrapers.podcasts.spotify module
-------------------------------------
-
-.. automodule:: okr.scrapers.podcasts.spotify
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 okr.scrapers.podcasts.spotify\_api module
 -----------------------------------------
 
