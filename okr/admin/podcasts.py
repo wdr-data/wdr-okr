@@ -78,7 +78,12 @@ class PodcastAdmin(ProductAdmin):
         "itunes_category",
         "itunes_subcategory",
     ]
-    list_filter = ["author"]
+    list_filter = [
+        "author",
+        "manual_categories",
+        "itunes_category",
+        "itunes_subcategory",
+    ]
 
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
