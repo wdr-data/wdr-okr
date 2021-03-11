@@ -25,7 +25,7 @@ die bereits im Intelligence Layer angelegt sind:
    *Podcasts* aus.
 3. Klicke auf den Titel des Podcasts, für den du manuelle Kategorien hinzufügen oder
    ändern möchtest.
-4. In der Liste der Bearbeitungs-Felder gibt es den Eintrag *Manuelle Kategorien*. Wähle
+4. In der Liste der Bearbeitungs-Felder gibt es den Eintrag *Kategorien*. Wähle
    die gewünschte Kategorie aus der Liste aus. Wenn du die *Strg*-Taste gedrückt hältst,
    kannst du auch mehrere Kategorien gleichzeitig auswählen.
 5. Falls du eine neue Kategorie anlegen möchtest, klicke auf das grün Plus-Symbol neben
