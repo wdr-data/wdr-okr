@@ -83,7 +83,21 @@ class PodcastAdmin(ProductAdmin):
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
             return FeedForm
-        return super().get_form(request, obj=obj, **kwargs)
+
+        form = super().get_form(request, obj=obj, **kwargs)
+
+        # Allow saving with these fields not filled because
+        # Django admin is weird with NULLable string fields
+        unrequired_fields = [
+            "itunes_category",
+            "itunes_subcategory",
+            "spotify_id",
+        ]
+
+        for field in unrequired_fields:
+            form.base_fields[field].required = False
+
+        return form
 
 
 class PodcastManualCategoryAdmin(admin.ModelAdmin):

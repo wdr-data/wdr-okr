@@ -72,6 +72,7 @@ class Podcast(Product):
         related_name="categories",
         related_query_name="category",
         help_text="Die für den Podcast hier manuell vergebenen Kategorien",
+        blank=True,
     )
 
     itunes_category = models.TextField(

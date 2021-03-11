@@ -56,6 +56,7 @@ class Migration(migrations.Migration):
                 related_query_name="category",
                 to="okr.PodcastManualCategory",
                 verbose_name="Manuelle Kategorien",
+                blank=True,
             ),
         ),
     ]
