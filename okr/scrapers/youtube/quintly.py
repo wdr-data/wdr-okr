@@ -6,9 +6,10 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from ..common.quintly import quintly, requires_quintly
+from ..common import quintly as common_quintly
+from ..common import utils
 
-@requires_quintly
+@common_quintly.requires_quintly
 def get_youtube_analytics(
     profile_id: int,
     *,
@@ -31,15 +32,17 @@ def get_youtube_analytics(
     profile_ids = [profile_id]
     table = "youtubeAnalytics"
 
+    today = utils.local_today()
+
     if start_date is None:
         if interval == "daily":
-            start_date = datetime.date.today() - datetime.timedelta(days=7)
+            start_date = today - datetime.timedelta(days=7)
         elif interval == "weekly":
-            start_date = datetime.date.today() - datetime.timedelta(days=14)
+            start_date = today - datetime.timedelta(days=14)
         elif interval == "monthly":
-            start_date = datetime.date.today() - datetime.timedelta(days=60)
+            start_date = today - datetime.timedelta(days=60)
 
-    end_date = datetime.date.today()
+    end_date = today
 
     fields = [
         "time",
@@ -50,7 +53,7 @@ def get_youtube_analytics(
         "averageViewDuration",
     ]
 
-    df = quintly.run_query(
+    df = common_quintly.quintly.run_query(
         profile_ids,
         table,
         fields,

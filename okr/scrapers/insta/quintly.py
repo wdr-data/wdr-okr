@@ -6,9 +6,10 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from ..common.quintly import quintly, requires_quintly
+from ..common import quintly as common_quintly
+from ..common import utils
 
-@requires_quintly
+@common_quintly.requires_quintly
 def get_insta_insights(
     profile_id: int,
     *,
@@ -28,20 +29,22 @@ def get_insta_insights(
     """
     profile_ids = [profile_id]
 
+    today = utils.local_today()
+
     if start_date is None:
         if interval == "daily":
-            start_date = datetime.date.today() - datetime.timedelta(days=3)
+            start_date = today - datetime.timedelta(days=3)
         elif interval == "weekly":
-            start_date = datetime.date.today() - datetime.timedelta(days=14)
+            start_date = today - datetime.timedelta(days=14)
         elif interval == "monthly":
-            start_date = datetime.date.today() - datetime.timedelta(days=60)
+            start_date = today - datetime.timedelta(days=60)
 
-    end_date = datetime.date.today()
+    end_date = today
 
     table = "instagram"
     fields = ["time", "followers", "followersChange", "postsChange"]
 
-    df_insta = quintly.run_query(
+    df_insta = common_quintly.quintly.run_query(
         profile_ids, table, fields, start_date, end_date, interval=interval
     )
 
@@ -51,7 +54,7 @@ def get_insta_insights(
     if interval == "daily":
         fields += ["textMessageClicksDay", "emailContactsDay"]
 
-    df_insta_insights = quintly.run_query(
+    df_insta_insights = common_quintly.quintly.run_query(
         profile_ids, table, fields, start_date, end_date, interval=interval
     )
 
@@ -68,7 +71,7 @@ def get_insta_insights(
     return df
 
 
-@requires_quintly
+@common_quintly.requires_quintly
 def get_insta_stories(
     profile_id: int,
     *,
@@ -100,7 +103,7 @@ def get_insta_stories(
     ]
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
-    df = quintly.run_query(profile_ids, table, fields, start_date, end_date)
+    df = common_quintly.quintly.run_query(profile_ids, table, fields, start_date, end_date)
 
     df = df.replace({np.nan: None})
 
@@ -108,7 +111,7 @@ def get_insta_stories(
     return df
 
 
-@requires_quintly
+@common_quintly.requires_quintly
 def get_insta_posts(
     profile_id: int,
     *,
@@ -131,13 +134,13 @@ def get_insta_posts(
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
 
-    df_posts = quintly.run_query(profile_ids, table, fields, start_date, end_date)
+    df_posts = common_quintly.quintly.run_query(profile_ids, table, fields, start_date, end_date)
 
     table = "instagramInsightsOwnPosts"
 
     fields = ["externalId", "time", "likes", "reach", "impressions"]
 
-    df_posts_insights = quintly.run_query(
+    df_posts_insights = common_quintly.quintly.run_query(
         profile_ids, table, fields, start_date, end_date
     )
 
