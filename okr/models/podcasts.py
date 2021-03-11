@@ -5,31 +5,31 @@ from django.db import models
 from .base import Product
 
 
-class PodcastManualCategory(models.Model):
+class PodcastCategory(models.Model):
     """Manuell vergebene Kategorien für Podcasts."""
 
     class Meta:
         """Model meta options."""
 
-        db_table = "podcast_manual_category"
-        verbose_name = "Podcasts manuelle Kategorie"
-        verbose_name_plural = "Podcasts manuelle Kategorien"
-        ordering = ["-first_seen"]
+        db_table = "podcast_category"
+        verbose_name = "Podcast-Kategorie"
+        verbose_name_plural = "Podcast-Kategorien"
+        ordering = ["name"]
 
-    manual_category = models.TextField(
-        verbose_name="Manuelle Kategorie",
+    name = models.TextField(
+        verbose_name="Kategorie",
         help_text="Manuell vergebene Kategorie.",
         unique=True,
     )
 
-    first_seen = models.DateTimeField(
-        verbose_name="Zeitpunkt der Erst-Erfassung",
-        help_text="Der Zeitpunkt, zu dem diese Kategorie erstmals im Intelligence Layer gespeichert wurde.",
+    created = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erstellung",
+        help_text="Der Zeitpunkt, zu dem diese Kategorie angelegt wurde.",
         auto_now_add=True,
     )
 
     def __str__(self):
-        return self.manual_category
+        return self.name
 
 
 class Podcast(Product):
@@ -65,12 +65,12 @@ class Podcast(Product):
         verbose_name="Beschreibung", help_text="Beschreibungstext des Podcasts"
     )
 
-    manual_categories = models.ManyToManyField(
-        to=PodcastManualCategory,
-        verbose_name="Manuelle Kategorien",
-        db_table="podcast_podcast_manual_category",
-        related_name="categories",
-        related_query_name="category",
+    categories = models.ManyToManyField(
+        to=PodcastCategory,
+        verbose_name="Kategorien",
+        db_table="podcast_podcast_category",
+        related_name="podcasts",
+        related_query_name="podcast",
         help_text="Die für den Podcast hier manuell vergebenen Kategorien",
         blank=True,
     )

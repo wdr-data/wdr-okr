@@ -161,6 +161,15 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
         print(f"RSS Feed for Podcast {podcast} is empty.")
         capture_message(f"RSS Feed for podcast {podcast} is empty.")
 
+    # Update podcast meta data
+    podcast.name = d.feed.title
+    podcast.author = d.feed.author
+    podcast.image = d.feed.image.href
+    podcast.description = d.feed.description
+    podcast.itunes_category = d.feed.itunes_category
+    podcast.itunes_subcategory = d.feed.itunes_subcategory
+    podcast.save()
+
     # Attempt to find Spotify ID if there is none yet
     if not podcast.spotify_id:
         spotify_podcast_id = next(

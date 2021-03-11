@@ -16,7 +16,7 @@ from ..models import (
     PodcastEpisodeDataPodstat,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
-    PodcastManualCategory,
+    PodcastCategory,
 )
 from .base import ProductAdmin
 from ..scrapers.podcasts import feed
@@ -76,7 +76,7 @@ class PodcastAdmin(ProductAdmin):
     ]
     list_filter = [
         "author",
-        "manual_categories",
+        "categories",
         "itunes_category",
         "itunes_subcategory",
     ]
@@ -101,13 +101,13 @@ class PodcastAdmin(ProductAdmin):
         return form
 
 
-class PodcastManualCategoryAdmin(admin.ModelAdmin):
-    """List for choosing existing manual podcast categories to edit."""
+class PodcastCategoryAdmin(admin.ModelAdmin):
+    """List for choosing existing podcast categories to edit."""
 
-    list_display = ["manual_category", "first_seen"]
-    list_display_links = ["manual_category"]
-    date_hierarchy = "first_seen"
-    search_fields = ["manual_category"]
+    list_display = ["name", "created"]
+    list_display_links = ["name"]
+    date_hierarchy = "created"
+    search_fields = ["name"]
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
@@ -268,7 +268,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
-admin.site.register(PodcastManualCategory, PodcastManualCategoryAdmin)
+admin.site.register(PodcastCategory, PodcastCategoryAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)
