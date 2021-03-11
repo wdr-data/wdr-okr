@@ -83,8 +83,8 @@ def build_html(
                     for relation in db_table["relations"]:
                         if relation["type"] == "ForeignKey":
                             relation_text += f'<li><code>{relation["column_name"]}</code> aus der Tabelle <a href="#{relation["target"]}">{relation["target_table_name"]}</a> (Foreign Key)</li>'
-                        elif relation["type"] == "ManyToManyField":
-                            relation_text += f'<li><code>{relation["column_name"]}</code> aus der Tabelle <a href="#{relation["target"]}">{relation["target_table_name"]}</a> (ManyToMany)</li>'
+                        # elif relation["type"] == "ManyToManyField":
+                        #     relation_text += f'<li><code>{relation["column_name"]}</code> aus der Tabelle <a href="#{relation["target"]}">{relation["target_table_name"]}</a> (ManyToMany)</li>'
                     if relation_text:
                         info_text += "<p>Diese Tabelle hat folgende Relationen zu anderen Tabellen:</p>"
                         info_text += "<ul>"
