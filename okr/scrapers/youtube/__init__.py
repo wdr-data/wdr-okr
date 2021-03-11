@@ -1,7 +1,6 @@
 """Read and process YouTube data."""
 
 from datetime import date
-from okr.models.podcasts import Podcast
 from time import sleep
 from typing import Optional
 
@@ -10,7 +9,7 @@ from django.db.models import Q
 from sentry_sdk import capture_exception
 
 from ...models.youtube import *
-from ..common import quintly
+from . import quintly
 
 
 def scrape_full(youtube: YouTube):
