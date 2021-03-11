@@ -21,7 +21,10 @@ def parse(url: str) -> feedparser.util.FeedParserDict:
         feedparser.util.FeedParserDict: Parsed data.
     """
 
-    raw_xml = requests.get(url).content
+    result = requests.get(url)
+    result.raise_for_status()
+
+    raw_xml = result.content
     parsed_xml = feedparser.parse(raw_xml)
 
     # Extract itunes:category manually cause feedparser mixes them with keywords
