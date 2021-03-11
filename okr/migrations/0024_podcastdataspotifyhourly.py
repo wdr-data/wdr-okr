@@ -5,6 +5,11 @@ import django.db.models.deletion
 
 
 def scrape_spotify_api_last_days(apps, schema_editor):
+    PodcastDataSpotify = apps.get_model("okr", "PodcastDataSpotify")
+
+    if PodcastDataSpotify.objects.count() == 0:
+        return
+
     from okr.scrapers.podcasts import scrape_spotify_api
 
     scrape_spotify_api()
