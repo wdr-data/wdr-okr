@@ -68,7 +68,7 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
         ),
         start_time=date,
         stop_time=date,
-        row_limit=10,
+        row_limit=10000,
     )
     config_search = AnalysisConfig(
         analysis_objects,
@@ -81,7 +81,7 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
         ),
         start_time=date,
         stop_time=date,
-        row_limit=10,
+        row_limit=10000,
     )
 
     webtrekk = Webtrekk()
