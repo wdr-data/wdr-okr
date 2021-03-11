@@ -79,14 +79,16 @@ def build_html(
 
                 # if table uses foreign keys: create a list of foreign keys with links
                 if db_table["relations"]:
-                    foreign_key_text = ""
+                    relation_text = ""
                     for relation in db_table["relations"]:
                         if relation["type"] == "ForeignKey":
-                            foreign_key_text += f'<li><code>{relation["column_name"]}</code> aus der Tabelle <a href="#{relation["target"]}">{relation["target_table_name"]}</a></li>'
-                    if foreign_key_text:
-                        info_text += "<p>Diese Tabelle nutzt folgende Foreign Keys:</p>"
+                            relation_text += f'<li><code>{relation["column_name"]}</code> aus der Tabelle <a href="#{relation["target"]}">{relation["target_table_name"]}</a> (Foreign Key)</li>'
+                        # elif relation["type"] == "ManyToManyField":
+                        #     relation_text += f'<li><code>{relation["column_name"]}</code> aus der Tabelle <a href="#{relation["target"]}">{relation["target_table_name"]}</a> (ManyToMany)</li>'
+                    if relation_text:
+                        info_text += "<p>Diese Tabelle hat folgende Relationen zu anderen Tabellen:</p>"
                         info_text += "<ul>"
-                        info_text += foreign_key_text
+                        info_text += relation_text
                         info_text += "</ul>"
 
                 if db_table["unique_together"]:

@@ -148,10 +148,27 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     print("Scraping feed for", podcast)
 
     # Read data from RSS feed
-    d = feed.parse(podcast.feed_url)
+    try:
+        d = feed.parse(podcast.feed_url)
+    except HTTPError as e:
+        capture_message(
+            f"RSS Feed for podcast {podcast} is not available (HTTP {e.response.status_code})."
+        )
+        podcast.episodes.update(available=False)
+        return
+
     if len(d.entries) == 0:
         print(f"RSS Feed for Podcast {podcast} is empty.")
         capture_message(f"RSS Feed for podcast {podcast} is empty.")
+
+    # Update podcast meta data
+    podcast.name = d.feed.title
+    podcast.author = d.feed.author
+    podcast.image = d.feed.image.href
+    podcast.description = d.feed.description
+    podcast.itunes_category = d.feed.itunes_category
+    podcast.itunes_subcategory = d.feed.itunes_subcategory
+    podcast.save()
 
     # Attempt to find Spotify ID if there is none yet
     if not podcast.spotify_id:

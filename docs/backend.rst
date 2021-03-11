@@ -8,7 +8,8 @@ Der Intelligence Layer nutzt ein Django-basiertes Backend.
 Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
 
 * **Anlegen und Verwalten von Datenquellen**: Zum Beispiel das Hinzufügen einer neuen
-  Podcast-Reihe oder eines neuen Instagram-Kanals.
+  Podcast-Reihe oder eines neuen Instagram-Kanals. Dazu zählt auch das
+  :ref:`manuelle Anlegen und Zuweisen von Kategorien für Podcasts<backend_categories>`.
 
 * **Manuelles Einpflegen von zusätzlichen Daten**: Für manche
   :ref:`YouTube-Daten <backend_youtube>` sowie für
@@ -23,5 +24,6 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
     :maxdepth: 2
     :hidden:
 
+    backend/backend_categories
     backend/backend_youtube
     backend/backend_instagram_collaborations
