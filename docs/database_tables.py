@@ -7,8 +7,6 @@ import django
 import os
 import sys
 
-from tabulate import tabulate
-
 DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(DOCS_DIR)
 
@@ -19,6 +17,33 @@ django.setup()
 from django_extensions.management.modelviz import generate_graph_data
 
 from database_tables_config import APP_LABELS, HTML_TOP, HTML_BOTTOM, FILENAME
+
+
+def tabulate(head, rows, head_classes=None, row_classes=None):
+    head_classes = head_classes or {}
+    row_classes = row_classes or {}
+
+    th = []
+    for i, item in enumerate(head):
+        attrs = []
+        if i in head_classes:
+            attrs.append(f'class="{head_classes[i]}"')
+        th.append(f"<th{' ' if attrs else ''}{' '.join(attrs)}>{item}</th>")
+
+    tr = []
+    for row in rows:
+        td = []
+        for i, item in enumerate(row):
+            attrs = []
+            if i in row_classes:
+                attrs.append(f'class="{row_classes[i]}"')
+            td.append(f"<td{' ' if attrs else ''}{' '.join(attrs)}>{item}</td>")
+        tr.append(f"<tr>{' '.join(td)}</tr>")
+
+    head_html = f"<thead><tr>{' '.join(th)}</tr></thead>"
+    body_html = "<tbody>" + "\n".join(tr) + "</tbody>"
+
+    return f"<table>{head_html}\n{body_html}</table>"
 
 
 def build_html(
@@ -54,18 +79,26 @@ def build_html(
                 else:
                     description = field["verbose_name"]
 
+                data_type = f'<code>{field["db_type"]}</code>'
+
                 if field["relation"]:
-                    data_type = f'{field["db_type"]} ({field["internal_type"]})'
-                elif field["type"] == "AutoField":
-                    data_type = f'{field["db_type"]} ({field["type"]})'
-                else:
-                    data_type = f'{field["db_type"]}'
+                    field_type = field["internal_type"]
+                    field_type = field_type.replace("ForeignKey", "FK")
+                    data_type = f"{data_type} (<b>{field_type}</b>)"
+                # elif field["type"] == "AutoField":
+                #    data_type = f'{data_type}<br/><b>{field["type"]}</b>'
 
                 nullable = "✅" if field["null"] else "❌"
                 unique = "✅" if field["unique"] else "❌"
 
                 table_fields.append(
-                    [field["column_name"], data_type, unique, nullable, description]
+                    [
+                        f"<code>{field['column_name']}</code>",
+                        data_type,
+                        unique,
+                        nullable,
+                        description,
+                    ]
                 )
 
             # only include tables that are stored in db
@@ -95,9 +128,9 @@ def build_html(
                         info_text += "</ul>"
 
                 if db_table["unique_together"]:
-                    info_text += "UNIQUE: <ul>"
+                    info_text += "Für die Tabelle sind die folgenden <code>UNIQUE</code> Constraints definiert: <ul>"
                     for tup in db_table["unique_together"]:
-                        info_text += f"<li>{', '.join(tup)}</li>"
+                        info_text += f"<li>{', '.join(f'<code>{field}</code>' for field in tup)}</li>"
                     info_text += "</ul>"
 
                 # combine table name, table info text, table fields, and Django model name
@@ -115,13 +148,14 @@ def build_html(
     for table_name, table_infos in output_sorted.items():
         # convert output table to HTML
         html_tables += (
-            f"<h3><a name='{table_infos[2]}'>Database Tabellenname: {table_name}</a></h3>"
+            f"<h3><a name='{table_infos[2]}'>{table_name}</a></h3>"
             + f"<div class='docstring'>{table_infos[0]}</div>"
             + "\n"
             + tabulate(
+                ["Name", "Type", "UNIQUE", "NULL", "Beschreibung"],
                 table_infos[1],
-                headers=["Name", "Type", "UNIQUE", "NULL", "Beschreibung"],
-                tablefmt="html",
+                head_classes={2: "mono", 3: "mono"},
+                row_classes={2: "hcenter vcenter", 3: "hcenter vcenter"},
             )
             + "\n"
         )
