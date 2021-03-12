@@ -44,6 +44,14 @@ okr.models.podcasts module
    :undoc-members:
    :show-inheritance:
 
+okr.models.tiktok module
+--------------------------
+
+.. automodule:: okr.models.tiktok
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 okr.models.youtube module
 -------------------------
 

@@ -2,7 +2,7 @@ okr.admin package
 =================
 
 okr.admin contents
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. automodule:: okr.admin
    :members:
@@ -37,6 +37,14 @@ okr.admin.podcasts module
 -------------------------
 
 .. automodule:: okr.admin.podcasts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+okr.admin.tiktok module
+-------------------------
+
+.. automodule:: okr.admin.tiktok
    :members:
    :undoc-members:
    :show-inheritance:

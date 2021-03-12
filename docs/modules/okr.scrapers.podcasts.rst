@@ -1,8 +1,16 @@
 okr.scrapers.podcasts package
 =============================
 
+Module contents
+~~~~~~~~~~~~~~~
+
+.. automodule:: okr.scrapers.podcasts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
-----------
+~~~~~~~~~~
 
 okr.scrapers.podcasts.connection\_meta module
 ---------------------------------------------
@@ -48,14 +56,6 @@ okr.scrapers.podcasts.webtrekk module
 -------------------------------------
 
 .. automodule:: okr.scrapers.podcasts.webtrekk
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: okr.scrapers.podcasts
    :members:
    :undoc-members:
    :show-inheritance:

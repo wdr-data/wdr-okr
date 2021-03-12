@@ -1,8 +1,16 @@
 okr.scrapers.pages package
 ==========================
 
+Module contents
+~~~~~~~~~~~~~~~
+
+.. automodule:: okr.scrapers.pages
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
-----------
+~~~~~~~~~~
 
 okr.scrapers.pages.gsc module
 -----------------------------
@@ -24,14 +32,6 @@ okr.scrapers.pages.webtrekk module
 ----------------------------------
 
 .. automodule:: okr.scrapers.pages.webtrekk
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: okr.scrapers.pages
    :members:
    :undoc-members:
    :show-inheritance:

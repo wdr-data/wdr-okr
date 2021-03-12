@@ -8,3 +8,14 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+Submodules
+----------
+
+okr.scrapers.youtube.quintly module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: okr.scrapers.youtube.quintly
+   :members:
+   :undoc-members:
+   :show-inheritance:

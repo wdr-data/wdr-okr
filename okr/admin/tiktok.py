@@ -83,6 +83,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display_links = ["name"]
     date_hierarchy = "first_seen"
 
+
 admin.site.register(TikTok, QuintlyAdmin)
 admin.site.register(TikTokData, DataAdmin)
 admin.site.register(TikTokPost, PostAdmin)

@@ -47,7 +47,7 @@ def scrape_data(
     Args:
         interval (str): Interval to request data for.
         start_date (Optional[date], optional): Earliest date to request data for.
-        Defaults to None.
+          Defaults to None.
         tiktok_filter (Optional[Q], optional): Filter to apply to
             :class:`~okr.models.tiktok.TikTok` object. Defaults to None.
     """
@@ -90,7 +90,7 @@ def scrape_posts(
 
     Args:
         start_date (Optional[date], optional): Earliest date to request data for.
-        Defaults to None.
+          Defaults to None.
         tiktok_filter (Optional[Q], optional): Filter to apply to
             :class:`~okr.models.tiktok.TikTok` object. Defaults to None.
     """

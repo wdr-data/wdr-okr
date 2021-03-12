@@ -8,3 +8,14 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+Submodules
+----------
+
+okr.scrapers.insta.quintly module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: okr.scrapers.insta.quintly
+   :members:
+   :undoc-members:
+   :show-inheritance:
