@@ -250,7 +250,7 @@ class TikTokPost(models.Model):
         null=True,
     )
 
-    video_cover_url = models.TextField(
+    video_cover_url = models.URLField(
         verbose_name="Video-Cover URL",
         help_text="URL des Video-Coverbildes.",
         null=True,

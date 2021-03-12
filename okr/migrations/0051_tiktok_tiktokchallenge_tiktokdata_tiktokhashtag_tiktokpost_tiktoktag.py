@@ -189,7 +189,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "video_cover_url",
-                    models.TextField(
+                    models.URLField(
                         help_text="URL des Video-Coverbildes.",
                         null=True,
                         verbose_name="Video-Cover URL",
