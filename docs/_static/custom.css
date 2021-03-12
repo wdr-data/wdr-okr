@@ -9,12 +9,28 @@
 #db_tables td {
     border: 1px solid black;
     padding: 5px;
+}
+
+#db_tables td:nth-of-type(1) {
+    width: 25%;
+}
+#db_tables td:nth-of-type(2) {
     width: 20%;
+}
+#db_tables td:nth-of-type(3) {
+    width: 10%;
+}
+#db_tables td:nth-of-type(4) {
+    width: 10%;
+}
+#db_tables td:nth-of-type(5) {
+    width: 35%;
 }
 
 #db_tables th {
     border: 1px solid black;
-    background-color: grey;
+    color: white;
+    background-color: #333;
     padding: 6px;
 }
 
@@ -24,6 +40,24 @@
 
 #db_tables tr:hover {
     background-color: rgb(216, 216, 216);
+}
+
+#db_tables th.mono {
+    font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace;
+    vertical-align: bottom;
+}
+
+#db_tables td.hcenter {
+    text-align: center;
+}
+
+#db_tables td.vcenter {
+    vertical-align: middle;
+}
+
+
+#db_tables td code {
+    font-size: 0.9rem;
 }
 
 /* Styling for schedue table */
