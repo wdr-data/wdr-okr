@@ -275,7 +275,7 @@ class TikTokPost(models.Model):
     )
 
     views = models.IntegerField(
-        verbose_name="Likes",
+        verbose_name="Views",
         help_text="Anzahl der Views",
         null=True,
     )

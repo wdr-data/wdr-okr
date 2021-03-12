@@ -218,7 +218,7 @@ class Migration(migrations.Migration):
                 (
                     "views",
                     models.IntegerField(
-                        help_text="Anzahl der Views", null=True, verbose_name="Likes"
+                        help_text="Anzahl der Views", null=True, verbose_name="Views"
                     ),
                 ),
                 (
