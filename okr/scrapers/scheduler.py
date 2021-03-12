@@ -1,5 +1,4 @@
-"""Configure scheduler to call scraper modules.
-"""
+"""Configure scheduler to call scraper modules."""
 
 from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -120,6 +119,35 @@ def add_jobs():
         trigger="cron",
         hour="6",
         minute="6",
+    )
+
+    # TikTok
+    scheduler.add_job(
+        tiktok.scrape_data,
+        args=["daily"],
+        trigger="cron",
+        hour="2",
+        minute="00",
+    )
+    scheduler.add_job(
+        tiktok.scrape_data,
+        args=["weekly"],
+        trigger="cron",
+        hour="2",
+        minute="10",
+    )
+    scheduler.add_job(
+        tiktok.scrape_data,
+        args=["monthly"],
+        trigger="cron",
+        hour="2",
+        minute="20",
+    )
+    scheduler.add_job(
+        tiktok.scrape_posts,
+        trigger="cron",
+        hour="2",
+        minute="30",
     )
 
     # Podcasts
