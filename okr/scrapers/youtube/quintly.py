@@ -9,6 +9,7 @@ import pandas as pd
 from ..common import quintly as common_quintly
 from ..common import utils
 
+
 @common_quintly.requires_quintly
 def get_youtube_analytics(
     profile_id: int,

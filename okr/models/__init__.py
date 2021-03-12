@@ -5,3 +5,4 @@ from .insta import *
 from .youtube import *
 from .podcasts import *
 from .pages import *
+from .tiktok import *

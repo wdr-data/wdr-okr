@@ -9,6 +9,7 @@ import pandas as pd
 from ..common import quintly as common_quintly
 from ..common import utils
 
+
 @common_quintly.requires_quintly
 def get_insta_insights(
     profile_id: int,
@@ -67,7 +68,6 @@ def get_insta_insights(
 
     df = df.replace({np.nan: None})
 
-    print(df)
     return df
 
 
@@ -103,7 +103,9 @@ def get_insta_stories(
     ]
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
-    df = common_quintly.quintly.run_query(profile_ids, table, fields, start_date, end_date)
+    df = common_quintly.quintly.run_query(
+        profile_ids, table, fields, start_date, end_date
+    )
 
     df = df.replace({np.nan: None})
 
@@ -134,7 +136,9 @@ def get_insta_posts(
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
 
-    df_posts = common_quintly.quintly.run_query(profile_ids, table, fields, start_date, end_date)
+    df_posts = common_quintly.quintly.run_query(
+        profile_ids, table, fields, start_date, end_date
+    )
 
     table = "instagramInsightsOwnPosts"
 
@@ -148,5 +152,4 @@ def get_insta_posts(
 
     df = df.replace({np.nan: None})
 
-    print(df)
     return df
