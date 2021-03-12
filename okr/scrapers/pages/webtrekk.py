@@ -146,6 +146,11 @@ def _parse_row(element):
         return None
 
     parsed = urlparse(element[0])
+
+    # Apparently sometimes there's no host
+    if parsed.host is None or parsed.path is None:
+        return None
+
     # check if url part of property
     if not parsed.host.endswith("wdr.de") or not parsed.path.startswith("/nachrichten"):
         return None
