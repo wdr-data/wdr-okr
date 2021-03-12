@@ -9,7 +9,7 @@ from django.db.models import Q
 from sentry_sdk import capture_exception
 
 from ...models.insta import *
-from ..common import quintly
+from . import quintly
 from ..common.utils import BERLIN
 
 

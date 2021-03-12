@@ -1,5 +1,4 @@
-"""Configure scheduler to call scraper modules.
-"""
+"""Configure scheduler to call scraper modules."""
 
 from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -8,8 +7,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from sentry_sdk import capture_exception
 
-from ..models import Podcast, Insta, YouTube, Property
-from . import insta, youtube, podcasts, pages
+from ..models import Podcast, Insta, YouTube, TikTok, Property
+from . import insta, youtube, podcasts, pages, tiktok
 from .common.utils import BERLIN
 from .db_cleanup import run_db_cleanup
 
@@ -120,6 +119,35 @@ def add_jobs():
         trigger="cron",
         hour="6",
         minute="6",
+    )
+
+    # TikTok
+    scheduler.add_job(
+        tiktok.scrape_data,
+        args=["daily"],
+        trigger="cron",
+        hour="2",
+        minute="00",
+    )
+    scheduler.add_job(
+        tiktok.scrape_data,
+        args=["weekly"],
+        trigger="cron",
+        hour="2",
+        minute="10",
+    )
+    scheduler.add_job(
+        tiktok.scrape_data,
+        args=["monthly"],
+        trigger="cron",
+        hour="2",
+        minute="20",
+    )
+    scheduler.add_job(
+        tiktok.scrape_posts,
+        trigger="cron",
+        hour="2",
+        minute="30",
     )
 
     # Podcasts
@@ -249,3 +277,17 @@ def sophora_node_created(instance: SophoraNode, created: bool, **kwargs):
     print(instance, created)
     if created:
         scheduler.add_job(pages.scrape_full_sophora, args=[instance], max_instances=1)
+
+
+@receiver(post_save, sender=TikTok)
+def tiktok_created(instance: TikTok, created: bool, **kwargs):
+    """Start scraper run for newly added TikTok account
+    (:meth:`okr.scrapers.tiktok.scrape_full`).
+
+    Args:
+        instance (TikTok): A TikTok instance
+        created (bool): Start scraper if set to True
+    """
+    print(instance, created)
+    if created:
+        scheduler.add_job(tiktok.scrape_full, args=[instance], max_instances=1)

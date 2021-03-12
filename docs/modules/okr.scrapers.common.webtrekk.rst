@@ -2,7 +2,7 @@ okr.scrapers.common.webtrekk package
 ====================================
 
 Module contents
----------------
+~~~~~~~~~~~~~~~
 
 .. automodule:: okr.scrapers.common.webtrekk
    :members:
@@ -10,7 +10,7 @@ Module contents
    :show-inheritance:
 
 Submodules
-----------
+~~~~~~~~~~
 
 okr.scrapers.common.webtrekk.types module
 -----------------------------------------
