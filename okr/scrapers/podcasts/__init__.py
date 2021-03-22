@@ -21,6 +21,7 @@ from .webtrekk import cleaned_webtrekk_audio_data
 from .connection_meta import ConnectionMeta
 from ..common.utils import (
     date_param,
+    local_now,
     local_today,
     local_yesterday,
     date_range,
@@ -147,6 +148,8 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
 def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     print("Scraping feed for", podcast)
 
+    now = local_now()
+
     # Read data from RSS feed
     try:
         d = feed.parse(podcast.feed_url)
@@ -248,6 +251,7 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
             "spotify_id": spotify_id,
             "duration": duration,
             "available": True,
+            "last_available_date_time": now,
         }
 
         try:
@@ -422,8 +426,10 @@ def _scrape_spotify_api_podcast(
             )
 
     # Retrieve data for individual episodes
+    last_available_cutoff = local_today() - dt.timedelta(days=5)
+
     for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
-        available=True
+        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
     ):
         print("Scraping spotify episode data for", podcast_episode)
 
@@ -507,8 +513,11 @@ def _scrape_spotify_experimental_performance_podcast(
         podcast,
         "from experimental API",
     )
+
+    last_available_cutoff = local_today() - dt.timedelta(days=5)
+
     for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
-        available=True
+        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
     ):
         print(
             "Scraping spotify episode performance data for",
@@ -616,8 +625,10 @@ def _scrape_spotify_experimental_demographics_podcast(
     if start_date < first_episode_date:
         start_date = first_episode_date
 
+    last_available_cutoff = local_today() - dt.timedelta(days=5)
+
     for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
-        available=True
+        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
     ):
         for date in reversed(date_range(start_date, end_date)):
             print(
@@ -727,7 +738,11 @@ def _scrape_podstat_podcast(
 ):
     print("Scraping podstat for", podcast)
 
-    for podcast_episode in podcast.episodes.filter(available=True):
+    last_available_cutoff = local_today() - dt.timedelta(days=10)
+
+    for podcast_episode in podcast.episodes.filter(
+        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
+    ):
         print("Scraping podstat episode data for", podcast_episode)
         podstat_episode_variants = podstat.get_episode(
             connection_meta, podcast_episode.zmdb_id
