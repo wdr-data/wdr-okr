@@ -1,13 +1,10 @@
 """Forms for managing podcast data."""
 
-from datetime import date, timedelta
-from decimal import Decimal
-import re
 import functools
 
 from django import forms
 from django.contrib import admin
-from django.contrib import messages
+from django.db import models
 
 from ..models import (
     Podcast,
@@ -20,6 +17,7 @@ from ..models import (
     PodcastEpisodeDataPodstat,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
+    PodcastCategory,
 )
 from .base import ProductAdmin
 from ..scrapers.podcasts import feed
@@ -47,6 +45,8 @@ class FeedForm(forms.ModelForm):
         self.instance.author = d.feed.author
         self.instance.image = d.feed.image.href
         self.instance.description = d.feed.description
+        self.instance.itunes_category = d.feed.itunes_category
+        self.instance.itunes_subcategory = d.feed.itunes_subcategory
 
         licensed_podcasts = spotify_api.licensed_podcasts()
         spotify_podcasts = fetch_all(
@@ -69,13 +69,50 @@ class FeedForm(forms.ModelForm):
 class PodcastAdmin(ProductAdmin):
     """List for choosing an existing podcast to edit."""
 
-    list_display = ProductAdmin.list_display + ["author", "spotify_id"]
-    list_filter = ["author"]
+    list_display = ProductAdmin.list_display + [
+        "author",
+        "spotify_id",
+        "itunes_category",
+        "itunes_subcategory",
+    ]
+    list_filter = [
+        "author",
+        "categories",
+        "itunes_category",
+        "itunes_subcategory",
+    ]
 
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
             return FeedForm
-        return super().get_form(request, obj=obj, **kwargs)
+
+        form = super().get_form(request, obj=obj, **kwargs)
+
+        # Allow saving with these fields not filled because
+        # Django admin is weird with NULLable string fields
+        unrequired_fields = [
+            "itunes_category",
+            "itunes_subcategory",
+            "spotify_id",
+        ]
+
+        for field in unrequired_fields:
+            form.base_fields[field].required = False
+
+        return form
+
+
+class PodcastCategoryAdmin(admin.ModelAdmin):
+    """List for choosing existing podcast categories to edit."""
+
+    formfield_overrides = {
+        models.TextField: {"widget": forms.TextInput()},
+    }
+
+    list_display = ["name", "created"]
+    list_display_links = ["name"]
+    date_hierarchy = "created"
+    search_fields = ["name"]
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
@@ -236,6 +273,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
+admin.site.register(PodcastCategory, PodcastCategoryAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)

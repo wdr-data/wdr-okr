@@ -19,6 +19,7 @@ Subpackages
    okr.scrapers.insta
    okr.scrapers.pages
    okr.scrapers.podcasts
+   okr.scrapers.tiktok
    okr.scrapers.youtube
 
 Submodules

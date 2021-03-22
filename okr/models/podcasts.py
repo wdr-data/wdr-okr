@@ -5,6 +5,33 @@ from django.db import models
 from .base import Product
 
 
+class PodcastCategory(models.Model):
+    """Manuell vergebene Kategorien für Podcasts."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_category"
+        verbose_name = "Podcast-Kategorie"
+        verbose_name_plural = "Podcast-Kategorien"
+        ordering = ["name"]
+
+    name = models.TextField(
+        verbose_name="Kategorie",
+        help_text="Manuell vergebene Kategorie.",
+        unique=True,
+    )
+
+    created = models.DateTimeField(
+        verbose_name="Zeitpunkt der Erstellung",
+        help_text="Der Zeitpunkt, zu dem diese Kategorie angelegt wurde.",
+        auto_now_add=True,
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class Podcast(Product):
     """Enthält grundlegende Daten zu den einzelnen Podcast-Reihen, basierend auf Daten
     aus dem jeweiligen XML-Feed und von Spotify.
@@ -36,6 +63,28 @@ class Podcast(Product):
     )
     description = models.TextField(
         verbose_name="Beschreibung", help_text="Beschreibungstext des Podcasts"
+    )
+
+    categories = models.ManyToManyField(
+        to=PodcastCategory,
+        verbose_name="Kategorien",
+        db_table="podcast_podcast_category",
+        related_name="podcasts",
+        related_query_name="podcast",
+        help_text="Die für den Podcast hier manuell vergebenen Kategorien",
+        blank=True,
+    )
+
+    itunes_category = models.TextField(
+        verbose_name="iTunes Category",
+        help_text="Die für den Podcast vergebenen iTunes Category",
+        null=True,
+    )
+
+    itunes_subcategory = models.TextField(
+        verbose_name="iTunes Subcategory",
+        help_text="Die für den Podcast vergebenen iTunes Subcategory",
+        null=True,
     )
 
     spotify_id = models.CharField(
@@ -205,6 +254,11 @@ class PodcastEpisode(models.Model):
     available = models.BooleanField(
         verbose_name="Verfügbar",
         help_text="Indikator, ob diese Episode momentan im Feed verfügbar ist",
+    )
+    last_available_date_time = models.DateTimeField(
+        verbose_name="Zuletzt verfügbar",
+        help_text="Zeitpunkt, zu dem die Episode zuletzt im Feed gesehen wurde",
+        null=True,
     )
 
     last_updated = models.DateTimeField(

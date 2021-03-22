@@ -36,6 +36,9 @@ Für Daten zu Youtube:
   * Quintly API (`Quintly Dokumentation`_)
   * Manueller Daten-Import aus YouTube Studio
 
+Für Daten zu TikTok:
+  * Quintly API (`Quintly Dokumentation`_)
+
 .. _scraper_scheduler:
 
 Scheduler für den Daten-Abruf
@@ -60,7 +63,8 @@ Struktur der Scraping Skripte
 Die Scripte für das Erfassen und Aufbereiten der Daten befinden sich im Verzeichnis
 ``okr/scrapers/``. Es existieren unterschiedliche Module für die unterschiedlichen Arten
 von digitalen Angeboten: :class:`~okr.scrapers.insta`, :class:`~okr.scrapers.pages`,
-:class:`~okr.scrapers.podcasts` und :class:`~okr.scrapers.youtube`.
+:class:`~okr.scrapers.podcasts`, :class:`~okr.scrapers.tiktok` und
+:class:`~okr.scrapers.youtube`.
 
 Jedes Modul enthält eine ``__init.py__`` Datei. Diese Datei enthält jeweils die
 grundlegenden Funktionen zum Speichern und Aufbereiten der Daten. Das Abrufen der

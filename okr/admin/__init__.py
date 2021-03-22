@@ -5,6 +5,7 @@ from . import insta
 from . import youtube
 from . import podcasts
 from . import pages
+from . import tiktok
 
 admin.site.site_header = "Django WDR OKR"
 admin.site.site_title = "Django WDR OKR"
