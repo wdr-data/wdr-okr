@@ -15,7 +15,6 @@ from ..common.webtrekk.types import (
     FilterRule,
     Metric,
 )
-from okr.scrapers.common.utils import local_yesterday
 
 
 def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
@@ -28,7 +27,7 @@ def cleaned_webtrekk_page_data(date: Optional[dt.date] = None) -> Dict:
     Returns:
         Dict: Reply from API.
     """
-    date = local_yesterday()
+
     analysis_objects = [
         AnalysisObject("Seiten-URL"),
         AnalysisObject("Seiten"),
