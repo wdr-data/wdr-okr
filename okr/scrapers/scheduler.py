@@ -154,8 +154,8 @@ def add_jobs():
     scheduler.add_job(
         podcasts.scrape_feed,
         trigger="cron",
-        hour="1,11",
-        minute="0",
+        hour="*",
+        minute="30",
     )
     scheduler.add_job(
         podcasts.scrape_spotify_api,
