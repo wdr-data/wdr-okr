@@ -4,6 +4,7 @@ import functools
 
 from django import forms
 from django.contrib import admin
+from django.db import models
 
 from ..models import (
     Podcast,
@@ -103,6 +104,10 @@ class PodcastAdmin(ProductAdmin):
 
 class PodcastCategoryAdmin(admin.ModelAdmin):
     """List for choosing existing podcast categories to edit."""
+
+    formfield_overrides = {
+        models.TextField: {"widget": forms.TextInput()},
+    }
 
     list_display = ["name", "created"]
     list_display_links = ["name"]
