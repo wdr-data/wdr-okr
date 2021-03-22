@@ -255,6 +255,11 @@ class PodcastEpisode(models.Model):
         verbose_name="Verfügbar",
         help_text="Indikator, ob diese Episode momentan im Feed verfügbar ist",
     )
+    last_available_date_time = models.DateTimeField(
+        verbose_name="Zuletzt verfügbar",
+        help_text="Zeitpunkt, zu dem die Episode zuletzt im Feed gesehen wurde",
+        null=True,
+    )
 
     last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated",
