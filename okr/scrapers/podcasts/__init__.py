@@ -283,7 +283,7 @@ def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
     # ToDo: Docstring
     ###########################################
 
-    podcasts = Podcast.objects
+    podcasts = Podcast.objects.all()
 
     if podcast_filter:
         podcasts = podcasts.filter(podcast_filter)
