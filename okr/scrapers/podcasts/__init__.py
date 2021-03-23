@@ -14,6 +14,7 @@ from spotipy.exceptions import SpotifyException
 from requests.exceptions import HTTPError
 
 from . import feed
+from . import itunes
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
