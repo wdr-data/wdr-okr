@@ -1,7 +1,7 @@
 """Retrieve and process data from Webtrekk API."""
 
 import datetime as dt
-from typing import Dict, Optional
+from typing import Dict
 import re
 
 from ..common.webtrekk import Webtrekk
@@ -14,12 +14,11 @@ from ..common.webtrekk.types import (
 )
 
 
-def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
+def cleaned_webtrekk_audio_data(date: dt.date) -> Dict:
     """Retrieve and process data from Webtrekk API for a specific date.
 
     Args:
-        date (Optional[dt.date], optional): Date to request data for. Defaults
-          to None.
+        date (dt.date): Date to request data for.
 
     Returns:
         Dict: Reply from API.
