@@ -72,10 +72,12 @@ class ITunesReviews:
         if self.itunes_url:
             print(f"Scraping iTunes Podcast reviews data from {self.itunes_url}")
             self.user_ratings_raw = self._get_reviews_json(self.itunes_url)
-            self.ratings_average = self.user_ratings_raw["aggregateRating"][
-                "ratingValue"
-            ]
-            self.review_count = self.user_ratings_raw["aggregateRating"]["reviewCount"]
+            self.ratings_average = float(
+                self.user_ratings_raw["aggregateRating"]["ratingValue"]
+            )
+            self.review_count = int(
+                self.user_ratings_raw["aggregateRating"]["reviewCount"]
+            )
             self.reviews = self.user_ratings_raw["review"]
         else:
             self.user_ratings_raw = None
@@ -154,6 +156,13 @@ class ITunesReviews:
             types.JSON: JSON representation of reviews data.
         """
         result = requests.get(url)
+
+        ########################################
+        # ToDo: wenn die URL nicht aufrufbar ist, müssten wir an dieser Stelle
+        # versuchen, die URL über die Search API neu zu finden und es nochmal
+        # probieren.
+        ########################################
+
         soup = bs4.BeautifulSoup(result.content, "lxml")
 
         user_ratings_raw = soup.find("script", type="application/ld+json")
