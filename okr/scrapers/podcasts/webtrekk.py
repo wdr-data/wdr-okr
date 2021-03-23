@@ -89,3 +89,58 @@ def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
             data_dict[zmdb_id] = item
 
     return data_dict
+
+
+def cleaned_webtrekk_picker_data(date: dt.date) -> Dict:
+    """
+
+    Args:
+        date (dt.date): Date to request data for.
+
+    Returns:
+        Dict: Reply from API.
+    """
+
+    config = AnalysisConfig(
+        [
+            AnalysisObject("CG3"),
+        ],
+        metrics=[
+            Metric(
+                "Visits",
+                sort_order="desc",
+            ),
+            Metric(
+                "Visits",
+                metric_filter=FilterRule("Werbemittel", "=", "*"),
+            ),
+            Metric(
+                "Ausstiege",
+            ),
+        ],
+        analysis_filter=Filter(
+            filter_rules=[
+                FilterRule("CG2", "=", "Podcast-Picker WDR"),
+            ],
+        ),
+        start_time=date,
+        stop_time=date,
+        row_limit=100,
+    )
+
+    webtrekk = Webtrekk()
+
+    with webtrekk.session():
+        analysis = webtrekk.get_analysis_data(dict(config))
+
+    data = analysis["analysisData"]
+    date_start = analysis["timeStart"]
+    date_end = analysis["timeStop"]
+    print(f"Start scraping Webtrekk Data between {date_start} and {date_end}.")
+
+    # Loop over episodes
+    data_dict = {}
+    for element in data:
+        print(element)
+
+    return data_dict
