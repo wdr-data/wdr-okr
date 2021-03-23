@@ -1,13 +1,17 @@
 """Retrieve and process reviews data from the iTunes podcast directory."""
 
 import json
-from typing import Tuple, Union
-from urllib import parse
+from okr.models.podcasts import Podcast
+from typing import Optional
 
 import bs4
 import requests
 
 from ..common import types
+
+
+BASE_URL = "https://itunes.apple.com/search"
+COUNTRY_CODE = "DE"
 
 
 class ItunesReviewsError(Exception):
@@ -20,155 +24,129 @@ class ItunesReviewsError(Exception):
         super().__init__(self.message)
 
 
-class ITunesReviews:
-    """Class representing various data related to iTunes reviews.
+def get_reviews(
+    podcast: Podcast,
+) -> Optional[dict]:
+    """
 
-    The most important properties of an ``ITunesReviews`` object are:
-
-    * ``itunes_url``: iTunes Podcast URL
     * ``ratings_average``: Rating average
     * ``review_count``: Number of reviews
     * ``reviews``: List of reviews
 
 
     Args:
+    """
+    # Get podcast URL through iTunes Search API, if not provided:
+    if not podcast.itunes_url:
+        print(f'Querying iTunes Search API for "{podcast.name}" to retrieve itunes_url')
+        podcast.itunes_url = _get_metadata_url(podcast)
+        podcast.save()
+
+    if not podcast.itunes_url:
+        return None
+
+    # Get podcast reviews from iTunes Podcasts with podcast URL
+    print(f"Scraping iTunes Podcast reviews data from {podcast.itunes_url}")
+    user_ratings_raw = _get_reviews_json(podcast)
+
+    return {
+        "ratings_average": float(user_ratings_raw["aggregateRating"]["ratingValue"]),
+        "review_count": int(user_ratings_raw["aggregateRating"]["reviewCount"]),
+        "reviews": user_ratings_raw["review"],
+    }
+
+
+def _get_apple_meta_data(**params) -> types.JSON:
+    """Retrieve data from iTunes Search API.
+
+    Args:
+        baseurl (str): Base url to combine with **params.
+
+    Returns:
+        types.JSON: Raw JSON representation of search result.
+    """
+
+    result = requests.get(BASE_URL, params=params)
+    result.raise_for_status()
+
+    return result.json()
+
+
+def _get_metadata_url(
+    podcast: Podcast,
+) -> Optional[str]:
+    """Retrieve meta data URL from API based on podcast_author, podcast_title, and
+    feed_url.
+
+    Args:
         podcast_author (str): Exact author of podcast to search for.
         podcast_title (str): Exact title of podcast to search for.
         feed_url (str): Exact feed URL of podcast to search for.
-        itunes_url (str, optional): iTunes URL for podcast, if known. Will be
-            retrieved from iTunes Search API, if not provided.
-        country_code (str, optional): Country code for iTunes Search API. Defaults
-            to "DE".
-        base_url (str, optional): Base URL for iTunes Search API. Defaults to
-            "https://itunes.apple.com/search".
+
+    Returns:
+        Union[str, None]: Meta data URL for podcast. Is None if no URL found.
     """
 
-    def __init__(
-        self,
-        podcast_author: str,
-        podcast_title: str,
-        feed_url: str,
-        itunes_url: str = None,
-        country_code: str = "DE",
-        base_url: str = "https://itunes.apple.com/search",
-    ) -> None:
+    # search parameters for https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
+    json_data = _get_apple_meta_data(
+        country=COUNTRY_CODE,
+        term=podcast.name,
+        media="podcast",
+        attribute="titleTerm",
+    )
 
-        self.base_url = base_url
-        self.country_code = country_code
-        self.podcast_author = podcast_author
-        self.podcast_title = podcast_title
-        self.feed_url = feed_url
+    # iterate over all results and check against search criteria
+    url = None
 
-        # get podcast URL through iTunes Search API, if not provided:
-        if not itunes_url:
-            print(f'Querying iTunes Search API for "{self.podcast_title}"')
-            self.itunes_url = self._get_metadata_url(
-                podcast_author, podcast_title, feed_url
-            )
-        else:
-            self.itunes_url = itunes_url
+    for result in json_data.get("results", []):
+        if (
+            result["collectionName"] == podcast.name
+            and result["artistName"] == podcast.author
+        ):
+            url = result["collectionViewUrl"].split("?")[0]
+            break
 
-        # get podcast reviews from iTunes Podcasts with podcast URL
-        if self.itunes_url:
-            print(f"Scraping iTunes Podcast reviews data from {self.itunes_url}")
-            self.user_ratings_raw = self._get_reviews_json(self.itunes_url)
-            self.ratings_average = float(
-                self.user_ratings_raw["aggregateRating"]["ratingValue"]
-            )
-            self.review_count = int(
-                self.user_ratings_raw["aggregateRating"]["reviewCount"]
-            )
-            self.reviews = self.user_ratings_raw["review"]
-        else:
-            self.user_ratings_raw = None
-            self.ratings_averages = None
-            self.review_count = None
-            self.reviews = None
+    return url
 
-    def _get_apple_meta_data(self, baseurl: str, **params) -> types.JSON:
-        """Retrieve data from iTunes Search API.
 
-        Args:
-            baseurl (str): Base url to combine with **params.
+def _get_reviews_json(podcast: Podcast, retry: bool = True) -> types.JSON:
+    """Read reviews data for url from library.
 
-        Returns:
-            types.JSON: Raw JSON representation of search result.
-        """
-        url = baseurl + "?" + parse.urlencode(params)
+    Args:
+        url (str): URL to get reviews data for.
 
-        result = requests.get(url)
-        result.raise_for_status()
+    Raises:
+        ItunesReviewsError: Custom error for unexpected data for iTunes reviews.
 
-        json_data = json.loads(result.content)
+    Returns:
+        types.JSON: JSON representation of reviews data.
+    """
+    result = requests.get(podcast.itunes_url)
 
-        return json_data
+    # Retry once if the itunes_url is 404 (renamed podcast?)
+    if result.status_code == 404 and retry:
+        podcast = _get_metadata_url(podcast)
+        podcast.save()
+        return _get_reviews_json(podcast, retry=False)
 
-    def _get_metadata_url(
-        self, podcast_author: str, podcast_title: str, feed_url: str
-    ) -> Union[str, None]:
-        """Retrieve meta data URL from API based on podcast_author, podcast_title, and
-        feed_url.
+    result.raise_for_status()
 
-        Args:
-            podcast_author (str): Exact author of podcast to search for.
-            podcast_title (str): Exact title of podcast to search for.
-            feed_url (str): Exact feed URL of podcast to search for.
+    soup = bs4.BeautifulSoup(result.content, "lxml")
 
-        Returns:
-            Union[str, None]: Meta data URL for podcast. Is None if no URL found.
-        """
+    user_ratings_raw = soup.find("script", attrs={"name": "schema:podcast-show"})
+    if user_ratings_raw:
+        user_ratings = json.loads(user_ratings_raw.contents[0])
+    else:
+        raise ItunesReviewsError("Failed to find review info JSON")
 
-        # search parameters for https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
-        json_data = self._get_apple_meta_data(
-            baseurl=self.base_url,
-            country=self.country_code,
-            term=podcast_title,
-            media="podcast",
-            attribute="titleTerm",
-        )
+    """
+    # TODO: Count individual stars
+    review_bars = soup.find_all(
+        "div", attrs={"class": "we-star-bar-graph__bar__foreground-bar"}
+    )
 
-        # iterate over all results and check against search criteria
-        if json_data["resultCount"]:
-            for result in json_data["results"]:
-                if (
-                    result["feedUrl"] == feed_url
-                    and result["collectionName"] == podcast_title
-                    and result["artistName"] == podcast_author
-                ):
-                    url = result["collectionViewUrl"].split("?")[0]
-                else:
-                    url = None
-        else:
-            url = None
+    for review_percent, stars in zip(review_bars, range(5, 0, -1)):
+        print(stars, "-", review_percent.attrs["style"])
+    """
 
-        return url
-
-    def _get_reviews_json(self, url: str) -> types.JSON:
-        """Read reviews data for url from library.
-
-        Args:
-            url (str): URL to get reviews data for.
-
-        Raises:
-            ItunesReviewsError: Custom error for unexpected data for iTunes reviews.
-
-        Returns:
-            types.JSON: JSON representation of reviews data.
-        """
-        result = requests.get(url)
-
-        ########################################
-        # ToDo: wenn die URL nicht aufrufbar ist, müssten wir an dieser Stelle
-        # versuchen, die URL über die Search API neu zu finden und es nochmal
-        # probieren.
-        ########################################
-
-        soup = bs4.BeautifulSoup(result.content, "lxml")
-
-        user_ratings_raw = soup.find("script", type="application/ld+json")
-        if user_ratings_raw:
-            user_ratings = json.loads(user_ratings_raw.contents[0])
-        else:
-            raise ItunesReviewsError
-
-        return user_ratings
+    return user_ratings

@@ -297,34 +297,17 @@ def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
 
 
 def _scrape_itunes_reviews_podcast(podcast):
-    author = podcast.author
-    title = podcast.name
-    feed_url = podcast.feed_url
-
     # check wether itunes_url is already known
-    if podcast.itunes_url:
-        itunes_reviews = itunes.ITunesReviews(
-            author, title, feed_url, podcast.itunes_url
-        )
-    else:
-        itunes_reviews = itunes.ITunesReviews(author, title, feed_url)
+    itunes_reviews = itunes.get_reviews(podcast)
 
-    # update itunes_url if new or changed
-    if podcast.itunes_url != itunes_reviews.itunes_url:
-        print(f'Updating itunes_url for "{title}"')
-        podcast.itunes_url = itunes_reviews.itunes_url
-        podcast.save()
-
-    defaults = {
-        "ratings_average": itunes_reviews.ratings_average,
-        "review_count": itunes_reviews.review_count,
-        "reviews": itunes_reviews.reviews,
-    }
+    if itunes_reviews is None:
+        capture_message(f"Podcast {podcast.name} has no itunes_url")
+        return
 
     PodcastITunesReviews.objects.update_or_create(
         podcast=podcast,
         date=local_today(),
-        defaults=defaults,
+        defaults=itunes_reviews,
     )
 
 
