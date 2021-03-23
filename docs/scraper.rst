@@ -28,6 +28,8 @@ Für Daten zu Instagram:
 Für Daten zu Podcasts:
   * Webtrekk API (`Webtrekk Dokumentation`_)
   * Podstat-Datenbank
+  * iTunes Search API (`iTunes Search Dokumentation`_)
+  * iTunes `Podcast Verzeichnis <https://podcasts.apple.com/us/genre/podcasts/id26>`_
   * Spotify for Podcasters Data API
   * Spotify Web API (`Web-API Dokumentation`_)
   * Spotify Analytics
@@ -78,3 +80,4 @@ Rohdaten geschieht in den jeweiligen Submodulen.
 .. _`Quintly Dokumentation`: https://api.quintly.com/
 .. _`Web-API Dokumentation`: https://developer.spotify.com/documentation/web-api/
 .. _`Webtrekk Dokumentation`: https://docs.mapp.com/download/attachments/33784075/Webtrekk-JSON-RPC_API_Manual-EN.pdf?version=1&modificationDate=1589549566000&api=v2
+.. _`iTunes Search Dokumentation`: https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
