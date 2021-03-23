@@ -281,7 +281,6 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
 def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
     ###########################################
     # ToDo: Docstring
-    # ToDo: Save itunes_url to Podcast.itunes_url
     ###########################################
 
     podcasts = Podcast.objects
@@ -302,19 +301,25 @@ def _scrape_itunes_reviews_podcast(podcast):
     title = podcast.name
     feed_url = podcast.feed_url
 
-    print("****************************************************")
-    print(f"starting itunes scrape for {title}")
+    # check wether itunes_url is already known
+    if podcast.itunes_url:
+        itunes_reviews = itunes.ITunesReviews(
+            author, title, feed_url, podcast.itunes_url
+        )
+    else:
+        itunes_reviews = itunes.ITunesReviews(author, title, feed_url)
 
-    itunes_reviews = itunes.ITunesReviews(author, title, feed_url)
+    # update itunes_url if new or changed
+    if podcast.itunes_url != itunes_reviews.itunes_url:
+        print(f'Updating itunes_url for "{title}"')
+        podcast.itunes_url = itunes_reviews.itunes_url
+        podcast.save()
 
     defaults = {
-        "ratings_average": float(itunes_reviews.ratings_average),
-        "review_count": int(itunes_reviews.review_count),
+        "ratings_average": itunes_reviews.ratings_average,
+        "review_count": itunes_reviews.review_count,
         "reviews": itunes_reviews.reviews,
     }
-
-    print(f"defaults: {defaults}")
-    print("****************************************************")
 
     PodcastITunesReviews.objects.update_or_create(
         podcast=podcast,
