@@ -26,7 +26,7 @@ class ITunesReviews:
     The most important properties of an ``ITunesReviews`` object are:
 
     * ``itunes_url``: iTunes Podcast URL
-    * ``ratings_averages``: Rating average
+    * ``ratings_average``: Rating average
     * ``review_count``: Number of reviews
     * ``reviews``: List of reviews
 
@@ -72,7 +72,7 @@ class ITunesReviews:
         if self.itunes_url:
             print(f"Scraping iTunes Podcast reviews data from {self.itunes_url}")
             self.user_ratings_raw = self._get_reviews_json(self.itunes_url)
-            self.ratings_averages = self.user_ratings_raw["aggregateRating"][
+            self.ratings_average = self.user_ratings_raw["aggregateRating"][
                 "ratingValue"
             ]
             self.review_count = self.user_ratings_raw["aggregateRating"]["reviewCount"]

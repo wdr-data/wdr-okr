@@ -31,6 +31,7 @@ from ..common.utils import (
 )
 from ...models import (
     Podcast,
+    PodcastITunesReviews,
     PodcastEpisode,
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
@@ -64,6 +65,9 @@ def scrape_full(
 
     sleep(1)
     scrape_feed(podcast_filter=podcast_filter)
+
+    sleep(1)
+    scrape_itunes_reviews(podcast_filter=podcast_filter)
 
     sleep(1)
     scrape_spotify_experimental_performance(
@@ -271,6 +275,51 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
 
     podcast.episodes.exclude(id__in=available_episode_ids).update(
         available=False,
+    )
+
+
+def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
+    ###########################################
+    # ToDo: Docstring
+    # ToDo: Save itunes_url to Podcast.itunes_url
+    ###########################################
+
+    podcasts = Podcast.objects
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
+    for podcast in podcasts:
+        try:
+            _scrape_itunes_reviews_podcast(podcast)
+        except Exception as e:
+            print("Failed! Capturing exception and skipping.")
+            capture_exception(e)
+
+
+def _scrape_itunes_reviews_podcast(podcast):
+    author = podcast.author
+    title = podcast.name
+    feed_url = podcast.feed_url
+
+    print("****************************************************")
+    print(f"starting itunes scrape for {title}")
+
+    itunes_reviews = itunes.ITunesReviews(author, title, feed_url)
+
+    defaults = {
+        "ratings_average": float(itunes_reviews.ratings_average),
+        "review_count": int(itunes_reviews.review_count),
+        "reviews": itunes_reviews.reviews,
+    }
+
+    print(f"defaults: {defaults}")
+    print("****************************************************")
+
+    PodcastITunesReviews.objects.update_or_create(
+        podcast=podcast,
+        date=local_today(),
+        defaults=defaults,
     )
 
 
