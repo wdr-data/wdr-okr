@@ -87,11 +87,68 @@ class Podcast(Product):
         null=True,
     )
 
+    itunes_url = models.TextField(
+        verbose_name="iTunes URL",
+        help_text="URL im iTunes Podcast Verzeichnis",
+        null=True,
+    )
+
     spotify_id = models.CharField(
         max_length=32,
         verbose_name="Spotify ID",
         help_text="Spotify ID, falls vorhanden",
         null=True,
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Datum der letzten Daten-Aktualisierung",
+        auto_now=True,
+    )
+
+
+class PodcastITunesReviews(models.Model):
+    """Daten zu Reivews im iTunes Podcast Verzeichnis."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_itunes_reviews"
+        verbose_name = "Podcast-Review bei iTunes"
+        verbose_name_plural = "Podcast-Reviews bei iTunes"
+        ordering = ["-date", "podcast"]
+        unique_together = ["date", "podcast"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Erstellungsdatum des Datenpunkts",
+    )
+
+    podcast = models.ForeignKey(
+        verbose_name="Podcast ID",
+        to=Podcast,
+        on_delete=models.CASCADE,
+        related_name="data_itunes_reviews",
+        related_query_name="data_itunes_review",
+        help_text="Globale ID der Podcast-Reihe",
+    )
+
+    ratings_average = models.FloatField(
+        verbose_name="Ratings Durchschnitt",
+        help_text="Durchschnitt der User*innen-Ratings",
+        blank=True,
+    )
+
+    review_count = models.IntegerField(
+        verbose_name="Anzahl Reviews",
+        help_text="Gesamtzahl der Reviews des Podcasts",
+        null=True,
+    )
+
+    reviews = models.TextField(
+        verbose_name="Reviews",
+        help_text="Einzelne Reviews zum Podcast (JSON)",
+        blank=True,
     )
 
     last_updated = models.DateTimeField(

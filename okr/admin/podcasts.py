@@ -8,6 +8,7 @@ from django.db import models
 
 from ..models import (
     Podcast,
+    PodcastITunesReviews,
     PodcastEpisode,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
@@ -113,6 +114,20 @@ class PodcastCategoryAdmin(admin.ModelAdmin):
     list_display_links = ["name"]
     date_hierarchy = "created"
     search_fields = ["name"]
+
+
+class PodcastITunesReviewsAdmin(admin.ModelAdmin):
+    """List for choosing existing iTunes Podcast reviews data to edit."""
+
+    list_display = [
+        "podcast",
+        "date",
+        "ratings_average",
+        "review_count",
+    ]
+    list_display_links = ["podcast", "date", "ratings_average", "review_count"]
+    list_filter = ["podcast"]
+    date_hierarchy = "date"
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
@@ -274,6 +289,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastCategory, PodcastCategoryAdmin)
+admin.site.register(PodcastITunesReviews, PodcastITunesReviewsAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)
