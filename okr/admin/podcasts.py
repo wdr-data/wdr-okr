@@ -119,7 +119,7 @@ class PodcastCategoryAdmin(admin.ModelAdmin):
 
 
 class PodcastITunesRatingAdmin(admin.ModelAdmin):
-    """List for choosing existing iTunes Podcast ratings data to edit."""
+    """List for choosing existing iTunes podcast ratings data to edit."""
 
     list_display = [
         "podcast",
@@ -133,7 +133,7 @@ class PodcastITunesRatingAdmin(admin.ModelAdmin):
 
 
 class PodcastITunesReviewAdmin(admin.ModelAdmin):
-    """List for choosing existing iTunes Podcast reviews data to edit."""
+    """List for choosing existing iTunes podcast reviews data to edit."""
 
     list_display = [
         "podcast",

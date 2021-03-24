@@ -280,9 +280,19 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
 
 
 def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
-    ###########################################
-    # ToDo: Docstring
-    ###########################################
+    """Read and process reviews data from the iTunes podcast library.
+
+    This function retrieves two kinds of data for a podcast:
+
+    1. Ratings: Star ratings (1 to 5 stars) left by users.
+    2. Reviews: Written statements by users. These reviews also include a star rating.
+
+    Ratings are saved to :class:`~okr.models.podcasts.PodcastITunesRating`.
+    Reviews are saved to :class:`~okr.models.podcasts.PodcastITunesReview`.
+
+    Args:
+        podcast_filter (Optional[Q], optional): [description]. Defaults to None.
+    """
 
     podcasts = Podcast.objects.all()
 
