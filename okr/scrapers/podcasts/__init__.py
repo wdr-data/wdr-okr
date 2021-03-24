@@ -14,6 +14,7 @@ from spotipy.exceptions import SpotifyException
 from requests.exceptions import HTTPError
 
 from . import feed
+from . import itunes
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
@@ -30,6 +31,8 @@ from ..common.utils import (
 )
 from ...models import (
     Podcast,
+    PodcastITunesRating,
+    PodcastITunesReview,
     PodcastEpisode,
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
@@ -63,6 +66,9 @@ def scrape_full(
 
     sleep(1)
     scrape_feed(podcast_filter=podcast_filter)
+
+    sleep(1)
+    scrape_itunes_reviews(podcast_filter=podcast_filter)
 
     sleep(1)
     scrape_spotify_experimental_performance(
@@ -271,6 +277,57 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     podcast.episodes.exclude(id__in=available_episode_ids).update(
         available=False,
     )
+
+
+def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
+    """Read and process reviews data from the iTunes podcast library.
+
+    This function retrieves two kinds of data for a podcast:
+
+    1. Ratings: Star ratings (1 to 5 stars) left by users.
+    2. Reviews: Written statements by users. These reviews also include a star rating.
+
+    Ratings are saved to :class:`~okr.models.podcasts.PodcastITunesRating`.
+    Reviews are saved to :class:`~okr.models.podcasts.PodcastITunesReview`.
+
+    Args:
+        podcast_filter (Optional[Q], optional): [description]. Defaults to None.
+    """
+
+    podcasts = Podcast.objects.all()
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
+    for podcast in podcasts:
+        try:
+            _scrape_itunes_reviews_podcast(podcast)
+        except Exception as e:
+            print("Failed! Capturing exception and skipping.")
+            capture_exception(e)
+
+
+def _scrape_itunes_reviews_podcast(podcast):
+    itunes_data = itunes.get_reviews(podcast)
+
+    if itunes_data is None:
+        capture_message(f"Podcast {podcast.name} has no itunes_url")
+        return
+
+    itunes_ratings, itunes_reviews = itunes_data
+
+    PodcastITunesRating.objects.update_or_create(
+        podcast=podcast,
+        date=local_today(),
+        defaults=itunes_ratings,
+    )
+
+    for author, data in itunes_reviews.items():
+        PodcastITunesReview.objects.update_or_create(
+            podcast=podcast,
+            author=author,
+            defaults=data,
+        )
 
 
 def scrape_spotify_api(
