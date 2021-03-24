@@ -44,6 +44,7 @@ def add_jobs():
     * :meth:`~okr.scrapers.insta.scrape_posts`
     * :meth:`~okr.scrapers.youtube.scrape_analytics`
     * :meth:`~okr.scrapers.podcasts.scrape_feed`
+    * :meth:`~okr.scrapers.podcasts.scrape_itunes_reviews`
     * :meth:`~okr.scrapers.podcasts.scrape_spotify_api`
     * :meth:`~okr.scrapers.podcasts.scrape_podstat`
     * :meth:`~okr.scrapers.podcasts.scrape_episode_data_webtrekk_performance`
@@ -156,6 +157,12 @@ def add_jobs():
         trigger="cron",
         hour="*",
         minute="30",
+    )
+    scheduler.add_job(
+        podcasts.scrape_itunes_reviews,
+        trigger="cron",
+        hour="15",
+        minute="15",
     )
     scheduler.add_job(
         podcasts.scrape_spotify_api,
