@@ -8,7 +8,10 @@ from django.db import models
 
 from ..models import (
     Podcast,
+    PodcastITunesRating,
+    PodcastITunesReview,
     PodcastEpisode,
+    PodcastDataWebtrekkPicker,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
     PodcastEpisodeDataSpotifyUser,
@@ -94,6 +97,7 @@ class PodcastAdmin(ProductAdmin):
             "itunes_category",
             "itunes_subcategory",
             "spotify_id",
+            "itunes_url",
         ]
 
         for field in unrequired_fields:
@@ -113,6 +117,49 @@ class PodcastCategoryAdmin(admin.ModelAdmin):
     list_display_links = ["name"]
     date_hierarchy = "created"
     search_fields = ["name"]
+
+
+class PodcastITunesRatingAdmin(admin.ModelAdmin):
+    """List for choosing existing iTunes podcast ratings data to edit."""
+
+    list_display = [
+        "podcast",
+        "date",
+        "ratings_average",
+        "ratings_count",
+    ]
+    list_display_links = ["podcast", "date"]
+    list_filter = ["podcast"]
+    date_hierarchy = "date"
+
+
+class PodcastITunesReviewAdmin(admin.ModelAdmin):
+    """List for choosing existing iTunes podcast reviews data to edit."""
+
+    list_display = [
+        "podcast",
+        "date",
+        "rating",
+        "title",
+    ]
+    list_display_links = ["podcast", "date"]
+    list_filter = ["podcast"]
+    date_hierarchy = "date"
+
+
+class DataWebtrekkPickerAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify podcast Webtrekk Podcast Picker data to edit."""
+
+    list_display = [
+        "podcast",
+        "date",
+        "visits",
+        "visits_campaign",
+        "exits",
+    ]
+    list_display_links = ["podcast", "date"]
+    list_filter = ["podcast"]
+    date_hierarchy = "date"
 
 
 class DataSpotifyAdmin(admin.ModelAdmin):
@@ -274,6 +321,9 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastCategory, PodcastCategoryAdmin)
+admin.site.register(PodcastITunesRating, PodcastITunesRatingAdmin)
+admin.site.register(PodcastITunesReview, PodcastITunesReviewAdmin)
+admin.site.register(PodcastDataWebtrekkPicker, DataWebtrekkPickerAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)

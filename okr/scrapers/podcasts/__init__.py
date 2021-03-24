@@ -14,10 +14,11 @@ from spotipy.exceptions import SpotifyException
 from requests.exceptions import HTTPError
 
 from . import feed
+from . import itunes
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
-from .webtrekk import cleaned_webtrekk_audio_data
+from . import webtrekk
 from .connection_meta import ConnectionMeta
 from ..common.utils import (
     date_param,
@@ -30,11 +31,14 @@ from ..common.utils import (
 )
 from ...models import (
     Podcast,
+    PodcastITunesRating,
+    PodcastITunesReview,
     PodcastEpisode,
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
+    PodcastDataWebtrekkPicker,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
@@ -65,6 +69,9 @@ def scrape_full(
     scrape_feed(podcast_filter=podcast_filter)
 
     sleep(1)
+    scrape_itunes_reviews(podcast_filter=podcast_filter)
+
+    sleep(1)
     scrape_spotify_experimental_performance(
         podcast_filter=podcast_filter,
     )
@@ -85,6 +92,13 @@ def scrape_full(
 
     sleep(1)
     scrape_podstat(
+        start_date=start_date,
+        end_date=end_date,
+        podcast_filter=podcast_filter,
+    )
+
+    sleep(1)
+    scrape_podcast_data_webtrekk_picker(
         start_date=start_date,
         end_date=end_date,
         podcast_filter=podcast_filter,
@@ -271,6 +285,57 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     podcast.episodes.exclude(id__in=available_episode_ids).update(
         available=False,
     )
+
+
+def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
+    """Read and process reviews data from the iTunes podcast library.
+
+    This function retrieves two kinds of data for a podcast:
+
+    1. Ratings: Star ratings (1 to 5 stars) left by users.
+    2. Reviews: Written statements by users. These reviews also include a star rating.
+
+    Ratings are saved to :class:`~okr.models.podcasts.PodcastITunesRating`.
+    Reviews are saved to :class:`~okr.models.podcasts.PodcastITunesReview`.
+
+    Args:
+        podcast_filter (Optional[Q], optional): [description]. Defaults to None.
+    """
+
+    podcasts = Podcast.objects.all()
+
+    if podcast_filter:
+        podcasts = podcasts.filter(podcast_filter)
+
+    for podcast in podcasts:
+        try:
+            _scrape_itunes_reviews_podcast(podcast)
+        except Exception as e:
+            print("Failed! Capturing exception and skipping.")
+            capture_exception(e)
+
+
+def _scrape_itunes_reviews_podcast(podcast):
+    itunes_data = itunes.get_reviews(podcast)
+
+    if itunes_data is None:
+        capture_message(f"Podcast {podcast.name} has no itunes_url")
+        return
+
+    itunes_ratings, itunes_reviews = itunes_data
+
+    PodcastITunesRating.objects.update_or_create(
+        podcast=podcast,
+        date=local_today(),
+        defaults=itunes_ratings,
+    )
+
+    for author, data in itunes_reviews.items():
+        PodcastITunesReview.objects.update_or_create(
+            podcast=podcast,
+            author=author,
+            defaults=data,
+        )
 
 
 def scrape_spotify_api(
@@ -846,6 +911,63 @@ def _aggregate_episode_data(data_objects):
     return list(cache.values())
 
 
+def scrape_podcast_data_webtrekk_picker(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
+):
+    """Read and process data from Webtrekk.
+
+    Supplies Podcast Picker usage data from the Webtrekk database.
+
+    Results are saved in
+    :class:`~okr.models.podcasts.PodcastDataWebtrekkPicker`.
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None. If not set, "3 days ago" is used. Values are truncated to be no longer
+          than 7 days ago.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
+          None. If not set, "yesterday" is used.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
+    today = local_today()
+    yesterday = local_yesterday()
+
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=2),
+        earliest=today - dt.timedelta(days=7),
+        latest=yesterday,
+    )
+    end_date = date_param(
+        end_date,
+        default=yesterday,
+        earliest=start_date,
+        latest=yesterday,
+    )
+
+    for date in reversed(date_range(start_date, end_date)):
+        data = webtrekk.cleaned_picker_data(date)
+
+        podcasts = Podcast.objects.all()
+
+        if podcast_filter:
+            podcasts = podcasts.filter(podcast_filter)
+
+        for podcast in podcasts:
+            normalized_name = webtrekk.normalize_name(podcast.name)
+            if normalized_name not in data:
+                continue
+
+            PodcastDataWebtrekkPicker.objects.update_or_create(
+                date=date, podcast=podcast, defaults=data[normalized_name]
+            )
+        print(f"Finished scraping of Webtrekk performance data for {date}.")
+
+
 def scrape_episode_data_webtrekk_performance(
     *,
     start_date: Optional[dt.date] = None,
@@ -885,7 +1007,7 @@ def scrape_episode_data_webtrekk_performance(
     )
 
     for date in reversed(date_range(start_date, end_date)):
-        data = cleaned_webtrekk_audio_data(date)
+        data = webtrekk.cleaned_audio_data(date)
 
         podcasts = Podcast.objects.all()
 

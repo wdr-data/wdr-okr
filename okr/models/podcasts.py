@@ -87,11 +87,155 @@ class Podcast(Product):
         null=True,
     )
 
+    itunes_url = models.TextField(
+        verbose_name="iTunes URL",
+        help_text="URL im iTunes Podcast Verzeichnis",
+        null=True,
+    )
+
     spotify_id = models.CharField(
         max_length=32,
         verbose_name="Spotify ID",
         help_text="Spotify ID, falls vorhanden",
         null=True,
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Datum der letzten Daten-Aktualisierung",
+        auto_now=True,
+    )
+
+
+class PodcastITunesRating(models.Model):
+    """Daten zu Ratings und Reviews im iTunes Podcast Verzeichnis."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_itunes_rating"
+        verbose_name = "Podcast-Rating bei iTunes"
+        verbose_name_plural = "Podcast-Ratings bei iTunes"
+        ordering = ["-date", "podcast"]
+        unique_together = ["date", "podcast"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Erstellungsdatum des Datenpunkts",
+    )
+
+    podcast = models.ForeignKey(
+        verbose_name="Podcast ID",
+        to=Podcast,
+        on_delete=models.CASCADE,
+        related_name="data_itunes_ratings",
+        related_query_name="data_itunes_rating",
+        help_text="Globale ID der Podcast-Reihe",
+    )
+
+    ratings_average = models.FloatField(
+        verbose_name="Ratings Durchschnitt",
+        help_text="Durchschnitt der User*innen-Ratings",
+        blank=True,
+    )
+
+    ratings_count = models.IntegerField(
+        verbose_name="Anzahl Ratings",
+        help_text="Gesamtzahl der Ratings des Podcasts",
+        null=True,
+    )
+
+    ratings_1_stars = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        verbose_name="Anteil 1 Stern",
+        help_text="Anteil der Ratings mit 1 Stern",
+        null=True,
+    )
+
+    ratings_2_stars = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        verbose_name="Anteil 2 Sterne",
+        help_text="Anteil der Ratings mit 2 Sternen",
+        null=True,
+    )
+
+    ratings_3_stars = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        verbose_name="Anteil 3 Sterne",
+        help_text="Anteil der Ratings mit 3 Sternen",
+        null=True,
+    )
+
+    ratings_4_stars = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        verbose_name="Anteil 4 Sterne",
+        help_text="Anteil der Ratings mit 4 Sternen",
+        null=True,
+    )
+
+    ratings_5_stars = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        verbose_name="Anteil 5 Sterne",
+        help_text="Anteil der Ratings mit 5 Sternen",
+        null=True,
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Datum der letzten Daten-Aktualisierung",
+        auto_now=True,
+    )
+
+
+class PodcastITunesReview(models.Model):
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_itunes_review"
+        verbose_name = "Podcast-Review bei iTunes"
+        verbose_name_plural = "Podcast-Reviews bei iTunes"
+        ordering = ["-date", "podcast"]
+        unique_together = ["podcast", "author"]
+
+    podcast = models.ForeignKey(
+        verbose_name="Podcast ID",
+        to=Podcast,
+        on_delete=models.CASCADE,
+        related_name="data_itunes_reviews",
+        related_query_name="data_itunes_review",
+        help_text="Globale ID der Podcast-Reihe",
+    )
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Erstellungsdatum des Reviews",
+    )
+
+    author = models.TextField(
+        verbose_name="Autor*in",
+        help_text="Verfasser*in des Reviews",
+    )
+
+    title = models.TextField(
+        verbose_name="Titel",
+        help_text="Titel des Reviews",
+        blank=True,
+    )
+
+    text = models.TextField(
+        verbose_name="Text",
+        help_text="Volltext des Reviews",
+        blank=True,
+    )
+
+    rating = models.IntegerField(
+        verbose_name="Rating",
+        help_text="Sterne-Rating des Reviews",
     )
 
     last_updated = models.DateTimeField(
@@ -192,6 +336,53 @@ class PodcastDataSpotifyHourly(models.Model):
 
     def __str__(self):
         return f"{self.podcast} - {self.date_time}"
+
+
+class PodcastDataWebtrekkPicker(models.Model):
+    """Daten darüber, wie viel der Podcast-Picker genutzt wird und wie
+    viele dieser Visits über Kampagnen-Links kommt.
+    """
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_data_webtrekk_picker"
+        verbose_name = "Podcast-Daten (Picker via Webtrekk)"
+        verbose_name_plural = "Podcast-Daten (Picker via Webtrekk)"
+        ordering = ["-date", "podcast"]
+        unique_together = ["date", "podcast"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum des Datenpunkts",
+    )
+    podcast = models.ForeignKey(
+        verbose_name="Podcast ID",
+        to=Podcast,
+        on_delete=models.CASCADE,
+        related_name="data_webtrekk_picker",
+        related_query_name="data_webtrekk_picker",
+        help_text="Globale ID der Podcast-Reihe",
+    )
+
+    visits = models.IntegerField(
+        verbose_name="Visits",
+    )
+    visits_campaign = models.IntegerField(
+        verbose_name="Kampagnen-Visits",
+    )
+    exits = models.IntegerField(
+        verbose_name="Ausstiege",
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Datum der letzten Daten-Aktualisierung",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.podcast} - {self.date}"
 
 
 class PodcastEpisode(models.Model):

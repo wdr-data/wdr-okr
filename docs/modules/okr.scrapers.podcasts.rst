@@ -36,6 +36,14 @@ okr.scrapers.podcasts.feed module
    :undoc-members:
    :show-inheritance:
 
+okr.scrapers.podcasts.itunes module
+-----------------------------------
+
+.. automodule:: okr.scrapers.podcasts.itunes
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 okr.scrapers.podcasts.podstat module
 ------------------------------------
 

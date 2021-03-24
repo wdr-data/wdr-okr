@@ -12,6 +12,9 @@ from time import sleep
 from threading import RLock
 
 import requests
+from tenacity import retry
+from tenacity.stop import stop_after_attempt
+from tenacity.wait import wait_exponential
 
 BASE_URL = os.environ.get("EXPERIMENTAL_SPOTIFY_BASE_URL")
 AUTH_URL = os.environ.get("EXPERIMENTAL_SPOTIFY_AUTH_URL")
@@ -31,6 +34,7 @@ class ExperimentalSpotifyPodcastAPI:
         self._bearer_expires: Optional[dt.datetime] = None
         self._auth_lock = RLock()
 
+    @retry(wait=wait_exponential(), stop=stop_after_attempt(7))
     def _authenticate(self):
         """Retrieves a Bearer token for the experimental Spotify API, valid 1 hour."""
 
@@ -44,6 +48,7 @@ class ExperimentalSpotifyPodcastAPI:
                     "sp_key": SP_KEY,
                 },
             )
+            response.raise_for_status()
             response_json = response.json()
             self._bearer = response_json["access_token"]
             expires_in = response_json["expires_in"]
