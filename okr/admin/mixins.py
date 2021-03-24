@@ -1,6 +1,7 @@
 """ """
 
-class UnrequiredFieldsMixin():
+
+class UnrequiredFieldsMixin:
 
     unrequired_fields = []
 
