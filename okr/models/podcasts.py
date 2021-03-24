@@ -338,6 +338,53 @@ class PodcastDataSpotifyHourly(models.Model):
         return f"{self.podcast} - {self.date_time}"
 
 
+class PodcastDataWebtrekkPicker(models.Model):
+    """Daten darüber, wie viel der Podcast-Picker genutzt wird und wie
+    viele dieser Visits über Kampagnen-Links kommt.
+    """
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_data_webtrekk_picker"
+        verbose_name = "Podcast-Daten (Picker via Webtrekk)"
+        verbose_name_plural = "Podcast-Daten (Picker via Webtrekk)"
+        ordering = ["-date", "podcast"]
+        unique_together = ["date", "podcast"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum des Datenpunkts",
+    )
+    podcast = models.ForeignKey(
+        verbose_name="Podcast ID",
+        to=Podcast,
+        on_delete=models.CASCADE,
+        related_name="data_webtrekk_picker",
+        related_query_name="data_webtrekk_picker",
+        help_text="Globale ID der Podcast-Reihe",
+    )
+
+    visits = models.IntegerField(
+        verbose_name="Visits",
+    )
+    visits_campaign = models.IntegerField(
+        verbose_name="Kampagnen-Visits",
+    )
+    exits = models.IntegerField(
+        verbose_name="Ausstiege",
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Datum der letzten Daten-Aktualisierung",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.podcast} - {self.date}"
+
+
 class PodcastEpisode(models.Model):
     """Daten zu den einzelnen Folgen der Podcasts, basierend auf Daten aus dem XML-Feed
     und von Spotify.

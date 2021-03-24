@@ -1,7 +1,7 @@
 """Retrieve and process data from Webtrekk API."""
 
 import datetime as dt
-from typing import Dict, Optional
+from typing import Dict
 import re
 
 from ..common.webtrekk import Webtrekk
@@ -14,12 +14,12 @@ from ..common.webtrekk.types import (
 )
 
 
-def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
-    """Retrieve and process data from Webtrekk API for a specific date.
+def cleaned_audio_data(date: dt.date) -> Dict:
+    """Retrieve and process data about audio playbacks
+    from Webtrekk API for a specific date.
 
     Args:
-        date (Optional[dt.date], optional): Date to request data for. Defaults
-          to None.
+        date (dt.date): Date to request data for.
 
     Returns:
         Dict: Reply from API.
@@ -89,3 +89,92 @@ def cleaned_webtrekk_audio_data(date: Optional[dt.date] = None) -> Dict:
             data_dict[zmdb_id] = item
 
     return data_dict
+
+
+def cleaned_picker_data(date: dt.date) -> Dict:
+    """Retrieve and process data about Podcast Picker visits
+    from Webtrekk API for a specific date.
+
+    Args:
+        date (dt.date): Date to request data for.
+
+    Returns:
+        Dict: Reply from API.
+    """
+
+    config = AnalysisConfig(
+        [
+            AnalysisObject("CG3"),
+        ],
+        metrics=[
+            Metric(
+                "Visits",
+                sort_order="desc",
+            ),
+            Metric(
+                "Visits",
+                metric_filter=Filter(
+                    filter_rules=[
+                        FilterRule("Werbemittel", "=", "*"),
+                    ]
+                ),
+            ),
+            Metric(
+                "Ausstiege",
+            ),
+        ],
+        analysis_filter=Filter(
+            filter_rules=[
+                FilterRule("CG2", "=", "Podcast-Picker WDR"),
+            ],
+        ),
+        start_time=date,
+        stop_time=date,
+        row_limit=10000,
+    )
+
+    webtrekk = Webtrekk()
+
+    with webtrekk.session():
+        analysis = webtrekk.get_analysis_data(dict(config))
+
+    data = analysis["analysisData"]
+    date_start = analysis["timeStart"]
+    date_end = analysis["timeStop"]
+    print(f"Start scraping Webtrekk Data between {date_start} and {date_end}.")
+
+    data_dict = {}
+    for element in data[:-1]:
+        name = normalize_name(element[0])
+
+        item = dict(
+            visits=int(element[1]),
+            visits_campaign=int(element[2]),
+            exits=int(element[3]),
+        )
+
+        if name in data_dict:
+            data_dict[name]["visits"] += item["visits"]
+            data_dict[name]["visits_campaign"] += item["visits_campaign"]
+            data_dict[name]["exits"] += item["exits"]
+        else:
+            data_dict[name] = item
+
+    return data_dict
+
+
+def normalize_name(s: str) -> str:
+    """Strong normalization for podcast names as they seem to have slight
+    variations in the Webtrekk data. Lowers string and removes all characters
+    except alphanumerics.
+
+    Args:
+        s (str): The string to normalize
+
+    Returns:
+        str: The normalized string
+    """
+    s = s.lower()
+    s = "".join(re.findall(r"[\d\w]", s))
+
+    return s
