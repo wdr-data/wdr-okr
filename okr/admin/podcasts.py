@@ -8,7 +8,8 @@ from django.db import models
 
 from ..models import (
     Podcast,
-    PodcastITunesReviews,
+    PodcastITunesRating,
+    PodcastITunesReview,
     PodcastEpisode,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
@@ -95,6 +96,7 @@ class PodcastAdmin(ProductAdmin):
             "itunes_category",
             "itunes_subcategory",
             "spotify_id",
+            "itunes_url",
         ]
 
         for field in unrequired_fields:
@@ -116,16 +118,30 @@ class PodcastCategoryAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-class PodcastITunesReviewsAdmin(admin.ModelAdmin):
-    """List for choosing existing iTunes Podcast reviews data to edit."""
+class PodcastITunesRatingAdmin(admin.ModelAdmin):
+    """List for choosing existing iTunes Podcast ratings data to edit."""
 
     list_display = [
         "podcast",
         "date",
         "ratings_average",
-        "review_count",
+        "ratings_count",
     ]
-    list_display_links = ["podcast", "date", "ratings_average", "review_count"]
+    list_display_links = ["podcast", "date"]
+    list_filter = ["podcast"]
+    date_hierarchy = "date"
+
+
+class PodcastITunesReviewAdmin(admin.ModelAdmin):
+    """List for choosing existing iTunes Podcast reviews data to edit."""
+
+    list_display = [
+        "podcast",
+        "date",
+        "rating",
+        "title",
+    ]
+    list_display_links = ["podcast", "date"]
     list_filter = ["podcast"]
     date_hierarchy = "date"
 
@@ -289,7 +305,8 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
 admin.site.register(Podcast, PodcastAdmin)
 admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastCategory, PodcastCategoryAdmin)
-admin.site.register(PodcastITunesReviews, PodcastITunesReviewsAdmin)
+admin.site.register(PodcastITunesRating, PodcastITunesRatingAdmin)
+admin.site.register(PodcastITunesReview, PodcastITunesReviewAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)

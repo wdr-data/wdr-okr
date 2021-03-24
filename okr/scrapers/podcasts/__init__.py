@@ -31,7 +31,8 @@ from ..common.utils import (
 )
 from ...models import (
     Podcast,
-    PodcastITunesReviews,
+    PodcastITunesRating,
+    PodcastITunesReview,
     PodcastEpisode,
     PodcastEpisodeDataSpotify,
     PodcastEpisodeDataPodstat,
@@ -297,18 +298,26 @@ def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
 
 
 def _scrape_itunes_reviews_podcast(podcast):
-    # check wether itunes_url is already known
-    itunes_reviews = itunes.get_reviews(podcast)
+    itunes_data = itunes.get_reviews(podcast)
 
-    if itunes_reviews is None:
+    if itunes_data is None:
         capture_message(f"Podcast {podcast.name} has no itunes_url")
         return
 
-    PodcastITunesReviews.objects.update_or_create(
+    itunes_ratings, itunes_reviews = itunes_data
+
+    PodcastITunesRating.objects.update_or_create(
         podcast=podcast,
         date=local_today(),
-        defaults=itunes_reviews,
+        defaults=itunes_ratings,
     )
+
+    for author, data in itunes_reviews.items():
+        PodcastITunesReview.objects.update_or_create(
+            podcast=podcast,
+            author=author,
+            defaults=data,
+        )
 
 
 def scrape_spotify_api(

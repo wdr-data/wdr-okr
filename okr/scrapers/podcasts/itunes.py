@@ -1,12 +1,16 @@
 """Retrieve and process reviews data from the iTunes podcast directory."""
 
+import datetime as dt
+from decimal import Decimal
+import html
 import json
-from okr.models.podcasts import Podcast
-from typing import Optional
+import re
+from typing import Optional, Tuple
 
 import bs4
 import requests
 
+from okr.models.podcasts import Podcast
 from ..common import types
 
 
@@ -26,8 +30,8 @@ class ItunesReviewsError(Exception):
 
 def get_reviews(
     podcast: Podcast,
-) -> Optional[dict]:
-    """
+) -> Optional[Tuple[dict, dict]]:
+    """Retrieve reviews data from iTunes Podcasts.
 
     * ``ratings_average``: Rating average
     * ``review_count``: Number of reviews
@@ -45,15 +49,31 @@ def get_reviews(
     if not podcast.itunes_url:
         return None
 
-    # Get podcast reviews from iTunes Podcasts with podcast URL
+    # Get podcast ratings and reviews from iTunes Podcasts with podcast URL
     print(f"Scraping iTunes Podcast reviews data from {podcast.itunes_url}")
-    user_ratings_raw = _get_reviews_json(podcast)
+    user_ratings_raw, ratings_percentages = _get_reviews_json(podcast)
 
-    return {
+    user_rating = {
         "ratings_average": float(user_ratings_raw["aggregateRating"]["ratingValue"]),
-        "review_count": int(user_ratings_raw["aggregateRating"]["reviewCount"]),
-        "reviews": user_ratings_raw["review"],
+        "ratings_count": int(user_ratings_raw["aggregateRating"]["reviewCount"]),
+        "ratings_1_stars": ratings_percentages[1],
+        "ratings_2_stars": ratings_percentages[2],
+        "ratings_3_stars": ratings_percentages[3],
+        "ratings_4_stars": ratings_percentages[4],
+        "ratings_5_stars": ratings_percentages[5],
     }
+
+    user_reviews = {}
+
+    for review in user_ratings_raw["review"]:
+        user_reviews[html.unescape(review["author"])] = {
+            "date": dt.datetime.strptime(review["datePublished"], "%d.%m.%Y").date(),
+            "title": html.unescape(review["name"]),
+            "text": html.unescape(review["reviewBody"]),
+            "rating": review["reviewRating"]["ratingValue"],
+        }
+
+    return (user_rating, user_reviews)
 
 
 def _get_apple_meta_data(**params) -> types.JSON:
@@ -139,14 +159,16 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> types.JSON:
     else:
         raise ItunesReviewsError("Failed to find review info JSON")
 
-    """
-    # TODO: Count individual stars
+    # Count individual stars
     review_bars = soup.find_all(
         "div", attrs={"class": "we-star-bar-graph__bar__foreground-bar"}
     )
 
-    for review_percent, stars in zip(review_bars, range(5, 0, -1)):
-        print(stars, "-", review_percent.attrs["style"])
-    """
+    percentage_regex = r"width:\s*(\d+)%"
+    reviews_percentages = dict()
 
-    return user_ratings
+    for review_percent, stars in zip(review_bars, range(5, 0, -1)):
+        percentage = re.search(percentage_regex, review_percent.attrs["style"]).group(1)
+        reviews_percentages[stars] = Decimal(percentage) / 100
+
+    return (user_ratings, reviews_percentages)
