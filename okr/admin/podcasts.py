@@ -11,6 +11,7 @@ from ..models import (
     PodcastITunesRating,
     PodcastITunesReview,
     PodcastEpisode,
+    PodcastDataWebtrekkPicker,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
     PodcastEpisodeDataSpotifyUser,
@@ -140,6 +141,21 @@ class PodcastITunesReviewAdmin(admin.ModelAdmin):
         "date",
         "rating",
         "title",
+    ]
+    list_display_links = ["podcast", "date"]
+    list_filter = ["podcast"]
+    date_hierarchy = "date"
+
+
+class DataWebtrekkPickerAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify podcast Webtrekk Podcast Picker data to edit."""
+
+    list_display = [
+        "podcast",
+        "date",
+        "visits",
+        "visits_campaign",
+        "exits",
     ]
     list_display_links = ["podcast", "date"]
     list_filter = ["podcast"]
@@ -307,6 +323,7 @@ admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastCategory, PodcastCategoryAdmin)
 admin.site.register(PodcastITunesRating, PodcastITunesRatingAdmin)
 admin.site.register(PodcastITunesReview, PodcastITunesReviewAdmin)
+admin.site.register(PodcastDataWebtrekkPicker, DataWebtrekkPickerAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
 admin.site.register(PodcastEpisodeDataSpotify, EpisodeDataSpotifyAdmin)

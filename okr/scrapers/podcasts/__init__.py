@@ -18,7 +18,7 @@ from . import itunes
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
-from .webtrekk import cleaned_webtrekk_audio_data
+from . import webtrekk
 from .connection_meta import ConnectionMeta
 from ..common.utils import (
     date_param,
@@ -38,6 +38,7 @@ from ...models import (
     PodcastEpisodeDataPodstat,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
+    PodcastDataWebtrekkPicker,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
@@ -91,6 +92,13 @@ def scrape_full(
 
     sleep(1)
     scrape_podstat(
+        start_date=start_date,
+        end_date=end_date,
+        podcast_filter=podcast_filter,
+    )
+
+    sleep(1)
+    scrape_podcast_data_webtrekk_picker(
         start_date=start_date,
         end_date=end_date,
         podcast_filter=podcast_filter,
@@ -903,6 +911,63 @@ def _aggregate_episode_data(data_objects):
     return list(cache.values())
 
 
+def scrape_podcast_data_webtrekk_picker(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
+):
+    """Read and process data from Webtrekk.
+
+    Supplies Podcast Picker usage data from the Webtrekk database.
+
+    Results are saved in
+    :class:`~okr.models.podcasts.PodcastDataWebtrekkPicker`.
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None. If not set, "3 days ago" is used. Values are truncated to be no longer
+          than 7 days ago.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
+          None. If not set, "yesterday" is used.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
+    today = local_today()
+    yesterday = local_yesterday()
+
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=2),
+        earliest=today - dt.timedelta(days=7),
+        latest=yesterday,
+    )
+    end_date = date_param(
+        end_date,
+        default=yesterday,
+        earliest=start_date,
+        latest=yesterday,
+    )
+
+    for date in reversed(date_range(start_date, end_date)):
+        data = webtrekk.cleaned_picker_data(date)
+
+        podcasts = Podcast.objects.all()
+
+        if podcast_filter:
+            podcasts = podcasts.filter(podcast_filter)
+
+        for podcast in podcasts:
+            normalized_name = webtrekk.normalize_name(podcast.name)
+            if normalized_name not in data:
+                continue
+
+            PodcastDataWebtrekkPicker.objects.update_or_create(
+                date=date, podcast=podcast, defaults=data[normalized_name]
+            )
+        print(f"Finished scraping of Webtrekk performance data for {date}.")
+
+
 def scrape_episode_data_webtrekk_performance(
     *,
     start_date: Optional[dt.date] = None,
@@ -942,7 +1007,7 @@ def scrape_episode_data_webtrekk_performance(
     )
 
     for date in reversed(date_range(start_date, end_date)):
-        data = cleaned_webtrekk_audio_data(date)
+        data = webtrekk.cleaned_audio_data(date)
 
         podcasts = Podcast.objects.all()
 
