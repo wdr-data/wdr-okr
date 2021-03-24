@@ -199,7 +199,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "verbose_name": "Podcast-Rating bei iTunes",
-                "verbose_name_plural": "Podcast-Rating bei iTunes",
+                "verbose_name_plural": "Podcast-Ratings bei iTunes",
                 "db_table": "podcast_itunes_rating",
                 "ordering": ["-date", "podcast"],
                 "unique_together": {("date", "podcast")},

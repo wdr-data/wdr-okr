@@ -115,7 +115,7 @@ class PodcastITunesRating(models.Model):
 
         db_table = "podcast_itunes_rating"
         verbose_name = "Podcast-Rating bei iTunes"
-        verbose_name_plural = "Podcast-Rating bei iTunes"
+        verbose_name_plural = "Podcast-Ratings bei iTunes"
         ordering = ["-date", "podcast"]
         unique_together = ["date", "podcast"]
 
