@@ -1,10 +1,9 @@
 """Forms for managing custom key result data."""
 
-import functools
+import json
 
-from django import forms
 from django.contrib import admin
-from django.db import models
+from django.http.response import HttpResponse
 
 from .mixins import UnrequiredFieldsMixin
 from ..models import (
@@ -37,6 +36,8 @@ class CustomKeyResultAdmin(admin.ModelAdmin):
 class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
     """List for choosing an existing key result record to edit."""
 
+    change_form_template = "admin/okr/change_form_custom_key_results.html"
+
     list_display = [
         "key_result",
         "date",
@@ -57,6 +58,19 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
         "value_text",
         "value_number",
     ]
+
+    def _update_extra_context(self, kwargs):
+        extra_context = kwargs.get("extra_context", {})
+        extra_context["key_result_types"] = json.dumps({"hallo welt": True})
+        kwargs["extra_context"] = extra_context
+
+    def add_view(self, *args, **kwargs) -> HttpResponse:
+        self._update_extra_context(kwargs)
+        return super().add_view(*args, **kwargs)
+
+    def change_view(self, *args, **kwargs) -> HttpResponse:
+        self._update_extra_context(kwargs)
+        return super().change_view(*args, **kwargs)
 
 
 admin.site.register(CustomKeyResult, CustomKeyResultAdmin)
