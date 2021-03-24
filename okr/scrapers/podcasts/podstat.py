@@ -8,7 +8,7 @@ from typing import Iterator, List
 from sqlalchemy import create_engine, Column, Integer, ForeignKey
 from sqlalchemy.orm import Session, joinedload, relationship
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.ext.declarative.api import DeclarativeMeta
+from sqlalchemy.orm import DeclarativeMeta
 
 from .connection_meta import ConnectionMeta
 
