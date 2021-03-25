@@ -9,6 +9,9 @@ from typing import Optional, Tuple
 
 import bs4
 import requests
+from tenacity import retry
+from tenacity.stop import stop_after_attempt
+from tenacity.wait import wait_exponential
 
 from okr.models.podcasts import Podcast
 from ..common import types
@@ -76,6 +79,7 @@ def get_reviews(
     return (user_rating, user_reviews)
 
 
+@retry(wait=wait_exponential(), stop=stop_after_attempt(4))
 def _get_apple_meta_data(**params) -> types.JSON:
     """Retrieve data from iTunes Search API.
 
@@ -123,6 +127,11 @@ def _get_metadata_url(
     return url
 
 
+@retry(wait=wait_exponential(), stop=stop_after_attempt(7))
+def _get_reviews_json_raw(url: str) -> requests.Response:
+    return requests.get(url)
+
+
 def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON, dict]:
     """Read reviews data for URL from iTunes library.
 
@@ -135,7 +144,7 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON,
         Tuple[types.JSON, dict]: JSON representation of ratings and review data as well
             as dict of star ratings.
     """
-    result = requests.get(podcast.itunes_url)
+    result = _get_reviews_json_raw(podcast.itunes_url)
 
     # retry once if the itunes_url is 404 (renamed podcast?)
     if result.status_code == 404 and retry:
