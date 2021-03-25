@@ -310,6 +310,7 @@ def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
     for podcast in podcasts:
         try:
             _scrape_itunes_reviews_podcast(podcast)
+            sleep(4)
         except Exception as e:
             print("Failed! Capturing exception and skipping.")
             capture_exception(e)

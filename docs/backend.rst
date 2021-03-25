@@ -14,7 +14,8 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
 * **Manuelles Einpflegen von zusätzlichen Daten**: Für manche
   :ref:`YouTube-Daten <backend_youtube>` sowie für
   Daten zu :ref:`Instagram Collaborations <backend_instagram>` müssen Daten noch manuell
-  angelegt werden.
+  angelegt werden. Darüber hinaus ist es möglich, mit dem Intelligence Layer
+  :ref:`manuelle Kennzahlen anzulegen und zu pflegen <backend_custom_key_results>`.
 
 .. seealso::
    Details zu den einzelnen Formularen des Backends befinden sich in der
@@ -24,6 +25,7 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
     :maxdepth: 2
     :hidden:
 
+    backend/backend_custom_key_results
     backend/backend_categories
     backend/backend_youtube
     backend/backend_instagram_collaborations

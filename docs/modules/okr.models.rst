@@ -20,6 +20,14 @@ okr.models.base module
    :undoc-members:
    :show-inheritance:
 
+okr.models.custom module
+------------------------
+
+.. automodule:: okr.models.custom
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 okr.models.insta module
 -----------------------
 
