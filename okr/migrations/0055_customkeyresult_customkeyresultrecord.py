@@ -129,7 +129,7 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Manuelle Kennzahlen",
                 "db_table": "custom_key_result_record",
                 "ordering": ["-date", "key_result"],
-                "unique_together": {('key_result', 'date')},
+                "unique_together": {("key_result", "date")},
             },
         ),
     ]
