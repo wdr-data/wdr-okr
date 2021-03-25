@@ -41,7 +41,7 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
     list_display = [
         "key_result",
         "date",
-        "value_number",
+        "value_integer",
         "value_text",
     ]
 
@@ -56,7 +56,7 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
 
     unrequired_fields = [
         "value_text",
-        "value_number",
+        "value_integer",
     ]
 
     def _create_json_data(self):

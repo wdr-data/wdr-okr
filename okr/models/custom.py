@@ -31,7 +31,7 @@ class CustomKeyResult(models.Model):
         ZULIEFERUNG = "zulieferung", "Zulieferung"
 
     class KeyResultType(models.TextChoices):
-        TEXT = "text", "Freitext"
+        TEXT = "text", "Text"
         INTEGER = "integer", "Zahl"
 
     class Meta:
@@ -72,7 +72,7 @@ class CustomKeyResult(models.Model):
     )
 
     def __str__(self):
-        return f"{self.product_name} / {self.key_result}"
+        return f"{self.ProductType(self.product_type).label} - {self.product_name} - {self.key_result}"
 
 
 class CustomKeyResultRecord(models.Model):
@@ -83,6 +83,7 @@ class CustomKeyResultRecord(models.Model):
         verbose_name = "Manuelle Kennzahl"
         verbose_name_plural = "Manuelle Kennzahlen"
         ordering = ["-date", "key_result"]
+        unique_together = ["key_result", "date"]
 
     key_result = models.ForeignKey(
         verbose_name="Kennzahl",
@@ -96,16 +97,15 @@ class CustomKeyResultRecord(models.Model):
     date = models.DateField(
         verbose_name="Datum des Eintrags",
         help_text="Datum des manuellen Daten-Eintrags.",
-        # auto_now=True,
     )
 
-    value_number = models.IntegerField(
-        verbose_name="Zahlenwert",
+    value_integer = models.IntegerField(
+        verbose_name="Wert",
         null=True,
     )
 
     value_text = models.TextField(
-        verbose_name="Freitext",
+        verbose_name="Wert",
         null=True,
     )
 
