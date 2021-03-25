@@ -127,7 +127,7 @@ def _get_metadata_url(
     return url
 
 
-@retry(wait=wait_exponential(), stop=stop_after_attempt(7))
+@retry(wait=wait_exponential(), stop=stop_after_attempt(3))
 def _get_reviews_json_raw(url: str) -> requests.Response:
     return requests.get(url)
 
