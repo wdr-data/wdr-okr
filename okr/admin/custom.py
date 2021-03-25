@@ -59,9 +59,16 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
         "value_number",
     ]
 
+    def _create_json_data(self):
+        key_results = CustomKeyResult.objects.all()
+        json_data = {}
+        for key_result in key_results:
+            json_data[key_result.__str__()] = key_result.key_result_type
+        return json.dumps(json_data)
+
     def _update_extra_context(self, kwargs):
         extra_context = kwargs.get("extra_context", {})
-        extra_context["key_result_types"] = json.dumps({"hallo welt": True})
+        extra_context["key_result_types"] = self._create_json_data()
         kwargs["extra_context"] = extra_context
 
     def add_view(self, *args, **kwargs) -> HttpResponse:
