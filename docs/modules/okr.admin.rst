@@ -17,6 +17,14 @@ okr.admin.base module
    :undoc-members:
    :show-inheritance:
 
+okr.admin.custom module
+-----------------------
+
+.. automodule:: okr.admin.custom
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 okr.admin.insta module
 ----------------------
 

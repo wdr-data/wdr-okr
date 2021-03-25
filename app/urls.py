@@ -30,4 +30,5 @@ urlpatterns = [
     path("okr/", include("okr.urls")),
     url(r"^$", RedirectView.as_view(url="/admin")),
     path("sentry-debug/", trigger_error),
+    url(r"^tz_detect/", include("tz_detect.urls")),
 ]

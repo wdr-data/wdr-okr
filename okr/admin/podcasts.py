@@ -23,6 +23,7 @@ from ..models import (
     PodcastCategory,
 )
 from .base import ProductAdmin
+from .mixins import UnrequiredFieldsMixin
 from ..scrapers.podcasts import feed
 from ..scrapers.podcasts.spotify_api import spotify_api, fetch_all
 
@@ -69,7 +70,7 @@ class FeedForm(forms.ModelForm):
         return super().save(commit=commit)
 
 
-class PodcastAdmin(ProductAdmin):
+class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
     """List for choosing an existing podcast to edit."""
 
     list_display = ProductAdmin.list_display + [
@@ -85,25 +86,18 @@ class PodcastAdmin(ProductAdmin):
         "itunes_subcategory",
     ]
 
+    unrequired_fields = [
+        "itunes_category",
+        "itunes_subcategory",
+        "spotify_id",
+        "itunes_url",
+    ]
+
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
             return FeedForm
 
-        form = super().get_form(request, obj=obj, **kwargs)
-
-        # Allow saving with these fields not filled because
-        # Django admin is weird with NULLable string fields
-        unrequired_fields = [
-            "itunes_category",
-            "itunes_subcategory",
-            "spotify_id",
-            "itunes_url",
-        ]
-
-        for field in unrequired_fields:
-            form.base_fields[field].required = False
-
-        return form
+        return super().get_form(request, obj=obj, **kwargs)
 
 
 class PodcastCategoryAdmin(admin.ModelAdmin):
