@@ -5,7 +5,7 @@ const fieldValueIntegerSelector = '.field-value_integer';
 
 const fieldValueSelectors = [fieldValueTextSelector, fieldValueIntegerSelector];
 
-const toggleSubtype = (keyResult) => {
+const toggleValueFields = (keyResult) => {
     fieldValueSelectors.forEach(function (selector) {
         django.jQuery(selector).hide();
     });
@@ -22,9 +22,9 @@ django.jQuery(document).ready(function () {
         django.jQuery(selector).addClass("manual-required");
     });
 
-    toggleSubtype(django.jQuery(keyResultSelector)[0].value);
+    toggleValueFields(django.jQuery(keyResultSelector)[0].value);
 
     django.jQuery(keyResultSelector).change(function () {
-        toggleSubtype(this.value);
+        toggleValueFields(this.value);
     })
 });
