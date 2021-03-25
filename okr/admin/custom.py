@@ -63,7 +63,7 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
         key_results = CustomKeyResult.objects.all()
         json_data = {}
         for key_result in key_results:
-            json_data[key_result.__str__()] = key_result.key_result_type
+            json_data[key_result.id] = key_result.key_result_type
         return json.dumps(json_data)
 
     def _update_extra_context(self, kwargs):

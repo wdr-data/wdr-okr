@@ -5,5 +5,5 @@
     {{ block.super }}
 
     <script type="text/javascript">keyResultTypes = {{ key_result_types|safe }}</script>
-
+    <script type="text/javascript" src="{% static "okr/js/custom_key_result_type_toggle.js" %}"></script>
 {% endblock %}

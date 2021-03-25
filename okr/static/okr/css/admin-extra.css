@@ -1,0 +1,12 @@
+
+
+.select2-container--admin-autocomplete .select2-selection--single .select2-selection__clear {
+    color: red;
+    font-size: x-large;
+}
+
+.manual-required, .manual-required label
+{
+    font-weight: bold;
+    color: #333;
+}
