@@ -1,11 +1,20 @@
 
-
-.select2-container--admin-autocomplete .select2-selection--single .select2-selection__clear {
+/* Overwrite styles */
+.select2-container--admin-autocomplete .select2-selection--single .select2-selection__clear
+{
     color: red;
     font-size: x-large;
 }
 
-.manual-required, .manual-required label
+.vIntegerField,
+.vDateField
+{
+    width: 7em;
+}
+
+
+.manual-required label,
+label.manual-required
 {
     font-weight: bold;
     color: #333;

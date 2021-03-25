@@ -120,8 +120,22 @@ class Migration(migrations.Migration):
                         verbose_name="Datum des Eintrags",
                     ),
                 ),
-                ("value_integer", models.IntegerField(null=True, verbose_name="Wert")),
-                ("value_text", models.TextField(null=True, verbose_name="Wert")),
+                (
+                    "value_integer",
+                    models.IntegerField(
+                        null=True,
+                        verbose_name="Wert",
+                        help_text="Der Wert der Kennzahl als Zahl.",
+                    ),
+                ),
+                (
+                    "value_text",
+                    models.TextField(
+                        null=True,
+                        verbose_name="Wert",
+                        help_text="Der Wert der Kennzahl als Text.",
+                    ),
+                ),
                 ("note", models.TextField(blank=True, verbose_name="Notiz")),
             ],
             options={

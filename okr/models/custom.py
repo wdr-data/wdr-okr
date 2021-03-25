@@ -101,11 +101,13 @@ class CustomKeyResultRecord(models.Model):
 
     value_integer = models.IntegerField(
         verbose_name="Wert",
+        help_text="Der Wert der Kennzahl als Zahl.",
         null=True,
     )
 
     value_text = models.TextField(
         verbose_name="Wert",
+        help_text="Der Wert der Kennzahl als Text.",
         null=True,
     )
 
