@@ -1,7 +1,10 @@
 """Forms for managing custom key result data."""
 
 import json
+from typing import Any, Dict
 
+from django import forms
+from django.forms import ValidationError
 from django.contrib import admin
 from django.http.response import HttpResponse
 
@@ -33,10 +36,43 @@ class CustomKeyResultAdmin(admin.ModelAdmin):
     ]
 
 
+class CustomKeyResultRecordModelForm(forms.ModelForm):
+    class Meta:
+        model = CustomKeyResultRecord
+        exclude = ()
+
+    def clean(self) -> Dict[str, Any]:
+        super().clean()
+
+        # Prevent 500 when trying to save with no key result selected
+        if "key_result" not in self.cleaned_data:
+            return
+
+        type_to_field = {
+            "integer": "value_integer",
+            "text": "value_text",
+        }
+
+        # Make sure the required field is set
+        required_type = self.cleaned_data["key_result"].key_result_type
+        required_field = type_to_field[required_type]
+        if self.cleaned_data[required_field] in (None, ""):
+            raise ValidationError({required_field: "Der Wert muss ausgefüllt werden."})
+
+        # Clear all other fields
+        value_field_names = ["value_integer", "value_text"]
+        for field_name in value_field_names:
+            if field_name != required_field:
+                self.cleaned_data[field_name] = None
+
+        return self.cleaned_data
+
+
 class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
     """List for choosing an existing key result record to edit."""
 
     change_form_template = "admin/okr/change_form_custom_key_results.html"
+    form = CustomKeyResultRecordModelForm
 
     list_display = [
         "key_result",
