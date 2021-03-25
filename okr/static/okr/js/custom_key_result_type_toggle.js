@@ -3,14 +3,12 @@ const keyResultSelector = '#id_key_result';
 const fieldValueTextSelector = '.field-value_text';
 const fieldValueIntegerSelector = '.field-value_integer';
 
-fieldValueSelectors = [fieldValueTextSelector, fieldValueIntegerSelector];
+const fieldValueSelectors = [fieldValueTextSelector, fieldValueIntegerSelector];
 
 const toggleSubtype = (keyResult) => {
-    console.log(keyResult);
-
-    for (const selector of fieldValueSelectors) {
+    fieldValueSelectors.forEach(function (selector) {
         django.jQuery(selector).hide();
-    }
+    });
 
     if (keyResultTypes[keyResult] === "integer") {
         django.jQuery(fieldValueIntegerSelector).show();
@@ -20,9 +18,9 @@ const toggleSubtype = (keyResult) => {
 }
 
 django.jQuery(document).ready(function () {
-    for (const selector of fieldValueSelectors) {
+    fieldValueSelectors.forEach(function (selector) {
         django.jQuery(selector).addClass("manual-required");
-    }
+    });
 
     toggleSubtype(django.jQuery(keyResultSelector)[0].value);
 
