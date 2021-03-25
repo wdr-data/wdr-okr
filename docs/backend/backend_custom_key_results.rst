@@ -28,7 +28,7 @@ Kennzahl zunächst definiert werden:
    definieren möchtest (z.B. "0630 by WDR aktuell").
 6. Gib im Feld *Kennzahl* eine Bezeichnung für die Kennzahl ein, die du definieren
    möchtest (z.B. "Anzahl Nachrichten pro Woche").
-7. Im Feld *Beschreibung* kannst du eineBeschreibung für die Kennzahl eingeben. (z.B.
+7. Im Feld *Beschreibung* kannst du eine Beschreibung für die Kennzahl eingeben. (z.B.
    "Anzahl der Zuschriften von Hörer*innen, die uns in einer Woche erreicht haben").
    Dieses Feld ist optional, kann also auch leer bleiben.
 8. Lege im Feld *Kennzahlen-Typ* fest, ob du für diese Kennzahl einen Zahlenwert oder
@@ -50,8 +50,7 @@ kannst du Daten für diese Kennzahl erfassen:
    erfassen möchtest.
 5. Gib im Feld *Datum des Eintrags* das Datum an, für das du Daten erfassen möchtest.
    Klicke auf das Wort "Heute", um automatisch das aktuelle Datum einzutragen.
-6. Falls die Kennzahl einen Zahlenwert erwartet, kannst du die Zahl in das Feld
-   *Zahlenwert* eintragen. Falls die Kennzahl einen Freitext erwartet, kannst du im Feld
-   *Freitext* einen Text eintragen.
+6. Trage den Wert der Kennzahl in das Feld *Wert* ein. Dieses Feld erwartet je nach
+   ausgewählter Kennzahl entweder eine Zahl oder einen Text.
 7. Bei Bedarf kannst du zusätzlich einen Text in das Feld *Notiz* eintragen.
 8. Klicke zum Abschluss auf *Sichern*.
