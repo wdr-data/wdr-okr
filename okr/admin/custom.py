@@ -41,6 +41,10 @@ class CustomKeyResultRecordModelForm(forms.ModelForm):
         model = CustomKeyResultRecord
         exclude = ()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["key_result"].widget.can_add_related = False
+
     def clean(self) -> Dict[str, Any]:
         super().clean()
 
