@@ -94,6 +94,13 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
         "date",
     ]
 
+    search_fields = [
+        "value_text",
+        "note",
+    ]
+
+    date_hierarchy = "date"
+
     unrequired_fields = [
         "value_text",
         "value_integer",
