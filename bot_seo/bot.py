@@ -17,7 +17,7 @@ def _get_pages(impressions_limit: int = 10000, date: dt.date = None) -> Page:
     # get all pages that had a certain number of impressions on a certain date.
     gsc_date = (
         Page.objects.filter(data_gsc__date=date)
-        .annotate(impressions_all=Sum(F("data_gsc__impressions")))
+        .annotate(impressions_all=Sum("data_gsc__impressions"))
         .filter(
             impressions_all__gt=impressions_limit,
         )
@@ -30,24 +30,30 @@ def _get_pages(impressions_limit: int = 10000, date: dt.date = None) -> Page:
 def _get_seo_articles_to_update(impressions_limit: int = 10000, date: dt.date = None):
     # generate a list of pages that had at least a certain number of impressions
     # on a certain date and have not been updated today.
+
+    today = local_today()
+
     pages = _get_pages(impressions_limit, date)
 
     articles_to_do = []
 
     for page in pages:
-        document = page.sophora_id.sophora_document
+        latest_meta = (
+            SophoraDocumentMeta.objects.filter(sophora_document__sophora_id__page=page)
+            .order_by("-editorial_update")
+            .first()
+        )
 
-        if not document:
-            print(f"No document found for {page.url}")
+        if not latest_meta:
+            print(f"No metas found for {page.url}, skipping.")
             continue
-
-        latest_meta = document.metas.all().order_by("-editorial_update").first()
 
         print(
             f'Potential update to-do found for "{latest_meta.headline}"" ({page.url}, Standdatum {latest_meta.editorial_update}'
         )
 
-        if latest_meta.editorial_update.date() == local_today():
+        if latest_meta.editorial_update.date() == today:
+            print("But it's been updated today, so we're skipping it.")
             continue
 
         # add data from latest_meta to page object
