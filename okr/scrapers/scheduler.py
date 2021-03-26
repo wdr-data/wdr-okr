@@ -162,7 +162,7 @@ def add_jobs():
     scheduler.add_job(
         podcasts.scrape_itunes_reviews,
         trigger="cron",
-        hour="15",
+        hour="19",
         minute="15",
     )
     scheduler.add_job(
