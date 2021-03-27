@@ -41,7 +41,7 @@ def get_reviews(
 
     Returns:
         Optional[Tuple[dict, dict]]: User ratings and user reviews for podcast. Returns
-            None if podcast is not in the iTunes database.
+            None if podcast is not in the iTunes database or has no ratings.
     """
     # try getting podcast URL through iTunes Search API, if not provided:
     if not podcast.itunes_url:
@@ -56,27 +56,36 @@ def get_reviews(
     print(f"Scraping iTunes Podcast reviews data from {podcast.itunes_url}")
     user_ratings_raw, ratings_percentages = _get_reviews_json(podcast)
 
-    user_rating = {
-        "ratings_average": float(user_ratings_raw["aggregateRating"]["ratingValue"]),
-        "ratings_count": int(user_ratings_raw["aggregateRating"]["reviewCount"]),
-        "ratings_1_stars": ratings_percentages[1],
-        "ratings_2_stars": ratings_percentages[2],
-        "ratings_3_stars": ratings_percentages[3],
-        "ratings_4_stars": ratings_percentages[4],
-        "ratings_5_stars": ratings_percentages[5],
-    }
-
-    user_reviews = {}
-
-    for review in user_ratings_raw["review"]:
-        user_reviews[html.unescape(review["author"])] = {
-            "date": dt.datetime.strptime(review["datePublished"], "%d.%m.%Y").date(),
-            "title": html.unescape(review["name"]),
-            "text": html.unescape(review["reviewBody"]),
-            "rating": review["reviewRating"]["ratingValue"],
+    if "aggregateRating" in user_ratings_raw.keys():
+        user_rating = {
+            "ratings_average": float(
+                user_ratings_raw["aggregateRating"]["ratingValue"]
+            ),
+            "ratings_count": int(user_ratings_raw["aggregateRating"]["reviewCount"]),
+            "ratings_1_stars": ratings_percentages[1],
+            "ratings_2_stars": ratings_percentages[2],
+            "ratings_3_stars": ratings_percentages[3],
+            "ratings_4_stars": ratings_percentages[4],
+            "ratings_5_stars": ratings_percentages[5],
         }
 
-    return (user_rating, user_reviews)
+        user_reviews = {}
+
+        for review in user_ratings_raw["review"]:
+            user_reviews[html.unescape(review["author"])] = {
+                "date": dt.datetime.strptime(
+                    review["datePublished"], "%d.%m.%Y"
+                ).date(),
+                "title": html.unescape(review["name"]),
+                "text": html.unescape(review["reviewBody"]),
+                "rating": review["reviewRating"]["ratingValue"],
+            }
+
+        return (user_rating, user_reviews)
+
+    else:
+        print(f'Podcast "{podcast.name}" is in iTunes database but has no reviews.')
+        return None
 
 
 @retry(wait=wait_exponential(), stop=stop_after_attempt(4))
@@ -161,7 +170,7 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON,
     if user_ratings_raw:
         user_ratings = json.loads(user_ratings_raw.contents[0])
     else:
-        raise ItunesReviewsError("Failed to find review info JSON")
+        raise ItunesReviewsError("Failed to find info JSON")
 
     # count individual stars
     review_bars = soup.find_all(
