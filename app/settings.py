@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import sys
 
 import dj_database_url
+from loguru import logger
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -39,6 +41,27 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = False
 if os.environ.get("DEBUG") == "True":
     DEBUG = True
+
+
+# Logging setup
+if DEBUG:
+    lvl = "TRACE"
+elif "staging" in os.environ.get("HEROKU_APP_NAME", ""):
+    lvl = "DEBUG"
+else:
+    lvl = "INFO"
+
+fmt = (
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"
+)
+
+if "HEROKU_APP_NAME" not in os.environ:
+    fmt = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | " + fmt
+
+logger.remove()  # Remove default logger
+logger.add(sys.stderr, level=lvl, format=fmt, diagnose=DEBUG)
+logger.info("Logging setup complete.")
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 if SECRET_KEY is None:
