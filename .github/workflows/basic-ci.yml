@@ -26,7 +26,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install black
+        python -m pip install black flake8 flake8-print
     - name: Run black
       run: |
         python -m black --check --diff .
+    - name: Run flake8
+      run: |
+        flake8
