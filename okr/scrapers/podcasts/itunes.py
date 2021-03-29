@@ -41,7 +41,7 @@ def get_reviews(
 
     Returns:
         Optional[Tuple[dict, dict]]: User ratings and user reviews for podcast. Returns
-            None if podcast is not in the iTunes database.
+            None if podcast is not in the iTunes database or has no ratings.
     """
     # try getting podcast URL through iTunes Search API, if not provided:
     if not podcast.itunes_url:
@@ -55,6 +55,10 @@ def get_reviews(
     # get podcast ratings and reviews from iTunes Podcasts with podcast URL
     print(f"Scraping iTunes Podcast reviews data from {podcast.itunes_url}")
     user_ratings_raw, ratings_percentages = _get_reviews_json(podcast)
+
+    if "aggregateRating" not in user_ratings_raw.keys():
+        print(f'Podcast "{podcast.name}" is in iTunes database but has no reviews.')
+        return None
 
     user_rating = {
         "ratings_average": float(user_ratings_raw["aggregateRating"]["ratingValue"]),
@@ -161,7 +165,7 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON,
     if user_ratings_raw:
         user_ratings = json.loads(user_ratings_raw.contents[0])
     else:
-        raise ItunesReviewsError("Failed to find review info JSON")
+        raise ItunesReviewsError("Failed to find info JSON")
 
     # count individual stars
     review_bars = soup.find_all(

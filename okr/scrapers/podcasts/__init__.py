@@ -320,7 +320,7 @@ def _scrape_itunes_reviews_podcast(podcast):
     itunes_data = itunes.get_reviews(podcast)
 
     if itunes_data is None:
-        capture_message(f"Podcast {podcast.name} has no itunes_url")
+        capture_message(f"Podcast {podcast.name} has no itunes_url or no ratings")
         return
 
     itunes_ratings, itunes_reviews = itunes_data
