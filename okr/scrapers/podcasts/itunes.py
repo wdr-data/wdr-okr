@@ -56,36 +56,31 @@ def get_reviews(
     print(f"Scraping iTunes Podcast reviews data from {podcast.itunes_url}")
     user_ratings_raw, ratings_percentages = _get_reviews_json(podcast)
 
-    if "aggregateRating" in user_ratings_raw.keys():
-        user_rating = {
-            "ratings_average": float(
-                user_ratings_raw["aggregateRating"]["ratingValue"]
-            ),
-            "ratings_count": int(user_ratings_raw["aggregateRating"]["reviewCount"]),
-            "ratings_1_stars": ratings_percentages[1],
-            "ratings_2_stars": ratings_percentages[2],
-            "ratings_3_stars": ratings_percentages[3],
-            "ratings_4_stars": ratings_percentages[4],
-            "ratings_5_stars": ratings_percentages[5],
-        }
-
-        user_reviews = {}
-
-        for review in user_ratings_raw["review"]:
-            user_reviews[html.unescape(review["author"])] = {
-                "date": dt.datetime.strptime(
-                    review["datePublished"], "%d.%m.%Y"
-                ).date(),
-                "title": html.unescape(review["name"]),
-                "text": html.unescape(review["reviewBody"]),
-                "rating": review["reviewRating"]["ratingValue"],
-            }
-
-        return (user_rating, user_reviews)
-
-    else:
+    if "aggregateRating" not in user_ratings_raw.keys():
         print(f'Podcast "{podcast.name}" is in iTunes database but has no reviews.')
         return None
+
+    user_rating = {
+        "ratings_average": float(user_ratings_raw["aggregateRating"]["ratingValue"]),
+        "ratings_count": int(user_ratings_raw["aggregateRating"]["reviewCount"]),
+        "ratings_1_stars": ratings_percentages[1],
+        "ratings_2_stars": ratings_percentages[2],
+        "ratings_3_stars": ratings_percentages[3],
+        "ratings_4_stars": ratings_percentages[4],
+        "ratings_5_stars": ratings_percentages[5],
+    }
+
+    user_reviews = {}
+
+    for review in user_ratings_raw["review"]:
+        user_reviews[html.unescape(review["author"])] = {
+            "date": dt.datetime.strptime(review["datePublished"], "%d.%m.%Y").date(),
+            "title": html.unescape(review["name"]),
+            "text": html.unescape(review["reviewBody"]),
+            "rating": review["reviewRating"]["ratingValue"],
+        }
+
+    return (user_rating, user_reviews)
 
 
 @retry(wait=wait_exponential(), stop=stop_after_attempt(4))
