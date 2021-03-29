@@ -1,6 +1,8 @@
 import os
 import datetime as dt
 
+from loguru import logger
+
 from ..models import *
 
 
@@ -42,18 +44,21 @@ def run_db_cleanup():
                 continue
 
         if not date_field:
-            print("date_field not found for model", model, "- tried:", date_field_names)
+            logger.error(
+                "date_field not found for model {} - tried: {}",
+                model,
+                date_field_names,
+            )
             continue
 
         filter_kwargs = {f"{date_field.field.name}__lt": cutoff}
 
         result_set = model.objects.filter(**filter_kwargs)
-        print(
-            "Deleting",
-            result_set.count(),
-            "out of",
-            model.objects.count(),
-            "items from",
-            model,
+        logger.info(
+            "Deleting {delete_count} out of {total_count} items from {model}",
+            delete_count=result_set.count(),
+            total_count=model.objects.count(),
+            model=model,
         )
         result_set.delete()
+        logger.success("DB cleanup complete.")

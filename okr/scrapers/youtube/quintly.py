@@ -2,6 +2,7 @@
 
 import datetime
 from typing import Optional
+from loguru import logger
 
 import numpy as np
 import pandas as pd
@@ -67,5 +68,5 @@ def get_youtube_analytics(
     df.time = df.time.astype("str")
     df = df.replace({np.nan: None})
 
-    print(df)
+    logger.debug(df)
     return df

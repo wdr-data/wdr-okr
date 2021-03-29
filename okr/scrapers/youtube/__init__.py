@@ -6,6 +6,7 @@ from typing import Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
+from loguru import logger
 from sentry_sdk import capture_exception
 
 from ...models.youtube import *
@@ -76,8 +77,9 @@ def scrape_analytics(
                 )
             except IntegrityError as e:
                 capture_exception(e)
-                print(
-                    f"Data for analytics with interval {interval} at {row.time} failed integrity check:",
+                logger.exception(
+                    "Data for analytics with interval {} at {} failed integrity check:\n{}",
+                    interval,
+                    row.time,
                     defaults,
-                    sep="\n",
                 )

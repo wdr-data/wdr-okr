@@ -12,6 +12,7 @@ from django.db.models import Q
 from sentry_sdk import capture_exception, capture_message
 from spotipy.exceptions import SpotifyException
 from requests.exceptions import HTTPError
+from loguru import logger
 
 from . import feed
 from . import itunes
@@ -60,7 +61,7 @@ def scrape_full(
         end_date (dt.date, optional): Latest date to request data for. Defaults to
           None.
     """
-    print("Running full scrape of", podcast)
+    logger.info("Running full scrape of {}", podcast)
 
     podcast_filter = Q(id=podcast.id)
     start_date = start_date or dt.date(2016, 1, 1)
@@ -111,7 +112,7 @@ def scrape_full(
         podcast_filter=podcast_filter,
     )
 
-    print("Finished full scrape of", podcast)
+    logger.success("Finished full scrape of {}", podcast)
 
 
 def scrape_feed(*, podcast_filter: Optional[Q] = None):
@@ -155,12 +156,12 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
         try:
             _scrape_feed_podcast(podcast, spotify_podcasts)
         except Exception as e:
-            print("Failed! Capturing exception and skipping.")
+            logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
 
 def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
-    print("Scraping feed for", podcast)
+    logger.info("Scraping feed for {}", podcast)
 
     now = local_now()
 
@@ -175,7 +176,7 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
         return
 
     if len(d.entries) == 0:
-        print(f"RSS Feed for Podcast {podcast} is empty.")
+        logger.info("RSS Feed for Podcast {} is empty.", podcast)
         capture_message(f"RSS Feed for podcast {podcast} is empty.")
 
     # Update podcast meta data
@@ -195,7 +196,7 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
         )
 
         if spotify_podcast_id:
-            print("Found new Spotify ID", spotify_podcast_id, "for", podcast)
+            logger.info("Found new Spotify ID {} for {}", spotify_podcast_id, podcast)
             podcast.spotify_id = spotify_podcast_id
             podcast.save()
 
@@ -276,10 +277,10 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
             available_episode_ids.append(obj.id)
         except IntegrityError as e:
             capture_exception(e)
-            print(
-                f"Data for {entry.title} failed integrity check:",
+            logger.exception(
+                "Data for {} failed integrity check:\n{}",
+                entry.title,
                 defaults,
-                sep="\n",
             )
 
     podcast.episodes.exclude(id__in=available_episode_ids).update(
@@ -312,7 +313,7 @@ def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
             _scrape_itunes_reviews_podcast(podcast)
             sleep(4)
         except Exception as e:
-            print("Failed! Capturing exception and skipping.")
+            logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
 
@@ -383,7 +384,7 @@ def scrape_spotify_api(
         try:
             _scrape_spotify_api_podcast(podcast, start_date, end_date)
         except Exception as e:
-            print("Failed! Capturing exception and skipping.")
+            logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
         gc.collect()
@@ -394,7 +395,7 @@ def _scrape_spotify_api_podcast(
     start_date: dt.date,
     end_date: dt.date,
 ):
-    print("Scraping spotify API for", podcast)
+    logger.info("Scraping spotify API for {}", podcast)
 
     # Retrieve follower for podcast from experimental API
     follower_data = experimental_spotify_podcast_api.podcast_followers(
@@ -422,7 +423,7 @@ def _scrape_spotify_api_podcast(
                 podcast.spotify_id, "listeners", end=date
             )
         except SpotifyException:
-            print("No Podcast data anymore for", date)
+            logger.info("No Podcast data anymore for {}", date)
             break
 
         try:
@@ -497,7 +498,7 @@ def _scrape_spotify_api_podcast(
     for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
         Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
     ):
-        print("Scraping spotify episode data for", podcast_episode)
+        logger.info("Scraping spotify episode data for {}", podcast_episode)
 
         # Scrape stream stats for episode
         for date in date_range(start_date, end_date):
@@ -566,7 +567,7 @@ def scrape_spotify_experimental_performance(
         try:
             _scrape_spotify_experimental_performance_podcast(podcast, today)
         except Exception as e:
-            print("Failed! Capturing exception and skipping.")
+            logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
 
@@ -574,10 +575,9 @@ def _scrape_spotify_experimental_performance_podcast(
     podcast: Podcast,
     today: dt.date,
 ):
-    print(
-        "Scraping spotify performance data for",
+    logger.info(
+        "Scraping spotify performance data for {} from experimental API",
         podcast,
-        "from experimental API",
     )
 
     last_available_cutoff = local_today() - dt.timedelta(days=5)
@@ -585,10 +585,9 @@ def _scrape_spotify_experimental_performance_podcast(
     for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
         Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
     ):
-        print(
-            "Scraping spotify episode performance data for",
+        logger.info(
+            "Scraping spotify episode performance data for {} from experimental API",
             podcast_episode,
-            "from experimental API",
         )
 
         try:
@@ -598,7 +597,7 @@ def _scrape_spotify_experimental_performance_podcast(
 
         except HTTPError as e:
             if e.response.status_code == 404:
-                print("(404) No data found for", podcast_episode)
+                logger.warning("(404) No data found for", podcast_episode)
                 continue
 
             raise
@@ -669,7 +668,7 @@ def scrape_spotify_experimental_demographics(
                 end_date,
             )
         except Exception as e:
-            print("Failed! Capturing exception and skipping.")
+            logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
 
@@ -678,10 +677,9 @@ def _scrape_spotify_experimental_demographics_podcast(
     start_date: dt.date,
     end_date: dt.date,
 ):
-    print(
-        "Scraping spotify demographics data for",
+    logger.info(
+        "Scraping spotify demographics data for {} from experimental API",
         podcast,
-        "from experimental API",
     )
 
     first_episode_date = podcast.episodes.order_by("publication_date_time")[
@@ -697,10 +695,9 @@ def _scrape_spotify_experimental_demographics_podcast(
         Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
     ):
         for date in reversed(date_range(start_date, end_date)):
-            print(
-                "Scraping spotify episode demographics data for",
+            logger.info(
+                "Scraping spotify episode demographics data for {} from experimental API",
                 podcast_episode,
-                "from experimental API",
             )
 
             try:
@@ -711,7 +708,7 @@ def _scrape_spotify_experimental_demographics_podcast(
 
             except HTTPError as e:
                 if e.response.status_code == 404:
-                    print("(404) No data found for", podcast_episode)
+                    logger.warning("(404) No data found for {}", podcast_episode)
                     continue
 
                 raise
@@ -789,7 +786,7 @@ def scrape_podstat(
                     end_time,
                 )
             except Exception as e:
-                print("Failed! Capturing exception and skipping.")
+                logger.exception("Failed! Capturing exception and skipping.")
                 capture_exception(e)
 
         del connection_meta
@@ -802,30 +799,31 @@ def _scrape_podstat_podcast(
     start_time: dt.datetime,
     end_time: dt.datetime,
 ):
-    print("Scraping podstat for", podcast)
+    logger.info("Scraping podstat for {}", podcast)
 
     last_available_cutoff = local_today() - dt.timedelta(days=10)
 
     for podcast_episode in podcast.episodes.filter(
         Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
     ):
-        print("Scraping podstat episode data for", podcast_episode)
+        logger.info("Scraping podstat episode data for {}", podcast_episode)
         podstat_episode_variants = podstat.get_episode(
             connection_meta, podcast_episode.zmdb_id
         )
         if len(podstat_episode_variants) != 2:
-            print(
-                f"Expected 2 variants of episode {podcast_episode} in podstat data, found {len(podstat_episode_variants)}"
+            logger.warning(
+                "Expected 2 variants of episode {} in podstat data, found {}",
+                podcast_episode,
+                len(podstat_episode_variants),
             )
         ondemand_objects_episode = []
         download_objects_episode = []
 
         for variant in podstat_episode_variants:
             if variant.podcast_murl is None:
-                print(
-                    "No murl found for podcast_url",
+                logger.warning(
+                    "No murl found for podcast_url {} with url {}",
                     variant.urlid,
-                    "with url",
                     variant.url,
                 )
                 continue
@@ -854,10 +852,9 @@ def _scrape_podstat_podcast(
         # Deduplicate records in case of renaming etc.
         if objects_episode:
             objects_episode = _aggregate_episode_data(objects_episode)
-            print(
-                "Found",
+            logger.info(
+                "Found {} unique ondemand datapoints",
                 len(ondemand_objects_episode),
-                "unique ondemand datapoints",
             )
             for obj in objects_episode:
                 PodcastEpisodeDataPodstat.objects.update_or_create(
@@ -966,7 +963,7 @@ def scrape_podcast_data_webtrekk_picker(
             PodcastDataWebtrekkPicker.objects.update_or_create(
                 date=date, podcast=podcast, defaults=data[normalized_name]
             )
-        print(f"Finished scraping of Webtrekk performance data for {date}.")
+        logger.success("Finished scraping of Webtrekk performance data for {}.", date)
 
 
 def scrape_episode_data_webtrekk_performance(
@@ -1024,4 +1021,4 @@ def scrape_episode_data_webtrekk_performance(
                 PodcastEpisodeDataWebtrekkPerformance.objects.update_or_create(
                     date=date, episode=episode, defaults=data[episode.zmdb_id]
                 )
-        print(f"Finished scraping of Webtrekk performance data for {date}.")
+        logger.success("Finished scraping of Webtrekk performance data for {}.", date)

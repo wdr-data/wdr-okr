@@ -6,6 +6,7 @@ from apscheduler.events import EVENT_JOB_ERROR
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from sentry_sdk import capture_exception
+from loguru import logger
 
 from ..models import Podcast, Insta, YouTube, TikTok, Property
 from . import insta, youtube, podcasts, pages, tiktok
@@ -232,7 +233,7 @@ def podcast_created(instance: Podcast, created: bool, **kwargs):
         instance (Podcast): A Podcast instance
         created (bool): Start scraper if set to True
     """
-    print(instance, created)
+    logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(podcasts.scrape_full, args=[instance], max_instances=1)
 
@@ -246,7 +247,7 @@ def insta_created(instance: Insta, created: bool, **kwargs):
         instance (Insta): An Insta instance
         created (bool): Don't start scraper if set to False
     """
-    print(instance, created)
+    logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(insta.scrape_full, args=[instance], max_instances=1)
 
@@ -260,7 +261,7 @@ def youtube_created(instance: YouTube, created: bool, **kwargs):
         instance (YouTube): A YouTube instance
         created (bool): Don't start scraper if set to False
     """
-    print(instance, created)
+    logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(youtube.scrape_full, args=[instance], max_instances=1)
 
@@ -274,7 +275,7 @@ def property_created(instance: Property, created: bool, **kwargs):
         instance (Property): A Property instance
         created (bool): Start scraper if set to True
     """
-    print(instance, created)
+    logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(pages.scrape_full_gsc, args=[instance], max_instances=1)
 
@@ -288,7 +289,7 @@ def sophora_node_created(instance: SophoraNode, created: bool, **kwargs):
         instance (SophoraNode): A SophoraNode instance
         created (bool): Start scraper if set to True
     """
-    print(instance, created)
+    logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(pages.scrape_full_sophora, args=[instance], max_instances=1)
 
@@ -302,6 +303,6 @@ def tiktok_created(instance: TikTok, created: bool, **kwargs):
         instance (TikTok): A TikTok instance
         created (bool): Start scraper if set to True
     """
-    print(instance, created)
+    logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(tiktok.scrape_full, args=[instance], max_instances=1)

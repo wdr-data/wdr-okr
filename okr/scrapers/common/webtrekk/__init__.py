@@ -1,5 +1,6 @@
 """Wrapper for Webtrekk API."""
 
+from loguru import logger
 import requests
 import os
 import datetime as dt
@@ -44,12 +45,20 @@ class Webtrekk:
             "language": "de",
         }
         self.token = self._get_response(method="login", params=params)
-        print(f"{WEBTREKK_LOGIN} has been successfully connected to to {self.name}.")
+        logger.info(
+            "{} has been successfully connected to to {}.",
+            WEBTREKK_LOGIN,
+            self.name,
+        )
 
     def logout(self):
         """Logout from JSON/RPC API."""
         self._get_response("logout", {"token": self.token})
-        print(f"{WEBTREKK_LOGIN} has been logged out successfully from {self.name}.")
+        logger.info(
+            "{} has been logged out successfully from {}.",
+            WEBTREKK_LOGIN,
+            self.name,
+        )
 
     @contextmanager
     def session(self):

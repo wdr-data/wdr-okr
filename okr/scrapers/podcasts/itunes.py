@@ -8,6 +8,7 @@ import re
 from typing import Optional, Tuple
 
 import bs4
+from loguru import logger
 import requests
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
@@ -45,7 +46,10 @@ def get_reviews(
     """
     # try getting podcast URL through iTunes Search API, if not provided:
     if not podcast.itunes_url:
-        print(f'Querying iTunes Search API for "{podcast.name}" to retrieve itunes_url')
+        logger.info(
+            'Querying iTunes Search API for "{}" to retrieve itunes_url',
+            podcast.name,
+        )
         podcast.itunes_url = _get_metadata_url(podcast)
         podcast.save()
 
@@ -53,11 +57,14 @@ def get_reviews(
         return None
 
     # get podcast ratings and reviews from iTunes Podcasts with podcast URL
-    print(f"Scraping iTunes Podcast reviews data from {podcast.itunes_url}")
+    logger.info("Scraping iTunes Podcast reviews data from {}", podcast.itunes_url)
     user_ratings_raw, ratings_percentages = _get_reviews_json(podcast)
 
     if "aggregateRating" not in user_ratings_raw.keys():
-        print(f'Podcast "{podcast.name}" is in iTunes database but has no reviews.')
+        logger.warning(
+            'Podcast "{}" is in iTunes database but has no reviews.',
+            podcast.name,
+        )
         return None
 
     user_rating = {
