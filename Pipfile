@@ -42,6 +42,7 @@ requests = "*"
 beautifulsoup4 = "*"
 lxml = "*"
 tenacity = "*"
+loguru = "*"
 
 [requires]
 python_version = "3.8"
