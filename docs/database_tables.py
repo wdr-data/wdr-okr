@@ -3,9 +3,11 @@ documentation.
 """
 
 import collections
-import django
 import os
 import sys
+
+import django
+from loguru import logger
 
 DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(DOCS_DIR)
@@ -172,4 +174,4 @@ if __name__ == "__main__":
     filepath = os.path.join(DOCS_DIR, FILENAME)
     with open(filepath, "wt") as output_file:
         output_file.write(html_page)
-    print(f"Data written to {filepath}")
+    logger.success("Data written to {}", filepath)

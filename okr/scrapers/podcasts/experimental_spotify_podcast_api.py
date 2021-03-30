@@ -10,6 +10,7 @@ from typing import Dict, Optional
 import datetime as dt
 from time import sleep
 from threading import RLock
+from loguru import logger
 
 import requests
 from tenacity import retry
@@ -39,7 +40,7 @@ class ExperimentalSpotifyPodcastAPI:
         """Retrieves a Bearer token for the experimental Spotify API, valid 1 hour."""
 
         with self._auth_lock:
-            print("Retrieving Bearer for experimental Spotify API")
+            logger.info("Retrieving Bearer for experimental Spotify API")
             response = requests.get(
                 f"{AUTH_URL}?client_id={CLIENT_ID}",
                 cookies={
@@ -81,7 +82,7 @@ class ExperimentalSpotifyPodcastAPI:
 
     def _request(self, url: str) -> dict:
         delay = DELAY_BASE
-        for _ in range(6):
+        for attempt in range(6):
             sleep(delay)
             self._ensure_auth()
             response = requests.get(
@@ -91,7 +92,13 @@ class ExperimentalSpotifyPodcastAPI:
 
             if response.status_code in (429, 502, 503, 504):
                 delay *= 2
-                print(f'Got {response.status_code} for URL "{url}", next delay:', delay)
+                logger.log(
+                    ("INFO" if attempt < 3 else "WARNING"),
+                    'Got {} for URL "{}", next delay: {}s',
+                    response.status_code,
+                    url,
+                    delay,
+                )
                 continue
 
             elif response.status_code == 401:
@@ -99,10 +106,10 @@ class ExperimentalSpotifyPodcastAPI:
                 continue
 
             if not response.ok:
-                print("Error in experimental API:")
-                print(response.status_code)
-                print(response.headers)
-                print(response.text)
+                logger.error("Error in experimental API:")
+                logger.info(response.status_code)
+                logger.info(response.headers)
+                logger.info(response.text)
                 response.raise_for_status()
 
             return response.json()

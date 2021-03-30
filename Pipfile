@@ -13,6 +13,8 @@ docs_static = "cp -R docs/_build/html static/docs"
 start = "gunicorn app.wsgi -k sync --workers=1"
 
 [dev-packages]
+flake8 = "*"
+flake8-print = "*"
 
 [packages]
 django = "*"
@@ -42,6 +44,7 @@ requests = "*"
 beautifulsoup4 = "*"
 lxml = "*"
 tenacity = "*"
+loguru = "*"
 
 [requires]
 python_version = "3.8"

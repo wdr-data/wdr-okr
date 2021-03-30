@@ -6,6 +6,7 @@ from typing import Dict, Optional, Tuple
 from time import sleep
 
 from django.db.models import Q
+from loguru import logger
 from sentry_sdk import capture_exception
 from rfc3986 import urlparse
 from urllib.parse import unquote
@@ -43,7 +44,7 @@ def scrape_full_gsc(property: Property):
     Args:
         property (Property): Property to scrape data for.
     """
-    print("Running full scrape of property", property)
+    logger.info("Running full scrape of property {}", property)
 
     property_filter = Q(id=property.id)
 
@@ -55,7 +56,7 @@ def scrape_full_gsc(property: Property):
     # sleep(1)
     # scrape_sophora(property_filter=property_filter)
 
-    print("Finished full scrape of property", property)
+    logger.success("Finished full scrape of property {}", property)
 
 
 def scrape_full_sophora(sophora_node: SophoraNode):
@@ -64,14 +65,14 @@ def scrape_full_sophora(sophora_node: SophoraNode):
     Args:
         sophora_node (SophoraNode): Sophora node to scrape data for.
     """
-    print("Running full scrape of Sophora node", sophora_node)
+    logger.info("Running full scrape of Sophora node {}", sophora_node)
 
     sophora_node_filter = Q(id=sophora_node.id)
 
     sleep(1)
     scrape_sophora_nodes(sophora_node_filter=sophora_node_filter)
 
-    print("Finished full scrape of Sophora node", sophora_node)
+    logger.success("Finished full scrape of Sophora node {}", sophora_node)
 
 
 def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
@@ -140,7 +141,7 @@ def _property_data_gsc(property: Property, start_date: dt.date, end_date: dt.dat
         end_date (dt.date): End date to request data for.
     """
 
-    print("Getting Property Data...")
+    logger.info("Getting Property Data...")
 
     data = gsc.fetch_data(
         property, start_date, end_date=end_date, dimensions=["date", "device"]
@@ -171,7 +172,7 @@ def _property_data_query_gsc(property: Property, date: dt.date):
             date (dt.date): The date to request data for.
     """
 
-    print("Getting Property Query Data...")
+    logger.info("Getting Property Query Data...")
 
     data = gsc.fetch_data(property, date, dimensions=["query"])
 
@@ -201,7 +202,7 @@ def _page_data_gsc(property: Property, date: dt.date, page_cache: Dict[str, Page
         page_cache (Dict[str, Page]): Cache for url to page mapping.
     """
 
-    print("Getting Page Data...")
+    logger.info("Getting Page Data...")
 
     data = gsc.fetch_data(property, date)
     for row in data:
@@ -238,7 +239,7 @@ def _page_data_query_gsc(
         page_cache (Dict[str, Page]): Cache for url to page mapping.
     """
 
-    print("Getting Page Query Data...")
+    logger.info("Getting Page Query Data...")
 
     data = gsc.fetch_data(property, date, dimensions=["page", "query"])
     for row in data:
@@ -291,20 +292,26 @@ def scrape_gsc(
         properties = properties.filter(property_filter)
 
     for property in properties:
-        print(f"Start scrape Google Search Console data for property {property}.")
+        logger.info(
+            "Start scrape Google Search Console data for property {}.",
+            property,
+        )
 
         page_cache = {}
 
         _property_data_gsc(property, start_date, yesterday)
 
         for date in reversed(date_range(start_date, yesterday)):
-            print(f"Scraping data for {date}.")
+            logger.info("Scraping data for {}.", date)
 
             _property_data_query_gsc(property, date)
             _page_data_gsc(property, date, page_cache)
             _page_data_query_gsc(property, date, page_cache)
 
-        print(f"Finished Google Search Console scrape for property {property}.")
+        logger.success(
+            "Finished Google Search Console scrape for property {}.",
+            property,
+        )
 
 
 def _count_words(string: str) -> int:
@@ -366,13 +373,16 @@ def _handle_sophora_document(
         except Exception as e:
             capture_exception(e)
 
-        print(sophora_document_info)
+        logger.warning("Unknown page type:")
+        logger.info(sophora_document_info)
         return True
 
     # Cancel when editorial update is too old
     if editorial_update is not None and editorial_update < max_age:
-        print(
-            f"Done scraping this feed. editorial_update: {editorial_update}, max_age={max_age}"
+        logger.success(
+            "Done scraping this feed. editorial_update: {}, max_age={}",
+            editorial_update,
+            max_age,
         )
         return False
 
@@ -389,8 +399,8 @@ def _handle_sophora_document(
         if contains_info.get("mediaType") == "imageGallery":
             return True
 
-        print("No shareLink found:")
-        print(sophora_document_info)
+        logger.exception("No shareLink found:")
+        logger.info(sophora_document_info)
         capture_exception(error)
         return True
     except AttributeError as error:
@@ -399,10 +409,11 @@ def _handle_sophora_document(
 
     export_uuid = contains_info["uuid"]
 
+    # TODO: Figure out what this is supposed to do
     try:
         document_type = contains_info.get("mediaType")
     except Exception as error:
-        print(sophora_document_info)
+        logger.exception(sophora_document_info)
         capture_exception(error)
         return True
 
@@ -485,10 +496,10 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
         sophora_nodes = sophora_nodes.filter(sophora_node_filter)
 
     for sophora_node in sophora_nodes:
-        print(f"Scraping Sophora API for pages of {sophora_node}")
+        logger.info("Scraping Sophora API for pages of {}", sophora_node)
 
         if sophora_node.documents.count() == 0:
-            print("No existing documents found, search history")
+            logger.info("No existing documents found, search history")
             max_age = now - dt.timedelta(days=365)
         else:
             max_age = (
@@ -499,7 +510,7 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
                 .editorial_update
             ) - dt.timedelta(minutes=1)
 
-        print("Scraping exact node matches")
+        logger.info("Scraping exact node matches")
         for sophora_document_info in sophora.get_documents_in_node(
             sophora_node,
             force_exact=True,
@@ -515,7 +526,7 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
         if sophora_node.use_exact_search:
             continue
 
-        print("Scraping sub-node matches")
+        logger.info("Scraping sub-node matches")
         for sophora_document_info in sophora.get_documents_in_node(sophora_node):
             should_continue = _handle_sophora_document(
                 sophora_node,
@@ -560,7 +571,7 @@ def scrape_webtrekk(
         property = None
 
     for date in reversed(date_range(start_date, end_date)):
-        print(f"Start Webtrekk SEO scrape for {date}.")
+        logger.info("Start Webtrekk SEO scrape for {}.", date)
         data = webtrekk.cleaned_webtrekk_page_data(date)
 
         for key, item in data.items():
@@ -600,4 +611,4 @@ def scrape_webtrekk(
                 ),
             )
 
-    print(f"Finished Webtrekk SEO scrape")
+    logger.success("Finished Webtrekk SEO scrape")

@@ -7,6 +7,7 @@ from enum import Enum
 from time import sleep
 from typing import Callable, Optional
 import logging
+from loguru import logger
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -305,5 +306,5 @@ try:
     auth_manager = SpotifyClientCredentials()
     spotify_api = CustomSpotify(auth_manager=auth_manager)
 except spotipy.oauth2.SpotifyOauthError:
-    print("Missing Spotipy credentials! Spotify-related scrapers will fail.")
+    logger.warning("Missing Spotipy credentials! Spotify-related scrapers will fail.")
     spotify_api = None

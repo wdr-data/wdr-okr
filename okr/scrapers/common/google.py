@@ -3,6 +3,8 @@ Requires a ``google-credentials.json`` file in the root directory.
 """
 
 from datetime import date
+
+from loguru import logger
 from apiclient.discovery import build
 from google.oauth2 import service_account
 
@@ -15,7 +17,7 @@ try:
     )
 
 except FileNotFoundError:
-    print("Service account file not found, GSC-related scrapers will fail")
+    logger.warning("Service account file not found, GSC-related scrapers will fail")
     webmasters_service = None
 
 else:
