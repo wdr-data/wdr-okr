@@ -94,6 +94,19 @@ are located in `okr/admin`.
 Our intelligence layer is managed via the Django ORM. Models are defined in
 `okr/models/` with generally self-contained submodules for each product type.
 
+### Contributing
+
+Install the `black` code formatter:
+
+```bash=bash
+$ pipenv run pip install black
+```
+
+Set up git pre-commit hook:
+```bash=bash
+$ cp git-hooks/pre-commit .git/hooks
+```
+
 ## License
 
 This project is licensed under the _MIT License_.
