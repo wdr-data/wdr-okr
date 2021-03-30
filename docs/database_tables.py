@@ -16,9 +16,14 @@ sys.path.insert(0, BASE_DIR)
 os.environ["DJANGO_SETTINGS_MODULE"] = "app.settings"
 django.setup()
 
-from django_extensions.management.modelviz import generate_graph_data
+from django_extensions.management.modelviz import generate_graph_data  # noqa: E402
 
-from database_tables_config import APP_LABELS, HTML_TOP, HTML_BOTTOM, FILENAME
+from database_tables_config import (  # noqa: E402
+    APP_LABELS,
+    HTML_TOP,
+    HTML_BOTTOM,
+    FILENAME,
+)
 
 
 def tabulate(head, rows, head_classes=None, row_classes=None):

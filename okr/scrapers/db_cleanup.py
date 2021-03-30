@@ -3,7 +3,22 @@ import datetime as dt
 
 from loguru import logger
 
-from ..models import *
+from ..models import (
+    # Podcasts
+    PodcastDataSpotify,
+    PodcastDataSpotifyHourly,
+    PodcastEpisodeDataPodstat,
+    PodcastEpisodeDataSpotify,
+    PodcastEpisodeDataSpotifyDemographics,
+    PodcastEpisodeDataSpotifyPerformance,
+    PodcastEpisodeDataWebtrekkPerformance,
+    # Pages
+    PropertyDataGSC,
+    PropertyDataQueryGSC,
+    PageDataGSC,
+    PageDataQueryGSC,
+    PageDataWebtrekk,
+)
 
 
 def run_db_cleanup():

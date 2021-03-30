@@ -14,7 +14,6 @@ def fill_podcast_data_history(apps, schema_editor):
     from spotipy.exceptions import SpotifyException
 
     for podcast in Podcast.objects.all():
-        spotify_id = podcast.spotify_id
         for data in podcast.data_spotify.all():
             date = data.date
             try:

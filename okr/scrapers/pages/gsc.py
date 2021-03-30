@@ -1,7 +1,7 @@
 """Collect and clean up data from the Google Search Console API."""
 
 import datetime as dt
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional
 
 from ..common.google import webmasters_service
 from ...models import Property

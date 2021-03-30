@@ -483,7 +483,7 @@ def _scrape_spotify_api_podcast(
                         date_time,
                         precision=spotify_api.Precision.HOUR,
                     )["total"]
-                except:
+                except Exception:
                     agg_type_data[agg_type] = 0
 
             PodcastDataSpotifyHourly.objects.update_or_create(
@@ -516,7 +516,7 @@ def _scrape_spotify_api_podcast(
                         date,
                     )
                     episode_data[agg_type] = result
-                except SpotifyException as e:
+                except SpotifyException:
                     episode_data[agg_type] = {"total": 0}
 
             try:
@@ -528,7 +528,7 @@ def _scrape_spotify_api_podcast(
                     "listeners",
                     end=date,
                 )
-            except SpotifyException as e:
+            except SpotifyException:
                 episode_data["listeners_all_time"] = {"total": 0}
 
             PodcastEpisodeDataSpotify.objects.update_or_create(

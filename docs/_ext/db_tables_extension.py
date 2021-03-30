@@ -3,13 +3,15 @@
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
-import sys, os, inspect
+import sys
+import os
+import inspect
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from database_tables import build_html
+from database_tables import build_html  # noqa: E402
 
 
 class DbTables(Directive):

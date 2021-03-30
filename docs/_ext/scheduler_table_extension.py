@@ -22,7 +22,7 @@ sys.path.insert(0, BASE_DIR)
 os.environ["DJANGO_SETTINGS_MODULE"] = "app.settings"
 django.setup()
 
-from okr.scrapers import scheduler
+from okr.scrapers import scheduler  # noqa: E402
 
 
 def parse_job_info_method(job: Job) -> str:
@@ -66,7 +66,7 @@ def parse_job_info_schedule(job: Job) -> str:
     days = str(job.trigger.fields[-4]).split(",")
     hours = str(job.trigger.fields[-3]).split(",")
     minutes = str(job.trigger.fields[-2]).split(",")
-    seconds = str(job.trigger.fields[-1]).split(",")
+    seconds = str(job.trigger.fields[-1]).split(",")  # noqa: F841
 
     scheduled_times = ""
 
@@ -99,7 +99,7 @@ def parse_job_info_schedule(job: Job) -> str:
             minutes_list = []
             for minute in minutes:
                 minutes_list.append(f"{hours[0].zfill(2)}:{minute.zfill(2)}")
-            scheduled_times += f" um "
+            scheduled_times += " um "
             scheduled_times += ", ".join(minutes_list[:-1])
             scheduled_times += f" und {minutes_list[-1]} Uhr"
     elif len(hours) > 1:

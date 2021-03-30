@@ -25,7 +25,7 @@ def patch():
 
                 context[
                     "docstring"
-                ] = f"Automatisch erzeugte Tabelle für eine Many-to-Many-Relation."
+                ] = "Automatisch erzeugte Tabelle für eine Many-to-Many-Relation."
 
             return context
 

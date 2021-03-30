@@ -8,7 +8,14 @@ from typing import Optional
 from django.db.models import Q
 from loguru import logger
 
-from ...models.tiktok import *
+from ...models.tiktok import (
+    TikTok,
+    TikTokData,
+    TikTokChallenge,
+    TikTokPost,
+    TikTokHashtag,
+    TikTokTag,
+)
 from . import quintly
 from ..common.utils import BERLIN
 
