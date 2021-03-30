@@ -212,8 +212,8 @@ def add_jobs():
     scheduler.add_job(
         pages.scrape_gsc,
         trigger="cron",
-        hour="17",
-        minute="0",
+        hour="9",
+        minute="15",
     )
     scheduler.add_job(
         pages.scrape_webtrekk,
