@@ -7,11 +7,11 @@ class BotSeoConfig(AppConfig):
     verbose_name = "Teams-Bot für SEO"
 
     def ready(self):
-        # from .scrapers import scheduler
+        from . import scheduler
 
-        # scheduler.setup()
+        scheduler.setup()
 
-        # if not settings.DEBUG:
-        #     scheduler.add_jobs()
+        if not settings.DEBUG:
+            scheduler.add_jobs()
 
         return super().ready()
