@@ -11,7 +11,6 @@ from sentry_sdk import capture_exception
 from rfc3986 import urlparse
 from urllib.parse import unquote
 
-from ...models import Property
 from okr.models.pages import (
     Page,
     PageDataWebtrekk,
@@ -84,7 +83,7 @@ def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
     node = match.group(1)
     sophora_id = match.group(2)
     # Cut off any other weird Sophora parameters
-    sophora_id = re.sub(f"~.*", "", sophora_id)
+    sophora_id = re.sub(r"~.*", "", sophora_id)
     if sophora_id == "index":
         sophora_id = f"{node}/{sophora_id}"
 

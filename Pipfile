@@ -4,6 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [scripts]
+lint_flake8 = "flake8"
+lint_black = "black --check --diff ."
 format = "black . --exclude wheels"
 manage = "python manage.py"
 db_tables = "python docs/database_tables.py"

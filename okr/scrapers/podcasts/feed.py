@@ -1,8 +1,5 @@
 """Parse podcast feed using the feedparser library."""
 
-import html
-import re
-
 import feedparser
 import requests
 import bs4

@@ -9,7 +9,12 @@ from django.db.models import Q
 from loguru import logger
 from sentry_sdk import capture_exception
 
-from ...models.insta import *
+from ...models.insta import (
+    Insta,
+    InstaInsight,
+    InstaPost,
+    InstaStory,
+)
 from . import quintly
 from ..common.utils import BERLIN
 

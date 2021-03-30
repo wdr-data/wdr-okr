@@ -1,7 +1,6 @@
 """Wrapper for Podstat API."""
 
 import os
-import functools
 from contextlib import contextmanager
 from typing import Iterator, List
 

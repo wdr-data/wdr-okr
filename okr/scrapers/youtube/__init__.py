@@ -9,7 +9,10 @@ from django.db.models import Q
 from loguru import logger
 from sentry_sdk import capture_exception
 
-from ...models.youtube import *
+from ...models.youtube import (
+    YouTube,
+    YouTubeAnalytics,
+)
 from . import quintly
 
 
@@ -69,7 +72,7 @@ def scrape_analytics(
             }
 
             try:
-                obj, created = YouTubeAnalytics.objects.update_or_create(
+                YouTubeAnalytics.objects.update_or_create(
                     youtube=youtube,
                     date=date.fromisoformat(row.time),
                     interval=interval,
