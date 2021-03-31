@@ -76,19 +76,21 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
     list_display = ProductAdmin.list_display + [
         "author",
         "spotify_id",
+        "main_category",
         "itunes_category",
-        "itunes_subcategory",
     ]
     list_filter = [
         "author",
         "categories",
+        "main_category",
         "itunes_category",
-        "itunes_subcategory",
     ]
 
     unrequired_fields = [
         "itunes_category",
         "itunes_subcategory",
+        "categories",
+        "main_category",
         "spotify_id",
         "itunes_url",
     ]
