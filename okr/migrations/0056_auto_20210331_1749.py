@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 db_table="podcast_podcast_category",
-                help_text="Die für den Podcast hier manuell vergebenen Kategorien. Die Hauptkategorie ist hier ebenfalls auszuwählen!",
+                help_text="Die für den Podcast hier manuell vergebenen Kategorien.",
                 related_name="podcasts",
                 related_query_name="podcast",
                 to="okr.PodcastCategory",

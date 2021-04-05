@@ -1,10 +1,12 @@
 """Forms for managing podcast data."""
 
 import functools
+from typing import Any
 
 from django import forms
 from django.contrib import admin
 from django.db import models
+from loguru import logger
 
 from ..models import (
     Podcast,
@@ -63,7 +65,8 @@ class FeedForm(forms.ModelForm):
         )
 
         spotify_podcast_id = next(
-            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title), None
+            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title),
+            None,
         )
         self.instance.spotify_id = spotify_podcast_id
 
@@ -100,6 +103,24 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
             return FeedForm
 
         return super().get_form(request, obj=obj, **kwargs)
+
+    def save_related(
+        self,
+        request: Any,
+        form: forms.ModelForm,
+        formsets: Any,
+        change: bool,
+    ) -> None:
+        super().save_related(request, form, formsets, change)
+
+        # Ensure that the main category is always added to the regular categories
+        obj = form.instance
+        if change and obj.main_category:
+            logger.info(
+                "Adding main category {} to regular categories",
+                obj.main_category,
+            )
+            obj.categories.add(obj.main_category)
 
 
 class PodcastCategoryAdmin(admin.ModelAdmin):

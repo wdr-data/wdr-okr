@@ -82,7 +82,7 @@ class Podcast(Product):
         db_table="podcast_podcast_category",
         related_name="podcasts",
         related_query_name="podcast",
-        help_text="Die für den Podcast hier manuell vergebenen Kategorien. Die Hauptkategorie ist hier ebenfalls auszuwählen!",
+        help_text="Die für den Podcast hier manuell vergebenen Kategorien.",
         blank=True,
     )
 
