@@ -25,7 +25,7 @@ from ..models import (
     PodcastCategory,
 )
 from .base import ProductAdmin
-from .mixins import UnrequiredFieldsMixin
+from .mixins import UnrequiredFieldsMixin, large_table
 from ..scrapers.podcasts import feed
 from ..scrapers.podcasts.spotify_api import spotify_api, fetch_all
 
@@ -196,6 +196,7 @@ class DataSpotifyAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
+@large_table
 class DataSpotifyHourlyAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify hourly podcast data to edit."""
 
@@ -228,6 +229,7 @@ class EpisodeAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
+@large_table
 class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify podcast episode data to edit."""
 
@@ -270,6 +272,7 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify episode demographics data to edit."""
 
@@ -286,6 +289,7 @@ class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify episode performance data to edit."""
 
@@ -304,6 +308,7 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
     """List for choosing existing Webtrekk episode performance data to edit."""
 
@@ -320,6 +325,7 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataPodstatAdmin(admin.ModelAdmin):
     """List for choosing existing Podstat episode data to edit."""
 
