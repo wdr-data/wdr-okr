@@ -416,15 +416,19 @@ def _scrape_spotify_api_podcast(
     if start_date < first_episode_date:
         start_date = first_episode_date
 
-    for date in reversed(date_range(start_date, end_date)):
+    for day, date in enumerate(reversed(date_range(start_date, end_date))):
         # Read daily data
         try:
             listener_data_all_time = spotify_api.podcast_data_date_range(
                 podcast.spotify_id, "listeners", end=date
             )
         except SpotifyException:
-            logger.info("No Podcast data anymore for {}", date)
-            break
+            if day < 3:
+                logger.info("No Podcast data yet for {}", date)
+                continue
+            else:
+                logger.warning("No Podcast data anymore for {}", date)
+                break
 
         try:
             listener_data = spotify_api.podcast_data(
