@@ -8,7 +8,7 @@
 PY_FILES=$(git diff --cached --name-only -- '***.py')
 
 # Need to skip if no changed files cause flake8 checks everything in that case
-if [ -z $PY_FILES ]
+if [ -z "$PY_FILES" ];
 then
     exit 0
 fi
