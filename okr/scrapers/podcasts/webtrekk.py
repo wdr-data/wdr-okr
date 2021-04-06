@@ -4,6 +4,8 @@ import datetime as dt
 from typing import Dict
 import re
 
+from loguru import logger
+
 from ..common.webtrekk import Webtrekk
 from ..common.webtrekk.types import (
     AnalysisConfig,
@@ -60,7 +62,7 @@ def cleaned_audio_data(date: dt.date) -> Dict:
     data = analysis["analysisData"]
     date_start = analysis["timeStart"]
     date_end = analysis["timeStop"]
-    print(f"Start scraping Webtrekk Data between {date_start} and {date_end}.")
+    logger.info("Start scraping Webtrekk Data between {} and {}.", date_start, date_end)
 
     # Loop over episodes
     data_dict = {}
@@ -141,7 +143,7 @@ def cleaned_picker_data(date: dt.date) -> Dict:
     data = analysis["analysisData"]
     date_start = analysis["timeStart"]
     date_end = analysis["timeStop"]
-    print(f"Start scraping Webtrekk Data between {date_start} and {date_end}.")
+    logger.info("Start scraping Webtrekk Data between {} and {}.", date_start, date_end)
 
     data_dict = {}
     for element in data[:-1]:

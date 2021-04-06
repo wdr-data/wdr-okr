@@ -3,9 +3,11 @@ documentation.
 """
 
 import collections
-import django
 import os
 import sys
+
+import django
+from loguru import logger
 
 DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(DOCS_DIR)
@@ -14,9 +16,14 @@ sys.path.insert(0, BASE_DIR)
 os.environ["DJANGO_SETTINGS_MODULE"] = "app.settings"
 django.setup()
 
-from django_extensions.management.modelviz import generate_graph_data
+from django_extensions.management.modelviz import generate_graph_data  # noqa: E402
 
-from database_tables_config import APP_LABELS, HTML_TOP, HTML_BOTTOM, FILENAME
+from database_tables_config import (  # noqa: E402
+    APP_LABELS,
+    HTML_TOP,
+    HTML_BOTTOM,
+    FILENAME,
+)
 
 
 def tabulate(head, rows, head_classes=None, row_classes=None):
@@ -172,4 +179,4 @@ if __name__ == "__main__":
     filepath = os.path.join(DOCS_DIR, FILENAME)
     with open(filepath, "wt") as output_file:
         output_file.write(html_page)
-    print(f"Data written to {filepath}")
+    logger.success("Data written to {}", filepath)

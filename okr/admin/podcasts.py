@@ -1,10 +1,12 @@
 """Forms for managing podcast data."""
 
 import functools
+from typing import Any
 
 from django import forms
 from django.contrib import admin
 from django.db import models
+from loguru import logger
 
 from ..models import (
     Podcast,
@@ -23,7 +25,7 @@ from ..models import (
     PodcastCategory,
 )
 from .base import ProductAdmin
-from .mixins import UnrequiredFieldsMixin
+from .mixins import UnrequiredFieldsMixin, large_table
 from ..scrapers.podcasts import feed
 from ..scrapers.podcasts.spotify_api import spotify_api, fetch_all
 
@@ -63,7 +65,8 @@ class FeedForm(forms.ModelForm):
         )
 
         spotify_podcast_id = next(
-            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title), None
+            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title),
+            None,
         )
         self.instance.spotify_id = spotify_podcast_id
 
@@ -76,19 +79,21 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
     list_display = ProductAdmin.list_display + [
         "author",
         "spotify_id",
+        "main_category",
         "itunes_category",
-        "itunes_subcategory",
     ]
     list_filter = [
         "author",
         "categories",
+        "main_category",
         "itunes_category",
-        "itunes_subcategory",
     ]
 
     unrequired_fields = [
         "itunes_category",
         "itunes_subcategory",
+        "categories",
+        "main_category",
         "spotify_id",
         "itunes_url",
     ]
@@ -98,6 +103,24 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
             return FeedForm
 
         return super().get_form(request, obj=obj, **kwargs)
+
+    def save_related(
+        self,
+        request: Any,
+        form: forms.ModelForm,
+        formsets: Any,
+        change: bool,
+    ) -> None:
+        super().save_related(request, form, formsets, change)
+
+        # Ensure that the main category is always added to the regular categories
+        obj = form.instance
+        if change and obj.main_category:
+            logger.info(
+                "Adding main category {} to regular categories",
+                obj.main_category,
+            )
+            obj.categories.add(obj.main_category)
 
 
 class PodcastCategoryAdmin(admin.ModelAdmin):
@@ -173,6 +196,7 @@ class DataSpotifyAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
+@large_table
 class DataSpotifyHourlyAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify hourly podcast data to edit."""
 
@@ -205,6 +229,7 @@ class EpisodeAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
+@large_table
 class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify podcast episode data to edit."""
 
@@ -247,6 +272,7 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify episode demographics data to edit."""
 
@@ -263,6 +289,7 @@ class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify episode performance data to edit."""
 
@@ -281,6 +308,7 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
     """List for choosing existing Webtrekk episode performance data to edit."""
 
@@ -297,6 +325,7 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
     search_fields = ["episode__title"]
 
 
+@large_table
 class EpisodeDataPodstatAdmin(admin.ModelAdmin):
     """List for choosing existing Podstat episode data to edit."""
 

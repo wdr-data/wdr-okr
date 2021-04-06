@@ -6,8 +6,16 @@ from time import sleep
 from typing import Optional
 
 from django.db.models import Q
+from loguru import logger
 
-from ...models.tiktok import *
+from ...models.tiktok import (
+    TikTok,
+    TikTokData,
+    TikTokChallenge,
+    TikTokPost,
+    TikTokHashtag,
+    TikTokTag,
+)
 from . import quintly
 from ..common.utils import BERLIN
 
@@ -21,7 +29,7 @@ def scrape_full(tiktok: TikTok):
     tiktok_filter = Q(id=tiktok.id)
     start_date = dt.date(2021, 1, 1)
 
-    print(f'Starting full scrape for TikTok account "{tiktok.name}"')
+    logger.info('Starting full scrape for TikTok account "{}"', tiktok.name)
 
     sleep(1)
 
@@ -31,7 +39,7 @@ def scrape_full(tiktok: TikTok):
 
     scrape_posts(start_date=start_date, tiktok_filter=tiktok_filter)
 
-    print(f'Finished full scrape for TikTok account "{tiktok.name}"')
+    logger.success('Finished full scrape for TikTok account "{}"', tiktok.name)
 
 
 def scrape_data(

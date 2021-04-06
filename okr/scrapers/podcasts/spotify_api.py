@@ -7,6 +7,7 @@ from enum import Enum
 from time import sleep
 from typing import Callable, Optional
 import logging
+from loguru import logger
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -270,10 +271,10 @@ class CustomSpotify(spotipy.Spotify):
 T = TypeVar("T")
 
 
-def _divide_chunks(l: List[T], n: int) -> Iterator[List[T]]:
+def _divide_chunks(list_: List[T], n: int) -> Iterator[List[T]]:
     # looping till length l
-    for i in range(0, len(l), n):
-        yield l[i : i + n]
+    for i in range(0, len(list_), n):
+        yield list_[i : i + n]
 
 
 def fetch_all(
@@ -305,5 +306,5 @@ try:
     auth_manager = SpotifyClientCredentials()
     spotify_api = CustomSpotify(auth_manager=auth_manager)
 except spotipy.oauth2.SpotifyOauthError:
-    print("Missing Spotipy credentials! Spotify-related scrapers will fail.")
+    logger.warning("Missing Spotipy credentials! Spotify-related scrapers will fail.")
     spotify_api = None

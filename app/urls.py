@@ -20,8 +20,8 @@ from django.views.generic.base import RedirectView
 
 
 def trigger_error(request):
-    local_var = "foobar"
-    division_by_zero = 1 / 0
+    local_var = "foobar"  # noqa: F841
+    division_by_zero = 1 / 0  # noqa: F841
 
 
 urlpatterns = [

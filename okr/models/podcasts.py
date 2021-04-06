@@ -65,13 +65,24 @@ class Podcast(Product):
         verbose_name="Beschreibung", help_text="Beschreibungstext des Podcasts"
     )
 
+    main_category = models.ForeignKey(
+        verbose_name="Hauptkategorie",
+        to=PodcastCategory,
+        on_delete=models.RESTRICT,
+        related_name="podcasts_main",
+        related_query_name="podcast_main",
+        help_text="Die für den Podcast hier manuell vergebene Hauptkategorie",
+        blank=True,
+        null=True,
+    )
+
     categories = models.ManyToManyField(
         to=PodcastCategory,
         verbose_name="Kategorien",
         db_table="podcast_podcast_category",
         related_name="podcasts",
         related_query_name="podcast",
-        help_text="Die für den Podcast hier manuell vergebenen Kategorien",
+        help_text="Die für den Podcast hier manuell vergebenen Kategorien.",
         blank=True,
     )
 

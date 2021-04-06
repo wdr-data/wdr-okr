@@ -6,9 +6,15 @@ from typing import Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
+from loguru import logger
 from sentry_sdk import capture_exception
 
-from ...models.insta import *
+from ...models.insta import (
+    Insta,
+    InstaInsight,
+    InstaPost,
+    InstaStory,
+)
 from . import quintly
 from ..common.utils import BERLIN
 
@@ -85,10 +91,11 @@ def scrape_insights(
                 )
             except IntegrityError as e:
                 capture_exception(e)
-                print(
-                    f"Data for {interval} insight for date {row.time} failed integrity check:",
+                logger.exception(
+                    "Data for {} insights for date {} failed integrity check:\n{}",
+                    interval,
+                    row.time,
                     defaults,
-                    sep="\n",
                 )
 
 
@@ -131,10 +138,10 @@ def scrape_stories(
                 )
             except IntegrityError as e:
                 capture_exception(e)
-                print(
-                    f"Data for story with ID {row.externalId} failed integrity check:",
+                logger.exception(
+                    "Data for story with ID {} failed integrity check:\n{}",
+                    row.externalId,
                     defaults,
-                    sep="\n",
                 )
 
 
@@ -177,8 +184,8 @@ def scrape_posts(
                 )
             except IntegrityError as e:
                 capture_exception(e)
-                print(
-                    f"Data for post with ID {row.externalId} failed integrity check:",
+                logger.exception(
+                    "Data for post with ID {} failed integrity check:\n{}",
+                    row.externalId,
                     defaults,
-                    sep="\n",
                 )

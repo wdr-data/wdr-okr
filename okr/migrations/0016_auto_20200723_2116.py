@@ -7,8 +7,6 @@ import django.db.models.deletion
 def migrate_age_ranges(apps, schema_editor):
     # Old models - YouTubeViewerAge aggregates the data and relates it to YouTube
     YouTubeViewerAge = apps.get_model("okr", "YouTubeViewerAge")
-    YouTubeAgeRangeDuration = apps.get_model("okr", "YouTubeAgeRangeDuration")
-    YouTubeAgeRangePercentage = apps.get_model("okr", "YouTubeAgeRangePercentage")
 
     # New models - everything relates to YouTube
     YouTubeAgeRangeAverageViewDuration = apps.get_model(

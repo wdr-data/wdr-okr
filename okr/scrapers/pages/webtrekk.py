@@ -4,6 +4,7 @@ import datetime as dt
 from typing import Dict
 import re
 import html
+from loguru import logger
 
 from rfc3986 import urlparse
 
@@ -92,8 +93,10 @@ def cleaned_webtrekk_page_data(date: dt.date) -> Dict:
     data_search = analysis_search["analysisData"]
     date_start = analysis_all["timeStart"]
     date_end = analysis_all["timeStop"]
-    print(
-        f"Start scraping Webtrekk Data for pages between {date_start} and {date_end}."
+    logger.info(
+        "Start scraping Webtrekk Data for pages between {} and {}.",
+        date_start,
+        date_end,
     )
 
     data_dict = {}

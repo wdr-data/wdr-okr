@@ -18,6 +18,7 @@ from okr.models.pages import (
     PropertyDataQueryGSC,
 )
 from .base import ProductAdmin
+from .mixins import large_table
 
 
 class PropertyAdmin(ProductAdmin):
@@ -43,6 +44,7 @@ class PageAdmin(admin.ModelAdmin):
     search_fields = ["url"]
 
 
+@large_table
 class PropertyDataGSCAdmin(admin.ModelAdmin):
     """List for choosing existing GSC property data to edit."""
 
@@ -60,6 +62,7 @@ class PropertyDataGSCAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
+@large_table
 class PropertyDataQueryGSCAdmin(admin.ModelAdmin):
     """List for choosing existing GSC property query data to edit."""
 
@@ -77,6 +80,7 @@ class PropertyDataQueryGSCAdmin(admin.ModelAdmin):
     search_fields = ["query"]
 
 
+@large_table
 class PageDataGSCAdmin(admin.ModelAdmin):
     """List for choosing existing GSC page data to edit."""
 
@@ -95,6 +99,7 @@ class PageDataGSCAdmin(admin.ModelAdmin):
     search_fields = ["page__url"]
 
 
+@large_table
 class PageDataQueryGSCAdmin(admin.ModelAdmin):
     """List for choosing existing GSC page query data to edit."""
 
@@ -187,6 +192,7 @@ class PageWebtrekkMetaAdmin(admin.ModelAdmin):
     search_fields = ["headline"]
 
 
+@large_table
 class PageDataWebtrekkAdmin(admin.ModelAdmin):
     """List for choosing existing Webtrekk data to edit."""
 

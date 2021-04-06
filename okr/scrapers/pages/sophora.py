@@ -2,6 +2,7 @@
 
 import os
 from typing import Dict, Generator, Optional
+from loguru import logger
 
 import requests
 
@@ -63,7 +64,7 @@ def get_documents_in_node(
             "structureNodePath": node_str,
         },
     )
-    print("Paging through URL", url)
+    logger.info("Paging through URL {}", url)
 
     while True:
         response = requests.get(url).json()

@@ -8,6 +8,7 @@ import re
 from typing import Optional, Tuple
 
 import bs4
+from loguru import logger
 import requests
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
@@ -41,11 +42,14 @@ def get_reviews(
 
     Returns:
         Optional[Tuple[dict, dict]]: User ratings and user reviews for podcast. Returns
-            None if podcast is not in the iTunes database.
+            None if podcast is not in the iTunes database or has no ratings.
     """
     # try getting podcast URL through iTunes Search API, if not provided:
     if not podcast.itunes_url:
-        print(f'Querying iTunes Search API for "{podcast.name}" to retrieve itunes_url')
+        logger.info(
+            'Querying iTunes Search API for "{}" to retrieve itunes_url',
+            podcast.name,
+        )
         podcast.itunes_url = _get_metadata_url(podcast)
         podcast.save()
 
@@ -53,8 +57,15 @@ def get_reviews(
         return None
 
     # get podcast ratings and reviews from iTunes Podcasts with podcast URL
-    print(f"Scraping iTunes Podcast reviews data from {podcast.itunes_url}")
+    logger.info("Scraping iTunes Podcast reviews data from {}", podcast.itunes_url)
     user_ratings_raw, ratings_percentages = _get_reviews_json(podcast)
+
+    if "aggregateRating" not in user_ratings_raw.keys():
+        logger.warning(
+            'Podcast "{}" is in iTunes database but has no reviews.',
+            podcast.name,
+        )
+        return None
 
     user_rating = {
         "ratings_average": float(user_ratings_raw["aggregateRating"]["ratingValue"]),
@@ -161,7 +172,7 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON,
     if user_ratings_raw:
         user_ratings = json.loads(user_ratings_raw.contents[0])
     else:
-        raise ItunesReviewsError("Failed to find review info JSON")
+        raise ItunesReviewsError("Failed to find info JSON")
 
     # count individual stars
     review_bars = soup.find_all(
