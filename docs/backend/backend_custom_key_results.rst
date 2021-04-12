@@ -3,8 +3,8 @@
 Manuelle Kennzahlen
 ===================
 
-Zusätzlich zu den automatisiert abgerufenen Daten ist es im Intelligence Layer auch
-möglich, eigene Kennzahlen manuell anzulegen und Ergebnisse für die Kennzahlen zu
+Zusätzlich zu den automatisiert abgerufenen Daten ist es im OKR Data Warehouse-System
+auch möglich, eigene Kennzahlen manuell anzulegen und Ergebnisse für die Kennzahlen zu
 speichern.
 
 Diese Kennzahlen sind jeweils einem der Produkte des Newsroom zugeordnet und können
@@ -15,10 +15,10 @@ entweder ein Zahlenwert oder ein Text sein.
 Manuelle Kennzahlen definieren
 ------------------------------
 
-Bevor für eine Kennzahl im Intelligence Layer Daten gespeichert werden können, muss die
+Bevor für eine Kennzahl im OKR Data Warehouse Daten gespeichert werden können, muss die
 Kennzahl zunächst definiert werden:
 
-1. Melde dich im Backend des OKR Intelligence Layer (Django) an.
+1. Melde dich im Backend des OKR Data Warehouse (Django) an.
 2. Wähle in der Liste *OKR - Objectives and Key Results* den Eintrag
    *Manuelle Kennzahl-Definitionen* aus.
 3. Klicke rechts oben auf *Manuelle Kennzahl-Definition hinzufügen*.
@@ -42,7 +42,7 @@ Nachdem du eine
 :ref:`Kennzahl definiert hast <backend_custom_key_results_kennzahlen_definieren>`,
 kannst du Daten für diese Kennzahl erfassen:
 
-1. Melde dich im Backend des OKR Intelligence Layer (Django) an.
+1. Melde dich im Backend des OKR Data Warehouse (Django) an.
 2. Wähle in der Liste *OKR - Objectives and Key Results* den Eintrag
    *Manuelle Kennzahlen* aus.
 3. Klicke rechts oben auf *Manuelle Kennzahl hinzufügen*.

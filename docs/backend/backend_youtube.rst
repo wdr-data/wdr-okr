@@ -12,7 +12,7 @@ Voraussetzungen
 
 - Zugangsdaten für `studio.youtube.com <https://studio.youtube.com/>`_ mit den
   gewünschten YouTube-Kanälen
-- Zugang zum Backend des OKR Intelligence Layer (Django)
+- Zugang zum Backend des OKR Data Warehouse (Django)
 
 Vorgehen
 --------
@@ -20,7 +20,7 @@ Vorgehen
 Das Hinzufügen der Daten zur Datenbank besteht aus zwei Schritten:
 
 1. :ref:`Herunterladen der Daten bei YouTube <backend_youtube_herunterladen>`
-2. :ref:`Einfügen der Daten in das Backend des OKR Intelligence Layer <backend_youtube_hochladen>`
+2. :ref:`Einfügen der Daten in das Backend des OKR Data Warehouse <backend_youtube_hochladen>`
 
 .. _backend_youtube_herunterladen:
 
@@ -72,7 +72,7 @@ Herunterladen der Impressions-Daten:
 Einfügen der Daten in das Backend
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Melde dich im Backend des OKR Intelligence Layer (Django) an.
+1. Melde dich im Backend des OKR Data Warehouse (Django) an.
 2. Wähle in der Liste *OKR - Objectives and Key Results* die entsprechende Kennzahl aus,
    entweder *YouTube Age-Ranges (Watch Time - Hours)* oder *YouTube-TrafficSources*
    (WICHTIG: Nutze den Link zur Liste!)

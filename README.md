@@ -82,7 +82,7 @@ $ pipenv run manage runserver
 Scrapers are located in `okr/scrapers/` with one module for each product type.
 
 The `__init__.py` of each scraper module contains the functions to fill the
-intelligence layer. If cleaning or restructuring is required, it is done here.
+database. If cleaning or restructuring is required, it is done here.
 There are other submodules for collecting the raw data, one for each source.
 
 We use APScheduler for scheduling. `okr/scrapers/scheduler.py` contains the
@@ -92,8 +92,8 @@ Some data that can't be scraped automatically (yet) is manually entered or
 uploaded as files in the Django admin backend. The relevant files for this
 are located in `okr/admin`.
 
-Our intelligence layer is managed via the Django ORM. Models are defined in
-`okr/models/` with generally self-contained submodules for each product type.
+The data warehouse component is managed via the Django ORM. Models are defined
+in `okr/models/` with generally self-contained submodules for each product type.
 
 ### Contributing
 

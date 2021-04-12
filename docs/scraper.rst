@@ -3,10 +3,10 @@
 Scraper
 =======
 
-Die Scraper des Intelligence Layer machen externe Datenquellen für die weitere Analyse
+Die Scraper des OKR Data Warehouse machen externe Datenquellen für die weitere Analyse
 nutzbar. Für jede Datenquelle existiert ein individuell angepasstes Scraping-Modul.
 
-Der Intelligence Layer nutzt sowohl automatisiert abgerufene Daten von diversen APIs als
+Das OKR Data Warehouse nutzt sowohl automatisiert abgerufene Daten von diversen APIs als
 auch manuell hochgeladene Daten aus statischen Dateien.
 
 .. _scraper_datenquellen:
@@ -14,7 +14,7 @@ auch manuell hochgeladene Daten aus statischen Dateien.
 Daten-Quellen
 -------------
 
-Im Moment nutzt der Intelligence Layer die folgenden Daten-Quellen:
+Im Moment nutzt das OKR Data Warehouse die folgenden Daten-Quellen:
 
 Für Daten zu Online-Artikeln:
   * Webtrekk API (`Webtrekk Dokumentation`_)
