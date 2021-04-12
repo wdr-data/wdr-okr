@@ -38,6 +38,7 @@ Umgebungsvariablen zur Verfügung stehen:
     # Django
     DEBUG=True
     SECRET_KEY=
+    LOG_SQL=
 
     # Quintly
     QUINTLY_CLIENT_ID=

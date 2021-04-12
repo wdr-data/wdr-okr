@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import sys
 
+from django.utils.log import DEFAULT_LOGGING
 import dj_database_url
 from loguru import logger
 import sentry_sdk
@@ -44,6 +45,16 @@ if os.environ.get("DEBUG") == "True":
 
 
 # Logging setup
+
+if os.environ.get("LOG_SQL") == "True":
+    LOGGING = DEFAULT_LOGGING
+    LOGGING["handlers"]["console"]["level"] = "DEBUG"
+    LOGGING["loggers"]["django.db.backends"] = {
+        "level": "DEBUG",
+        "handlers": ["console"],
+    }
+
+
 if DEBUG:
     lvl = "TRACE"
 elif "staging" in os.environ.get("HEROKU_APP_NAME", ""):
