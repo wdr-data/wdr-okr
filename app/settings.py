@@ -48,10 +48,13 @@ if os.environ.get("DEBUG") == "True":
 
 if os.environ.get("LOG_SQL") == "True":
     LOGGING = DEFAULT_LOGGING
-    LOGGING["handlers"]["console"]["level"] = "DEBUG"
+    LOGGING["handlers"]["sql"] = {
+        "level": "DEBUG",
+        "class": "logging.StreamHandler",
+    }
     LOGGING["loggers"]["django.db.backends"] = {
         "level": "DEBUG",
-        "handlers": ["console"],
+        "handlers": ["sql"],
     }
 
 
