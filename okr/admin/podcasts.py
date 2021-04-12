@@ -1,11 +1,12 @@
 """Forms for managing podcast data."""
 
 import functools
-from typing import Any
+from typing import Any, Dict
 
 from django import forms
 from django.contrib import admin
 from django.db import models
+from django.forms import ValidationError
 from loguru import logger
 
 from ..models import (
@@ -44,8 +45,23 @@ class FeedForm(forms.ModelForm):
 
     feed_url = forms.URLField(label="Feed URL")
 
-    def save(self, commit=True):
-        d = feed.parse(self.instance.feed_url)
+    def clean(self) -> Dict[str, Any]:
+        feed_dict = feed.parse(self.cleaned_data["feed_url"])
+
+        existing_podcast = Podcast.objects.filter(name=feed_dict.feed.title).first()
+        if existing_podcast:
+            raise ValidationError(
+                {
+                    "feed_url": f"Ein Podcast mit dem Namen „{feed_dict.feed.title}“ existiert bereits!"
+                }
+            )
+
+        self.feed_dict = feed_dict
+
+        return super().clean()
+
+    def save(self, commit: bool) -> Any:
+        d = self.feed_dict
 
         self.instance.name = d.feed.title
         self.instance.author = d.feed.author
