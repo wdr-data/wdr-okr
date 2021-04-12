@@ -158,7 +158,7 @@ class SophoraKeyword(models.Model):
 
     first_seen = models.DateTimeField(
         verbose_name="Zeitpunkt der Erst-Erfassung",
-        help_text="Der Zeitpunkt, zu dem dieses Keyword erstmals im Intelligence Layer erfasst wurde.",
+        help_text="Der Zeitpunkt, zu dem dieses Keyword erstmals im Data Warehouse erfasst wurde.",
         auto_now_add=True,
     )
 
