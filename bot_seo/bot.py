@@ -11,7 +11,7 @@ from okr.scrapers.common.utils import (
     local_today,
 )
 
-URL = os.environ.get("TEAMS_WEBHOOK")
+WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
 
 
 def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> Page:
@@ -104,7 +104,7 @@ def _generate_json_payload(messages: str) -> dict:
 
 
 def _send_to_teams(payload: dict) -> requests.models.Response:
-    result = requests.post(URL, json=payload)
+    result = requests.post(WEBHOOK_URL, json=payload)
     result.raise_for_status()
     return result
 
