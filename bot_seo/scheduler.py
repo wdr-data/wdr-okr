@@ -38,6 +38,6 @@ def add_jobs():
     scheduler.add_job(
         bot.bot_seo,
         trigger="cron",
-        hour="10",
+        hour="13",
         minute="0",
     )
