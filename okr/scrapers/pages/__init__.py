@@ -7,7 +7,7 @@ from time import sleep
 
 from django.db.models import Q
 from loguru import logger
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception, capture_message, push_scope
 from rfc3986 import urlparse
 from urllib.parse import unquote
 
@@ -321,6 +321,8 @@ def _count_words(string: str) -> int:
 def _handle_sophora_document(
     sophora_node: SophoraNode,
     sophora_document_info: Dict,
+    *,
+    is_first_run: bool = False,
 ) -> None:
     # Extract attributes depending on media type
     tags = []
@@ -436,6 +438,34 @@ def _handle_sophora_document(
         ),
     )
 
+    # Send message to Sentry about new documents with old editorial update timestamp
+    if (
+        not is_first_run
+        and document_type == "beitrag"
+        and created
+        and editorial_update < local_now() - dt.timedelta(minutes=30)
+    ):
+        with push_scope() as scope:
+            discrepancy = local_now() - editorial_update
+            scope.set_context(
+                "extracted_info",
+                {
+                    "url": contains_info.get("shareLink"),
+                    "sophora_id": sophora_id_str,
+                    "node": node,
+                    "headline": headline,
+                    "teaser": teaser,
+                    "editorial_update": editorial_update.astimezone(BERLIN).isoformat(),
+                    "discrepancy": discrepancy,
+                    "discrepancy_hours": round(
+                        discrepancy.total_seconds() / 60 / 60,
+                        1,
+                    ),
+                },
+            )
+            logger.debug("New document with old editorial_update")
+            capture_message("New document with old editorial_update")
+
     sophora_id, created = SophoraID.objects.get_or_create(
         sophora_id=sophora_id_str,
         defaults=dict(
@@ -487,9 +517,12 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
     for sophora_node in sophora_nodes:
         logger.info("Scraping Sophora API for pages of {}", sophora_node)
 
+        is_first_run = False
+
         if sophora_node.documents.count() == 0:
             logger.info("No existing documents found, search history")
             max_age = now - dt.timedelta(days=365)
+            is_first_run = True
         else:
             max_age = (
                 SophoraDocumentMeta.objects.all()
@@ -509,6 +542,7 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
             _handle_sophora_document(
                 sophora_node,
                 sophora_document_info,
+                is_first_run=is_first_run,
             )
 
         logger.success("Done scraping exact node matches")
@@ -524,6 +558,7 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
             _handle_sophora_document(
                 sophora_node,
                 sophora_document_info,
+                is_first_run=is_first_run,
             )
 
         logger.success("Done scraping sub-node matches")
