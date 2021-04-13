@@ -3,8 +3,8 @@
 Manuelle Kategorien für Podcasts verwalten
 ==========================================
 
-Der Intelligence Layer erkennt und speichert automatisiert die Kategorien, die als
-iTunes Category und iTunes Subcategory im Podcast-Feed angegeben sind.
+Das OKR Data Warehouse-System erkennt und speichert automatisiert die Kategorien, die
+als iTunes Category und iTunes Subcategory im Podcast-Feed angegeben sind.
 
 Darüber hinaus ist es auch möglich, manuell eigene Kategorien anzulegen und diese
 einzelnen Podcast-Reihen zuzuweisen.
@@ -12,15 +12,15 @@ einzelnen Podcast-Reihen zuzuweisen.
 Voraussetzungen
 ---------------
 
-- Zugang zum Backend des OKR Intelligence Layer (Django)
+- Zugang zum Backend des OKR Data Warehouse (Django)
 
 Vorgehen
 --------
 
 Diese Anleitung beschreibt das Hinzufügen und Ändern manueller Kategorien für Podcasts,
-die bereits im Intelligence Layer angelegt sind:
+die bereits im OKR Data Warehouse angelegt sind:
 
-1. Melde dich im Backend des OKR Intelligence Layer (Django) an.
+1. Melde dich im Backend des OKR Data Warehouse (Django) an.
 2. Wähle in der Liste *OKR - Objectives and Key Results* den Eintrag
    *Podcasts* aus.
 3. Klicke auf den Titel des Podcasts, für den du manuelle Kategorien hinzufügen oder

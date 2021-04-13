@@ -12,14 +12,15 @@
 #
 import os
 import sys
+import datetime as dt
 
 sys.path.insert(0, os.path.abspath("../"))
 sys.path.insert(0, os.path.abspath("./_ext"))
 
 # -- Project information -----------------------------------------------------
 
-project = "WDR OKR - Intelligence Layer"
-copyright = "2020, wdr-data"
+project = "WDR OKR - Data Warehouse"
+copyright = f"{dt.datetime.now().year}, wdr-data"
 author = "wdr-data"
 
 # The full version, including alpha/beta/rc tags

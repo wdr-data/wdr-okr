@@ -3,7 +3,7 @@
 Datenbank-Dokumentation
 =======================
 
-Sämtliche Daten des Intelligence Layer befinden sich in einer SQL-Datenbank. Die
+Sämtliche Daten des OKR Data Warehouse befinden sich in einer SQL-Datenbank. Die
 Datenbank wird über das Django ORM gesteuert.
 
 .. seealso::
