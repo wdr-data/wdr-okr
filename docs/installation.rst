@@ -71,6 +71,9 @@ Umgebungsvariablen zur Verfügung stehen:
     # Sophora API
     SOPHORA_API_BASE=
 
+    # SEO bot
+    TEAMS_WEBHOOK_SEO_BOT=
+
 Die Variable ``SECRET_KEY`` muss nur angegeben werden, wenn ``DEBUG=False`` gesetzt ist.
 
 Um das OKR Data Warehouse lokal auszuführen, sollten die Umgebungsvariablen in eine
