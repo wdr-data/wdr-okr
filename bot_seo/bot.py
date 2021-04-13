@@ -3,8 +3,9 @@ import os
 
 from django.db.models import F, Sum
 import requests
+from loguru import logger
 
-from okr.models.pages import *
+from okr.models.pages import Page, SophoraDocumentMeta
 from okr.scrapers.common.utils import (
     local_yesterday,
     local_today,
@@ -45,15 +46,18 @@ def _get_seo_articles_to_update(impressions_min: int = 10000, date: dt.date = No
         )
 
         if not latest_meta:
-            print(f"No metas found for {page.url}, skipping.")
+            logger.warning("No metas found for {}, skipping.", page.url)
             continue
 
-        print(
-            f'Potential update to-do found for "{latest_meta.headline}"" ({page.url}, Standdatum {latest_meta.editorial_update}'
+        logger.info(
+            'Potential update to-do found for "{}"" ({}, Standdatum {})',
+            latest_meta.headline,
+            page.url,
+            latest_meta.editorial_update,
         )
 
         if latest_meta.editorial_update.date() == today:
-            print("But it's been updated today, so we're skipping it.")
+            logger.info("But it's been updated today, so we're skipping it.")
             continue
 
         # add data from latest_meta to page object
@@ -115,4 +119,4 @@ def bot_seo():
 
     # Send payload to MS Teams
     result = _send_to_teams(payload)
-    print(result)
+    logger.debug(result)
