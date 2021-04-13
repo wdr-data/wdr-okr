@@ -13,13 +13,13 @@ from okr.scrapers.common.utils import (
 URL = os.environ.get("TEAMS_WEBHOOK")
 
 
-def _get_pages(impressions_limit: int = 10000, date: dt.date = None) -> Page:
+def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> Page:
     # get all pages that had a certain number of impressions on a certain date.
     gsc_date = (
         Page.objects.filter(data_gsc__date=date)
         .annotate(impressions_all=Sum("data_gsc__impressions"))
         .filter(
-            impressions_all__gt=impressions_limit,
+            impressions_all__gt=impressions_min,
         )
         .order_by(F("impressions_all").desc(nulls_last=True))
     )
@@ -27,13 +27,13 @@ def _get_pages(impressions_limit: int = 10000, date: dt.date = None) -> Page:
     return gsc_date
 
 
-def _get_seo_articles_to_update(impressions_limit: int = 10000, date: dt.date = None):
+def _get_seo_articles_to_update(impressions_min: int = 10000, date: dt.date = None):
     # generate a list of pages that had at least a certain number of impressions
     # on a certain date and have not been updated today.
 
     today = local_today()
 
-    pages = _get_pages(impressions_limit, date)
+    pages = _get_pages(impressions_min, date)
 
     articles_to_do = []
 
