@@ -42,6 +42,9 @@ WEBTREKK_ACCOUNT_LIVE_ID=
 
 # Sophora API
 SOPHORA_API_BASE=
+
+# SEO bot
+TEAMS_WEBHOOK_SEO_BOT=
 ```
 
 The `SECRET_KEY` is only required if you have set `DEBUG=False`.
