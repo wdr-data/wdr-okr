@@ -47,6 +47,8 @@ beautifulsoup4 = "*"
 lxml = "*"
 tenacity = "*"
 loguru = "*"
+solrq = "*"
+cron-descriptor = "*"
 
 [requires]
 python_version = "3.8"

@@ -180,6 +180,7 @@ class SophoraDocumentMeta(models.Model):
         ordering = ["-created"]
         unique_together = (
             "sophora_document",
+            "editorial_update",
             "keywords_list",
             "headline",
             "teaser",
