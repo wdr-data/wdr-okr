@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "537bfc72c3e5aa5311efcbbf83221be695463a9d15170613b682a2fd0541789f"
+            "sha256": "0f2616cdc08f78aa17e2d1849de4b16c6a4d3a3f88f458a6ac1e5b223f96f4db"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -119,6 +119,13 @@
                 "sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5"
             ],
             "version": "==4.0.0"
+        },
+        "cron-descriptor": {
+            "hashes": [
+                "sha256:b0d4d1637d7f26e322c0fb4018aea6028b5ba5ea2e8c228231e2870cbfcef2c0"
+            ],
+            "index": "pypi",
+            "version": "==1.2.24"
         },
         "cryptography": {
             "hashes": [
@@ -326,7 +333,6 @@
                 "sha256:7d59b6622675ca9e993a6bd38de845051d315f8b0c72cca3aef733a20b648657",
                 "sha256:aec56c0eb1691a841795111e184e13cad504f7703b9a64f63020816afa79a8ae"
             ],
-            "markers": "sys_platform == 'linux'",
             "version": "==0.6.0"
         },
         "jinja2": {
@@ -686,6 +692,7 @@
                 "sha256:422d82c36172d88d6a0ed5afdec956514b189ddbfb72fefab0c8a1cee4eaf71f",
                 "sha256:fd666c51a6bf200643495a04abb261f83229dcb6fd8472ec393df7ffc8b6f195"
             ],
+            "markers": "sys_platform == 'linux'",
             "version": "==3.3.1"
         },
         "sentry-sdk": {
