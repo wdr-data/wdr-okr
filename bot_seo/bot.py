@@ -104,7 +104,9 @@ def _generate_json_payload(messages: str) -> dict:
 
 
 def _send_to_teams(payload: dict) -> requests.models.Response:
-    return requests.post(URL, json=payload).raise_for_status()
+    result = requests.post(URL, json=payload)
+    result.raise_for_status()
+    return result
 
 
 def bot_seo():
