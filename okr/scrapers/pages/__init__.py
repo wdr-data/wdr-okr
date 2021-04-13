@@ -303,9 +303,10 @@ def scrape_gsc(
         for date in reversed(date_range(start_date, yesterday)):
             logger.info("Scraping data for {}.", date)
 
-            _property_data_query_gsc(property, date)
+            # Get page data first to ensure scrape is done before SEO bot runs
             _page_data_gsc(property, date, page_cache)
             _page_data_query_gsc(property, date, page_cache)
+            _property_data_query_gsc(property, date)
 
         logger.success(
             "Finished Google Search Console scrape for property {}.",
