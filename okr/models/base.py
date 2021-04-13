@@ -16,6 +16,7 @@ class Product(models.Model):
         verbose_name="Name",
         help_text="Name des Objekts",
         max_length=200,
+        unique=True,
     )
 
     def __str__(self):
