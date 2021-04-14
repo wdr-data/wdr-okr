@@ -157,6 +157,7 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
 
     list_display = [
         "headline",
+        "created",
         "editorial_update",
         "node",
         "sophora_id",
@@ -165,7 +166,7 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["headline"]
     list_filter = ["node", "document_type"]
-    date_hierarchy = "editorial_update"
+    date_hierarchy = "created"
     search_fields = ["headline", "keywords_list"]
 
 

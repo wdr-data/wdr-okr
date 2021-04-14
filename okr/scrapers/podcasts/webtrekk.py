@@ -106,7 +106,7 @@ def cleaned_picker_data(date: dt.date) -> Dict:
 
     config = AnalysisConfig(
         [
-            AnalysisObject("CG3"),
+            AnalysisObject("Seiten"),
         ],
         metrics=[
             Metric(
@@ -127,7 +127,7 @@ def cleaned_picker_data(date: dt.date) -> Dict:
         ],
         analysis_filter=Filter(
             filter_rules=[
-                FilterRule("CG2", "=", "Podcast-Picker WDR"),
+                FilterRule("Seiten", "=", "*Podcast-Picker*"),
             ],
         ),
         start_time=date,
@@ -147,7 +147,7 @@ def cleaned_picker_data(date: dt.date) -> Dict:
 
     data_dict = {}
     for element in data[:-1]:
-        name = normalize_name(element[0])
+        name = normalize_name(element[0].split("_")[-1])
 
         item = dict(
             visits=int(element[1]),

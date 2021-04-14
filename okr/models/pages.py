@@ -158,7 +158,7 @@ class SophoraKeyword(models.Model):
 
     first_seen = models.DateTimeField(
         verbose_name="Zeitpunkt der Erst-Erfassung",
-        help_text="Der Zeitpunkt, zu dem dieses Keyword erstmals im Intelligence Layer erfasst wurde.",
+        help_text="Der Zeitpunkt, zu dem dieses Keyword erstmals im Data Warehouse erfasst wurde.",
         auto_now_add=True,
     )
 
@@ -180,6 +180,7 @@ class SophoraDocumentMeta(models.Model):
         ordering = ["-created"]
         unique_together = (
             "sophora_document",
+            "editorial_update",
             "keywords_list",
             "headline",
             "teaser",

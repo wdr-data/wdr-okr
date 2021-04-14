@@ -7,7 +7,7 @@ from time import sleep
 
 from django.db.models import Q
 from loguru import logger
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception, capture_message, push_scope
 from rfc3986 import urlparse
 from urllib.parse import unquote
 
@@ -303,9 +303,10 @@ def scrape_gsc(
         for date in reversed(date_range(start_date, yesterday)):
             logger.info("Scraping data for {}.", date)
 
-            _property_data_query_gsc(property, date)
+            # Get page data first to ensure scrape is done before SEO bot runs
             _page_data_gsc(property, date, page_cache)
             _page_data_query_gsc(property, date, page_cache)
+            _property_data_query_gsc(property, date)
 
         logger.success(
             "Finished Google Search Console scrape for property {}.",
@@ -321,8 +322,9 @@ def _count_words(string: str) -> int:
 def _handle_sophora_document(
     sophora_node: SophoraNode,
     sophora_document_info: Dict,
-    max_age: dt.datetime,
-) -> bool:
+    *,
+    is_first_run: bool = False,
+) -> None:
     # Extract attributes depending on media type
     tags = []
 
@@ -364,7 +366,7 @@ def _handle_sophora_document(
         teaser = "\n".join(sophora_document_info["teaserText"])
 
     elif sophora_document_info.get("mediaType") == "link":
-        return True
+        return
 
     else:
         try:
@@ -374,16 +376,7 @@ def _handle_sophora_document(
 
         logger.warning("Unknown page type:")
         logger.info(sophora_document_info)
-        return True
-
-    # Cancel when editorial update is too old
-    if editorial_update is not None and editorial_update < max_age:
-        logger.success(
-            "Done scraping this feed. editorial_update: {}, max_age={}",
-            editorial_update,
-            max_age,
-        )
-        return False
+        return
 
     # Parse Sophora ID, uuid and documentType
     if "teaser" in sophora_document_info:
@@ -396,25 +389,27 @@ def _handle_sophora_document(
     except KeyError as error:
         # Don't send error to Sentry for image galleries
         if contains_info.get("mediaType") == "imageGallery":
-            return True
+            return
 
         logger.exception("No shareLink found:")
         logger.info(sophora_document_info)
         capture_exception(error)
-        return True
+        return
     except AttributeError as error:
         capture_exception(error)
-        return True
+        return
 
     export_uuid = contains_info["uuid"]
 
-    # TODO: Figure out what this is supposed to do
     try:
-        document_type = contains_info.get("mediaType")
-    except Exception as error:
-        logger.exception(sophora_document_info)
+        document_type = contains_info["mediaType"]
+    except KeyError as error:
+        logger.exception(
+            "Couldn't find mediaType in document {}",
+            sophora_document_info,
+        )
         capture_exception(error)
-        return True
+        return
 
     # Count the number of words in the body text (copytext and subheadlines)
     found_paragraphs = False
@@ -443,6 +438,34 @@ def _handle_sophora_document(
             sophora_node=sophora_node,
         ),
     )
+
+    # Send message to Sentry about new documents with old editorial update timestamp
+    if (
+        not is_first_run
+        and document_type == "beitrag"
+        and created
+        and editorial_update < local_now() - dt.timedelta(minutes=30)
+    ):
+        with push_scope() as scope:
+            discrepancy = local_now() - editorial_update
+            scope.set_context(
+                "extracted_info",
+                {
+                    "url": contains_info.get("shareLink"),
+                    "sophora_id": sophora_id_str,
+                    "node": node,
+                    "headline": headline,
+                    "teaser": teaser,
+                    "editorial_update": editorial_update.astimezone(BERLIN).isoformat(),
+                    "discrepancy": discrepancy,
+                    "discrepancy_hours": round(
+                        discrepancy.total_seconds() / 60 / 60,
+                        1,
+                    ),
+                },
+            )
+            logger.debug("New document with old editorial_update")
+            capture_message("New document with old editorial_update")
 
     sophora_id, created = SophoraID.objects.get_or_create(
         sophora_id=sophora_id_str,
@@ -475,8 +498,6 @@ def _handle_sophora_document(
         )
         sophora_document_meta.keywords.add(sophora_keyword)
 
-    return True
-
 
 def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
     """Scrape data from Sophora API to discover new documents to store as
@@ -497,43 +518,51 @@ def scrape_sophora_nodes(*, sophora_node_filter: Optional[Q] = None):
     for sophora_node in sophora_nodes:
         logger.info("Scraping Sophora API for pages of {}", sophora_node)
 
+        is_first_run = False
+
         if sophora_node.documents.count() == 0:
             logger.info("No existing documents found, search history")
             max_age = now - dt.timedelta(days=365)
+            is_first_run = True
         else:
             max_age = (
                 SophoraDocumentMeta.objects.all()
                 .filter(sophora_document__sophora_node=sophora_node)
-                .exclude(editorial_update=None)
-                .order_by("-editorial_update")[0]
-                .editorial_update
-            ) - dt.timedelta(minutes=1)
+                .order_by("-created")
+                .first()
+                .created
+            ) - dt.timedelta(minutes=5)
 
         logger.info("Scraping exact node matches")
+        logger.debug("max_age: {}", max_age)
         for sophora_document_info in sophora.get_documents_in_node(
             sophora_node,
+            max_age=max_age,
             force_exact=True,
         ):
-            should_continue = _handle_sophora_document(
+            _handle_sophora_document(
                 sophora_node,
                 sophora_document_info,
-                max_age,
+                is_first_run=is_first_run,
             )
-            if not should_continue:
-                break
+
+        logger.success("Done scraping exact node matches")
 
         if sophora_node.use_exact_search:
             continue
 
         logger.info("Scraping sub-node matches")
-        for sophora_document_info in sophora.get_documents_in_node(sophora_node):
-            should_continue = _handle_sophora_document(
+        for sophora_document_info in sophora.get_documents_in_node(
+            sophora_node,
+            max_age=max_age,
+        ):
+            _handle_sophora_document(
                 sophora_node,
                 sophora_document_info,
-                max_age,
+                is_first_run=is_first_run,
             )
-            if not should_continue:
-                break
+
+        logger.success("Done scraping sub-node matches")
 
 
 def scrape_webtrekk(

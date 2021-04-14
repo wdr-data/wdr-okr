@@ -10,7 +10,7 @@ import django
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from operator import itemgetter
-
+from cron_descriptor import get_description, Options
 from apscheduler.job import Job
 from tabulate import tabulate
 
@@ -46,84 +46,6 @@ def parse_job_info_method(job: Job) -> str:
     return method_string
 
 
-def parse_job_info_schedule(job: Job) -> str:
-    """Parse information about scheduled time in Job object for further processing.
-
-    Args:
-        job (Job): Job object to parse
-
-    Raises:
-        NotImplementedError: So far, only daily intervals with hours and minute
-            information are used. Other intervals are not yet supported.
-        ValueError: Every Job object's trigger must contain at least hour and minute
-            information to be valid.
-
-    Returns:
-        str: Parsed method information based on Job object.
-    """
-
-    # convert trigger objects into lists
-    days = str(job.trigger.fields[-4]).split(",")
-    hours = str(job.trigger.fields[-3]).split(",")
-    minutes = str(job.trigger.fields[-2]).split(",")
-    seconds = str(job.trigger.fields[-1]).split(",")  # noqa: F841
-
-    scheduled_times = ""
-
-    if days == ["*"]:
-        scheduled_times += "Jeden Tag"
-    else:
-        raise NotImplementedError(
-            f"Parsing for individual days not yet implemented {job.trigger}!"
-        )
-
-    if len(minutes) == 1 and minutes != ["*"]:
-        minutes_formatted = minutes[0].zfill(2)
-    elif len(minutes) > 1:
-        minutes_formatted = ", ".join(minutes[:-1]) + " und " + minutes[-1]
-    elif minutes == ["*"]:
-        raise NotImplementedError(
-            f"Parsing for intervals of seconds not yet implemented {job.trigger}!"
-        )
-    else:
-        raise ValueError(f"Trigger does not contain minute information {job.trigger}!")
-
-    if hours == ["*"]:
-        scheduled_times += (
-            f", jeweils {minutes_formatted} Minuten nach jeder vollen Stunde"
-        )
-    elif len(hours) == 1:
-        if len(minutes) == 1:
-            scheduled_times += f" um {hours[0].zfill(2)}:{minutes_formatted} Uhr"
-        elif len(minutes) > 1:
-            minutes_list = []
-            for minute in minutes:
-                minutes_list.append(f"{hours[0].zfill(2)}:{minute.zfill(2)}")
-            scheduled_times += " um "
-            scheduled_times += ", ".join(minutes_list[:-1])
-            scheduled_times += f" und {minutes_list[-1]} Uhr"
-    elif len(hours) > 1:
-        if len(minutes) == 1:
-            hours_list = []
-            for hour in hours:
-                hours_list.append(f"{hour.zfill(2)}:{minutes_formatted}")
-            scheduled_times += " um "
-            scheduled_times += ", ".join(hours_list[:-1])
-            scheduled_times += f" und {hours_list[-1]} Uhr"
-        elif len(minutes) > 1:
-            hours_minutes_list = []
-            for hour in hours:
-                for minute in minutes:
-                    hours_minutes_list.append(f"{hour.zfill(2)}:{minute.zfill(2)}")
-            scheduled_times += " um "
-            scheduled_times += ", ".join(hours_minutes_list[:-1])
-            scheduled_times += f" und {hours_minutes_list[-1]} Uhr"
-    else:
-        raise ValueError(f"Trigger does not contain hour information {job.trigger}!")
-
-    return scheduled_times
-
-
 def build_schedule_html(html_top: str = "<div>", html_bottom: str = "</div>") -> str:
     """Create a basic HTML table with the currently scheduled jobs.
 
@@ -141,10 +63,20 @@ def build_schedule_html(html_top: str = "<div>", html_bottom: str = "</div>") ->
     scheduler.add_jobs()
     jobs_list = scheduler.scheduler.get_jobs()
 
+    options = Options()
+    options.locale_code = "de_DE"
+    options.use_24hour_time_format = True
+
     # parse and convert job information into list
     table_lines = []
     for job in jobs_list:
-        table_lines.append([parse_job_info_method(job), parse_job_info_schedule(job)])
+        cron_expression = " ".join(map(str, reversed(job.trigger.fields[1:])))
+        table_lines.append(
+            [
+                parse_job_info_method(job),
+                get_description(cron_expression, options=options),
+            ]
+        )
 
     # sort list by module and reformat to a module.method format (instead of library.module.method)
     formatted_list = sorted(table_lines, key=itemgetter(0))

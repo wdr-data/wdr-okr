@@ -1,9 +1,9 @@
 .. _backend:
 
-Intelligence Layer Backend
+OKR Data Warehouse Backend
 ==========================
 
-Der Intelligence Layer nutzt ein Django-basiertes Backend.
+Das OKR Data Warehouse nutzt ein Django-basiertes Backend.
 
 Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
 
@@ -14,7 +14,7 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
 * **Manuelles Einpflegen von zusätzlichen Daten**: Für manche
   :ref:`YouTube-Daten <backend_youtube>` sowie für
   Daten zu :ref:`Instagram Collaborations <backend_instagram>` müssen Daten noch manuell
-  angelegt werden. Darüber hinaus ist es möglich, mit dem Intelligence Layer
+  angelegt werden. Darüber hinaus ist es möglich, mit dem Data Warehouse Backend
   :ref:`manuelle Kennzahlen anzulegen und zu pflegen <backend_custom_key_results>`.
 
 .. seealso::

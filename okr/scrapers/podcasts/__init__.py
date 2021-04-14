@@ -409,12 +409,13 @@ def _scrape_spotify_api_podcast(
         for item in follower_data["counts"]
     }
 
-    first_episode_date = podcast.episodes.order_by("publication_date_time")[
-        0
-    ].publication_date_time.date()
+    first_episode = podcast.episodes.order_by("publication_date_time").first()
 
-    if start_date < first_episode_date:
-        start_date = first_episode_date
+    if first_episode:
+        first_episode_date = first_episode.publication_date_time.date()
+
+        if start_date < first_episode_date:
+            start_date = first_episode_date
 
     for day, date in enumerate(reversed(date_range(start_date, end_date))):
         # Read daily data
@@ -686,12 +687,13 @@ def _scrape_spotify_experimental_demographics_podcast(
         podcast,
     )
 
-    first_episode_date = podcast.episodes.order_by("publication_date_time")[
-        0
-    ].publication_date_time.date()
+    first_episode = podcast.episodes.order_by("publication_date_time").first()
 
-    if start_date < first_episode_date:
-        start_date = first_episode_date
+    if first_episode:
+        first_episode_date = first_episode.publication_date_time.date()
+
+        if start_date < first_episode_date:
+            start_date = first_episode_date
 
     last_available_cutoff = local_today() - dt.timedelta(days=5)
 

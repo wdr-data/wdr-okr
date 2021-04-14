@@ -11,12 +11,12 @@ Datenbank eingelesen.
 Voraussetzungen
 ---------------
 
-- Zugang zum Backend des OKR Intelligence Layer (Django)
+- Zugang zum Backend des OKR Data Warehouse (Django)
 
 Vorgehen
 --------
 
-1. Melde dich im Backend des OKR Intelligence Layer (Django) an.
+1. Melde dich im Backend des OKR Data Warehouse (Django) an.
 2. Wähle in der Liste *OKR - Objectives and Key Results* den Eintrag
    *Instagram-Collaborations* aus.
 3. Nutze den Button *Instagram-Collaboration hinzufügen* rechts oben, um die

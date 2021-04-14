@@ -3,13 +3,13 @@
 Installation
 ============
 
-Der Intelligence Layer ist in Python geschrieben und basiert auf einem
+Das OKR Data Warehouse ist in Python geschrieben und basiert auf einem
 `Django <https://www.djangoproject.com/>`_-Backend.
 
 Voraussetzungen
 ---------------
 
-Der Intelligence Layer benötigt mindestens Python Version 3.6. Zur Erstellung und
+Das OKR Data Warehouse benötigt mindestens Python Version 3.6. Zur Erstellung und
 Verwaltung einer virtuellen Umgebung muss außerdem `pipenv <http://www.python.org/>`_
 installiert sein.
 
@@ -19,18 +19,18 @@ Datenbank
 ~~~~~~~~~
 
 Eine SQL-Datenbank ist nicht zwingend erfoderlich. Wenn keine Datenbank zur Verfügung
-gestellt wird, nutzt der Intelligence Layer automatisch eine lokale SQLite-Datenbank.
+gestellt wird, nutzt das OKR Data Warehouse automatisch eine lokale SQLite-Datenbank.
 
-Um den Intelligence Layer mit einer SQL-Datenbank zu nutzen, muss die Datenbank-URL in
+Um das OKR Data Warehouse mit einer SQL-Datenbank zu nutzen, muss die Datenbank-URL in
 der Umgebungsvariable ``DATABASE_URL`` abgespeichert sein. Ist ``DATABASE_URL`` nicht
-gesetzt, nutzt der Intelligence Layer die lokale SQLite Datenbank.
+gesetzt, nutzt das OKR Data Warehouse die lokale SQLite Datenbank.
 
 .. _installation_zugangsdaten:
 
 API-Zugangsdaten
 ~~~~~~~~~~~~~~~~
 
-Der Intelligence Layer nutzt zahlreiche APIs. Die Zugangsdaten der APIs müssen als
+Das OKR Data Warehouse nutzt zahlreiche APIs. Die Zugangsdaten der APIs müssen als
 Umgebungsvariablen zur Verfügung stehen:
 
 .. code-block:: bash
@@ -38,6 +38,7 @@ Umgebungsvariablen zur Verfügung stehen:
     # Django
     DEBUG=True
     SECRET_KEY=
+    LOG_SQL=
 
     # Quintly
     QUINTLY_CLIENT_ID=
@@ -70,9 +71,12 @@ Umgebungsvariablen zur Verfügung stehen:
     # Sophora API
     SOPHORA_API_BASE=
 
+    # SEO bot
+    TEAMS_WEBHOOK_SEO_BOT=
+
 Die Variable ``SECRET_KEY`` muss nur angegeben werden, wenn ``DEBUG=False`` gesetzt ist.
 
-Um den Intelligence Layer lokal auszuführen, sollten die Umgebungsvariablen in eine
+Um das OKR Data Warehouse lokal auszuführen, sollten die Umgebungsvariablen in eine
 Datei namens ``.env`` im Root-Verzeichnis abgelegt werden. Auf diese Weise kann die
 Umgebung automatisch von ``pipenv`` eingerichtet werden.
 
@@ -110,6 +114,6 @@ Nun kann das Django-Backend über den folgenden Befehl gestartet werden:
 
     $ pipenv run manage runserver
 
-Sobald der Intelligence Layer gestartet ist, ruft er
+Sobald das OKR Data Warehouse gestartet ist, ruft das System
 :ref:`zeitgesteuert <scraper_scheduler>` Daten über die
 :ref:`diversen APIs <scraper_datenquellen>` ab.

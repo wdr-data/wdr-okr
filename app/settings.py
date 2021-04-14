@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import sys
 
+from django.utils.log import DEFAULT_LOGGING
 import dj_database_url
 from loguru import logger
 import sentry_sdk
@@ -44,6 +45,19 @@ if os.environ.get("DEBUG") == "True":
 
 
 # Logging setup
+
+if os.environ.get("LOG_SQL") == "True":
+    LOGGING = DEFAULT_LOGGING
+    LOGGING["handlers"]["sql"] = {
+        "level": "DEBUG",
+        "class": "logging.StreamHandler",
+    }
+    LOGGING["loggers"]["django.db.backends"] = {
+        "level": "DEBUG",
+        "handlers": ["sql"],
+    }
+
+
 if DEBUG:
     lvl = "TRACE"
 elif "staging" in os.environ.get("HEROKU_APP_NAME", ""):
@@ -87,6 +101,7 @@ INSTALLED_APPS = [
     "tz_detect",
     "django_extensions",
     "okr.apps.OkrConfig",
+    "bot_seo.apps.BotSeoConfig",
 ]
 
 MIDDLEWARE = [
@@ -176,3 +191,5 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

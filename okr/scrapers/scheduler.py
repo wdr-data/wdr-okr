@@ -207,14 +207,13 @@ def add_jobs():
     scheduler.add_job(
         pages.scrape_sophora_nodes,
         trigger="cron",
-        hour="*",
-        minute="10,30,50",
+        minute="*/5",
     )
     scheduler.add_job(
         pages.scrape_gsc,
         trigger="cron",
-        hour="17",
-        minute="0",
+        hour="12",
+        minute="30",
     )
     scheduler.add_job(
         pages.scrape_webtrekk,
