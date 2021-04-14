@@ -90,6 +90,7 @@ def get_documents_in_node(
 
     while True:
         response = requests.get(url, params=params)
+        response.raise_for_status()
         logger.debug(response.request.url)
 
         response_data = response.json()
