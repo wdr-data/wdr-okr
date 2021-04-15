@@ -10,7 +10,8 @@ from solrq import Q, Range
 from rfc3986 import urlparse
 from pytz import UTC
 
-from ...models.pages import Page, SophoraNode
+from ...models.pages import SophoraNode
+from ..common.types import JSON
 
 SOPHORA_API_BASE = os.environ.get("SOPHORA_API_BASE")
 
@@ -19,17 +20,21 @@ def _sophora_api_url(*path: str) -> str:
     return f"{SOPHORA_API_BASE}{'/'.join(path)}"
 
 
-def get_page(page: Page) -> dict:
-    """Read data about page from Sophora API.
+def get_document_by_sophora_id(sophora_id: str) -> JSON:
+    """Read data about page with sophora_id from Sophora API.
 
     Args:
-        page (Page): Page to request data for.
+        sophora_id (str): Sophora ID to request data for.
 
     Returns:
         dict: JSON dict of response data.
     """
-    url = _sophora_api_url("getDocumentBySophoraId", page.sophora_id)
-    return requests.get(url).json()
+    url = _sophora_api_url("getDocumentBySophoraId", sophora_id)
+
+    response = requests.get(url)
+    response.raise_for_status()
+
+    return response.json()
 
 
 def get_documents_in_node(

@@ -218,8 +218,8 @@ def add_jobs():
     scheduler.add_job(
         pages.scrape_webtrekk,
         trigger="cron",
-        hour="14",
-        minute="0",
+        hour="11",
+        minute="30",
     )
 
 
