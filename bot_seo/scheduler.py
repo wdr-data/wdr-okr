@@ -36,7 +36,7 @@ def add_jobs():
 
     # SEO suggestions
     scheduler.add_job(
-        bot_todo.run(),
+        bot_todo.run,
         trigger="cron",
         hour="13",
         minute="0",
