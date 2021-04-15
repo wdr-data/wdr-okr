@@ -2,37 +2,17 @@
 
 import os
 import random
-from typing import Optional, Union
 
-from pyadaptivecards.actions import OpenUrl
 from pyadaptivecards.card import AdaptiveCard
 from pyadaptivecards.container import ColumnSet, FactSet
 from pyadaptivecards.components import Fact, TextBlock
-from django.utils.numberformat import format
 
 from okr.models.pages import Page
 from ..pyadaptivecards_tools import ActionSet, Container, Column, ToggleVisibility
+from ..teams_tools import format_number, format_percent
 
 GREETINGS = ["Hallo!", "Guten Tag!", "Hi!"]
 MORE_URL = os.environ.get("SEO_BOT_TODO_MORE_URL")
-
-
-def format_number(number: Union[int, float], decimal_places: Optional[int] = None):
-    if decimal_places is not None:
-        number = round(number, decimal_places)
-
-    return format(
-        number,
-        decimal_sep=",",
-        thousand_sep=".",
-        force_grouping=True,
-        grouping=3,
-    )
-
-
-def format_percent(number: Union[int, float], decimal_places: Optional[int] = 1):
-    formatted_number = format_number(number, decimal_places=decimal_places)
-    return f"{formatted_number} %"
 
 
 def _generate_details(page: Page) -> Container:

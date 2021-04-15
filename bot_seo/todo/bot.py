@@ -1,10 +1,9 @@
-""" SEO Bot """
+""" SEO Bot for to dos """
 
 import datetime as dt
 import os
 
 from django.db.models import F, Sum
-import requests
 from loguru import logger
 
 from okr.models.pages import (
