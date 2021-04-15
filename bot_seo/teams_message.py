@@ -6,11 +6,11 @@ from typing import Optional, Union
 from pyadaptivecards.actions import OpenUrl
 from pyadaptivecards.card import AdaptiveCard
 from pyadaptivecards.container import ColumnSet, FactSet
-from pyadaptivecards.components import Fact, TextBlock, Column
+from pyadaptivecards.components import Fact, TextBlock
 from django.utils.numberformat import format
 
 from okr.models.pages import Page
-from .pyadaptivecards_tools import ActionSet, Container, ToggleVisibility
+from .pyadaptivecards_tools import ActionSet, Container, Column, ToggleVisibility
 
 GREETINGS = ["Hallo!", "Guten Tag!", "Hi!"]
 
@@ -157,7 +157,7 @@ def _generate_story(page: Page) -> Container:
     button = ActionSet(
         actions=[
             ToggleVisibility(
-                title="🔽",
+                title="Mehr",
                 style="positive",
                 targetElements=[details],
             )
@@ -169,13 +169,13 @@ def _generate_story(page: Page) -> Container:
         columns=[
             Column(
                 [headline],
-                width="stretch",
                 verticalContentAlignment="center",
+                width=77,
             ),
             Column(
                 [button],
-                width="auto",
                 verticalContentAlignment="center",
+                width=23,
             ),
         ],
         id=f"summary_{page.id}",

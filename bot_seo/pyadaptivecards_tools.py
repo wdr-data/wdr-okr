@@ -3,6 +3,35 @@ from typing import Literal, List, Optional
 
 from pyadaptivecards.abstract_components import Serializable
 import pyadaptivecards.container
+import pyadaptivecards.components
+
+
+class Column(pyadaptivecards.components.Column):
+    def __init__(
+        self,
+        items=None,
+        separator=None,
+        spacing=None,
+        selectAction=None,
+        style=None,
+        verticalContentAlignment=None,
+        horizontalAlignment=None,
+        width=None,
+        id=None,
+    ):
+        super().__init__(
+            items=items,
+            separator=separator,
+            spacing=spacing,
+            selectAction=selectAction,
+            style=style,
+            verticalContentAlignment=verticalContentAlignment,
+            width=width,
+            id=id,
+        )
+        self.horizontalAlignment = horizontalAlignment
+
+        self.simple_properties.append("horizontalAlignment")
 
 
 class Container(pyadaptivecards.container.Container):
