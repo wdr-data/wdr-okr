@@ -5,8 +5,8 @@ from typing import Optional, Union
 
 from pyadaptivecards.actions import OpenUrl
 from pyadaptivecards.card import AdaptiveCard
-from pyadaptivecards.container import ColumnSet
-from pyadaptivecards.components import TextBlock, Column
+from pyadaptivecards.container import ColumnSet, FactSet
+from pyadaptivecards.components import Fact, TextBlock, Column
 from django.utils.numberformat import format
 
 from okr.models.pages import Page
@@ -34,6 +34,17 @@ def format_percent(number: Union[int, float], decimal_places: Optional[int] = 1)
 
 
 def _generate_details(page: Page) -> Container:
+
+    facts = []
+
+    facts.append(
+        Fact(
+            "Top 3 Google Suchanfragen",
+            ", ".join(query_data.query for query_data in page.top_queries),
+        )
+    )
+
+    fact_set = FactSet(facts)
 
     title_columns = [
         Column(
@@ -124,6 +135,7 @@ def _generate_details(page: Page) -> Container:
 
     details = Container(
         items=[
+            fact_set,
             column_set_values,
             column_set_titles,
         ],

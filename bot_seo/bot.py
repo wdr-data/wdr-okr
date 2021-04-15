@@ -7,7 +7,12 @@ from django.db.models import F, Sum
 import requests
 from loguru import logger
 
-from okr.models.pages import Page, SophoraDocumentMeta, PageDataWebtrekk
+from okr.models.pages import (
+    Page,
+    PageDataQueryGSC,
+    SophoraDocumentMeta,
+    PageDataWebtrekk,
+)
 from okr.scrapers.common.utils import (
     local_yesterday,
     local_today,
@@ -18,7 +23,7 @@ WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
 
 
 def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> Page:
-    # get all pages that had a certain number of impressions on a certain date.
+    # Get all pages that had a certain number of impressions on a certain date.
     gsc_date = (
         Page.objects.filter(data_gsc__date=date)
         .annotate(impressions_all=Sum("data_gsc__impressions"))
@@ -33,7 +38,7 @@ def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> Page:
 
 
 def _get_seo_articles_to_update(impressions_min: int = 10000, date: dt.date = None):
-    # generate a list of pages that had at least a certain number of impressions
+    # Generate a list of pages that had at least a certain number of impressions
     # on a certain date and have not been updated today.
 
     today = local_today()
@@ -64,15 +69,21 @@ def _get_seo_articles_to_update(impressions_min: int = 10000, date: dt.date = No
             logger.info("But it's been updated today, so we're skipping it.")
             continue
 
-        # add data from latest_meta to page object
+        # Add data from latest_meta to page object
         page.latest_meta = latest_meta
 
-        # add webtrekk data to page object
+        # Add webtrekk data to page object
         webtrekk_data = PageDataWebtrekk.objects.filter(
             webtrekk_meta__page=page,
             date=date,
         ).first()
         page.webtrekk_data = webtrekk_data
+
+        # Add top Google queries
+        top_queries = PageDataQueryGSC.objects.filter(page=page, date=date).order_by(
+            "-impressions"
+        )[:3]
+        page.top_queries = list(top_queries)
 
         articles_to_do.append(page)
 
@@ -92,7 +103,7 @@ def _send_to_teams(payload: dict) -> requests.models.Response:
 def bot_seo():
     # Generate list of Page objects that are potential to-do items
     articles_to_do = _get_seo_articles_to_update(10000, local_yesterday())
-    # # for testing, in case not enough articles have been scraped:
+    # For testing, in case not enough articles have been scraped:
     # articles_to_do = _get_seo_articles_to_update(
     #     10000, local_yesterday() - dt.timedelta(days=1)
     # )
