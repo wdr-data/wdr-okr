@@ -116,17 +116,29 @@ def _page_from_url(
         )
 
         if created:
-            with push_scope() as scope:
-                scope.set_context(
-                    "info",
-                    {
-                        "url": url,
-                        "sophora_id": sophora_id_str,
-                    },
-                )
-                capture_message(
-                    "Found new URL that has not been seen by Sophora API scraper"
-                )
+            try:
+                sophora_data = sophora.get_document_by_sophora_id(sophora_id_str)
+                uuid = sophora_data["teaser"]["uuid"]
+            except Exception as e:
+                capture_exception(e)
+
+            sophora_document = SophoraDocument.objects.filter(export_uuid=uuid).first()
+
+            if sophora_document:
+                sophora_id.sophora_document = sophora_document
+                sophora_id.save()
+
+                with push_scope() as scope:
+                    scope.set_context(
+                        "info",
+                        {
+                            "url": url,
+                            "sophora_id": sophora_id_str,
+                        },
+                    )
+                    capture_message(
+                        "Added new URL that has not been seen by Sophora API scraper"
+                    )
 
         sophora_document = sophora_id.sophora_document
 
