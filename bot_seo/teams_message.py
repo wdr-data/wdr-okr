@@ -1,12 +1,12 @@
 """ Helper functions to generate a message for MS Teams. """
 
 import random
+from typing import Optional, Union
 
 from pyadaptivecards.actions import OpenUrl
 from pyadaptivecards.card import AdaptiveCard
 from pyadaptivecards.container import ColumnSet
 from pyadaptivecards.components import TextBlock, Column
-
 from django.utils.numberformat import format
 
 from okr.models.pages import Page
@@ -15,75 +15,131 @@ from .pyadaptivecards_tools import ActionSet, Container, ToggleVisibility
 GREETINGS = ["Hallo!", "Guten Tag!", "Hi!"]
 
 
-def _generate_story(page: Page) -> Container:
+def format_number(number: Union[int, float], decimal_places: Optional[int] = None):
+    if decimal_places is not None:
+        number = round(number, decimal_places)
 
-    # generate uuid to make details unique
-    uuid = page.sophora_document.export_uuid
-
-    # format and parse data for message
-    impressions_gsc = format(
-        page.impressions_all,
+    return format(
+        number,
         decimal_sep=",",
         thousand_sep=".",
         force_grouping=True,
         grouping=3,
     )
-    ctr = round(page.clicks_all / page.impressions_all * 100, 2)
 
-    # webtrekk_data ist None für https://www1.wdr.de/nachrichten/themen/coronavirus/corona-virus-dortmund-hagen-hamm-recklinghausen-unna-104.html
+
+def format_percent(number: Union[int, float], decimal_places: Optional[int] = 1):
+    formatted_number = format_number(number, decimal_places=decimal_places)
+    return f"{formatted_number} %"
+
+
+def _generate_details(page: Page) -> Container:
+
+    title_columns = [
+        Column(
+            items=[
+                TextBlock(
+                    "Impressions (GSC)",
+                    weight="bolder",
+                    size="small",
+                    wrap=True,
+                )
+            ],
+            width=100,
+        ),
+        Column(
+            items=[
+                TextBlock(
+                    "CTR (GSC)",
+                    weight="bolder",
+                    size="small",
+                    wrap=True,
+                )
+            ],
+            width=100,
+        ),
+    ]
+
+    # Calculate total CTR across all devices
+    ctr = page.clicks_all / page.impressions_all * 100
+
+    value_columns = [
+        Column(
+            items=[
+                TextBlock(
+                    format_number(page.impressions_all),
+                    size="extralarge",
+                    wrap=True,
+                )
+            ],
+            width=100,
+        ),
+        Column(
+            items=[
+                TextBlock(
+                    format_percent(ctr),
+                    size="extralarge",
+                    wrap=True,
+                )
+            ],
+            width=100,
+        ),
+    ]
+
+    # webtrekk_data can be None because Webtrekk is bad
     if page.webtrekk_data:
-        webtrekk_search_share = round(
-            page.webtrekk_data.visits_search / page.webtrekk_data.visits * 100, 2
-        )
-
-    facts = Container(
-        items=[
-            TextBlock(
-                f"**Sophora ID:** {page.sophora_id.sophora_id}",
-                wrap=True,
-                size="Small",
-                spacing=None,
-            ),
-            TextBlock(
-                f"**Impressions (GSC):** {impressions_gsc}",
-                wrap=True,
-                size="Small",
-                spacing=None,
-            ),
-            TextBlock(
-                f"**CTR (GSC):** {ctr} %",
-                wrap=True,
-                size="Small",
-                spacing=None,
-            ),
-            # TextBlock(
-            #     f"**Anteil Suchmaschinen (Webtrekk):** {webtrekk_search_share} %",
-            #     wrap=True,
-            #     size="Small",
-            #     spacing=None,
-            # ),
-        ]
-    )
-
-    # only include line about Webtrekk if Webtrekk data exists
-    if page.webtrekk_data:
-        facts.items.append(
-            TextBlock(
-                f"**Anteil Suchmaschinen (Webtrekk):** {webtrekk_search_share} %",
-                wrap=True,
-                size="Small",
-                spacing=None,
+        title_columns.append(
+            Column(
+                items=[
+                    TextBlock(
+                        "Anteil Suchmaschinen (Webtrekk)",
+                        weight="bolder",
+                        size="small",
+                        wrap=True,
+                    )
+                ],
+                width=150,
             )
         )
 
+        webtrekk_search_share = (
+            page.webtrekk_data.visits_search / page.webtrekk_data.visits * 100
+        )
+
+        value_columns.append(
+            Column(
+                items=[
+                    TextBlock(
+                        format_percent(webtrekk_search_share),
+                        size="extralarge",
+                        wrap=True,
+                    )
+                ],
+                width=150,
+            ),
+        )
+
+    column_set_titles = ColumnSet(columns=title_columns, spacing="None")
+    column_set_values = ColumnSet(columns=value_columns)
+
     details = Container(
-        items=[facts],
-        id=uuid,
+        items=[
+            column_set_values,
+            column_set_titles,
+        ],
+        id=f"details_{page.id}",
         isVisible=False,
     )
 
+    return details
+
+
+def _generate_story(page: Page) -> Container:
+
+    details = _generate_details(page)
+
     headline = TextBlock(
-        f"[{page.latest_meta.headline}]({page.url}) (Stand: {page.latest_meta.editorial_update.strftime('%d.%m, %H:%M')})",
+        f"[{page.latest_meta.headline}]({page.url}) (Stand: {page.latest_meta.editorial_update.strftime('%d.%m., %H:%M')})",
         wrap=True,
     )
     button = ActionSet(
@@ -110,49 +166,54 @@ def _generate_story(page: Page) -> Container:
                 verticalContentAlignment="center",
             ),
         ],
-        id=uuid + "_summary",
-        spacing="ExtraLarge",
+        id=f"summary_{page.id}",
+        spacing="extralarge",
         separator=True,
     )
 
-    story_id = uuid + "_container"
-    story = Container(items=[summary, details], id=story_id, spacing="Large")
+    story = Container(items=[summary, details], id=f"story_{page.id}", spacing="Large")
 
     return story
 
 
 def _generate_adaptive_card(pages: Page) -> dict:
-    # generate intro
+    # Generate intro
     greeting = random.choice(GREETINGS)
     intro = TextBlock(
         f"{greeting} Bei den folgenden Texten der vergangenen Tage könnte sich ein Update für SEO lohnen:",
         wrap=True,
     )
 
-    # generate outro
+    # Generate outro
     outro = ActionSet(
         actions=[
             OpenUrl(
-                ## TODO: create sharepoint page and add link here
+                # TODO: create sharepoint page and add link here
                 url="https://en.wikipedia.org/wiki/SharePoint",
                 title="Was bedeutet diese Nachricht?",
             )
         ],
-        horizontalAlignment="Right",
+        horizontalAlignment="right",
+        spacing="extralarge",
     )
 
-    adaptive_card_body = [intro]
+    # Generate sections for each page
+    stories = []
 
-    # generate sections for each page
-    for page in pages:
-        adaptive_card_body.append(_generate_story(page))
+    for i, page in enumerate(pages):
+        story = _generate_story(page)
 
-    # put everything together
-    adaptive_card_body.append(outro)
+        # Add separators between stories
+        if i > 0:
+            story.separator = True
+
+        stories.append(story)
+
+    # Put everything together
+    adaptive_card_body = [intro, *stories, outro]
     card = AdaptiveCard(body=adaptive_card_body)
 
-    adaptive_card = card.to_dict()
-    return adaptive_card
+    return card.to_dict()
 
 
 def generate_teams_payload(pages: Page) -> dict:
@@ -165,10 +226,10 @@ def generate_teams_payload(pages: Page) -> dict:
         dict: Payload dict for MS Teams.
     """
 
-    # generate adaptive card
+    # Generate adaptive card
     adaptive_card = _generate_adaptive_card(pages)
 
-    # add adaptive card to payload
+    # Add adaptive card to payload
     payload = {
         "type": "message",
         "attachments": [
