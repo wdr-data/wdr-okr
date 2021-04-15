@@ -5,7 +5,7 @@ from apscheduler.events import EVENT_JOB_ERROR
 from sentry_sdk import capture_exception
 
 from okr.scrapers.common.utils import BERLIN
-from . import bot
+from .todo import bot as bot_todo
 
 
 scheduler = None
@@ -36,7 +36,7 @@ def add_jobs():
 
     # SEO suggestions
     scheduler.add_job(
-        bot.bot_seo,
+        bot_todo.run,
         trigger="cron",
         hour="13",
         minute="0",
