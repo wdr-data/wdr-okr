@@ -114,6 +114,20 @@ def _page_from_url(
                 sophora_document=None,
             ),
         )
+
+        if created:
+            with push_scope() as scope:
+                scope.set_context(
+                    "info",
+                    {
+                        "url": url,
+                        "sophora_id": sophora_id_str,
+                    },
+                )
+                capture_message(
+                    "Found new URL that has not been seen by Sophora API scraper"
+                )
+
         sophora_document = sophora_id.sophora_document
 
         page, created = Page.objects.get_or_create(
