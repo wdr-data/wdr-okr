@@ -1,10 +1,9 @@
-""" SEO Bot """
+""" SEO Bot for to dos """
 
 import datetime as dt
 import os
 
 from django.db.models import F, Sum
-import requests
 from loguru import logger
 
 from okr.models.pages import (
@@ -17,7 +16,8 @@ from okr.scrapers.common.utils import (
     local_yesterday,
     local_today,
 )
-from .teams_message import generate_teams_payload
+from .teams_message import _generate_adaptive_card
+from ..teams_tools import generate_teams_payload, send_to_teams
 
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
 
@@ -93,14 +93,7 @@ def _get_seo_articles_to_update(impressions_min: int = 10000, date: dt.date = No
     return articles_to_do
 
 
-def _send_to_teams(payload: dict) -> requests.models.Response:
-    result = requests.post(WEBHOOK_URL, json=payload)
-    result.raise_for_status()
-    logger.info("Message sent to MS Teams")
-    return result
-
-
-def bot_seo():
+def run():
     # Generate list of Page objects that are potential to-do items
     articles_to_do = _get_seo_articles_to_update(10000, local_yesterday())
     # For testing, in case not enough articles have been scraped:
@@ -108,8 +101,9 @@ def bot_seo():
     #     10000, local_yesterday() - dt.timedelta(days=1)
     # )
 
-    payload = generate_teams_payload(articles_to_do)
+    adaptive_card = _generate_adaptive_card(articles_to_do)
+    payload = generate_teams_payload(adaptive_card)
 
     # Send payload to MS Teams
-    result = _send_to_teams(payload)
+    result = send_to_teams(payload, WEBHOOK_URL)
     logger.debug(result)

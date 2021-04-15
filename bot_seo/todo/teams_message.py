@@ -1,36 +1,18 @@
 """ Helper functions to generate a message for MS Teams. """
 
+import os
 import random
-from typing import Optional, Union
 
-from pyadaptivecards.actions import OpenUrl
 from pyadaptivecards.card import AdaptiveCard
 from pyadaptivecards.container import ColumnSet, FactSet
 from pyadaptivecards.components import Fact, TextBlock
-from django.utils.numberformat import format
 
 from okr.models.pages import Page
-from .pyadaptivecards_tools import ActionSet, Container, Column, ToggleVisibility
+from ..pyadaptivecards_tools import ActionSet, Container, Column, ToggleVisibility
+from ..teams_tools import format_number, format_percent
 
 GREETINGS = ["Hallo!", "Guten Tag!", "Hi!"]
-
-
-def format_number(number: Union[int, float], decimal_places: Optional[int] = None):
-    if decimal_places is not None:
-        number = round(number, decimal_places)
-
-    return format(
-        number,
-        decimal_sep=",",
-        thousand_sep=".",
-        force_grouping=True,
-        grouping=3,
-    )
-
-
-def format_percent(number: Union[int, float], decimal_places: Optional[int] = 1):
-    formatted_number = format_number(number, decimal_places=decimal_places)
-    return f"{formatted_number} %"
+MORE_URL = os.environ.get("SEO_BOT_TODO_MORE_URL")
 
 
 def _generate_details(page: Page) -> Container:
@@ -188,7 +170,7 @@ def _generate_story(page: Page) -> Container:
     return story
 
 
-def _generate_adaptive_card(pages: Page) -> dict:
+def _generate_adaptive_card(pages: Page) -> AdaptiveCard:
     # Generate intro
     greeting = random.choice(GREETINGS)
     intro = TextBlock(
@@ -197,14 +179,8 @@ def _generate_adaptive_card(pages: Page) -> dict:
     )
 
     # Generate outro
-    outro = ActionSet(
-        actions=[
-            OpenUrl(
-                # TODO: create sharepoint page and add link here
-                url="https://en.wikipedia.org/wiki/SharePoint",
-                title="Was bedeutet diese Nachricht?",
-            )
-        ],
+    outro = TextBlock(
+        text=f"[Was bedeutet diese Nachricht?]({MORE_URL})",
         horizontalAlignment="right",
         spacing="extralarge",
     )
@@ -225,32 +201,4 @@ def _generate_adaptive_card(pages: Page) -> dict:
     adaptive_card_body = [intro, *stories, outro]
     card = AdaptiveCard(body=adaptive_card_body)
 
-    return card.to_dict()
-
-
-def generate_teams_payload(pages: Page) -> dict:
-    """Generate payload for MS Teams.
-
-    Args:
-        pages (Page): Pages to generate text for.
-
-    Returns:
-        dict: Payload dict for MS Teams.
-    """
-
-    # Generate adaptive card
-    adaptive_card = _generate_adaptive_card(pages)
-
-    # Add adaptive card to payload
-    payload = {
-        "type": "message",
-        "attachments": [
-            {
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "contentUrl": "null",
-                "content": adaptive_card,
-            }
-        ],
-    }
-
-    return payload
+    return card
