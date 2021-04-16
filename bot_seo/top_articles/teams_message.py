@@ -137,6 +137,7 @@ def _generate_article_section(page: Page, i: int) -> Container:
         weight="bolder",
         size="large",
         horizontalAlignment="right",
+        spacing="None",
     )
     headline = TextBlock(
         f"{article} (**{format_number(page.clicks_all)}** Klicks)",
@@ -159,12 +160,14 @@ def _generate_article_section(page: Page, i: int) -> Container:
             Column(
                 [place],
                 verticalContentAlignment="center",
-                width=5,
+                width=10,
+                spacing="none",
             ),
             Column(
                 [headline],
                 verticalContentAlignment="center",
-                width=72,
+                width=67,
+                spacing="small",
             ),
             Column(
                 [button],
