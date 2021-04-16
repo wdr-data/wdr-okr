@@ -50,6 +50,20 @@ def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List
             webtrekk_meta__page=page,
             date=date,
         ).first()
+
+        # Special case for Nachrichten index.html and other very old pages
+        if not webtrekk_data:
+            webtrekk_data = (
+                PageDataWebtrekk.objects.filter(
+                    webtrekk_meta__page__url=page.url.replace("https://", "http://"),
+                    date=date,
+                )
+                .exclude(
+                    webtrekk_meta__headline="html",
+                )
+                .first()
+            )
+
         if webtrekk_data:
             page.webtrekk_data = webtrekk_data
             logger.debug("Webtrekk data found and added for {}", page.url)
