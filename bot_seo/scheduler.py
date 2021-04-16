@@ -6,6 +6,7 @@ from sentry_sdk import capture_exception
 
 from okr.scrapers.common.utils import BERLIN
 from .todo import bot as bot_todo
+from .top_articles import bot as bot_top_articles
 
 
 scheduler = None
@@ -39,5 +40,13 @@ def add_jobs():
         bot_todo.run,
         trigger="cron",
         hour="13",
+        minute="0",
+    )
+
+    # SEO top 3
+    scheduler.add_job(
+        bot_top_articles.run(),
+        trigger="cron",
+        hour="16",
         minute="0",
     )

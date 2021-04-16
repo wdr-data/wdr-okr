@@ -37,7 +37,9 @@ def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> Page:
     return gsc_date
 
 
-def _get_seo_articles_to_update(impressions_min: int = 10000, date: dt.date = None):
+def _get_seo_articles_to_update(
+    impressions_min: int = 10000, date: dt.date = None
+) -> list:
     # Generate a list of pages that had at least a certain number of impressions
     # on a certain date and have not been updated today.
 
