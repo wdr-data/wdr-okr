@@ -127,6 +127,8 @@ def _generate_article_section(page: Page, i: int) -> Container:
     # don't have latest_meta
     if page.latest_meta:
         article = f"[{page.latest_meta.headline}]({page.url})"
+    elif page.webtrekk_data:
+        article = f"[{page.webtrekk_data.webtrekk_meta.headline}]({page.url})"
     else:
         article = f"[{page.url}]({page.url})"
 
