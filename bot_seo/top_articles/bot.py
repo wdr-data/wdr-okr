@@ -68,6 +68,7 @@ def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List
             page.webtrekk_data = webtrekk_data
             logger.debug("Webtrekk data found and added for {}", page.url)
         else:
+            page.webtrekk_data = None
             logger.warning("No webtrekk data found for {}, skipping", page.url)
 
     return top_articles
