@@ -222,7 +222,7 @@ def _generate_adaptive_card(
         above_threshold.text += " 🎉🎉"
     elif articles_above_threshold == 1:
         above_threshold.text = (
-            f"Gestern hatten wir einen Beitrag mit mehr als {threshold} Klicks.",
+            f"Gestern hatten wir einen Beitrag mit mehr als {threshold} Klicks."
         )
     elif articles_above_threshold < 1:
         above_threshold = None
