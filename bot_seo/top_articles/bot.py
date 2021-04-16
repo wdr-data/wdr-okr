@@ -42,6 +42,7 @@ def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List
             page.latest_meta = latest_meta
             logger.debug("Metas found and added for {}", page.url)
         else:
+            page.latest_meta = None
             logger.warning("No metas found for {}, skipping", page.url)
 
         # Add webtrekk data to page object

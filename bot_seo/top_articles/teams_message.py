@@ -72,7 +72,7 @@ def _generate_details(page: Page) -> Container:
     ]
 
     # Add webtrekk data, if webtrekk data is available
-    if hasattr(page, "webtrekk_data"):
+    if page.webtrekk_data:
         title_columns.append(
             Column(
                 items=[
@@ -125,7 +125,7 @@ def _generate_article_section(page: Page, i: int) -> Container:
 
     # some pages (such as https://www1.wdr.de/nachrichten/index.html)
     # don't have latest_meta
-    if hasattr(page, "latest_meta"):
+    if page.latest_meta:
         article = f"[{page.latest_meta.headline}]({page.url})"
     else:
         article = f"[{page.url}]({page.url})"
