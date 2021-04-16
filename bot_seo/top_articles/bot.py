@@ -15,7 +15,7 @@ from .teams_message import _generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
 
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
-ARTICLE_THRESHOLD = os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD")
+ARTICLE_THRESHOLD = int(os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD", 10000))
 
 
 def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List[Page]:

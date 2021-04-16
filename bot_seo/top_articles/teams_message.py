@@ -15,7 +15,7 @@ from ..teams_tools import format_number, format_percent
 
 GREETINGS = ["Hallo!", "Guten Tag!", "Hi!"]
 MORE_URL = os.environ.get("SEO_BOT_TODO_MORE_URL")
-ARTICLE_THRESHOLD = os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD")
+ARTICLE_THRESHOLD = int(os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD", 10000))
 
 
 def _generate_details(page: Page) -> Container:
