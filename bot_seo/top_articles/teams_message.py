@@ -24,7 +24,7 @@ def _generate_details(page: Page) -> Container:
         Column(
             items=[
                 TextBlock(
-                    "Klicks (GSC)",
+                    "Impressions (GSC)",
                     weight="bolder",
                     size="small",
                     wrap=True,
@@ -52,7 +52,7 @@ def _generate_details(page: Page) -> Container:
         Column(
             items=[
                 TextBlock(
-                    format_number(page.clicks_all),
+                    format_number(page.impressions_all),
                     size="extralarge",
                     wrap=True,
                 )
