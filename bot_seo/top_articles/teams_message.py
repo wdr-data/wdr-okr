@@ -5,8 +5,8 @@ import random
 
 from typing import List
 from pyadaptivecards.card import AdaptiveCard
-from pyadaptivecards.container import ColumnSet, FactSet
-from pyadaptivecards.components import Fact, TextBlock
+from pyadaptivecards.container import ColumnSet
+from pyadaptivecards.components import TextBlock
 
 from okr.models.pages import Page
 from ..pyadaptivecards_tools import ActionSet, Container, Column, ToggleVisibility
@@ -130,13 +130,15 @@ def _generate_article_section(page: Page, i: int) -> Container:
     else:
         article = f"[{page.url}]({page.url})"
 
-    headline = FactSet(
-        [
-            Fact(
-                f"{i+1}. ",
-                f"{article} ({format_number(page.clicks_all)} Klicks)",
-            )
-        ]
+    place = TextBlock(
+        f"{i + 1}.",
+        weight="bolder",
+        size="large",
+        horizontalAlignment="right",
+    )
+    headline = TextBlock(
+        f"{article} (**{format_number(page.clicks_all)}** Klicks)",
+        wrap=True,
     )
 
     button = ActionSet(
@@ -153,9 +155,14 @@ def _generate_article_section(page: Page, i: int) -> Container:
     summary = ColumnSet(
         columns=[
             Column(
+                [place],
+                verticalContentAlignment="center",
+                width=5,
+            ),
+            Column(
                 [headline],
                 verticalContentAlignment="center",
-                width=77,
+                width=72,
             ),
             Column(
                 [button],
