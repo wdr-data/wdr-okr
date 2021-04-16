@@ -107,6 +107,7 @@ def run():
         )
 
         adaptive_card = _generate_adaptive_card(top_articles, articles_above_threshold)
+        logger.debug(adaptive_card.to_json())
         payload = generate_teams_payload(adaptive_card)
 
         # Send payload to MS Teams
