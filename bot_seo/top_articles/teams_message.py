@@ -217,16 +217,20 @@ def _generate_adaptive_card(
     above_threshold = TextBlock(
         text=f"Gestern hatten wir {articles_above_threshold} Beiträge mit mehr als {threshold} Klicks!",
         spacing="extralarge",
-        size="large",
+        size="medium",
         weight="bolder",
         wrap=True,
     )
+
     if articles_above_threshold > 3:
-        above_threshold.text += " 🎉🎉"
+        above_threshold.text += " 🎉"
+        above_threshold.size = "large"
     elif articles_above_threshold == 1:
         above_threshold.text = (
             f"Gestern hatten wir einen Beitrag mit mehr als {threshold} Klicks."
         )
+        above_threshold.size = None
+        above_threshold.weight = None
     elif articles_above_threshold < 1:
         above_threshold = None
 
