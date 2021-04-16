@@ -5,8 +5,8 @@ import random
 
 from typing import List
 from pyadaptivecards.card import AdaptiveCard
-from pyadaptivecards.container import ColumnSet
-from pyadaptivecards.components import TextBlock
+from pyadaptivecards.container import ColumnSet, FactSet
+from pyadaptivecards.components import Fact, TextBlock
 
 from okr.models.pages import Page
 from ..pyadaptivecards_tools import ActionSet, Container, Column, ToggleVisibility
@@ -19,6 +19,16 @@ ARTICLE_THRESHOLD = int(os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD", 10000))
 
 
 def _generate_details(page: Page) -> Container:
+    facts = []
+
+    facts.append(
+        Fact(
+            "Top 3 Google Suchanfragen",
+            ", ".join(query_data.query for query_data in page.top_queries),
+        )
+    )
+
+    fact_set = FactSet(facts)
 
     title_columns = [
         Column(
@@ -109,6 +119,7 @@ def _generate_details(page: Page) -> Container:
 
     details = Container(
         items=[
+            fact_set,
             column_set_values,
             column_set_titles,
         ],

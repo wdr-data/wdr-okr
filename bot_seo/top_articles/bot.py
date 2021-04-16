@@ -7,7 +7,12 @@ from typing import List
 from django.db.models import F, Sum
 from loguru import logger
 
-from okr.models.pages import Page, PageDataWebtrekk, SophoraDocumentMeta
+from okr.models.pages import (
+    Page,
+    PageDataQueryGSC,
+    PageDataWebtrekk,
+    SophoraDocumentMeta,
+)
 from okr.scrapers.common.utils import (
     local_yesterday,
 )
@@ -70,6 +75,12 @@ def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List
         else:
             page.webtrekk_data = None
             logger.warning("No webtrekk data found for {}, skipping", page.url)
+
+        # Add top Google queries
+        top_queries = PageDataQueryGSC.objects.filter(page=page, date=date).order_by(
+            "-impressions"
+        )[:3]
+        page.top_queries = list(top_queries)
 
     return top_articles
 
