@@ -45,7 +45,7 @@ def add_jobs():
 
     # SEO top 3
     scheduler.add_job(
-        bot_top_articles.run(),
+        bot_top_articles.run,
         trigger="cron",
         hour="16",
         minute="0",
