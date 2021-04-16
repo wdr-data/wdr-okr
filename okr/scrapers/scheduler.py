@@ -212,7 +212,7 @@ def add_jobs():
     scheduler.add_job(
         pages.scrape_gsc,
         trigger="cron",
-        hour="12",
+        hour="12,15",
         minute="30",
     )
     scheduler.add_job(

@@ -73,6 +73,8 @@ Umgebungsvariablen zur Verfügung stehen:
 
     # SEO bot
     TEAMS_WEBHOOK_SEO_BOT=
+    SEO_BOT_TODO_MORE_URL=
+    SEO_BOT_TOP_ARTICLES_THRESHOLD=
 
 Die Variable ``SECRET_KEY`` muss nur angegeben werden, wenn ``DEBUG=False`` gesetzt ist.
 

@@ -45,6 +45,8 @@ SOPHORA_API_BASE=
 
 # SEO bot
 TEAMS_WEBHOOK_SEO_BOT=
+SEO_BOT_TODO_MORE_URL=
+SEO_BOT_TOP_ARTICLES_THRESHOLD=
 ```
 
 The `SECRET_KEY` is only required if you have set `DEBUG=False`.
