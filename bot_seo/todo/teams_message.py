@@ -174,7 +174,7 @@ def _generate_adaptive_card(pages: Page) -> AdaptiveCard:
     # Generate intro
     greeting = random.choice(GREETINGS)
     intro = TextBlock(
-        f"{greeting} Bei den folgenden Texten der vergangenen Tage könnte sich ein Update für SEO lohnen:",
+        f"{greeting} Diese Beiträge von uns sind gestern mit Google gut gefunden worden und haben heute noch kein Update bekommen. **Lohnt sich eine Aktualisierung oder ein Weiterdreh?**",
         wrap=True,
     )
 
