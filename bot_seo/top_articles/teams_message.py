@@ -207,7 +207,7 @@ def _generate_adaptive_card(
     # Generate intro
     greeting = random.choice(GREETINGS)
     intro = TextBlock(
-        f"{greeting} Diese Sophora-Beiträge hatten gestern die meisten Klicks in der Google-Suche:",
+        f"{greeting} Das sind die drei Beiträge, mit denen wir gestern die meisten Besucher:innen von Google in unser Angebot locken konnten. **Können wir daraus was lernen?**",
         wrap=True,
     )
 
