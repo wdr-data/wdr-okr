@@ -15,6 +15,7 @@ from ...models.facebook import (
     FacebookPost,
 )
 from . import quintly
+from ..common.quintly import parse_bool
 from ..common.utils import BERLIN
 
 
@@ -137,8 +138,8 @@ def scrape_posts(
                 "comments": row.comments or 0,
                 "shares": row.shares or 0,
                 "impressions_unique": row.post_impressions_unique or 0,
-                "is_published": row.is_published == 1,
-                "is_hidden": row.is_hidden == 1,
+                "is_published": parse_bool(row.is_published),
+                "is_hidden": parse_bool(row.is_hidden),
             }
 
             try:
