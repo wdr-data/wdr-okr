@@ -53,6 +53,12 @@ class YouTubeAnalytics(models.Model):
         max_length=10,
     )
 
+    subscribers = models.IntegerField(verbose_name="Abonnenten", null=True)
+    subscribers_change = models.IntegerField(
+        verbose_name="Veränderung Abonnenten",
+        null=True,
+    )
+
     views = models.IntegerField(verbose_name="Views", null=True)
     likes = models.IntegerField(verbose_name="Likes", null=True)
     dislikes = models.IntegerField(verbose_name="Dislikes", null=True)
