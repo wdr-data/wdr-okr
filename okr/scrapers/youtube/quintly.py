@@ -2,7 +2,6 @@
 
 import datetime
 from typing import Optional
-from loguru import logger
 
 import numpy as np
 import pandas as pd
@@ -32,7 +31,6 @@ def get_youtube_analytics(
         pd.DataFrame: API response data.
     """
     profile_ids = [profile_id]
-    table = "youtubeAnalytics"
 
     today = utils.local_today()
 
@@ -46,6 +44,8 @@ def get_youtube_analytics(
 
     end_date = today
 
+    # Scrape "youtubeAnalytics" table
+    table = "youtubeAnalytics"
     fields = [
         "time",
         "views",
@@ -53,9 +53,10 @@ def get_youtube_analytics(
         "dislikes",
         "estimatedMinutesWatched",
         "averageViewDuration",
+        "subscribersGained",
     ]
 
-    df = common_quintly.quintly.run_query(
+    df_youtube_analytics = common_quintly.quintly.run_query(
         profile_ids,
         table,
         fields,
@@ -64,9 +65,30 @@ def get_youtube_analytics(
         interval=interval,
     )
 
-    df.time = df.time.str[:10]
-    df.time = df.time.astype("str")
+    df_youtube_analytics.time = df_youtube_analytics.time.str[:10]
+    df_youtube_analytics.time = df_youtube_analytics.time.astype("str")
+
+    # Scrape "youtube" table
+    table = "youtube"
+    fields = [
+        "time",
+        "subscribers",
+    ]
+
+    df_youtube = common_quintly.quintly.run_query(
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval=interval,
+    )
+
+    df_youtube.time = df_youtube.time.str[:10]
+    df_youtube.time = df_youtube.time.astype("str")
+
+    df = df_youtube.merge(df_youtube_analytics, on="time", how="inner")
+
     df = df.replace({np.nan: None})
 
-    logger.debug(df)
     return df

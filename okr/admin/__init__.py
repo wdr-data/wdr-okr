@@ -2,6 +2,8 @@
 # flake8: noqa
 
 from django.contrib import admin
+from . import facebook
+from . import twitter
 from . import insta
 from . import youtube
 from . import podcasts
