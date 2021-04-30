@@ -119,12 +119,12 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
         kwargs["extra_context"] = extra_context
 
     def add_view(self, *args, **kwargs) -> HttpResponse:
-        """ Add JSON data to add view for client-side JS. """
+        """Add JSON data to add view for client-side JS."""
         self._update_extra_context(kwargs)
         return super().add_view(*args, **kwargs)
 
     def change_view(self, *args, **kwargs) -> HttpResponse:
-        """ Add JSON data to change view for client-side JS. """
+        """Add JSON data to change view for client-side JS."""
         self._update_extra_context(kwargs)
         return super().change_view(*args, **kwargs)
 
