@@ -9,3 +9,4 @@ from .pages import *
 from .tiktok import *
 from .custom import *
 from .facebook import *
+from .twitter import *
