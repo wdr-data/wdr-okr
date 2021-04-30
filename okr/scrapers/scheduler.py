@@ -1,6 +1,5 @@
 """Configure scheduler to call scraper modules."""
 
-from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
 from django.db.models.signals import post_save
@@ -8,8 +7,8 @@ from django.dispatch import receiver
 from sentry_sdk import capture_exception
 from loguru import logger
 
-from ..models import Podcast, Insta, YouTube, TikTok, Property
-from . import insta, youtube, podcasts, pages, tiktok
+from ..models import Podcast, Insta, YouTube, TikTok, Property, Facebook, SophoraNode
+from . import insta, youtube, podcasts, pages, tiktok, facebook
 from .common.utils import BERLIN
 from .db_cleanup import run_db_cleanup
 
@@ -98,6 +97,35 @@ def add_jobs():
         insta.scrape_posts,
         trigger="cron",
         hour="5",
+        minute="32",
+    )
+
+    # Facebook
+    scheduler.add_job(
+        facebook.scrape_insights,
+        args=["daily"],
+        trigger="cron",
+        hour="5,11,17,23",
+        minute="40",
+    )
+    scheduler.add_job(
+        facebook.scrape_insights,
+        args=["weekly"],
+        trigger="cron",
+        hour="7",
+        minute="0",
+    )
+    scheduler.add_job(
+        facebook.scrape_insights,
+        args=["monthly"],
+        trigger="cron",
+        hour="7",
+        minute="1",
+    )
+    scheduler.add_job(
+        facebook.scrape_posts,
+        trigger="cron",
+        hour="7,12,15",
         minute="32",
     )
 
@@ -235,6 +263,20 @@ def podcast_created(instance: Podcast, created: bool, **kwargs):
     logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(podcasts.scrape_full, args=[instance], max_instances=1)
+
+
+@receiver(post_save, sender=Facebook)
+def facebook_created(instance: Facebook, created: bool, **kwargs):
+    """Start scraper run for newly added Facebook account
+    (:meth:`okr.scrapers.insta.scrape_full`).
+
+    Args:
+        instance (Facebook): A Facebook instance
+        created (bool): Don't start scraper if set to False
+    """
+    logger.debug("{} saved, created={}", instance, created)
+    if created:
+        scheduler.add_job(facebook.scrape_full, args=[instance], max_instances=1)
 
 
 @receiver(post_save, sender=Insta)
