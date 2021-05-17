@@ -3,12 +3,17 @@
 import datetime as dt
 from typing import Any, Dict, List, Literal, Optional
 
+from tenacity import retry
+from tenacity.stop import stop_after_attempt
+from tenacity.wait import wait_exponential
+
 from ..common.google import webmasters_service
 from ...models import Property
 
 Dimension = Literal["page", "device", "date", "query", "country", "searchAppearance"]
 
 
+@retry(wait=wait_exponential(), stop=stop_after_attempt(3))
 def fetch_data(
     property: Property,
     start_date: dt.date,
