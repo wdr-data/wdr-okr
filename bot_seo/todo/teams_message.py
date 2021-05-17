@@ -79,39 +79,6 @@ def _generate_details(page: Page) -> Container:
         ),
     ]
 
-    # webtrekk_data can be None because Webtrekk is bad
-    if page.webtrekk_data:
-        title_columns.append(
-            Column(
-                items=[
-                    TextBlock(
-                        "Anteil Suchmaschinen (Webtrekk)",
-                        weight="bolder",
-                        size="small",
-                        wrap=True,
-                    )
-                ],
-                width=150,
-            )
-        )
-
-        webtrekk_search_share = (
-            page.webtrekk_data.visits_search / page.webtrekk_data.visits * 100
-        )
-
-        value_columns.append(
-            Column(
-                items=[
-                    TextBlock(
-                        format_percent(webtrekk_search_share),
-                        size="extralarge",
-                        wrap=True,
-                    )
-                ],
-                width=150,
-            ),
-        )
-
     column_set_titles = ColumnSet(columns=title_columns, spacing="None")
     column_set_values = ColumnSet(columns=value_columns)
 
