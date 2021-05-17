@@ -216,12 +216,15 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
         )
         # Search Podcaster API
         for episode_id in spotify_episode_ids_search:
-            ep_meta = spotify_api.podcast_episode_meta(
-                podcast.spotify_id,
-                episode_id,
-            )
+            try:
+                ep_meta = spotify_api.podcast_episode_meta(
+                    podcast.spotify_id,
+                    episode_id,
+                )
 
-            spotify_episode_id_by_name[ep_meta["name"]] = episode_id
+                spotify_episode_id_by_name[ep_meta["name"]] = episode_id
+            except SpotifyException:
+                logger.debug("Episode ID {} not found in Podcaster API", episode_id)
 
         # Try to read additional, publicly available data from Spotify's public API
         ep_metas_public = fetch_all(
