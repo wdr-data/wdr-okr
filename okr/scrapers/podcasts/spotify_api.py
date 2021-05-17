@@ -12,7 +12,7 @@ from loguru import logger
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.exceptions import SpotifyException
-from requests.exceptions import ReadTimeout
+from requests.exceptions import ReadTimeout, ConnectionError
 
 from ..common.utils import local_yesterday
 from ..common import types
@@ -66,10 +66,13 @@ class CustomSpotify(spotipy.Spotify):
                 result = super()._internal_call(method, url, payload, params)
                 return result
 
-            except ReadTimeout as e:
+            except (ReadTimeout, ConnectionError) as e:
                 error = e
                 spotipy.client.logger.info(
-                    f"Got ReadTimeoutError, attempt {i + 1}/{retries}"
+                    "Got {}, attempt {}/{}",
+                    type(e),
+                    i + 1,
+                    retries,
                 )
                 sleep(10 * (i + 1))
 
