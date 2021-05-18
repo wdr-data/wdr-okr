@@ -28,8 +28,8 @@ Diese Dokumentation bezieht sich auf das OKR Data Warehouse:
 * Informationen zur **Installation und Inbetriebnahme** befinden sich im Kapitel
   :ref:`installation`.
 * Informationen zu den **Scrapern für die einzelnen Datenquellen** (Instagram, Youtube,
-  Spotify, Sophora, Webserver-Statistiken, etc.) befinden sich im Kapitel
-  :ref:`scraper`.
+  Facebook, Twitter, Spotify, Sophora, Webserver-Statistiken, etc.) befinden sich im
+  Kapitel :ref:`scraper`.
 * Informationen zur Benutzung des **Django-basierten Backends** zum Anlegen und
   Editieren von Datenquellen befindet sich im Kapitel :ref:`backend`.
 * Informationen zu **Struktur und Inhalt der Datenbank** befinden sich im Kapitel

@@ -25,6 +25,9 @@ Für Daten zu Instagram:
   * Quintly API (`Quintly Dokumentation`_)
   * Manuelle Dateneingabe für Instagram Collaborations
 
+Für Daten zu Facebook und Twitter:
+  * Quintly API (`Quintly Dokumentation`_)
+
 Für Daten zu Podcasts:
   * Webtrekk API (`Webtrekk Dokumentation`_)
   * Podstat-Datenbank
