@@ -190,7 +190,7 @@ class PageWebtrekkMetaAdmin(admin.ModelAdmin):
     list_display_links = ["headline"]
     list_filter = []
     date_hierarchy = "created"
-    search_fields = ["headline"]
+    search_fields = ["headline", "page__url"]
 
 
 @large_table
