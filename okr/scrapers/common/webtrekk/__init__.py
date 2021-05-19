@@ -113,55 +113,50 @@ class Webtrekk:
 
         url = "https://report2.webtrekk.de/cgi-bin/wt/JSONRPC.cgi"
 
-        if self.token:
-            params["token"] = self.token
-
         payload = {
             "params": params,
             "version": "1.1",
             "method": method,
         }
 
-        # Create a copy of the payload and remove auth token from payload
-        # as it is different on every request
-        if use_cache:
-            normalized_payload = json.loads(json.dumps(payload))
-            try:
-                del normalized_payload["params"]["token"]
-            except KeyError:
-                pass
+        # Create key for cache lookups
+        payload_cache_key = json.dumps(payload)
 
-            payload_str = json.dumps(normalized_payload)
+        # Insert token after creating the payload cache key
+        if self.token:
+            params["token"] = self.token
 
         # Check if a request with this payload is already cached - query API if not
         logger.debug(f"{use_cache = }, {force_cache_refresh = }")
         if use_cache and not force_cache_refresh:
-            cached = CachedWebtrekkRequest.objects.filter(payload=payload_str).first()
+            cached = CachedWebtrekkRequest.objects.filter(
+                payload=payload_cache_key
+            ).first()
 
             if cached:
-                logger.debug("Cached request for payload found:")
-                logger.debug(payload_str)
+                logger.debug("Cached request for payload found")
+                logger.debug(payload_cache_key)
                 return json.loads(cached.response)["result"]
 
-            logger.debug("No cached request for payload found:")
-            logger.debug(payload_str)
+            logger.debug("No cached request for payload found")
+            logger.debug(payload_cache_key)
 
-        response = requests.post(url, json=payload).json()
+        response = requests.post(url, json=payload)
+        response_data = response.json()
 
-        if "result" in response:
+        if "result" in response_data:
             if use_cache:
-                response_str = json.dumps(response)
                 CachedWebtrekkRequest.objects.create(
-                    payload=payload_str,
-                    response=response_str,
+                    payload=payload_cache_key,
+                    response=response.text,
                 )
                 logger.debug("New cached entry for payload created")
-                logger.debug(payload_str)
+                logger.debug(payload_cache_key)
 
-            return response["result"]
+            return response_data["result"]
 
-        if "error" in response:
-            raise WebtrekkError(response["error"])
+        if "error" in response_data:
+            raise WebtrekkError(response_data["error"])
 
         return None
 
