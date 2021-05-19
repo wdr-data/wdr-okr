@@ -105,9 +105,14 @@ class Webtrekk:
             "method": method,
         }
 
-        # Check if query with payload is already chached - query API if not
-        payload_str = json.dumps(payload)
-        cached = CachedWebtrekkRequest.objects.filter(payload=payload_str).first()
+        # Check if getAnalysisData query is already chached - query API if not
+        if method == "getAnalysisData":  # avoid caching if method == "login"
+            payload_str = json.dumps(payload)
+            cached = CachedWebtrekkRequest.objects.filter(payload=payload_str).first()
+            logger.debug("Webtrekk Payload: {})", payload_str)
+        else:
+            cached = None
+
         if cached:
             logger.debug("Cached request for payload found ({})", payload_str)
             return json.loads(cached.response)["result"]
