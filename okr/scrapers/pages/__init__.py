@@ -11,6 +11,8 @@ from sentry_sdk import capture_exception, capture_message, push_scope
 from rfc3986 import urlparse
 from urllib.parse import unquote
 
+import sentry_sdk
+
 from okr.models.pages import (
     Page,
     PageDataWebtrekk,
@@ -74,12 +76,42 @@ def scrape_full_sophora(sophora_node: SophoraNode):
     logger.success("Finished full scrape of Sophora node {}", sophora_node)
 
 
+class SkipPageException(Exception):
+    pass
+
+
 def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
+
+    # Ensure that overview pages with missing "index.html" suffix
+    # get related to the same SophoraID
+    if url.endswith("/"):
+        logger.debug("Adding index.html suffix")
+        url = url + "index.html"
+
     parsed = urlparse(url)
     match = re.match(
         r"(.*)/(.*?)(?:~_page-(\d+))?\.(?:html|amp)$",
         unquote(parsed.path),
     )
+
+    if match is None:
+        # Parsing errors that are known and we want to ignore
+        match_expected = re.match(
+            r".*\.(?:jsp|pdf|news)$",
+            unquote(parsed.path),
+        )
+
+        if match_expected is None:
+            logger.error("Unexpected parsing error: {}", url)
+            sentry_sdk.capture_message(
+                f"Failed parsing URL with unexpected format: {url}",
+                level="error",
+            )
+        else:
+            logger.debug("Ignored parsing error: {}", url)
+
+        raise SkipPageException(url)
+
     node = match.group(1)
     sophora_id = match.group(2)
     # Cut off any other weird Sophora parameters
@@ -101,8 +133,7 @@ def _page_from_url(
 ) -> Optional[Page]:
     try:
         sophora_id_str, node, sophora_page = _parse_sophora_url(url)
-    except AttributeError as error:
-        capture_exception(error)
+    except SkipPageException:
         return None
 
     if url in page_cache:
@@ -424,8 +455,7 @@ def _handle_sophora_document(
         logger.info(sophora_document_info)
         capture_exception(error)
         return
-    except AttributeError as error:
-        capture_exception(error)
+    except SkipPageException:
         return
 
     export_uuid = contains_info["uuid"]
