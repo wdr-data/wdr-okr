@@ -75,7 +75,13 @@ class Webtrekk:
         finally:
             self.logout()
 
-    def _get_response(self, method: str, params: Dict[str, str] = {}) -> Any:
+    def _get_response(
+        self,
+        method: str,
+        params: Dict[str, str] = {},
+        use_cache: bool = False,
+        force_cache_refresh: bool = False,
+    ) -> Any:
         """Call Webtrekk JSON/RPC API Method with params.
 
         Args:
@@ -84,6 +90,12 @@ class Webtrekk:
               "getCustomReportsList".
             params (Dict[str, str], optional): Parameters for API request. Defaults to
               {}.
+            use_cache (bool, optional): If set to ``True``, requests will be saved to and
+              retrieved from a persistent cache to avoid repeat API requests.
+              Defaults to ``False``.
+            force_cache_refresh (bool, optional): If set to ``True``, makes a query to the
+              API even on cache hit and caches the result. Requires ``use_cache`` to be ``True``.
+              Defaults to ``False``.
 
         Raises:
             WebtrekkError: Custom error for Webtrekk errors.
@@ -93,9 +105,14 @@ class Webtrekk:
 
         :meta public:
         """
+
+        if force_cache_refresh and not use_cache:
+            raise ValueError(
+                f"Can't have {force_cache_refresh = } while {use_cache = }"
+            )
+
         url = "https://report2.webtrekk.de/cgi-bin/wt/JSONRPC.cgi"
 
-        # Example echo method
         if self.token:
             params["token"] = self.token
 
@@ -104,30 +121,48 @@ class Webtrekk:
             "version": "1.1",
             "method": method,
         }
-        payload_str = json.dumps(payload)
 
-        # Check if getAnalysisData query is already cached - query API if not
-        if method == "getAnalysisData":  # no caching if method is "login"/"logout"
+        # Create a copy of the payload and remove auth token from payload
+        # as it is different on every request
+        if use_cache:
+            normalized_payload = json.loads(json.dumps(payload))
+            try:
+                del normalized_payload["params"]["token"]
+            except KeyError:
+                pass
+
+            payload_str = json.dumps(normalized_payload)
+
+        # Check if a request with this payload is already cached - query API if not
+        logger.debug(f"{use_cache = }, {force_cache_refresh = }")
+        if use_cache and not force_cache_refresh:
             cached = CachedWebtrekkRequest.objects.filter(payload=payload_str).first()
-        else:
-            cached = None
 
-        if cached:
-            logger.debug("Cached request for payload found ({})", payload_str)
-            return json.loads(cached.response)["result"]
+            if cached:
+                logger.debug("Cached request for payload found:")
+                logger.debug(payload_str)
+                return json.loads(cached.response)["result"]
+
+            logger.debug("No cached request for payload found:")
+            logger.debug(payload_str)
 
         response = requests.post(url, json=payload).json()
 
         if "result" in response:
-            if method == "getAnalysisData":  # no caching if method is "login"/"logout"
+            if use_cache:
+                response_str = json.dumps(response)
                 CachedWebtrekkRequest.objects.create(
                     payload=payload_str,
-                    response=json.dumps(response),
+                    response=response_str,
                 )
-                logger.debug("New cached entry for payload created ({})", payload_str)
+                logger.debug("New cached entry for payload created")
+                logger.debug(payload_str)
+
             return response["result"]
+
         if "error" in response:
             raise WebtrekkError(response["error"])
+
         return None
 
     def get_report_data(
@@ -160,7 +195,7 @@ class Webtrekk:
         if start_date and not end_date:
             params["time_stop"] = params["time_start"]
 
-        return self._get_response("getReportData", params)
+        return self._get_response("getReportData", params, use_cache=True)
 
     def get_analysis_data(self, analysis_config: str) -> Dict:
         """Call getAnalysisData method at Webtrekk's JSON/RPC API.
@@ -173,7 +208,7 @@ class Webtrekk:
             Dict: Reply from API.
         """
         params = {"analysisConfig": analysis_config}
-        data = self._get_response("getAnalysisData", params)
+        data = self._get_response("getAnalysisData", params, use_cache=True)
         return data
 
     def get_dimensions_metrics(self) -> Dict:
