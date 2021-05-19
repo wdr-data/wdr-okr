@@ -1,11 +1,15 @@
 """Wrapper for Webtrekk API."""
 
-from loguru import logger
-import requests
-import os
-import datetime as dt
-from typing import Any, Dict, Optional
 from contextlib import contextmanager
+from typing import Any, Dict, Optional
+import datetime as dt
+import json
+import os
+
+import requests
+from loguru import logger
+
+from ....models.cached_requests import CachedWebtrekkRequest
 
 
 WEBTREKK_LOGIN = os.environ.get("WEBTREKK_LOGIN")
@@ -101,9 +105,21 @@ class Webtrekk:
             "method": method,
         }
 
+        # Check if query with payload is already chached - query API if not
+        payload_str = json.dumps(payload)
+        cached = CachedWebtrekkRequest.objects.filter(payload=payload_str).first()
+        if cached:
+            logger.debug("Cached request for payload found ({})", payload_str)
+            return json.loads(cached.response)["result"]
+
         response = requests.post(url, json=payload).json()
 
         if "result" in response:
+            CachedWebtrekkRequest.objects.create(
+                payload=payload_str,
+                response=json.dumps(response),
+            )
+            logger.debug("New cached entry for payload created ({})", payload_str)
             return response["result"]
         if "error" in response:
             raise WebtrekkError(response["error"])
