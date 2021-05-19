@@ -261,6 +261,7 @@ class EpisodeDataSpotifyAdmin(admin.ModelAdmin):
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
     search_fields = ["episode__title"]
+    autocomplete_fields = ["episode"]
 
 
 class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
@@ -286,6 +287,7 @@ class EpisodeDataSpotifyUserAdmin(admin.ModelAdmin):
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
     search_fields = ["episode__title"]
+    autocomplete_fields = ["episode"]
 
 
 @large_table
@@ -303,6 +305,7 @@ class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
     list_filter = ["age_range", "gender", "episode__podcast"]
     date_hierarchy = "date"
     search_fields = ["episode__title"]
+    autocomplete_fields = ["episode"]
 
 
 @large_table
@@ -322,6 +325,7 @@ class EpisodeDataSpotifyPerformanceAdmin(admin.ModelAdmin):
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
     search_fields = ["episode__title"]
+    autocomplete_fields = ["episode"]
 
 
 @large_table
@@ -339,6 +343,7 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
     search_fields = ["episode__title"]
+    autocomplete_fields = ["episode"]
 
 
 @large_table
@@ -355,6 +360,7 @@ class EpisodeDataPodstatAdmin(admin.ModelAdmin):
     list_filter = ["episode__podcast"]
     date_hierarchy = "date"
     search_fields = ["episode__title"]
+    autocomplete_fields = ["episode"]
 
 
 admin.site.register(Podcast, PodcastAdmin)
