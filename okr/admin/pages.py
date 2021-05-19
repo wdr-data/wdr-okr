@@ -42,6 +42,7 @@ class PageAdmin(admin.ModelAdmin):
     list_filter = ["property", "node"]
     date_hierarchy = "first_seen"
     search_fields = ["url"]
+    autocomplete_fields = ["sophora_document"]
 
 
 @large_table
@@ -97,6 +98,7 @@ class PageDataGSCAdmin(admin.ModelAdmin):
     list_filter = ["device"]
     date_hierarchy = "date"
     search_fields = ["page__url"]
+    autocomplete_fields = ["page"]
 
 
 @large_table
@@ -114,7 +116,8 @@ class PageDataQueryGSCAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["page", "date"]
     date_hierarchy = "date"
-    search_fields = ["query"]
+    search_fields = ["page__url", "query"]
+    autocomplete_fields = ["page"]
 
 
 class SophoraNodeAdmin(admin.ModelAdmin):
@@ -138,6 +141,7 @@ class SophoraDocumentAdmin(admin.ModelAdmin):
     list_display_links = ["export_uuid"]
     date_hierarchy = "created"
     search_fields = ["export_uuid"]
+    autocomplete_fields = ["sophora_node"]
 
 
 class SophoraIDAdmin(admin.ModelAdmin):
@@ -150,6 +154,7 @@ class SophoraIDAdmin(admin.ModelAdmin):
     list_display_links = ["sophora_id"]
     date_hierarchy = "created"
     search_fields = ["sophora_id"]
+    autocomplete_fields = ["sophora_document"]
 
 
 class SophoraDocumentMetaAdmin(admin.ModelAdmin):
@@ -168,6 +173,7 @@ class SophoraDocumentMetaAdmin(admin.ModelAdmin):
     list_filter = ["node", "document_type"]
     date_hierarchy = "created"
     search_fields = ["headline", "keywords_list"]
+    autocomplete_fields = ["sophora_document", "sophora_id"]
 
 
 class SophoraKeywordAdmin(admin.ModelAdmin):
@@ -190,7 +196,8 @@ class PageWebtrekkMetaAdmin(admin.ModelAdmin):
     list_display_links = ["headline"]
     list_filter = []
     date_hierarchy = "created"
-    search_fields = ["headline"]
+    search_fields = ["headline", "page__url"]
+    autocomplete_fields = ["page"]
 
 
 @large_table
@@ -211,6 +218,7 @@ class PageDataWebtrekkAdmin(admin.ModelAdmin):
     list_filter = []
     date_hierarchy = "date"
     search_fields = ["webtrekk_meta__headline"]
+    autocomplete_fields = ["webtrekk_meta"]
 
 
 admin.site.register(Property, PropertyAdmin)

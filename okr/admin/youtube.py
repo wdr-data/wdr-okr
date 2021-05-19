@@ -315,6 +315,7 @@ class AnalyticsAdmin(admin.ModelAdmin):
         "date",
         "youtube",
         "interval",
+        "subscribers",
         "views",
         "likes",
         "dislikes",

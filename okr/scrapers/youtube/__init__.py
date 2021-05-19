@@ -22,6 +22,7 @@ def scrape_full(youtube: YouTube):
     Args:
         youtube (YouTube): YouTube object to scrape data for.
     """
+    logger.info("Starting full YouTube scrape of {}", youtube)
 
     youtube_filter = Q(id=youtube.id)
     start_date = date(2019, 1, 1)
@@ -31,6 +32,8 @@ def scrape_full(youtube: YouTube):
     scrape_analytics("daily", start_date=start_date, youtube_filter=youtube_filter)
     scrape_analytics("weekly", start_date=start_date, youtube_filter=youtube_filter)
     scrape_analytics("monthly", start_date=start_date, youtube_filter=youtube_filter)
+
+    logger.success("Finished full YouTube scrape of {}", youtube)
 
 
 def scrape_analytics(
@@ -57,6 +60,7 @@ def scrape_analytics(
         youtubes = youtubes.filter(youtube_filter)
 
     for youtube in youtubes:
+        logger.debug("Scraping insights for {} with interval {}", youtube, interval)
 
         df = quintly.get_youtube_analytics(
             youtube.quintly_profile_id, interval=interval, start_date=start_date
@@ -64,6 +68,8 @@ def scrape_analytics(
 
         for index, row in df.iterrows():
             defaults = {
+                "subscribers": row.subscribers or 0,
+                "subscribers_change": row.subscribersGained or 0,
                 "views": row.views or 0,
                 "likes": row.likes or 0,
                 "dislikes": row.dislikes or 0,

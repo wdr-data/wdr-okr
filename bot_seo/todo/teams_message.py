@@ -2,12 +2,14 @@
 
 import os
 import random
+import datetime as dt
 
 from pyadaptivecards.card import AdaptiveCard
 from pyadaptivecards.container import ColumnSet, FactSet
 from pyadaptivecards.components import Fact, TextBlock
 
 from okr.models.pages import Page
+from okr.scrapers.common.utils import BERLIN, local_yesterday
 from ..pyadaptivecards_tools import ActionSet, Container, Column, ToggleVisibility
 from ..teams_tools import format_number, format_percent
 
@@ -79,39 +81,6 @@ def _generate_details(page: Page) -> Container:
         ),
     ]
 
-    # webtrekk_data can be None because Webtrekk is bad
-    if page.webtrekk_data:
-        title_columns.append(
-            Column(
-                items=[
-                    TextBlock(
-                        "Anteil Suchmaschinen (Webtrekk)",
-                        weight="bolder",
-                        size="small",
-                        wrap=True,
-                    )
-                ],
-                width=150,
-            )
-        )
-
-        webtrekk_search_share = (
-            page.webtrekk_data.visits_search / page.webtrekk_data.visits * 100
-        )
-
-        value_columns.append(
-            Column(
-                items=[
-                    TextBlock(
-                        format_percent(webtrekk_search_share),
-                        size="extralarge",
-                        wrap=True,
-                    )
-                ],
-                width=150,
-            ),
-        )
-
     column_set_titles = ColumnSet(columns=title_columns, spacing="None")
     column_set_values = ColumnSet(columns=value_columns)
 
@@ -171,18 +140,40 @@ def _generate_story(page: Page) -> Container:
 
 
 def _generate_adaptive_card(pages: Page) -> AdaptiveCard:
+
+    # Convert PDT timezone to Berlin time, because GSC-times are all PDT-based
+    PDT = dt.timezone(-dt.timedelta(hours=7))
+    yesterday = local_yesterday()
+    start_time = dt.datetime(yesterday.year, yesterday.month, yesterday.day, tzinfo=PDT)
+    start_time_local = start_time.astimezone(BERLIN)
+
     # Generate intro
     greeting = random.choice(GREETINGS)
     intro = TextBlock(
-        f"{greeting} Diese Beiträge von uns sind gestern mit Google gut gefunden worden und haben heute noch kein Update bekommen. **Lohnt sich eine Aktualisierung oder ein Weiterdreh?**",
+        (
+            f"{greeting} Diese Beiträge von uns sind seit gestern, {start_time_local.hour}:00 Uhr, "
+            "mit Google gut gefunden worden und haben heute noch kein Update bekommen. "
+            "**Lohnt sich eine Aktualisierung oder ein Weiterdreh?**"
+        ),
+        wrap=True,
+    )
+
+    # Add note about GSC data
+    note_gsc = TextBlock(
+        text=(
+            "Letzter Datenabgleich mit der GSC: 12:30 Uhr\n"
+            "Es dauert bis zu 48 Stunden, bis die Daten in der GSC final sind!"
+        ),
+        horizontalAlignment="left",
+        spacing="extralarge",
         wrap=True,
     )
 
     # Generate outro
     outro = TextBlock(
-        text=f"[Was bedeutet diese Nachricht?]({MORE_URL})",
+        text=f"[Infos zur Datenerhebung]({MORE_URL})",
         horizontalAlignment="right",
-        spacing="extralarge",
+        spacing="large",
     )
 
     # Generate sections for each page
@@ -198,7 +189,7 @@ def _generate_adaptive_card(pages: Page) -> AdaptiveCard:
         stories.append(story)
 
     # Put everything together
-    adaptive_card_body = [intro, *stories, outro]
+    adaptive_card_body = [intro, *stories, note_gsc, outro]
     card = AdaptiveCard(body=adaptive_card_body)
 
     return card

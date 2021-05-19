@@ -2,7 +2,7 @@
 
 import os
 import functools
-from typing import Callable
+from typing import Callable, Optional
 
 from analytics.quintly import QuintlyAPI
 
@@ -31,3 +31,23 @@ def requires_quintly(func: Callable) -> Callable:
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def parse_bool(value: str, default: Optional[bool] = None) -> Optional[bool]:
+    """
+    Parse bool from some quintly tables being a string with the value "1" or "0"
+
+    Args:
+        value (str): The value from the quintly dataframe
+        default (Optional[bool]): Default value in case the parsing fails,
+
+    Returns:
+        Optional[bool]: The parsed bool, or `default` if parsing unsuccessful.
+    """
+
+    try:
+        parsed = bool(int(value))
+    except ValueError:
+        parsed = default
+
+    return parsed

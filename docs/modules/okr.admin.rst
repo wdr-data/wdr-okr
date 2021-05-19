@@ -25,6 +25,14 @@ okr.admin.custom module
    :undoc-members:
    :show-inheritance:
 
+okr.admin.facebook module
+-------------------------
+
+.. automodule:: okr.admin.facebook
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 okr.admin.insta module
 ----------------------
 
@@ -53,6 +61,14 @@ okr.admin.tiktok module
 -------------------------
 
 .. automodule:: okr.admin.tiktok
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+okr.admin.twitter module
+------------------------
+
+.. automodule:: okr.admin.twitter
    :members:
    :undoc-members:
    :show-inheritance:

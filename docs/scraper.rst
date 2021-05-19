@@ -25,6 +25,9 @@ Für Daten zu Instagram:
   * Quintly API (`Quintly Dokumentation`_)
   * Manuelle Dateneingabe für Instagram Collaborations
 
+Für Daten zu Facebook und Twitter:
+  * Quintly API (`Quintly Dokumentation`_)
+
 Für Daten zu Podcasts:
   * Webtrekk API (`Webtrekk Dokumentation`_)
   * Podstat-Datenbank
@@ -40,6 +43,9 @@ Für Daten zu Youtube:
 
 Für Daten zu TikTok:
   * Quintly API (`Quintly Dokumentation`_)
+
+Bei Sophora-Inhalten betrachtet das Data Warehouse nur Dokumente mit den Endungen
+``.html`` und ``.amp``.
 
 .. _scraper_scheduler:
 
@@ -64,8 +70,9 @@ Struktur der Scraping Skripte
 
 Die Scripte für das Erfassen und Aufbereiten der Daten befinden sich im Verzeichnis
 ``okr/scrapers/``. Es existieren unterschiedliche Module für die unterschiedlichen Arten
-von digitalen Angeboten: :class:`~okr.scrapers.insta`, :class:`~okr.scrapers.pages`,
-:class:`~okr.scrapers.podcasts`, :class:`~okr.scrapers.tiktok` und
+von digitalen Angeboten: :class:`~okr.scrapers.facebook`, :class:`~okr.scrapers.insta`,
+:class:`~okr.scrapers.pages`, :class:`~okr.scrapers.podcasts`,
+:class:`~okr.scrapers.tiktok`, :class:`~okr.scrapers.twitter`, und
 :class:`~okr.scrapers.youtube`.
 
 Jedes Modul enthält eine ``__init.py__`` Datei. Diese Datei enthält jeweils die

@@ -248,15 +248,26 @@ def _generate_adaptive_card(
     if above_threshold:
         article_sections.append(above_threshold)
 
+    # Add note about GSC data
+    note_gsc = TextBlock(
+        text=(
+            "Letzter Datenabgleich mit der GSC: 15:30 Uhr\n"
+            "Es dauert bis zu 48 Stunden, bis die Daten in der GSC final sind!"
+        ),
+        horizontalAlignment="left",
+        spacing="extralarge",
+        wrap=True,
+    )
+
     # Generate outro
     outro = TextBlock(
-        text=f"[Was bedeutet diese Nachricht?]({MORE_URL})",
+        text=f"[Infos zur Datenerhebung]({MORE_URL})",
         horizontalAlignment="right",
-        spacing="extralarge",
+        spacing="large",
     )
 
     # Put everything together
-    adaptive_card_body = [intro, *article_sections, outro]
+    adaptive_card_body = [intro, *article_sections, note_gsc, outro]
     card = AdaptiveCard(body=adaptive_card_body)
 
     return card

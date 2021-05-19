@@ -10,7 +10,6 @@ from okr.models.pages import (
     Page,
     PageDataQueryGSC,
     SophoraDocumentMeta,
-    PageDataWebtrekk,
 )
 from okr.scrapers.common.utils import (
     local_yesterday,
@@ -73,13 +72,6 @@ def _get_seo_articles_to_update(
 
         # Add data from latest_meta to page object
         page.latest_meta = latest_meta
-
-        # Add webtrekk data to page object
-        webtrekk_data = PageDataWebtrekk.objects.filter(
-            webtrekk_meta__page=page,
-            date=date,
-        ).first()
-        page.webtrekk_data = webtrekk_data
 
         # Add top Google queries
         top_queries = PageDataQueryGSC.objects.filter(page=page, date=date).order_by(

@@ -1,6 +1,5 @@
 """Configure scheduler to call scraper modules."""
 
-from okr.models.pages import SophoraNode
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
 from django.db.models.signals import post_save
@@ -8,8 +7,17 @@ from django.dispatch import receiver
 from sentry_sdk import capture_exception
 from loguru import logger
 
-from ..models import Podcast, Insta, YouTube, TikTok, Property
-from . import insta, youtube, podcasts, pages, tiktok
+from ..models import (
+    Podcast,
+    Insta,
+    YouTube,
+    TikTok,
+    Property,
+    Facebook,
+    Twitter,
+    SophoraNode,
+)
+from . import insta, youtube, podcasts, pages, tiktok, facebook, twitter
 from .common.utils import BERLIN
 from .db_cleanup import run_db_cleanup
 
@@ -43,6 +51,10 @@ def add_jobs():
     * :meth:`~okr.scrapers.insta.scrape_insights`
     * :meth:`~okr.scrapers.insta.scrape_stories`
     * :meth:`~okr.scrapers.insta.scrape_posts`
+    * :meth:`~okr.scrapers.facebook.scrape_insights`
+    * :meth:`~okr.scrapers.facebook.scrape_posts`
+    * :meth:`~okr.scrapers.twitter.scrape_insights`
+    * :meth:`~okr.scrapers.twitter.scrape_tweets`
     * :meth:`~okr.scrapers.youtube.scrape_analytics`
     * :meth:`~okr.scrapers.podcasts.scrape_feed`
     * :meth:`~okr.scrapers.podcasts.scrape_itunes_reviews`
@@ -99,6 +111,64 @@ def add_jobs():
         trigger="cron",
         hour="5",
         minute="32",
+    )
+
+    # Facebook
+    scheduler.add_job(
+        facebook.scrape_insights,
+        args=["daily"],
+        trigger="cron",
+        hour="5,11,17,23",
+        minute="40",
+    )
+    scheduler.add_job(
+        facebook.scrape_insights,
+        args=["weekly"],
+        trigger="cron",
+        hour="7",
+        minute="0",
+    )
+    scheduler.add_job(
+        facebook.scrape_insights,
+        args=["monthly"],
+        trigger="cron",
+        hour="7",
+        minute="1",
+    )
+    scheduler.add_job(
+        facebook.scrape_posts,
+        trigger="cron",
+        hour="7,12,15",
+        minute="32",
+    )
+
+    # Twitter
+    scheduler.add_job(
+        twitter.scrape_insights,
+        args=["daily"],
+        trigger="cron",
+        hour="5,11,17,23",
+        minute="50",
+    )
+    scheduler.add_job(
+        twitter.scrape_insights,
+        args=["weekly"],
+        trigger="cron",
+        hour="7",
+        minute="5",
+    )
+    scheduler.add_job(
+        twitter.scrape_insights,
+        args=["monthly"],
+        trigger="cron",
+        hour="7",
+        minute="6",
+    )
+    scheduler.add_job(
+        twitter.scrape_tweets,
+        trigger="cron",
+        hour="7,12,15",
+        minute="35",
     )
 
     # YouTube
@@ -235,6 +305,34 @@ def podcast_created(instance: Podcast, created: bool, **kwargs):
     logger.debug("{} saved, created={}", instance, created)
     if created:
         scheduler.add_job(podcasts.scrape_full, args=[instance], max_instances=1)
+
+
+@receiver(post_save, sender=Facebook)
+def facebook_created(instance: Facebook, created: bool, **kwargs):
+    """Start scraper run for newly added Facebook account
+    (:meth:`okr.scrapers.facebook.scrape_full`).
+
+    Args:
+        instance (Facebook): A Facebook instance
+        created (bool): Don't start scraper if set to False
+    """
+    logger.debug("{} saved, created={}", instance, created)
+    if created:
+        scheduler.add_job(facebook.scrape_full, args=[instance], max_instances=1)
+
+
+@receiver(post_save, sender=Twitter)
+def twitter_created(instance: Twitter, created: bool, **kwargs):
+    """Start scraper run for newly added Twitter account
+    (:meth:`okr.scrapers.twitter.scrape_full`).
+
+    Args:
+        instance (Twitter): A Twitter instance
+        created (bool): Don't start scraper if set to False
+    """
+    logger.debug("{} saved, created={}", instance, created)
+    if created:
+        scheduler.add_job(twitter.scrape_full, args=[instance], max_instances=1)
 
 
 @receiver(post_save, sender=Insta)
