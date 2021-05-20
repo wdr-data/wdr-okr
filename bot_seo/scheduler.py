@@ -39,11 +39,19 @@ def add_jobs():
     scheduler.add_job(
         bot_todo.run,
         trigger="cron",
+        hour="5",
+        minute="30",
+    )
+
+    # SEO suggestions II
+    scheduler.add_job(
+        bot_todo.run,
+        trigger="cron",
         hour="9",
         minute="0",
     )
 
-    # SEO suggestions II
+    # SEO suggestions III
     scheduler.add_job(
         bot_todo.run,
         trigger="cron",
