@@ -12,14 +12,25 @@ from okr.scrapers.common.types import JSON
 from ..pyadaptivecards_tools import Container, Column
 from ..teams_tools import format_number
 
-GREETINGS = ["Hallo!", "Guten Tag!", "Hi!"]
-MORE_URL = os.environ.get("SEO_BOT_TODO_MORE_URL")
+GREETINGS = ["Hallo!", "Guten Tag!", "Hi!"]  # not used yet
+MORE_URL = os.environ.get("SEO_BOT_TODO_MORE_URL")  # not used yet
 
 
-def _generate_adaptive_card(
+def generate_adaptive_card(
     google_trends_data: List[JSON] = None,
     twitter_trends_data: List[JSON] = None,
 ) -> AdaptiveCard:
+    """Generate Adaptive Card based on supplied data.
+
+    Args:
+        google_trends_data (List[JSON], optional): Data on Google Trends. Defaults to
+          None.
+        twitter_trends_data (List[JSON], optional): Data on Twitter Trends. Defaults to
+          None.
+
+    Returns:
+        AdaptiveCard: Adaptive Card based on supplied data.
+    """
     title = TextBlock("SEO-Checkup", size="large", weight="bolder")
     card_body = [title]
 
@@ -72,7 +83,6 @@ def _generate_adaptive_card(
         twitter_trends_items = []
         i = 0
         while i < 10:
-            # for item in twitter_trends_data:
             item = twitter_trends_data[i]
             i += 1
             trend_item = f"{i}. [{item['name']}]({item['url']})"
