@@ -10,6 +10,7 @@ from .pytrends_patch import TrendReq
 from .teams_message import generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
 from okr.scrapers.common.types import JSON
+from okr.scrapers.common.utils import local_now
 
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
 TWITTER_API_KEY = os.environ.get("TWITTER_API_KEY")
@@ -17,7 +18,9 @@ TWITTER_API_SECRET = os.environ.get("TWITTER_API_SECRET")
 
 
 def _get_google_trends() -> JSON:
-    pytrends = TrendReq(hl="de-DE", tz="-120", geo="DE")
+    utc_offset = local_now().utcoffset()
+
+    pytrends = TrendReq(hl="de-DE", tz=str(-int(utc_offset.seconds / 60)), geo="DE")
     trending_searches = pytrends.realtime_trending_searches()
 
     for item in trending_searches:
