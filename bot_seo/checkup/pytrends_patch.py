@@ -7,6 +7,7 @@ class TrendReq(pytrends.request.TrendReq):
     REALTIME_TRENDING_SEARCHES_URL = (
         "https://trends.google.com/trends/api/realtimetrends"
     )
+    STORY_BY_ID_URL = "https://trends.google.com/trends/api/stories/"
 
     def realtime_trending_searches(
         self,
@@ -53,5 +54,26 @@ class TrendReq(pytrends.request.TrendReq):
             trim_chars=5,
             params=forms,
         )["storySummaries"]["trendingStories"]
+
+        return req_json
+
+    def story_by_id(
+        self,
+        id: str,
+    ) -> JSON:
+        """
+        Request details on a specific story
+        """
+
+        params = {
+            "hl": self.hl,
+            "tz": self.tz,
+        }
+        req_json = self._get_data(
+            url=TrendReq.STORY_BY_ID_URL + id,
+            method=TrendReq.GET_METHOD,
+            trim_chars=5,
+            params=params,
+        )
 
         return req_json

@@ -17,8 +17,13 @@ TWITTER_API_SECRET = os.environ.get("TWITTER_API_SECRET")
 
 
 def _get_google_trends() -> JSON:
-    pytrends = TrendReq(hl="de-DE", tz="120", geo="DE")
-    return pytrends.realtime_trending_searches()
+    pytrends = TrendReq(hl="de-DE", tz="-120", geo="DE")
+    trending_searches = pytrends.realtime_trending_searches()
+
+    for item in trending_searches:
+        item["detail"] = pytrends.story_by_id(item["id"])
+
+    return trending_searches
 
 
 def _get_twitter_trends(woid: str = "23424829") -> List[JSON]:
