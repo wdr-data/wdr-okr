@@ -79,7 +79,7 @@ def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List
         # Add top Google queries
         top_queries = PageDataQueryGSC.objects.filter(page=page, date=date).order_by(
             "-impressions"
-        )[:3]
+        )[:5]
         page.top_queries = list(top_queries)
 
     return top_articles
