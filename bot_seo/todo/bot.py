@@ -76,7 +76,7 @@ def _get_seo_articles_to_update(
         # Add top Google queries
         top_queries = PageDataQueryGSC.objects.filter(page=page, date=date).order_by(
             "-impressions"
-        )[:3]
+        )[:5]
         page.top_queries = list(top_queries)
 
         articles_to_do.append(page)
