@@ -23,7 +23,7 @@ def _generate_details(page: Page) -> Container:
 
     facts.append(
         Fact(
-            "Top 3 Google Suchanfragen",
+            "Top 5 Google Suchanfragen",
             ", ".join(query_data.query for query_data in page.top_queries),
         )
     )
