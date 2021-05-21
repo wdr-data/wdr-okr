@@ -1,3 +1,11 @@
+trend_ignore_filters_dict = {
+    "zeitungen": [
+        "express köln",
+        "general-anzeiger bonn",
+        "general-anzeiger wuppertal",
+    ],
+}
+
 trend_filters_dict = {
     "themen": [
         "corona",

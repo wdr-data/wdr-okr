@@ -1,12 +1,14 @@
 """ SEO Bot for SEO-Checkup """
 
+import html
 import os
+import re
 from typing import List, Generator
 
 from loguru import logger
 import tweepy
 
-from .trend_filters import trend_filters_dict
+from .trend_filters import trend_filters_dict, trend_ignore_filters_dict
 from .pytrends_patch import TrendReq
 from .teams_message import generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
@@ -18,7 +20,28 @@ TWITTER_API_KEY = os.environ.get("TWITTER_API_KEY")
 TWITTER_API_SECRET = os.environ.get("TWITTER_API_SECRET")
 
 
+def _tokenizer(words: list) -> str:
+    """Basic tokenizer and normalizer.
+
+    Args:
+        words (list): List of words
+
+    Returns:
+        str: tokenized and normalized string of words
+    """
+    words = " ".join(words)
+    words = html.unescape(words)
+
+    non_words = r"([^\s\w-]|\d)"
+    words = re.sub(non_words, "", words).replace("  ", " ").lower()
+
+    return words
+
+
 def _check_trend_filters(words) -> bool:
+
+    # tokenize all words into one string
+    words_tokenized = _tokenizer(words)
 
     # Read and combine filter entries
     trend_filters = []
@@ -26,12 +49,19 @@ def _check_trend_filters(words) -> bool:
         trend_filters.extend(trend_filters_dict[filter_list])
     trend_filters = set(trend_filters)
 
-    # Filter
-    for filter_word in trend_filters:
-        for entry in words:
-            if filter_word.lower() in entry.lower():
-                logger.debug('"{}" found in "{}" ({})', filter_word, entry, words)
-                return True
+    # normalize and escape all filter entries
+    trend_filters = [re.escape(entry.lower()) for entry in trend_filters]
+
+    # compile filter entries into regex
+    trend_filters = "(\\b% s)" % "\\b|\\b".join(trend_filters)
+    trend_filters = re.compile(trend_filters)
+
+    # search for filter matches in words
+    result = trend_filters.findall(words_tokenized)
+
+    if result:
+        logger.debug("Found {} in {}", result, words)
+        return True
 
     logger.debug("Skipping after no match in: {}", words)
     return False
@@ -55,6 +85,20 @@ def _filter_trends(trending_searches: JSON) -> Generator[JSON, None, None]:
             w for w in item["detail"]["widgets"] if w["id"] == "RELATED_QUERIES"
         )
         words.extend(related_queries["request"].get("term", []))
+
+        # prepare list of unwanted words/phrases
+        trend_ignore_filters = []
+        for filter_list in trend_ignore_filters_dict:
+            trend_ignore_filters.extend(trend_ignore_filters_dict[filter_list])
+        trend_ignore_filters = set(trend_ignore_filters)
+        # remove unwanted words/phrases
+        for ignore_filter in trend_ignore_filters:
+            for word in words:
+                if ignore_filter.lower() in word.lower():
+                    logger.debug(
+                        'Removing "{}" because it is part of trend_ignore_filters', word
+                    )
+                    words.remove(word)
 
         if _check_trend_filters(words):
             yield item
