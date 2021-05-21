@@ -32,10 +32,19 @@ def _tokenizer(words: list) -> str:
     words = " ".join(words)
     words = html.unescape(words)
 
-    non_words = r"([^\s\w-]|\d)"
-    words = re.sub(non_words, "", words).replace("  ", " ").lower()
+    # Normalize dashes
+    dashes = r"[–-—‑−]"
+    words = re.sub(dashes, "-", words)
 
-    return words
+    # Remove non-word characters
+    non_words = r"([^\s\w-]|\d)"
+    words = re.sub(non_words, "", words)
+
+    # Normalize whitespace
+    words = re.sub(r"\s", " ", words)
+    words = re.sub(r"\s\s+", " ", words)
+
+    return words.strip().lower()
 
 
 def _check_trend_filters(words) -> bool:
