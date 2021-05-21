@@ -259,7 +259,7 @@ def _generate_adaptive_card(
     note_gsc = Container(
         [
             TextBlock(
-                text=("Letzter Datenabgleich mit der GSC: 12:30 Uhr"),
+                text=("Letzter Datenabgleich mit der GSC: 15:30 Uhr"),
                 spacing="None",
                 wrap=True,
             ),
