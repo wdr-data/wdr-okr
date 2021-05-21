@@ -3,17 +3,14 @@ import re
 trend_ignore_filters_dict = {
     "zeitungen": [
         "express köln",
+        "köln express",
         "general-anzeiger bonn",
         "general-anzeiger wuppertal",
     ],
 }
 
 trend_filters_dict = {
-    "themen": [
-        "corona",
-        "coronavirus",
-        "covid",
-    ],
+    "themen": [],
     "gemeinden": [
         "Ennepetal",
         "Möhnesee",
