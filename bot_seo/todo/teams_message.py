@@ -159,14 +159,22 @@ def _generate_adaptive_card(pages: Page) -> AdaptiveCard:
     )
 
     # Add note about GSC data
-    note_gsc = TextBlock(
-        text=(
-            "Letzter Datenabgleich mit der GSC: 12:30 Uhr\n"
-            "Es dauert bis zu 48 Stunden, bis die Daten in der GSC final sind!"
-        ),
-        horizontalAlignment="left",
+    note_gsc = Container(
+        [
+            TextBlock(
+                text=("Letzter Datenabgleich mit der GSC: 12:30 Uhr"),
+                spacing="None",
+                wrap=True,
+            ),
+            TextBlock(
+                text=(
+                    "Es dauert bis zu 48 Stunden, bis die Daten in der GSC final sind!"
+                ),
+                spacing="Small",
+                wrap=True,
+            ),
+        ],
         spacing="extralarge",
-        wrap=True,
     )
 
     # Generate outro
