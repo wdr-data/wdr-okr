@@ -1,3 +1,4 @@
+from typing import List
 import pytrends.request
 
 from okr.scrapers.common.types import JSON
@@ -8,11 +9,12 @@ class TrendReq(pytrends.request.TrendReq):
         "https://trends.google.com/trends/api/realtimetrends"
     )
     STORY_BY_ID_URL = "https://trends.google.com/trends/api/stories/"
+    SUMMARY_URL = "https://trends.google.com/trends/api/stories/summary"
 
     def realtime_trending_searches(
         self,
         cat: str = "all",
-        count: int = 25,
+        count: int = 300,
     ) -> JSON:
         """
         Request data from Google Realtime Search Trends section and returns a dataframe
@@ -53,7 +55,7 @@ class TrendReq(pytrends.request.TrendReq):
             method=TrendReq.GET_METHOD,
             trim_chars=5,
             params=forms,
-        )["storySummaries"]["trendingStories"]
+        )
 
         return req_json
 
@@ -71,6 +73,30 @@ class TrendReq(pytrends.request.TrendReq):
         }
         req_json = self._get_data(
             url=TrendReq.STORY_BY_ID_URL + id,
+            method=TrendReq.GET_METHOD,
+            trim_chars=5,
+            params=params,
+        )
+
+        return req_json
+
+    def summary(
+        self,
+        ids: List[str],
+        cat: str = "all",
+    ) -> JSON:
+        """
+        Request summaries of a list of story IDs
+        """
+
+        params = {
+            "hl": self.hl,
+            "tz": self.tz,
+            "cat": cat,
+            "id": ids,
+        }
+        req_json = self._get_data(
+            url=TrendReq.SUMMARY_URL,
             method=TrendReq.GET_METHOD,
             trim_chars=5,
             params=params,

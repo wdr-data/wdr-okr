@@ -34,6 +34,11 @@ def generate_adaptive_card(
     title = TextBlock("SEO-Checkup", size="large", weight="bolder")
     card_body = [title]
 
+    # Get max. 10 trends
+    google_trends_data = list(
+        filter(None, (next(google_trends_data, None) for _ in range(10)))
+    )
+
     if google_trends_data:
         title_trends = TextBlock(
             "Google Echtzeit-Trends (gefiltert)", size="medium", weight="bolder"

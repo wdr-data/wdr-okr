@@ -13,7 +13,7 @@ from .pytrends_patch import TrendReq
 from .teams_message import generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
 from okr.scrapers.common.types import JSON
-from okr.scrapers.common.utils import local_now
+from okr.scrapers.common.utils import chunk_list, local_now
 
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
 TWITTER_API_KEY = os.environ.get("TWITTER_API_KEY")
@@ -47,7 +47,42 @@ def _tokenizer(words: list) -> str:
     return words.strip().lower()
 
 
-def _check_trend_filters(words) -> bool:
+def _filter_trend(item: JSON) -> bool:
+    words = []
+
+    # Read title
+    words.append(item["detail"]["title"])
+
+    # Read entity names
+    words.extend(item["detail"]["entityNames"])
+
+    # Read article headlines
+    articles = next(w for w in item["detail"]["widgets"] if w["id"] == "NEWS_ARTICLE")
+    words.extend([article["title"] for article in articles["articles"]])
+
+    # Read related queries
+    related_queries = next(
+        w for w in item["detail"]["widgets"] if w["id"] == "RELATED_QUERIES"
+    )
+    words.extend(related_queries["request"].get("term", []))
+
+    # Prepare list of unwanted words/phrases
+    trend_ignore_filters = []
+
+    for filter_list in trend_ignore_filters_dict:
+        trend_ignore_filters.extend(trend_ignore_filters_dict[filter_list])
+
+    trend_ignore_filters = set(trend_ignore_filters)
+
+    # Remove unwanted words/phrases
+    for ignore_filter in trend_ignore_filters:
+        for word in words:
+            if ignore_filter.lower() in word.lower():
+                logger.debug(
+                    'Removing "{}" because it is part of trend_ignore_filters',
+                    word,
+                )
+                words.remove(word)
 
     # Tokenize all words into one string
     words_tokenized = _tokenizer(words)
@@ -59,65 +94,33 @@ def _check_trend_filters(words) -> bool:
         logger.debug("Found {} in {}", result, words)
         return True
 
-    logger.debug("Skipping after no match in: {}", words)
+    logger.trace("Skipping after no match in: {}", words)
     return False
 
 
-def _filter_trends(trending_searches: JSON) -> Generator[JSON, None, None]:
-    # check every item with _check_trend_filters, yield only if they pass the filter
-    for item in trending_searches:
-        words = []
+def _load_trends(pytrends: TrendReq, initial: JSON) -> Generator[JSON, None, None]:
+    # First yield included trending stories
+    yield from initial["storySummaries"]["trendingStories"]
 
-        # Read title
-        words.append(item["detail"]["title"])
+    ignore_first_n = len(initial["storySummaries"]["trendingStories"])
 
-        # Read entity names
-        words.extend(item["detail"]["entityNames"])
-
-        # Read article headlines
-        articles = next(
-            w for w in item["detail"]["widgets"] if w["id"] == "NEWS_ARTICLE"
-        )
-        words.extend([article["title"] for article in articles["articles"]])
-
-        # Read related queries
-        related_queries = next(
-            w for w in item["detail"]["widgets"] if w["id"] == "RELATED_QUERIES"
-        )
-        words.extend(related_queries["request"].get("term", []))
-
-        # Prepare list of unwanted words/phrases
-        trend_ignore_filters = []
-
-        for filter_list in trend_ignore_filters_dict:
-            trend_ignore_filters.extend(trend_ignore_filters_dict[filter_list])
-
-        trend_ignore_filters = set(trend_ignore_filters)
-
-        # Remove unwanted words/phrases
-        for ignore_filter in trend_ignore_filters:
-            for word in words:
-                if ignore_filter.lower() in word.lower():
-                    logger.debug(
-                        'Removing "{}" because it is part of trend_ignore_filters',
-                        word,
-                    )
-                    words.remove(word)
-
-        if _check_trend_filters(words):
-            yield item
+    # After that, look up more as needed
+    for ids in chunk_list(initial["trendingStoryIds"][ignore_first_n:], 15):
+        logger.info("Loading additional summaries...")
+        yield from pytrends.summary(ids)["trendingStories"]
 
 
 def _get_google_trends() -> Generator[JSON, None, None]:
     utc_offset = local_now().utcoffset()
 
     pytrends = TrendReq(hl="de-DE", tz=str(-int(utc_offset.seconds / 60)), geo="DE")
-    trending_searches = pytrends.realtime_trending_searches()
+    initial = pytrends.realtime_trending_searches()
 
-    for item in trending_searches:
+    for item in _load_trends(pytrends, initial):
         item["detail"] = pytrends.story_by_id(item["id"])
 
-    yield from _filter_trends(trending_searches)
+        if _filter_trend(item):
+            yield item
 
 
 def _get_twitter_trends(woid: str = "23424829") -> List[JSON]:
