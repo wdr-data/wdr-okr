@@ -1,7 +1,7 @@
 """Wrapper for Spotify APIs (using the spotipy library)."""
 
 import os
-from typing import Dict, List, Iterator, Literal, TypeVar, Union
+from typing import Dict, List, Literal, Union
 import datetime as dt
 from enum import Enum
 from time import sleep
@@ -14,7 +14,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.exceptions import SpotifyException
 from requests.exceptions import ReadTimeout, ConnectionError
 
-from ..common.utils import local_yesterday
+from ..common.utils import chunk_list, local_yesterday
 from ..common import types
 
 LICENSOR_ID = os.environ.get("SPOTIFY_LICENSOR_ID")
@@ -271,15 +271,6 @@ class CustomSpotify(spotipy.Spotify):
         )["aggregation"][agg_type]["counts"]
 
 
-T = TypeVar("T")
-
-
-def _divide_chunks(list_: List[T], n: int) -> Iterator[List[T]]:
-    # looping till length l
-    for i in range(0, len(list_), n):
-        yield list_[i : i + n]
-
-
 def fetch_all(
     fn: Callable,
     ids: List[str],
@@ -299,7 +290,7 @@ def fetch_all(
         List[Dict]: List of dicts containing API response.
     """
     agg = []
-    for chunk in _divide_chunks(ids, chunk_size):
+    for chunk in chunk_list(ids, chunk_size):
         result = fn(chunk)
         agg.extend(result[result_key])
     return agg

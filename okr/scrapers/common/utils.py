@@ -1,7 +1,7 @@
 """Provides helper functions for dates."""
 
 import datetime as dt
-from typing import List, Optional
+from typing import Iterator, List, Optional, TypeVar
 
 import pytz
 
@@ -81,3 +81,11 @@ def date_param(
         date = min(latest, date)
 
     return date
+
+
+T = TypeVar("T")
+
+
+def chunk_list(list_: List[T], chunk_size: int) -> Iterator[List[T]]:
+    for i in range(0, len(list_), chunk_size):
+        yield list_[i : i + chunk_size]
