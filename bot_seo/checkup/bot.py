@@ -49,7 +49,7 @@ def _tokenizer(words: list) -> str:
 
 def _check_trend_filters(words) -> bool:
 
-    # tokenize all words into one string
+    # Tokenize all words into one string
     words_tokenized = _tokenizer(words)
 
     # Search for filter matches in words
@@ -67,32 +67,40 @@ def _filter_trends(trending_searches: JSON) -> Generator[JSON, None, None]:
     # check every item with _check_trend_filters, yield only if they pass the filter
     for item in trending_searches:
         words = []
-        # read title
+
+        # Read title
         words.append(item["detail"]["title"])
-        # read entity names
+
+        # Read entity names
         words.extend(item["detail"]["entityNames"])
-        # read article headlines
+
+        # Read article headlines
         articles = next(
             w for w in item["detail"]["widgets"] if w["id"] == "NEWS_ARTICLE"
         )
         words.extend([article["title"] for article in articles["articles"]])
-        # read related queries
+
+        # Read related queries
         related_queries = next(
             w for w in item["detail"]["widgets"] if w["id"] == "RELATED_QUERIES"
         )
         words.extend(related_queries["request"].get("term", []))
 
-        # prepare list of unwanted words/phrases
+        # Prepare list of unwanted words/phrases
         trend_ignore_filters = []
+
         for filter_list in trend_ignore_filters_dict:
             trend_ignore_filters.extend(trend_ignore_filters_dict[filter_list])
+
         trend_ignore_filters = set(trend_ignore_filters)
-        # remove unwanted words/phrases
+
+        # Remove unwanted words/phrases
         for ignore_filter in trend_ignore_filters:
             for word in words:
                 if ignore_filter.lower() in word.lower():
                     logger.debug(
-                        'Removing "{}" because it is part of trend_ignore_filters', word
+                        'Removing "{}" because it is part of trend_ignore_filters',
+                        word,
                     )
                     words.remove(word)
 
