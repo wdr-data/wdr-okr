@@ -1,3 +1,5 @@
+import re
+
 trend_ignore_filters_dict = {
     "zeitungen": [
         "express köln",
