@@ -482,3 +482,19 @@ trend_filters_dict = {
         "Lippe",
     ],
 }
+
+
+# Read and combine filter entries
+trend_filters = []
+
+for filter_list in trend_filters_dict:
+    trend_filters.extend(trend_filters_dict[filter_list])
+
+trend_filters = set(trend_filters)
+
+# Normalize and escape all filter entries
+trend_filters = [re.escape(entry.lower()) for entry in trend_filters]
+
+# Compile filter entries into regex
+trend_filters = r"(\b%s\b)" % r"\b|\b".join(trend_filters)
+trend_filters = re.compile(trend_filters)

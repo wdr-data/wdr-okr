@@ -8,7 +8,7 @@ from typing import List, Generator
 from loguru import logger
 import tweepy
 
-from .trend_filters import trend_filters_dict, trend_ignore_filters_dict
+from .trend_filters import trend_filters, trend_ignore_filters_dict
 from .pytrends_patch import TrendReq
 from .teams_message import generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
@@ -43,20 +43,7 @@ def _check_trend_filters(words) -> bool:
     # tokenize all words into one string
     words_tokenized = _tokenizer(words)
 
-    # Read and combine filter entries
-    trend_filters = []
-    for filter_list in trend_filters_dict:
-        trend_filters.extend(trend_filters_dict[filter_list])
-    trend_filters = set(trend_filters)
-
-    # normalize and escape all filter entries
-    trend_filters = [re.escape(entry.lower()) for entry in trend_filters]
-
-    # compile filter entries into regex
-    trend_filters = "(\\b% s)" % "\\b|\\b".join(trend_filters)
-    trend_filters = re.compile(trend_filters)
-
-    # search for filter matches in words
+    # Search for filter matches in words
     result = trend_filters.findall(words_tokenized)
 
     if result:
