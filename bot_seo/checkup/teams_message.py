@@ -36,7 +36,7 @@ def generate_adaptive_card(
 
     if google_trends_data:
         title_trends = TextBlock(
-            "Google Echtzeit-Trends", size="medium", weight="bolder"
+            "Google Echtzeit-Trends (gefiltert)", size="medium", weight="bolder"
         )
         card_body.append(title_trends)
 
