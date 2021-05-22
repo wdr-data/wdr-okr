@@ -23,7 +23,7 @@ def _generate_details(page: Page) -> Container:
 
     facts.append(
         Fact(
-            "Top 3 Google Suchanfragen",
+            "Top 5 Google Suchanfragen",
             ", ".join(query_data.query for query_data in page.top_queries),
         )
     )
@@ -206,10 +206,17 @@ def _generate_adaptive_card(
 
     # Generate intro
     greeting = random.choice(GREETINGS)
-    intro = TextBlock(
+    intro_headline = TextBlock(
+        "🎉 Unsere SEO-Highlights von gestern",
+        weight="bolder",
+        size="large",
+        wrap=True,
+    )
+    intro_text = TextBlock(
         f"{greeting} Das sind die drei Beiträge, mit denen wir gestern die meisten Besucher:innen von Google in unser Angebot locken konnten. **Können wir daraus was lernen?**",
         wrap=True,
     )
+    intro = Container([intro_headline, intro_text])
 
     # Generate sections for each page
     article_sections = []
@@ -249,14 +256,22 @@ def _generate_adaptive_card(
         article_sections.append(above_threshold)
 
     # Add note about GSC data
-    note_gsc = TextBlock(
-        text=(
-            "Letzter Datenabgleich mit der GSC: 15:30 Uhr\n"
-            "Es dauert bis zu 48 Stunden, bis die Daten in der GSC final sind!"
-        ),
-        horizontalAlignment="left",
+    note_gsc = Container(
+        [
+            TextBlock(
+                text=("Letzter Datenabgleich mit der GSC: 15:30 Uhr"),
+                spacing="None",
+                wrap=True,
+            ),
+            TextBlock(
+                text=(
+                    "Es dauert bis zu 48 Stunden, bis die Daten in der GSC final sind!"
+                ),
+                spacing="Small",
+                wrap=True,
+            ),
+        ],
         spacing="extralarge",
-        wrap=True,
     )
 
     # Generate outro
