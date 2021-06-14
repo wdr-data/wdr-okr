@@ -99,6 +99,9 @@ def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
         match_expected = re.match(
             r".*\.(?:jsp|pdf|news)$",
             unquote(parsed.path),
+        ) or re.match(
+            r".*/:~:text=.*$",
+            unquote(parsed.path),
         )
 
         if match_expected is None:
