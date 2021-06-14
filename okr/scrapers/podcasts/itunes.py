@@ -81,7 +81,7 @@ def get_reviews(
 
     for review in user_ratings_raw["review"]:
         user_reviews[html.unescape(review["author"])] = {
-            "date": dt.datetime.strptime(review["datePublished"], "%d.%m.%Y").date(),
+            "date": dt.datetime.strptime(review["datePublished"], "%b %d, %Y").date(),
             "title": html.unescape(review["name"]),
             "text": html.unescape(review["reviewBody"]),
             "rating": review["reviewRating"]["ratingValue"],
