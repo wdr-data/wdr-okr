@@ -134,7 +134,7 @@ class ExperimentalSpotifyPodcastAPI:
         """Loads episode performance data.
 
         Args:
-            episode_id (str): ID of the podcast to request data for.
+            episode_id (str): ID of the episode to request data for.
 
         Returns:
             dict: Response data from API.
@@ -152,7 +152,7 @@ class ExperimentalSpotifyPodcastAPI:
         """Loads episode demographics data.
 
         Args:
-            episode_id (str): ID of the podcast to request data for.
+            episode_id (str): ID of the episode to request data for.
             start (dt.date): Earliest date to request data for.
             end (Optional[dt.date], optional): Most recent date to request data for.
             Defaults to None. Will be set to ``start`` if None.
