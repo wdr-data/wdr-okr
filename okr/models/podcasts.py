@@ -349,6 +349,74 @@ class PodcastDataSpotifyHourly(models.Model):
         return f"{self.podcast} - {self.date_time}"
 
 
+class PodcastDataSpotifyDemographics(models.Model):
+    """Enthält demographische Daten von Spotify zu den auf Spotify verfügbaren Podcasts."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_data_spotify_demographics"
+        verbose_name = "Podcast-Demografiedaten (Spotify)"
+        verbose_name_plural = "Podcast-Demografiedaten (Spotify)"
+        unique_together = ("date", "podcast", "age_range", "gender")
+        ordering = ["-date", "podcast"]
+
+    class AgeRange(models.TextChoices):
+        AGE_0_17 = "0-17", "0-17"
+        AGE_18_22 = "18-22", "18-22"
+        AGE_23_27 = "23-27", "23-27"
+        AGE_28_34 = "28-34", "28-34"
+        AGE_35_44 = "35-44", "35-44"
+        AGE_45_59 = "45-59", "45-59"
+        AGE_60_150 = "60-150", "60-150"
+        UNKNOWN = "unknown", "Unbekannt"
+
+    class Gender(models.TextChoices):
+        NOT_SPECIFIED = "NOT_SPECIFIED", "Nicht Angegeben"
+        MALE = "MALE", "Männlich"
+        FEMALE = "FEMALE", "Weiblich"
+        NON_BINARY = "NON_BINARY", "Non-Binary"
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum der Abrufzahlen",
+    )
+    podcast = models.ForeignKey(
+        verbose_name="Podcast",
+        to=Podcast,
+        on_delete=models.CASCADE,
+        related_name="data_spotify_demographics",
+        related_query_name="data_spotify_demographics",
+        help_text="Globale ID des Podcasts",
+    )
+
+    age_range = models.CharField(
+        verbose_name="Altersgruppe",
+        choices=AgeRange.choices,
+        help_text="Die Altersgruppe, für die dieser Datenpunkt gilt.",
+        max_length=20,
+    )
+    gender = models.CharField(
+        verbose_name="Geschlecht",
+        choices=Gender.choices,
+        help_text="Das Geschlecht, für das dieser Datenpunkt gilt.",
+        max_length=20,
+    )
+    count = models.IntegerField(
+        verbose_name="Streams",
+        help_text="Anzahl der Streams dieser Demografie.",
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Zeitpunkt der Datenaktualisierung",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.podcast.title}: {self.AgeRange(self.age_range).label} - {self.AgeRange(self.age_range).label}"
+
+
 class PodcastDataWebtrekkPicker(models.Model):
     """Daten darüber, wie viel der Podcast-Picker genutzt wird und wie
     viele dieser Visits über Kampagnen-Links kommt.
@@ -620,8 +688,8 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
         db_table = "podcast_episode_data_spotify_demographics"
         verbose_name = "Podcast-Episoden-Demografiedaten (Spotify)"
         verbose_name_plural = "Podcast-Episoden-Demografiedaten (Spotify)"
-        unique_together = ("date", "episode", "age_range", "gender")
-        ordering = ["-date", "episode"]
+        unique_together = ("episode", "age_range", "gender")
+        ordering = ["episode__podcast", "episode"]
 
     class AgeRange(models.TextChoices):
         AGE_0_17 = "0-17", "0-17"
@@ -639,10 +707,6 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
         FEMALE = "FEMALE", "Weiblich"
         NON_BINARY = "NON_BINARY", "Non-Binary"
 
-    date = models.DateField(
-        verbose_name="Datum",
-        help_text="Datum der Abrufzahlen",
-    )
     episode = models.ForeignKey(
         verbose_name="Episode",
         to=PodcastEpisode,
