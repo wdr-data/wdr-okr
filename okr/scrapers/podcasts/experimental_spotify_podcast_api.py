@@ -65,13 +65,8 @@ class ExperimentalSpotifyPodcastAPI:
                 self._authenticate()
 
     @staticmethod
-    def _build_url(*path: str, params: Optional[Dict[str, str]] = None) -> str:
-        qs = ""
-
-        if params is not None:
-            qs = "?" + "&".join(f"{key}={val}" for key, val in params.items())
-
-        return f"{BASE_URL}{'/'.join(path)}{qs}"
+    def _build_url(*path: str) -> str:
+        return f"{BASE_URL}{'/'.join(path)}"
 
     @staticmethod
     def _date_params(start: dt.date, end: dt.date) -> Dict[str, str]:
@@ -80,13 +75,14 @@ class ExperimentalSpotifyPodcastAPI:
             "end": end.isoformat(),
         }
 
-    def _request(self, url: str) -> dict:
+    def _request(self, url: str, *, params: Optional[Dict[str, str]] = None) -> dict:
         delay = DELAY_BASE
         for attempt in range(6):
             sleep(delay)
             self._ensure_auth()
             response = requests.get(
                 url,
+                params=params,
                 headers={"Authorization": f"Bearer {self._bearer}"},
             )
 
@@ -131,15 +127,14 @@ class ExperimentalSpotifyPodcastAPI:
             "shows",
             podcast_id,
             "followers",
-            params=self._date_params(start, end),
         )
-        return self._request(url)
+        return self._request(url, params=self._date_params(start, end))
 
     def episode_performance(self, episode_id: str) -> dict:
         """Loads episode performance data.
 
         Args:
-            episode_id (str): ID of the podcast to request data for.
+            episode_id (str): ID of the episode to request data for.
 
         Returns:
             dict: Response data from API.
@@ -157,7 +152,7 @@ class ExperimentalSpotifyPodcastAPI:
         """Loads episode demographics data.
 
         Args:
-            episode_id (str): ID of the podcast to request data for.
+            episode_id (str): ID of the episode to request data for.
             start (dt.date): Earliest date to request data for.
             end (Optional[dt.date], optional): Most recent date to request data for.
             Defaults to None. Will be set to ``start`` if None.
@@ -172,9 +167,8 @@ class ExperimentalSpotifyPodcastAPI:
             "episodes",
             episode_id,
             "aggregate",
-            params=self._date_params(start, end),
         )
-        return self._request(url)
+        return self._request(url, params=self._date_params(start, end))
 
 
 experimental_spotify_podcast_api = ExperimentalSpotifyPodcastAPI()

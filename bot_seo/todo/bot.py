@@ -87,7 +87,7 @@ def _get_seo_articles_to_update(
     return articles_to_do
 
 
-def run():
+def run(*, last_update_gsc: str = None):
     # Generate list of Page objects that are potential to-do items
     articles_to_do = _get_seo_articles_to_update(10000, local_yesterday())
     # For testing, in case not enough articles have been scraped:
@@ -95,7 +95,10 @@ def run():
     #     10000, local_yesterday() - dt.timedelta(days=1)
     # )
 
-    adaptive_card = _generate_adaptive_card(articles_to_do)
+    adaptive_card = _generate_adaptive_card(
+        articles_to_do,
+        last_update_gsc=last_update_gsc,
+    )
     payload = generate_teams_payload(adaptive_card)
 
     # Send payload to MS Teams

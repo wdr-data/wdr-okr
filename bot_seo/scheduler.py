@@ -41,6 +41,7 @@ def add_jobs():
         trigger="cron",
         hour="9",
         minute="0",
+        kwargs={"last_update_gsc": "8:30"},
     )
 
     # SEO suggestions II
@@ -49,6 +50,7 @@ def add_jobs():
         trigger="cron",
         hour="13",
         minute="0",
+        kwargs={"last_update_gsc": "12:30"},
     )
 
     # SEO top 3

@@ -139,7 +139,7 @@ def _generate_story(page: Page) -> Container:
     return story
 
 
-def _generate_adaptive_card(pages: Page) -> AdaptiveCard:
+def _generate_adaptive_card(pages: Page, last_update_gsc: str = None) -> AdaptiveCard:
 
     # Convert PDT timezone to Berlin time, because GSC-times are all PDT-based
     PDT = dt.timezone(-dt.timedelta(hours=7))
@@ -162,7 +162,7 @@ def _generate_adaptive_card(pages: Page) -> AdaptiveCard:
     note_gsc = Container(
         [
             TextBlock(
-                text=("Letzter Datenabgleich mit der GSC: 12:30 Uhr"),
+                text=(f"Letzter Datenabgleich mit der GSC: {last_update_gsc} Uhr"),
                 spacing="None",
                 wrap=True,
             ),

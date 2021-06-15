@@ -1,25 +1,34 @@
-#!/usr/bin/sh
+#!/usr/bin/bash
 
 ### Usage ###
 # In project root directory run:
 # cp git-hooks/pre-commit .git/hooks
 
 
-PY_FILES=$(git diff --cached --name-only -- '***.py')
-
-# Need to skip if no changed files cause flake8 checks everything in that case
-if [ -z "$PY_FILES" ];
-then
-    exit 0
-fi
-
 echo "🚨 Running pre-commit hook for black and flake8"
+
+# Activate virtual environment
+VENV_LOCATION=$(pipenv --venv)
+source $VENV_LOCATION/bin/activate
 
 EXIT_STATUS=0
 
-echo "➡  Running black"
-pipenv run black --check --diff $PY_FILES || EXIT_STATUS=$?
-echo "➡  Running flake8"
-pipenv run flake8 $PY_FILES || EXIT_STATUS=$?
+while read path;
+do
+
+    entry=$(git ls-files --stage -- "$path")
+    hash=$(echo $entry | grep -Po "(?<=[0-9]{6} )[a-f0-9]{40}" -)
+    content=$(git cat-file -p $hash)
+
+    echo ""
+    echo 📄 $path
+
+    echo "➡  Running black"
+    echo "$content" | black --quiet --check --diff --stdin-filename "$path" - || EXIT_STATUS=$?
+
+    echo "➡  Running flake8"
+    echo "$content" | flake8 --stdin-display-name "$path" - || EXIT_STATUS=$?
+
+done < <(git diff --cached --name-only -- '***.py')
 
 exit $EXIT_STATUS

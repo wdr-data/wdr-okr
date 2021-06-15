@@ -57,6 +57,10 @@ class UnrequiredFieldsMixin:
         form = super().get_form(*args, **kwargs)
 
         for field in self.unrequired_fields:
-            form.base_fields[field].required = False
+            try:
+                form.base_fields[field].required = False
+            except Exception:
+                # Fails when user has read-only permissions as they won't be fields in that case
+                pass
 
         return form
