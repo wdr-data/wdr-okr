@@ -35,7 +35,15 @@ def add_jobs():
 
     scheduler.add_listener(sentry_listener, EVENT_JOB_ERROR)
 
-    # SEO suggestions
+    # SEO suggestions I
+    scheduler.add_job(
+        bot_todo.run,
+        trigger="cron",
+        hour="9",
+        minute="0",
+    )
+
+    # SEO suggestions II
     scheduler.add_job(
         bot_todo.run,
         trigger="cron",
