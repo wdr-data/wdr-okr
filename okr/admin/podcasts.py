@@ -296,14 +296,12 @@ class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
 
     list_display = [
         "episode",
-        "date",
         "age_range",
         "gender",
         "count",
     ]
-    list_display_links = ["episode", "date"]
+    list_display_links = ["episode"]
     list_filter = ["age_range", "gender", "episode__podcast"]
-    date_hierarchy = "date"
     search_fields = ["episode__title"]
     autocomplete_fields = ["episode"]
 
