@@ -142,7 +142,7 @@ class ExperimentalSpotifyPodcastAPI:
             podcast_id (str): ID of the podcast to request data for.
             start (dt.date): Earliest date to request data for.
             end (Optional[dt.date], optional): Most recent date to request data for.
-            Defaults to None. Will be set to ``start`` if None.
+              Defaults to None. Will be set to ``start`` if None.
 
         Returns:
             dict: [description]
@@ -182,7 +182,7 @@ class ExperimentalSpotifyPodcastAPI:
             episode_id (str): ID of the episode to request data for.
             start (dt.date): Earliest date to request data for.
             end (Optional[dt.date], optional): Most recent date to request data for.
-            Defaults to None. Will be set to ``start`` if None.
+              Defaults to None. Will be set to ``start`` if None.
 
         Returns:
             dict: [description]
