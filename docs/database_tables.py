@@ -53,7 +53,7 @@ def tabulate(head, rows, head_classes=None, row_classes=None):
     return f"<table>{head_html}\n{body_html}</table>"
 
 
-def build_html(
+def build_html(  # noqa: C901
     app_labels: list = APP_LABELS,
     html_top: str = HTML_TOP,
     html_bottom: str = HTML_BOTTOM,

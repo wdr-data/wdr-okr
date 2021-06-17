@@ -1,6 +1,8 @@
 [flake8]
 ignore =
-    C901,  # McCabe complexity, ignore for now
+    #C901,  # McCabe complexity, ignore for now
     E501,  # Line length, controlled by black
     W503,  # Line break before binary operator, controlled by black
     E203,  # Whitespace before ':', controlled by black
+
+max-complexity: 10

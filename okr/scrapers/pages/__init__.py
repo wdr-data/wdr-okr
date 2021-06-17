@@ -382,7 +382,7 @@ def _count_words(string: str) -> int:
     return len(re.findall(r"\w+", string))
 
 
-def _handle_sophora_document(
+def _handle_sophora_document(  # noqa: C901
     sophora_node: SophoraNode,
     sophora_document_info: Dict,
     *,
