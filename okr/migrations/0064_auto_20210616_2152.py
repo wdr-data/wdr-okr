@@ -43,6 +43,8 @@ def translate_spotify_demographic_data(apps, schema_editor):
         )
 
         logger.info(f"{len(objs)} for {podcast.name}")
+        del podcast_data
+        del objs
 
     logger.success("Filling PodcastDataSpotifyDemographics done!")
 
@@ -71,6 +73,8 @@ def translate_spotify_demographic_data(apps, schema_editor):
         )
 
         logger.info(f"{len(objs)} for {episode.title}")
+        del episode_data
+        del objs
 
     logger.success("Aggregating PodcastEpisodeDataSpotifyDemographics done!")
 
