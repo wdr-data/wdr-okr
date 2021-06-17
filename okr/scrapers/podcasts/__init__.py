@@ -702,37 +702,42 @@ def _episodes_queryset(podcast: Podcast) -> QuerySet[Podcast]:
 
     last_available_cutoff = now - dt.timedelta(days=5)
 
-    podcast.episodes.exclude(spotify_id=None).filter(
-        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
-    ).annotate(
-        # Determine general age
-        age_td=ExpressionWrapper(
-            now - F("publication_date_time"),
-            output_field=DurationField(),
-        ),
-        # Calculate something akin to "day of year" using the ISO calendar
-        # and take modulo 28 for filtering
-        standard_day_of_year_modulo=ExpressionWrapper(
-            Cast(
-                F("publication_date_time__week") * 7
-                + F("publication_date_time__iso_week_day"),
-                IntegerField(),
-            )
-            % 28,
-            output_field=IntegerField(),
-        ),
-    ).filter(
-        # New episodes every day
-        Q(age_td__lte=dt.timedelta(days=7))
-        # In first month every 7 days (roughly, some weekdays might be more busy)
-        | (
-            Q(age_td__lte=dt.timedelta(days=30))
-            & Q(publication_date_time__iso_week_day=isocalendar_today[2])
+    return (
+        podcast.episodes.exclude(spotify_id=None)
+        .filter(
+            Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
         )
-        # After that on every 28th day
-        | (
-            Q(age_td__gt=dt.timedelta(days=30))
-            & Q(standard_day_of_year_modulo=(standard_day_of_year_today % 28))
+        .annotate(
+            # Determine general age
+            age_td=ExpressionWrapper(
+                now - F("publication_date_time"),
+                output_field=DurationField(),
+            ),
+            # Calculate something akin to "day of year" using the ISO calendar
+            # and take modulo 28 for filtering
+            standard_day_of_year_modulo=ExpressionWrapper(
+                Cast(
+                    F("publication_date_time__week") * 7
+                    + F("publication_date_time__iso_week_day"),
+                    IntegerField(),
+                )
+                % 28,
+                output_field=IntegerField(),
+            ),
+        )
+        .filter(
+            # New episodes every day
+            Q(age_td__lte=dt.timedelta(days=7))
+            # In first month every 7 days (roughly, some weekdays might be more busy)
+            | (
+                Q(age_td__lte=dt.timedelta(days=30))
+                & Q(publication_date_time__iso_week_day=isocalendar_today[2])
+            )
+            # After that on every 28th day
+            | (
+                Q(age_td__gt=dt.timedelta(days=30))
+                & Q(standard_day_of_year_modulo=(standard_day_of_year_today % 28))
+            )
         )
     )
 
