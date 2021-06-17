@@ -711,14 +711,6 @@ def _episodes_queryset(podcast: Podcast) -> QuerySet[Podcast]:
             output_field=DurationField(),
         ),
         # Calculate something akin to "day of year" using the ISO calendar
-        standard_day_of_year=ExpressionWrapper(
-            (
-                F("publication_date_time__week") * 7
-                + F("publication_date_time__iso_week_day")
-            ),
-            output_field=IntegerField(),
-        ),
-        # Calculate something akin to "day of year" using the ISO calendar
         # and take modulo 28 for filtering
         standard_day_of_year_modulo=ExpressionWrapper(
             Cast(
