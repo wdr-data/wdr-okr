@@ -280,15 +280,6 @@ class Page(models.Model):
         related_query_name="page",
         help_text="Die GSC-Property, unter der diese Seite gefunden wurde",
     )
-    sophora_document = models.ForeignKey(
-        to=SophoraDocument,
-        verbose_name="Sophora-Dokument",
-        on_delete=models.CASCADE,
-        related_name="pages",
-        related_query_name="page",
-        help_text="Das Sophora-Dokument, auf das diese Seite zeigt",
-        null=True,
-    )
     sophora_id = models.ForeignKey(
         to=SophoraID,
         verbose_name="Sophora ID",
