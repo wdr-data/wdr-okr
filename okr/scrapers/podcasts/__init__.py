@@ -9,6 +9,10 @@ import functools
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
+from django.db.models.expressions import ExpressionWrapper, F
+from django.db.models.fields import DurationField, IntegerField
+from django.db.models.functions.comparison import Cast
+from django.db.models.query import QuerySet
 from sentry_sdk import capture_exception, capture_message
 from spotipy.exceptions import SpotifyException
 from requests.exceptions import HTTPError
@@ -43,6 +47,7 @@ from ...models import (
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
+    PodcastDataSpotifyDemographics,
 )
 
 
@@ -648,7 +653,7 @@ def scrape_spotify_experimental_demographics(
     """
     today = local_today()
     yesterday = local_yesterday()
-    default_start = today - dt.timedelta(days=2)
+    default_start = today - dt.timedelta(days=3)
 
     start_date = date_param(
         start_date,
@@ -680,6 +685,63 @@ def scrape_spotify_experimental_demographics(
             capture_exception(e)
 
 
+def _episodes_queryset(podcast: Podcast) -> QuerySet[Podcast]:
+    """
+    Builds a query set that should give out episodes of a podcast according to
+    the following criteria:
+
+    if not older than 7 days: On any day
+    else if not older than 30 days: On every 7th day
+    else if older than 30 days: On every 28th day
+    """
+    now = local_now()
+    today = local_today()
+
+    isocalendar_today = today.isocalendar()
+    standard_day_of_year_today = isocalendar_today[1] * 7 + isocalendar_today[2]
+
+    last_available_cutoff = now - dt.timedelta(days=5)
+
+    return (
+        podcast.episodes.exclude(spotify_id=None)
+        .filter(
+            Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
+        )
+        .annotate(
+            # Determine general age
+            age_td=ExpressionWrapper(
+                now - F("publication_date_time"),
+                output_field=DurationField(),
+            ),
+            # Calculate something akin to "day of year" using the ISO calendar
+            # and take modulo 28 for filtering
+            standard_day_of_year_modulo=ExpressionWrapper(
+                Cast(
+                    F("publication_date_time__week") * 7
+                    + F("publication_date_time__iso_week_day"),
+                    IntegerField(),
+                )
+                % 28,
+                output_field=IntegerField(),
+            ),
+        )
+        .filter(
+            # New episodes every day
+            Q(age_td__lte=dt.timedelta(days=7))
+            # In first month every 7 days (roughly, some weekdays might be more busy)
+            | (
+                Q(age_td__lte=dt.timedelta(days=30))
+                & Q(publication_date_time__iso_week_day=isocalendar_today[2])
+            )
+            # After that on every 28th day
+            | (
+                Q(age_td__gt=dt.timedelta(days=30))
+                & Q(standard_day_of_year_modulo=(standard_day_of_year_today % 28))
+            )
+        )
+    )
+
+
 def _scrape_spotify_experimental_demographics_podcast(
     podcast: Podcast,
     start_date: dt.date,
@@ -698,44 +760,70 @@ def _scrape_spotify_experimental_demographics_podcast(
         if start_date < first_episode_date:
             start_date = first_episode_date
 
-    last_available_cutoff = local_today() - dt.timedelta(days=5)
-
-    for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
-        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
-    ):
-        for date in reversed(date_range(start_date, end_date)):
-            logger.info(
-                "Scraping spotify episode demographics data for {} from experimental API",
-                podcast_episode,
+    # Get podcast-level data
+    for date in reversed(date_range(start_date, end_date)):
+        try:
+            aggregate_data = experimental_spotify_podcast_api.podcast_aggregate(
+                podcast.spotify_id,
+                start=date,
             )
 
-            try:
-                aggregate_data = experimental_spotify_podcast_api.episode_aggregate(
-                    podcast_episode.spotify_id,
-                    start=date,
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                logger.warning("(404) No data found for {}", podcast)
+                continue
+
+            raise
+
+        for age_range, age_range_data in aggregate_data["ageFacetedCounts"].items():
+            for gender, gender_data in age_range_data["counts"].items():
+                PodcastDataSpotifyDemographics.objects.update_or_create(
+                    podcast=podcast,
+                    date=date,
+                    age_range=PodcastDataSpotifyDemographics.AgeRange(age_range),
+                    gender=PodcastDataSpotifyDemographics.Gender(gender),
+                    defaults=dict(
+                        count=gender_data,
+                    ),
                 )
 
-            except HTTPError as e:
-                if e.response.status_code == 404:
-                    logger.warning("(404) No data found for {}", podcast_episode)
-                    continue
+    # Dates for retrieving all-time data
+    START_DATE = dt.date(2015, 5, 1)
+    END_DATE = local_yesterday()
 
-                raise
+    episodes_queryset = _episodes_queryset(podcast)
+    logger.info("Found {} episodes matching query", episodes_queryset.count())
 
-            for age_range, age_range_data in aggregate_data["ageFacetedCounts"].items():
-                for gender, gender_data in age_range_data["counts"].items():
+    for podcast_episode in episodes_queryset:
+        logger.info(
+            "Scraping spotify episode demographics data for {} from experimental API",
+            podcast_episode,
+        )
 
-                    PodcastEpisodeDataSpotifyDemographics.objects.update_or_create(
-                        episode=podcast_episode,
-                        date=date,
-                        age_range=PodcastEpisodeDataSpotifyDemographics.AgeRange(
-                            age_range
-                        ),
-                        gender=PodcastEpisodeDataSpotifyDemographics.Gender(gender),
-                        defaults=dict(
-                            count=gender_data,
-                        ),
-                    )
+        try:
+            aggregate_data = experimental_spotify_podcast_api.episode_aggregate(
+                podcast_episode.spotify_id,
+                start=START_DATE,
+                end=END_DATE,
+            )
+
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                logger.warning("(404) No data found for {}", podcast_episode)
+                continue
+
+            raise
+
+        for age_range, age_range_data in aggregate_data["ageFacetedCounts"].items():
+            for gender, gender_data in age_range_data["counts"].items():
+                PodcastEpisodeDataSpotifyDemographics.objects.update_or_create(
+                    episode=podcast_episode,
+                    age_range=PodcastEpisodeDataSpotifyDemographics.AgeRange(age_range),
+                    gender=PodcastEpisodeDataSpotifyDemographics.Gender(gender),
+                    defaults=dict(
+                        count=gender_data,
+                    ),
+                )
 
 
 def scrape_podstat(

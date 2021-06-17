@@ -17,6 +17,7 @@ from ..models import (
     PodcastDataWebtrekkPicker,
     PodcastDataSpotify,
     PodcastDataSpotifyHourly,
+    PodcastDataSpotifyDemographics,
     PodcastEpisodeDataSpotifyUser,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataSpotify,
@@ -180,6 +181,22 @@ class PodcastITunesReviewAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
+class PodcastDataSpotifyDemographicsAdmin(admin.ModelAdmin):
+    """List for choosing existing Spotify episode demographics data to edit."""
+
+    list_display = [
+        "podcast",
+        "date",
+        "age_range",
+        "gender",
+        "count",
+    ]
+    list_display_links = ["podcast", "date"]
+    list_filter = ["age_range", "gender", "podcast"]
+    date_hierarchy = "date"
+    search_fields = ["podcast__name"]
+
+
 class DataWebtrekkPickerAdmin(admin.ModelAdmin):
     """List for choosing existing Spotify podcast Webtrekk Podcast Picker data to edit."""
 
@@ -296,14 +313,12 @@ class EpisodeDataSpotifyDemographicsAdmin(admin.ModelAdmin):
 
     list_display = [
         "episode",
-        "date",
         "age_range",
         "gender",
         "count",
     ]
-    list_display_links = ["episode", "date"]
+    list_display_links = ["episode"]
     list_filter = ["age_range", "gender", "episode__podcast"]
-    date_hierarchy = "date"
     search_fields = ["episode__title"]
     autocomplete_fields = ["episode"]
 
@@ -368,6 +383,7 @@ admin.site.register(PodcastEpisode, EpisodeAdmin)
 admin.site.register(PodcastCategory, PodcastCategoryAdmin)
 admin.site.register(PodcastITunesRating, PodcastITunesRatingAdmin)
 admin.site.register(PodcastITunesReview, PodcastITunesReviewAdmin)
+admin.site.register(PodcastDataSpotifyDemographics, PodcastDataSpotifyDemographicsAdmin)
 admin.site.register(PodcastDataWebtrekkPicker, DataWebtrekkPickerAdmin)
 admin.site.register(PodcastDataSpotify, DataSpotifyAdmin)
 admin.site.register(PodcastDataSpotifyHourly, DataSpotifyHourlyAdmin)
