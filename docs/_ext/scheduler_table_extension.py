@@ -59,6 +59,7 @@ def build_schedule_html(html_top: str = "<div>", html_bottom: str = "</div>") ->
     """
 
     # Ensure scheduler is shut down, then re-add jobs and retrieve scheduled jobs from okr/scrapers/scheduler.py
+    scheduler.setup()
     scheduler.scheduler.shutdown()
     scheduler.add_jobs()
     jobs_list = scheduler.scheduler.get_jobs()
