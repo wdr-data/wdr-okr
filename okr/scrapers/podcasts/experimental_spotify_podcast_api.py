@@ -130,6 +130,33 @@ class ExperimentalSpotifyPodcastAPI:
         )
         return self._request(url, params=self._date_params(start, end))
 
+    def podcast_aggregate(
+        self,
+        podcast_id: str,
+        start: dt.date,
+        end: Optional[dt.date] = None,
+    ) -> dict:
+        """Loads podcast demographics data.
+
+        Args:
+            podcast_id (str): ID of the podcast to request data for.
+            start (dt.date): Earliest date to request data for.
+            end (Optional[dt.date], optional): Most recent date to request data for.
+              Defaults to None. Will be set to ``start`` if None.
+
+        Returns:
+            dict: [description]
+        """
+        if end is None:
+            end = start
+
+        url = self._build_url(
+            "shows",
+            podcast_id,
+            "aggregate",
+        )
+        return self._request(url, params=self._date_params(start, end))
+
     def episode_performance(self, episode_id: str) -> dict:
         """Loads episode performance data.
 
@@ -155,7 +182,7 @@ class ExperimentalSpotifyPodcastAPI:
             episode_id (str): ID of the episode to request data for.
             start (dt.date): Earliest date to request data for.
             end (Optional[dt.date], optional): Most recent date to request data for.
-            Defaults to None. Will be set to ``start`` if None.
+              Defaults to None. Will be set to ``start`` if None.
 
         Returns:
             dict: [description]
