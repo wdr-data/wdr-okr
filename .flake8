@@ -6,3 +6,6 @@ ignore =
     E203,  # Whitespace before ':', controlled by black
 
 max-complexity: 10
+
+per-file-ignores =
+    worker.py:E402
