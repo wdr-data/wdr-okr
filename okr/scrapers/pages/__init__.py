@@ -177,13 +177,10 @@ def _page_from_url(
             except Exception as e:
                 capture_exception(e)
 
-        sophora_document = sophora_id.sophora_document
-
         page, created = Page.objects.get_or_create(
             url=url,
             defaults=dict(
                 property=property,
-                sophora_document=sophora_document,
                 sophora_page=sophora_page,
                 sophora_id=sophora_id,
                 node=node,
@@ -382,7 +379,7 @@ def _count_words(string: str) -> int:
     return len(re.findall(r"\w+", string))
 
 
-def _handle_sophora_document(
+def _handle_sophora_document(  # noqa: C901
     sophora_node: SophoraNode,
     sophora_document_info: Dict,
     *,

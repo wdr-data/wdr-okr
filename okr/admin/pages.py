@@ -33,7 +33,6 @@ class PageAdmin(admin.ModelAdmin):
     list_display = [
         "property",
         "url",
-        "sophora_document",
         "sophora_id",
         "node",
         "first_seen",
@@ -42,7 +41,7 @@ class PageAdmin(admin.ModelAdmin):
     list_filter = ["property", "node"]
     date_hierarchy = "first_seen"
     search_fields = ["url"]
-    autocomplete_fields = ["sophora_document"]
+    autocomplete_fields = ["sophora_id"]
 
 
 @large_table

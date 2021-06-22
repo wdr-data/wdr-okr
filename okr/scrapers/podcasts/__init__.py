@@ -185,66 +185,11 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
         capture_message(f"RSS Feed for podcast {podcast} is empty.")
 
     # Update podcast meta data
-    podcast.name = d.feed.title
-    podcast.author = d.feed.author
-    podcast.image = d.feed.image.href
-    podcast.description = d.feed.description
-    podcast.itunes_category = d.feed.itunes_category
-    podcast.itunes_subcategory = d.feed.itunes_subcategory
-    podcast.save()
-
-    # Attempt to find Spotify ID if there is none yet
-    if not podcast.spotify_id:
-        spotify_podcast_id = next(
-            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title),
-            None,
-        )
-
-        if spotify_podcast_id:
-            logger.info("Found new Spotify ID {} for {}", spotify_podcast_id, podcast)
-            podcast.spotify_id = spotify_podcast_id
-            podcast.save()
+    _scrape_feed_update_metadata(d, podcast, spotify_podcasts)
 
     # For podcasts that are available on Spotify: Map episode title to Spotify ID
     # for faster lookups
-    if podcast.spotify_id:
-        licensed_episodes = spotify_api.podcast_episodes(podcast.spotify_id)
-
-        spotify_episode_id_by_name = {}
-        spotify_episode_ids_search = list(
-            reversed(
-                list(
-                    uri.replace("spotify:episode:", "")
-                    for uri in licensed_episodes["episodes"].keys()
-                )
-            )
-        )
-        # Search Podcaster API
-        for episode_id in spotify_episode_ids_search:
-            try:
-                ep_meta = spotify_api.podcast_episode_meta(
-                    podcast.spotify_id,
-                    episode_id,
-                )
-
-                spotify_episode_id_by_name[ep_meta["name"]] = episode_id
-            except SpotifyException:
-                logger.debug("Episode ID {} not found in Podcaster API", episode_id)
-
-        # Try to read additional, publicly available data from Spotify's public API
-        ep_metas_public = fetch_all(
-            functools.partial(spotify_api.episodes, market="de"),
-            spotify_episode_ids_search,
-            "episodes",
-        )
-        for episode_id, ep_meta_public in zip(
-            spotify_episode_ids_search, ep_metas_public
-        ):
-            if ep_meta_public:
-                spotify_episode_id_by_name[ep_meta_public["name"]] = episode_id
-    # Leave Spotify ID empty of no matching ID was found
-    else:
-        spotify_episode_id_by_name = {}
+    spotify_episode_id_by_name = _scrape_feed_episode_map(podcast)
 
     # Loop feed entries to find new episodes
     available_episode_ids = []
@@ -294,6 +239,73 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     podcast.episodes.exclude(id__in=available_episode_ids).update(
         available=False,
     )
+
+
+def _scrape_feed_episode_map(podcast):
+    # For podcasts that are available on Spotify: Map episode title to Spotify ID
+    # for faster lookups
+    if podcast.spotify_id:
+        licensed_episodes = spotify_api.podcast_episodes(podcast.spotify_id)
+
+        spotify_episode_id_by_name = {}
+        spotify_episode_ids_search = list(
+            reversed(
+                list(
+                    uri.replace("spotify:episode:", "")
+                    for uri in licensed_episodes["episodes"].keys()
+                )
+            )
+        )
+        # Search Podcaster API
+        for episode_id in spotify_episode_ids_search:
+            try:
+                ep_meta = spotify_api.podcast_episode_meta(
+                    podcast.spotify_id,
+                    episode_id,
+                )
+
+                spotify_episode_id_by_name[ep_meta["name"]] = episode_id
+            except SpotifyException:
+                logger.debug("Episode ID {} not found in Podcaster API", episode_id)
+
+        # Try to read additional, publicly available data from Spotify's public API
+        ep_metas_public = fetch_all(
+            functools.partial(spotify_api.episodes, market="de"),
+            spotify_episode_ids_search,
+            "episodes",
+        )
+        for episode_id, ep_meta_public in zip(
+            spotify_episode_ids_search, ep_metas_public
+        ):
+            if ep_meta_public:
+                spotify_episode_id_by_name[ep_meta_public["name"]] = episode_id
+    # Leave Spotify ID empty of no matching ID was found
+    else:
+        spotify_episode_id_by_name = {}
+    return spotify_episode_id_by_name
+
+
+def _scrape_feed_update_metadata(d, podcast, spotify_podcasts):
+    # Update podcast meta data
+    podcast.name = d.feed.title
+    podcast.author = d.feed.author
+    podcast.image = d.feed.image.href
+    podcast.description = d.feed.description
+    podcast.itunes_category = d.feed.itunes_category
+    podcast.itunes_subcategory = d.feed.itunes_subcategory
+    podcast.save()
+
+    # Attempt to find Spotify ID if there is none yet
+    if not podcast.spotify_id:
+        spotify_podcast_id = next(
+            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title),
+            None,
+        )
+
+        if spotify_podcast_id:
+            logger.info("Found new Spotify ID {} for {}", spotify_podcast_id, podcast)
+            podcast.spotify_id = spotify_podcast_id
+            podcast.save()
 
 
 def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
@@ -405,6 +417,74 @@ def _scrape_spotify_api_podcast(
 ):
     logger.info("Scraping spotify API for {}", podcast)
 
+    first_episode = podcast.episodes.order_by("publication_date_time").first()
+
+    if first_episode:
+        first_episode_date = first_episode.publication_date_time.date()
+
+        if start_date < first_episode_date:
+            start_date = first_episode_date
+
+    _scrape_spotify_api_podcast_data(start_date, end_date, podcast)
+
+    # Retrieve data for individual episodes
+    _scrape_spotify_api_episode_data(podcast, start_date, end_date)
+
+
+def _scrape_spotify_api_episode_data(podcast, start_date, end_date):
+    # Retrieve data for individual episodes
+    last_available_cutoff = local_today() - dt.timedelta(days=5)
+
+    for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
+        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
+    ):
+        logger.info("Scraping spotify episode data for {}", podcast_episode)
+
+        # Scrape stream stats for episode
+        for date in date_range(start_date, end_date):
+            if date < podcast_episode.publication_date_time.date():
+                continue
+
+            episode_data = {}
+
+            for agg_type in ("starts", "streams", "listeners"):
+                try:
+                    result = spotify_api.podcast_episode_data(
+                        podcast.spotify_id,
+                        podcast_episode.spotify_id,
+                        agg_type,
+                        date,
+                    )
+                    episode_data[agg_type] = result
+                except SpotifyException:
+                    episode_data[agg_type] = {"total": 0}
+
+            try:
+                episode_data[
+                    "listeners_all_time"
+                ] = spotify_api.podcast_episode_data_all_time(
+                    podcast.spotify_id,
+                    podcast_episode.spotify_id,
+                    "listeners",
+                    end=date,
+                )
+            except SpotifyException:
+                episode_data["listeners_all_time"] = {"total": 0}
+
+            PodcastEpisodeDataSpotify.objects.update_or_create(
+                episode=podcast_episode,
+                date=date,
+                defaults=dict(
+                    starts=episode_data["starts"]["total"],
+                    streams=episode_data["streams"]["total"],
+                    listeners=episode_data["listeners"]["total"],
+                    listeners_all_time=episode_data["listeners_all_time"]["total"],
+                ),
+            )
+
+
+def _scrape_spotify_api_podcast_data(start_date, end_date, podcast):  # noqa: C901
+
     # Retrieve follower for podcast from experimental API
     follower_data = experimental_spotify_podcast_api.podcast_followers(
         podcast.spotify_id,
@@ -416,14 +496,6 @@ def _scrape_spotify_api_podcast(
         dt.date.fromisoformat(item["date"]): item["count"]
         for item in follower_data["counts"]
     }
-
-    first_episode = podcast.episodes.order_by("publication_date_time").first()
-
-    if first_episode:
-        first_episode_date = first_episode.publication_date_time.date()
-
-        if start_date < first_episode_date:
-            start_date = first_episode_date
 
     for day, date in enumerate(reversed(date_range(start_date, end_date))):
         # Read daily data
@@ -481,79 +553,33 @@ def _scrape_spotify_api_podcast(
             defaults=defaults,
         )
 
-        # Read hourly data
-        if date < dt.date(2019, 12, 1):
-            continue
+        _scrape_spotify_podcast_hourly(date, podcast)
 
-        for hour in range(0, 24):
-            agg_type_data = {}
-            date_time = dt.datetime(date.year, date.month, date.day, hour, tzinfo=UTC)
-            for agg_type in ["starts", "streams"]:
-                try:
-                    agg_type_data[agg_type] = spotify_api.podcast_data(
-                        podcast.spotify_id,
-                        agg_type,
-                        date_time,
-                        precision=spotify_api.Precision.HOUR,
-                    )["total"]
-                except Exception:
-                    agg_type_data[agg_type] = 0
 
-            PodcastDataSpotifyHourly.objects.update_or_create(
-                podcast=podcast,
-                date_time=date_time,
-                defaults=agg_type_data,
-            )
+def _scrape_spotify_podcast_hourly(date, podcast):
+    # Read hourly data
+    if date < dt.date(2019, 12, 1):
+        return
 
-    # Retrieve data for individual episodes
-    last_available_cutoff = local_today() - dt.timedelta(days=5)
-
-    for podcast_episode in podcast.episodes.exclude(spotify_id=None).filter(
-        Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
-    ):
-        logger.info("Scraping spotify episode data for {}", podcast_episode)
-
-        # Scrape stream stats for episode
-        for date in date_range(start_date, end_date):
-            if date < podcast_episode.publication_date_time.date():
-                continue
-
-            episode_data = {}
-
-            for agg_type in ("starts", "streams", "listeners"):
-                try:
-                    result = spotify_api.podcast_episode_data(
-                        podcast.spotify_id,
-                        podcast_episode.spotify_id,
-                        agg_type,
-                        date,
-                    )
-                    episode_data[agg_type] = result
-                except SpotifyException:
-                    episode_data[agg_type] = {"total": 0}
-
+    for hour in range(0, 24):
+        agg_type_data = {}
+        date_time = dt.datetime(date.year, date.month, date.day, hour, tzinfo=UTC)
+        for agg_type in ["starts", "streams"]:
             try:
-                episode_data[
-                    "listeners_all_time"
-                ] = spotify_api.podcast_episode_data_all_time(
+                agg_type_data[agg_type] = spotify_api.podcast_data(
                     podcast.spotify_id,
-                    podcast_episode.spotify_id,
-                    "listeners",
-                    end=date,
-                )
-            except SpotifyException:
-                episode_data["listeners_all_time"] = {"total": 0}
+                    agg_type,
+                    date_time,
+                    precision=spotify_api.Precision.HOUR,
+                )["total"]
+            except Exception:
+                agg_type_data[agg_type] = 0
 
-            PodcastEpisodeDataSpotify.objects.update_or_create(
-                episode=podcast_episode,
-                date=date,
-                defaults=dict(
-                    starts=episode_data["starts"]["total"],
-                    streams=episode_data["streams"]["total"],
-                    listeners=episode_data["listeners"]["total"],
-                    listeners_all_time=episode_data["listeners_all_time"]["total"],
-                ),
-            )
+        PodcastDataSpotifyHourly.objects.update_or_create(
+            podcast=podcast,
+            date_time=date_time,
+            defaults=agg_type_data,
+        )
 
 
 def scrape_spotify_experimental_performance(
@@ -761,32 +787,17 @@ def _scrape_spotify_experimental_demographics_podcast(
             start_date = first_episode_date
 
     # Get podcast-level data
-    for date in reversed(date_range(start_date, end_date)):
-        try:
-            aggregate_data = experimental_spotify_podcast_api.podcast_aggregate(
-                podcast.spotify_id,
-                start=date,
-            )
+    _scrape_spotify_experimental_demographics_podcast_data(
+        start_date,
+        end_date,
+        podcast,
+    )
 
-        except HTTPError as e:
-            if e.response.status_code == 404:
-                logger.warning("(404) No data found for {}", podcast)
-                continue
+    # Get episode-level data
+    _scrape_spotify_experimental_demographics_episode_data(podcast)
 
-            raise
 
-        for age_range, age_range_data in aggregate_data["ageFacetedCounts"].items():
-            for gender, gender_data in age_range_data["counts"].items():
-                PodcastDataSpotifyDemographics.objects.update_or_create(
-                    podcast=podcast,
-                    date=date,
-                    age_range=PodcastDataSpotifyDemographics.AgeRange(age_range),
-                    gender=PodcastDataSpotifyDemographics.Gender(gender),
-                    defaults=dict(
-                        count=gender_data,
-                    ),
-                )
-
+def _scrape_spotify_experimental_demographics_episode_data(podcast):
     # Dates for retrieving all-time data
     START_DATE = dt.date(2015, 5, 1)
     END_DATE = local_yesterday()
@@ -820,6 +831,37 @@ def _scrape_spotify_experimental_demographics_podcast(
                     episode=podcast_episode,
                     age_range=PodcastEpisodeDataSpotifyDemographics.AgeRange(age_range),
                     gender=PodcastEpisodeDataSpotifyDemographics.Gender(gender),
+                    defaults=dict(
+                        count=gender_data,
+                    ),
+                )
+
+
+def _scrape_spotify_experimental_demographics_podcast_data(
+    start_date, end_date, podcast
+):
+    # Get podcast-level data
+    for date in reversed(date_range(start_date, end_date)):
+        try:
+            aggregate_data = experimental_spotify_podcast_api.podcast_aggregate(
+                podcast.spotify_id,
+                start=date,
+            )
+
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                logger.warning("(404) No data found for {}", podcast)
+                continue
+
+            raise
+
+        for age_range, age_range_data in aggregate_data["ageFacetedCounts"].items():
+            for gender, gender_data in age_range_data["counts"].items():
+                PodcastDataSpotifyDemographics.objects.update_or_create(
+                    podcast=podcast,
+                    date=date,
+                    age_range=PodcastDataSpotifyDemographics.AgeRange(age_range),
+                    gender=PodcastDataSpotifyDemographics.Gender(gender),
                     defaults=dict(
                         count=gender_data,
                     ),
