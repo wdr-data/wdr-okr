@@ -9,8 +9,14 @@ REDIS_URL = os.getenv(
     "REDIS_TLS_URL",
     os.getenv("REDIS_URL", "redis://localhost:6379"),
 )
+
+kwargs = {}
+
+if REDIS_URL.startswith("rediss"):
+    kwargs["ssl_cert_reqs"] = None
+
 conn = redis.from_url(
     REDIS_URL,
-    ssl_cert_reqs=None,
+    **kwargs,
 )
 q = Queue(connection=conn)
