@@ -25,6 +25,9 @@ def scrape_full(insta: Insta):
     Args:
         insta (Insta): Instagram object to collect data for.
     """
+
+    logger.info('Starting full scrape for Instagram account "{}"', insta.name)
+
     insta_filter = Q(id=insta.id)
     start_date = date(2019, 1, 1)
 
@@ -36,6 +39,8 @@ def scrape_full(insta: Insta):
 
     scrape_stories(start_date=start_date, insta_filter=insta_filter)
     scrape_posts(start_date=start_date, insta_filter=insta_filter)
+
+    logger.success('Finished full scrape for Instagram account "{}"', insta.name)
 
 
 def scrape_insights(

@@ -1,7 +1,11 @@
 """Configure scheduler to call scraper modules."""
 
+from typing import Any, Callable, List, Mapping, Optional
+from concurrent.futures import ThreadPoolExecutor as NativeThreadPoolExecutor
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR
+from django.db.models.base import Model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from sentry_sdk import capture_exception
@@ -20,9 +24,11 @@ from ..models import (
 from . import insta, youtube, podcasts, pages, tiktok, facebook, twitter
 from .common.utils import BERLIN
 from .db_cleanup import run_db_cleanup
+from app.redis import q
 
 
 scheduler = None
+executors = None
 
 
 def sentry_listener(event):
@@ -32,14 +38,38 @@ def sentry_listener(event):
 
 
 def setup():
-    """Create and start scheduler instance."""
-    global scheduler
+    """Create and start scheduler instance and set up executors."""
+    global scheduler, executors
 
     # Prevent setting up multiple schedulers
-    if scheduler:
+    if scheduler or executors:
         return
 
-    scheduler = BackgroundScheduler(timezone=BERLIN)
+    # Set up ThreadPoolExecutors for on-demand tasks received via rq
+    executors = {
+        "default": NativeThreadPoolExecutor(4),
+    }
+
+    initial_executors = {
+        f"initial_{model.__name__.lower()}": NativeThreadPoolExecutor(1)
+        for model in (
+            Podcast,
+            Insta,
+            YouTube,
+            TikTok,
+            Property,
+            Facebook,
+            Twitter,
+            SophoraNode,
+        )
+    }
+
+    executors.update(initial_executors)
+
+    # Set up scheduler
+    scheduler = BackgroundScheduler(
+        timezone=BERLIN,
+    )
     scheduler.start()
 
 
@@ -293,6 +323,59 @@ def add_jobs():
     )
 
 
+def run_in_executor(
+    func: Callable,
+    *,
+    args: Optional[List[Any]] = None,
+    kwargs: Optional[Mapping[str, Any]] = None,
+    executor: str = "default",
+):
+    """Run a function in a thread pool executor.
+
+    Args:
+        func (Callable): The function to be executed in the executor
+        args (Optional[List[Any]]): List of positional arguments for ``func``
+        kwargs (Optional[Mapping[str, Any]]): Mapping of keyword arguments for ``func``
+        executor (str): The name of the executor ``func`` should run in. Defaults to ``"default"``.
+    """
+    executors[executor].submit(func, *(args or []), **(kwargs or {}))
+
+
+def run_in_worker(
+    func: Callable,
+    *,
+    args: Optional[List[Any]] = None,
+    kwargs: Optional[Mapping[str, Any]] = None,
+    executor: str = "default",
+):
+    """Remotely calls :meth:`~run_in_executor` in the worker process.
+
+    Args:
+        func (Callable): The function to be executed in the executor
+        args (Optional[List[Any]]): List of positional arguments for ``func``
+        kwargs (Optional[Mapping[str, Any]]): Mapping of keyword arguments for ``func``
+        executor (str): The name of the executor ``func`` should run in. Defaults to ``"default"``.
+    """
+    q.enqueue(
+        run_in_executor,
+        args=(func,),
+        kwargs={
+            "args": args,
+            "kwargs": kwargs,
+            "executor": executor,
+        },
+    )
+
+
+def _on_created(scraper: Callable, instance: Model):
+    """Wrapper for :meth:`~run_in_worker` for signal receivers"""
+    run_in_worker(
+        scraper,
+        args=[instance],
+        executor=f"initial_{instance.__class__.__name__.lower()}",
+    )
+
+
 @receiver(post_save, sender=Podcast)
 def podcast_created(instance: Podcast, created: bool, **kwargs):
     """Start scraper run for newly added podcast
@@ -304,7 +387,7 @@ def podcast_created(instance: Podcast, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(podcasts.scrape_full, args=[instance], max_instances=1)
+        _on_created(podcasts.scrape_full, instance)
 
 
 @receiver(post_save, sender=Facebook)
@@ -318,7 +401,7 @@ def facebook_created(instance: Facebook, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(facebook.scrape_full, args=[instance], max_instances=1)
+        _on_created(facebook.scrape_full, instance)
 
 
 @receiver(post_save, sender=Twitter)
@@ -332,7 +415,7 @@ def twitter_created(instance: Twitter, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(twitter.scrape_full, args=[instance], max_instances=1)
+        _on_created(twitter.scrape_full, instance)
 
 
 @receiver(post_save, sender=Insta)
@@ -346,7 +429,7 @@ def insta_created(instance: Insta, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(insta.scrape_full, args=[instance], max_instances=1)
+        _on_created(insta.scrape_full, instance)
 
 
 @receiver(post_save, sender=YouTube)
@@ -360,7 +443,7 @@ def youtube_created(instance: YouTube, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(youtube.scrape_full, args=[instance], max_instances=1)
+        _on_created(youtube.scrape_full, instance)
 
 
 @receiver(post_save, sender=Property)
@@ -374,7 +457,7 @@ def property_created(instance: Property, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(pages.scrape_full_gsc, args=[instance], max_instances=1)
+        _on_created(pages.scrape_full_gsc, instance)
 
 
 @receiver(post_save, sender=SophoraNode)
@@ -388,7 +471,7 @@ def sophora_node_created(instance: SophoraNode, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(pages.scrape_full_sophora, args=[instance], max_instances=1)
+        _on_created(pages.scrape_full_sophora, instance)
 
 
 @receiver(post_save, sender=TikTok)
@@ -402,4 +485,4 @@ def tiktok_created(instance: TikTok, created: bool, **kwargs):
     """
     logger.debug("{} saved, created={}", instance, created)
     if created:
-        scheduler.add_job(tiktok.scrape_full, args=[instance], max_instances=1)
+        _on_created(tiktok.scrape_full, instance)

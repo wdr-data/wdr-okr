@@ -12,7 +12,8 @@ db_tables = "python docs/database_tables.py"
 docs = "make --directory=docs clean html"
 docs_rm = "rm -rf static/docs"
 docs_static = "cp -R docs/_build/html static/docs"
-start = "gunicorn app.wsgi -k sync --workers=1"
+backend = "gunicorn app.wsgi -k sync --workers=1"
+worker = "python worker.py"
 
 [dev-packages]
 flake8 = "*"
@@ -51,6 +52,7 @@ solrq = "*"
 cron-descriptor = "*"
 pyadaptivecards = "*"
 analytics-data = {file = "./wheels/analytics_data-0.7.0-py2.py3-none-any.whl"}
+rq = "*"
 
 [requires]
 python_version = "3.8"

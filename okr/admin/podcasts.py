@@ -105,6 +105,9 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
         "main_category",
         "itunes_category",
     ]
+    search_fields = ProductAdmin.search_fields + [
+        "spotify_id",
+    ]
 
     unrequired_fields = [
         "itunes_category",
@@ -259,7 +262,7 @@ class EpisodeAdmin(admin.ModelAdmin):
     list_display_links = ["title"]
     list_filter = ["podcast", "available"]
     date_hierarchy = "publication_date_time"
-    search_fields = ["title"]
+    search_fields = ["title", "spotify_id", "zmdb_id"]
 
 
 @large_table
