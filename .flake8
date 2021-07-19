@@ -8,3 +8,6 @@ max-complexity: 10
 
 per-file-ignores =
     worker.py:E402
+
+exclude =
+    ./stuff/*  # Local test scripts etc.
