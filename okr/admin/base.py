@@ -8,7 +8,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     list_display = ["name"]
     list_display_links = ["name"]
-    list_filter = []
+    list_filter = ["is_active"]
     search_fields = ["name"]
     date_hierarchy = None
 
