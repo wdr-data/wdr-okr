@@ -94,10 +94,13 @@ def get_insta_stories(
     fields = [
         "externalId",
         "time",
+        "importTime",
         "caption",
         "reach",
         "impressions",
         "replies",
+        "tapsForward",
+        "tapsBack",
         "type",
         "link",
         "exits",
@@ -110,7 +113,6 @@ def get_insta_stories(
 
     df = df.replace({np.nan: None})
 
-    logger.debug(df)
     return df
 
 
@@ -131,26 +133,75 @@ def get_insta_posts(
     Returns:
         pd.DataFrame:  API response data.
     """
+
     profile_ids = [profile_id]
-    table = "instagramOwnPosts"
-    fields = ["externalId", "time", "message", "comments", "type", "link"]
+    table = "instagramInsightsOwnPosts"
+    fields = [
+        "externalId",
+        "importTime",
+        "impressions",
+        "comments",
+        "likes",
+        "link",
+        "message",
+        "reach",
+        "saved",
+        "time",
+        "type",
+        "videoViews",
+    ]
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
 
-    df_posts = common_quintly.quintly.run_query(
+    df = common_quintly.quintly.run_query(
         profile_ids, table, fields, start_date, end_date
     )
-
-    table = "instagramInsightsOwnPosts"
-
-    fields = ["externalId", "time", "likes", "reach", "impressions"]
-
-    df_posts_insights = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date
-    )
-
-    df = df_posts.merge(df_posts_insights, on=["externalId", "time"], how="inner")
 
     df = df.replace({np.nan: None})
 
+    return df
+
+
+@common_quintly.requires_quintly
+def get_insta_igtv(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for IGTV on Instagram profile via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date (Optional[datetime.date], optional): Date of earliest possible
+          data to request. Defaults to None. Will be set to today's date one week ago if
+          None.
+
+    Returns:
+        pd.DataFrame:  API response data.
+    """
+    profile_ids = [profile_id]
+    table = "instagramInsightsTvPosts"
+    fields = [
+        "externalId",
+        "time",
+        "importTime",
+        "message",
+        "videoTitle",
+        "likes",
+        "comments",
+        "reach",
+        "impressions",
+        "saved",
+        "videoViews",
+        "link",
+    ]
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    end_date = datetime.date.today()
+    df = common_quintly.quintly.run_query(
+        profile_ids, table, fields, start_date, end_date
+    )
+
+    df = df.replace({np.nan: None})
+
+    logger.debug(df)
     return df

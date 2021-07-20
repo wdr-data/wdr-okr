@@ -81,6 +81,7 @@ def add_jobs():
     * :meth:`~okr.scrapers.insta.scrape_insights`
     * :meth:`~okr.scrapers.insta.scrape_stories`
     * :meth:`~okr.scrapers.insta.scrape_posts`
+    * :meth:`~okr.scrapers.insta.scrape_igtv`
     * :meth:`~okr.scrapers.facebook.scrape_insights`
     * :meth:`~okr.scrapers.facebook.scrape_posts`
     * :meth:`~okr.scrapers.twitter.scrape_insights`
@@ -128,19 +129,25 @@ def add_jobs():
         args=["monthly"],
         trigger="cron",
         hour="6",
-        minute="1",
+        minute="10",
     )
     scheduler.add_job(
         insta.scrape_stories,
         trigger="cron",
         hour="5",
-        minute="31",
+        minute="35",
     )
     scheduler.add_job(
         insta.scrape_posts,
         trigger="cron",
         hour="5",
-        minute="32",
+        minute="45",
+    )
+    scheduler.add_job(
+        insta.scrape_igtv,
+        trigger="cron",
+        hour="5",
+        minute="55",
     )
 
     # Facebook

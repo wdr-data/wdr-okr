@@ -14,6 +14,7 @@ from ...models.insta import (
     InstaInsight,
     InstaPost,
     InstaStory,
+    InstaIGTV,
 )
 from . import quintly
 from ..common.utils import BERLIN
@@ -39,6 +40,7 @@ def scrape_full(insta: Insta):
 
     scrape_stories(start_date=start_date, insta_filter=insta_filter)
     scrape_posts(start_date=start_date, insta_filter=insta_filter)
+    scrape_igtv(start_date=start_date, insta_filter=insta_filter)
 
     logger.success('Finished full scrape for Instagram account "{}"', insta.name)
 
@@ -128,13 +130,18 @@ def scrape_stories(
         for index, row in df.iterrows():
             defaults = {
                 "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+                "quintly_import_time": BERLIN.localize(
+                    datetime.fromisoformat(row.importTime)
+                ),
                 "caption": row.caption,
-                "reach": row.reach or 0,
-                "impressions": row.impressions or 0,
-                "replies": row.replies or 0,
+                "reach": row.reach,
+                "impressions": row.impressions,
+                "replies": row.replies,
+                "taps_forward": row.tapsForward,
+                "taps_back": row.tapsBack,
                 "story_type": row.type,
                 "link": row.link,
-                "exits": row.exits or 0,
+                "exits": row.exits,
             }
 
             try:
@@ -174,17 +181,74 @@ def scrape_posts(
         for index, row in df.iterrows():
             defaults = {
                 "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+                "quintly_import_time": BERLIN.localize(
+                    datetime.fromisoformat(row.importTime)
+                ),
                 "message": row.message,
-                "comments": row.comments or 0,
-                "reach": row.reach or 0,
-                "impressions": row.impressions or 0,
+                "comments": row.comments,
+                "reach": row.reach,
+                "impressions": row.impressions,
+                "likes": row.likes,
+                "saved": row.saved,
+                "video_views": row.videoViews,
                 "post_type": row.type,
-                "likes": row.likes or 0,
                 "link": row.link,
             }
 
             try:
                 obj, created = InstaPost.objects.update_or_create(
+                    insta=insta, external_id=row.externalId, defaults=defaults
+                )
+            except IntegrityError as e:
+                capture_exception(e)
+                logger.exception(
+                    "Data for post with ID {} failed integrity check:\n{}",
+                    row.externalId,
+                    defaults,
+                )
+
+
+def scrape_igtv(*, start_date: Optional[date] = None, insta_filter: Optional[Q] = None):
+    """Retrieve data for Instagram IGTV videos from Quintly.
+
+    Results are saved in :class:`~okr.models.insta.InstaIGTV`.
+
+    Args:
+        start_date (Optional[date], optional): Earliest date to request data for.
+        Defaults to None.
+        insta_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.insta.Insta` object. Defaults to None.
+    """
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
+
+        logger.debug(f"Scraping IGTV for {insta.name}")
+
+        df = quintly.get_insta_igtv(insta.quintly_profile_id, start_date=start_date)
+
+        for index, row in df.iterrows():
+            defaults = {
+                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+                "quintly_import_time": BERLIN.localize(
+                    datetime.fromisoformat(row.importTime)
+                ),
+                "message": row.message,
+                "video_title": row.videoTitle,
+                "likes": row.likes,
+                "comments": row.comments,
+                "reach": row.reach,
+                "impressions": row.impressions,
+                "saved": row.saved,
+                "video_views": row.videoViews,
+                "link": row.link,
+            }
+
+            try:
+                obj, created = InstaIGTV.objects.update_or_create(
                     insta=insta, external_id=row.externalId, defaults=defaults
                 )
             except IntegrityError as e:
