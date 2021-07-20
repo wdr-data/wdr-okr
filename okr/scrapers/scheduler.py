@@ -135,7 +135,7 @@ def add_jobs():
         insta.scrape_stories,
         trigger="cron",
         hour="5",
-        minute="35",
+        minute="40",
     )
     scheduler.add_job(
         insta.scrape_posts,
@@ -147,7 +147,7 @@ def add_jobs():
         insta.scrape_igtv,
         trigger="cron",
         hour="5",
-        minute="55",
+        minute="50",
     )
 
     # Facebook
