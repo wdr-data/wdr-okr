@@ -31,12 +31,14 @@ class ActiveManagerBase(ModelBase):
         if name != "Product":
             return new_class
 
+        default_manager = models.Manager()
+
         if settings.ROLE == "worker":
             new_class.add_to_class("objects", ActiveManager())
         else:
-            new_class.add_to_class("objects", models.Manager())
+            new_class.add_to_class("objects", default_manager)
 
-        new_class.add_to_class("objects_all", models.Manager())
+        new_class.add_to_class("objects_all", default_manager)
 
         return new_class
 
