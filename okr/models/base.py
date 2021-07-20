@@ -2,7 +2,6 @@
 
 from django.conf import settings
 from django.db import models
-from django.db.models.base import ModelBase
 
 
 class ActiveManager(models.Manager):
@@ -12,38 +11,26 @@ class ActiveManager(models.Manager):
         return super().get_queryset().filter(is_active=True)
 
 
-class ActiveManagerBase(ModelBase):
+def with_active_manager(cls):
     """
     Override default manager to only yield active objects.
     Should only happen in worker, since we don't want inactive objects to be
     filtered out in Django Admin.
     """
+    default_manager = models.Manager()
 
-    def __new__(cls, name, bases, dct, **kwargs):
-        new_class = super(ActiveManagerBase, cls).__new__(
-            cls,
-            name,
-            bases,
-            dct,
-            **kwargs,
-        )
+    if settings.ROLE == "worker":
+        cls.add_to_class("objects", ActiveManager())
+    else:
+        cls.add_to_class("objects", default_manager)
 
-        if name != "Product":
-            return new_class
+    cls.add_to_class("objects_all", default_manager)
 
-        default_manager = models.Manager()
-
-        if settings.ROLE == "worker":
-            new_class.add_to_class("objects", ActiveManager())
-        else:
-            new_class.add_to_class("objects", default_manager)
-
-        new_class.add_to_class("objects_all", default_manager)
-
-        return new_class
+    return cls
 
 
-class Product(models.Model, metaclass=ActiveManagerBase):
+@with_active_manager
+class Product(models.Model):
     """Base model for products."""
 
     class Meta:
