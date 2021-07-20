@@ -78,6 +78,22 @@ logger.remove()  # Remove default logger
 logger.add(sys.stderr, level=lvl, format=fmt, diagnose=DEBUG)
 logger.info("Logging setup complete.")
 
+
+# Get role context
+ROLE = os.environ.get("ROLE")
+dyno = os.environ.get("DYNO")
+
+if not ROLE and dyno:
+    dyno_role = dyno.split(".")[0]
+    if dyno_role in ("web", "worker"):
+        ROLE = dyno
+
+if not ROLE:
+    logger.warning('Failed to get role context. Defaulting to "web"')
+    ROLE = "web"
+
+
+# Continue with default Django config stuff
 SECRET_KEY = os.environ.get("SECRET_KEY")
 if SECRET_KEY is None:
     if DEBUG:
