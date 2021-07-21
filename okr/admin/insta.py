@@ -1,43 +1,16 @@
 """Forms for managing Instagram data."""
 
-from django import forms
 from django.contrib import admin
 from ..models import (
     Insta,
     InstaInsight,
     InstaPost,
     InstaStory,
-    InstaCollaboration,
-    InstaCollaborationType,
+    InstaIGTV,
+    InstaDemographics,
+    InstaHourlyFollowers,
 )
 from .base import QuintlyAdmin
-
-
-class CollaborationModelForm(forms.ModelForm):
-    """Form for editing collaboration models."""
-
-    class Meta:
-        model = InstaCollaboration
-        exclude = ()
-
-    def get_initial_for_field(self, field, field_name):
-        if field_name == "insta" and not self.instance.id:
-            instas = Insta.objects.all()[:1]
-            instas = list(instas)
-            if instas:
-                return instas[0]
-
-        return super().get_initial_for_field(field, field_name)
-
-
-class CollaborationAdmin(admin.ModelAdmin):
-    """List for choosing from available collaboration models."""
-
-    form = CollaborationModelForm
-    list_display = ["date", "influencer", "collaboration_type", "followers"]
-    list_display_links = ["influencer"]
-    readonly_fields = ["last_updated"]
-    date_hierarchy = "date"
 
 
 class InsightAdmin(admin.ModelAdmin):
@@ -46,14 +19,13 @@ class InsightAdmin(admin.ModelAdmin):
     list_display = [
         "date",
         "insta",
-        "interval",
         "reach",
+        "reach_7_days",
+        "reach_28_days",
         "impressions",
-        "followers_change",
-        "posts_change",
     ]
     list_display_links = ["date"]
-    list_filter = ["insta", "interval"]
+    list_filter = ["insta"]
     date_hierarchy = "date"
 
 
@@ -64,10 +36,13 @@ class PostAdmin(admin.ModelAdmin):
         "external_id",
         "insta",
         "created_at",
+        "quintly_last_updated",
         "post_type",
         "likes",
         "reach",
         "impressions",
+        "saved",
+        "video_views",
     ]
     list_display_links = ["external_id"]
     list_filter = ["insta", "post_type"]
@@ -81,9 +56,12 @@ class StoryAdmin(admin.ModelAdmin):
         "external_id",
         "insta",
         "created_at",
+        "quintly_last_updated",
         "story_type",
         "reach",
         "impressions",
+        "taps_forward",
+        "taps_back",
         "exits",
     ]
     list_display_links = ["external_id"]
@@ -91,20 +69,59 @@ class StoryAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
 
-class CollaborationTypeAdmin(admin.ModelAdmin):
-    """List for choosing existing collaboration types to edit."""
+class IGTVAdmin(admin.ModelAdmin):
+    """List for choosing existing IGTV data to edit."""
 
     list_display = [
-        "name",
+        "external_id",
+        "insta",
+        "created_at",
+        "quintly_last_updated",
+        "video_title",
+        "reach",
+        "impressions",
+        "video_views",
     ]
-    list_display_links = ["name"]
-    list_filter = []
-    date_hierarchy = None
+    list_display_links = ["external_id"]
+    list_filter = ["insta"]
+    date_hierarchy = "created_at"
+
+
+class DemographicsAdmin(admin.ModelAdmin):
+    """List for choosing existing Instagram demographics data to edit."""
+
+    list_display = [
+        "insta",
+        "date",
+        "quintly_last_updated",
+        "age_range",
+        "gender",
+        "followers",
+    ]
+    list_display_links = ["insta", "date"]
+    list_filter = ["age_range", "gender", "insta"]
+    date_hierarchy = "date"
+    search_fields = ["insta"]
+
+
+class HourlyFollowersAdmin(admin.ModelAdmin):
+    """List for choosing existing Instagram hourly followers data to edit."""
+
+    list_display = [
+        "insta",
+        "date_time",
+        "followers",
+    ]
+    list_display_links = ["insta", "date_time"]
+    list_filter = ["insta"]
+    date_hierarchy = "date_time"
+    search_fields = ["insta"]
 
 
 admin.site.register(Insta, QuintlyAdmin)
 admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
 admin.site.register(InstaStory, StoryAdmin)
-admin.site.register(InstaCollaboration, CollaborationAdmin)
-admin.site.register(InstaCollaborationType, CollaborationTypeAdmin)
+admin.site.register(InstaIGTV, IGTVAdmin)
+admin.site.register(InstaDemographics, DemographicsAdmin)
+admin.site.register(InstaHourlyFollowers, HourlyFollowersAdmin)

@@ -3,15 +3,19 @@
 ## About the project
 
 This _Django_-Project is part of a process to establish the
-[OKR Framework](https://de.wikipedia.org/wiki/Objectives_and_Key_Results) within
-the organization of WDR.
+[OKR Framework](https://de.wikipedia.org/wiki/Objectives_and_Key_Results) in
+the organizational structure of the WDR.
 After identifying the correct KPI for each product, this library collects and
 processes the corresponding data to visualize the data in form of a dashboard.
 ## Local development
 
+This project requires Python > 3.8, [pipenv](https://pipenv.pypa.io/en/latest/),
+and a [Redis server](https://developer.redislabs.com/create) installed and
+working on your system.
+
 ### Environment variables
 
-To run the Django framework for this project, you'll need to set the following
+To run the Django framework for this project, you need to set the following
 environment variables:
 
 ```env
@@ -74,9 +78,21 @@ Create initial admin user:
 $ pipenv run manage createsuperuser
 ```
 
-### Running Django
+### Running
 
-Start Django:
+This project consists of two processes that communicate through
+[Redis Queue (RQ)](<https://python-rq.org/>).
+
+The `worker` process runs the various scrapers while the `web` process runs the
+Django server and backend.
+
+First, start the `worker` process:
+
+```bash=bash
+$ pipenv run worker
+```
+
+Then, start the `web` process:
 
 ```bash=bash
 $ pipenv run manage runserver
@@ -90,8 +106,10 @@ The `__init__.py` of each scraper module contains the functions to fill the
 database. If cleaning or restructuring is required, it is done here.
 There are other submodules for collecting the raw data, one for each source.
 
-We use APScheduler for scheduling. `okr/scrapers/scheduler.py` contains the
-setup and cron-based rules to run scrapers periodically at specified times.
+We use [RQ (Redis Queue)](https://python-rq.org/) and
+[APScheduler](https://apscheduler.readthedocs.io/en/stable/) for queuing
+and scheduling. `okr/scrapers/scheduler.py` contains the setup and cron-based
+rules to run scrapers periodically at specified times.
 
 Some data that can't be scraped automatically (yet) is manually entered or
 uploaded as files in the Django admin backend. The relevant files for this

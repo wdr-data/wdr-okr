@@ -27,15 +27,8 @@ class InstaInsight(models.Model):
         db_table = "instagram_insights"
         verbose_name = "Instagram-Insight"
         verbose_name_plural = "Instagram-Insights"
-        unique_together = ("insta", "date", "interval")
+        unique_together = ("insta", "date")
         ordering = ["-date"]
-
-    class Interval(models.TextChoices):
-        """Available update intervals."""
-
-        DAILY = "daily", "Täglich"
-        WEEKLY = "weekly", "Wöchentlich"
-        MONTHLY = "monthly", "Monatlich"
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
@@ -46,25 +39,34 @@ class InstaInsight(models.Model):
         related_query_name="insight",
     )
     date = models.DateField(verbose_name="Datum")
-    interval = models.CharField(
-        verbose_name="Zeitraum",
-        help_text="Intervall (täglich, wöchentlich oder monatlich)",
-        choices=Interval.choices,
-        max_length=10,
-    )
+
     reach = models.IntegerField(verbose_name="Reichweite", null=True)
+    reach_7_days = models.IntegerField(
+        verbose_name="Reichweite (7 Tage rollierend)",
+        null=True,
+    )
+    reach_28_days = models.IntegerField(
+        verbose_name="Reichweite (28 Tage rollierend)",
+        null=True,
+    )
+
     impressions = models.IntegerField(verbose_name="Impressions", null=True)
-    followers = models.IntegerField(verbose_name="Follower")
-    followers_change = models.IntegerField(verbose_name="Veränderung Follower")
-    posts_change = models.IntegerField(verbose_name="Veränderung Posts")
+    followers = models.IntegerField(verbose_name="Follower", null=True)
     text_message_clicks_day = models.IntegerField(
         verbose_name="Nachricht senden", null=True
     )
     email_contacts_day = models.IntegerField(verbose_name="Email senden", null=True)
+    profile_views = models.IntegerField(verbose_name="Profilansichten", null=True)
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.insta.name} - {self.Interval(self.interval).label}"
+        return f"{self.date}: {self.insta.name}"
 
 
 class InstaPost(models.Model):
@@ -97,12 +99,39 @@ class InstaPost(models.Model):
         max_length=20,
     )
     comments = models.IntegerField(
-        verbose_name="Kommentare", help_text="Anzahl der Kommentare"
+        verbose_name="Kommentare",
+        help_text="Anzahl der Kommentare",
+        null=True,
     )
-    likes = models.IntegerField(verbose_name="Likes", help_text="Anzahl der Likes")
-    reach = models.IntegerField(verbose_name="Reichweite")
-    impressions = models.IntegerField(verbose_name="Impressions")
+    likes = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Anzahl der Likes",
+        null=True,
+    )
+    reach = models.IntegerField(
+        verbose_name="Reichweite",
+        null=True,
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        null=True,
+    )
+    saved = models.IntegerField(
+        verbose_name="Saves",
+        help_text="Anzahl der Saves",
+        null=True,
+    )
+    video_views = models.IntegerField(
+        verbose_name="Video-Views",
+        help_text="Video-Views (3 sec oder mehr)",
+        null=True,
+    )
     link = models.URLField(verbose_name="Link", help_text="URL des Postings")
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
@@ -151,14 +180,40 @@ class InstaStory(models.Model):
     replies = models.IntegerField(
         verbose_name="Antworten",
         help_text="Anzahl der Antworten",
+        null=True,
     )
-    exits = models.IntegerField(verbose_name="Exits", help_text="Anzahl der Ausstiege")
-    reach = models.IntegerField(verbose_name="Reichweite")
-    impressions = models.IntegerField(verbose_name="Impressions")
+    exits = models.IntegerField(
+        verbose_name="Exits",
+        help_text="Anzahl der Ausstiege",
+        null=True,
+    )
+    reach = models.IntegerField(
+        verbose_name="Reichweite",
+        null=True,
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        null=True,
+    )
+    taps_forward = models.IntegerField(
+        verbose_name="Taps forward",
+        help_text="Anzahl der forward Taps",
+        null=True,
+    )
+    taps_back = models.IntegerField(
+        verbose_name="Taps back",
+        help_text="Anzahl der back Taps",
+        null=True,
+    )
     link = models.URLField(
         verbose_name="Link",
         help_text="URL des Story-Elements",
         max_length=1024,
+    )
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
     )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
@@ -166,71 +221,176 @@ class InstaStory(models.Model):
         return f"{self.created_at}: {self.insta.name} - {self.story_type}"
 
 
-class InstaCollaborationType(models.Model):
-    """Liste der verfügbaren Collaborations-Typen.
-
-    Manuell via Django Admin angelegt.
-    """
+class InstaIGTV(models.Model):
+    """Grundlegende Daten zu einzelnen Instagram IGTV Videos."""
 
     class Meta:
         """Model meta options."""
 
-        db_table = "instagram_collaboration_type"
-        verbose_name = "Instagram-Collaboration Format"
-        verbose_name_plural = "Instagram-Collaboration Formate"
-        ordering = ["name"]
-
-    name = models.CharField(
-        "Name",
-        help_text="Bezeichnung der Art von Collaboration",
-        max_length=200,
-        null=False,
-        blank=False,
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class InstaCollaboration(models.Model):
-    """Daten über Instagram collaborations.
-
-    Manuell angelegt via Django Admin.
-    """
-
-    class Meta:
-        """Model meta options."""
-
-        db_table = "instagram_collaboration"
-        verbose_name = "Instagram-Collaboration"
-        verbose_name_plural = "Instagram-Collaborations"
-        ordering = ["-date"]
+        db_table = "instagram_tv_video"
+        verbose_name = "Instagram IGTV Video"
+        verbose_name_plural = "Instagram IGTV Videos"
+        ordering = ["-created_at"]
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
         to=Insta,
         on_delete=models.CASCADE,
-        related_name="collaborations",
-        related_query_name="collaboration",
+        related_name="igtv_videos",
+        related_query_name="igtv_video",
     )
-    date = models.DateField(verbose_name="Datum")
-    influencer = models.CharField(
-        verbose_name="Influencer*in (Account-Name)", max_length=100
+    external_id = models.CharField(
+        verbose_name="Externe ID", max_length=25, unique=True
     )
-    followers = models.IntegerField(
-        verbose_name="Follower", help_text="Anzahl Follower der Influencer*in"
+    created_at = models.DateTimeField(verbose_name="Erstellungsdatum")
+    message = models.TextField(
+        verbose_name="Text",
+        help_text="Beschreibungstext des IGTV Videos",
     )
-    collaboration_type = models.ForeignKey(
-        InstaCollaborationType,
-        on_delete=models.SET_NULL,
+    video_title = models.TextField(
+        verbose_name="Titel",
+        help_text="Titel des IGTV Videos",
+    )
+    likes = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Anzahl der Likes",
         null=True,
-        related_name="collaboration",
-        verbose_name="Format",
-        help_text="Bezeichnung der Art von Collaboration",
     )
-    topic = models.TextField(verbose_name="Thema", help_text="Thema der Kollaboration")
-    description = models.TextField(verbose_name="Notiz", blank=True)
+    comments = models.IntegerField(
+        verbose_name="Kommentare",
+        help_text="Anzahl der Kommentare",
+        null=True,
+    )
+    reach = models.IntegerField(
+        verbose_name="Reichweite",
+        null=True,
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        null=True,
+    )
+    saved = models.IntegerField(
+        verbose_name="Saves",
+        help_text="Anzahl der Saves",
+        null=True,
+    )
+    video_views = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Video-Views (3 sec oder mehr)",
+        null=True,
+    )
+    link = models.URLField(verbose_name="Link", help_text="URL des Postings")
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.insta.name} - {self.influencer}"
+        return f"{self.created_at}: {self.insta.name} - {self.video_title}"
+
+
+class InstaDemographics(models.Model):
+    """Demographische Daten zu einzelnem Instagram Account."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_demographics"
+        verbose_name = "Instagram Demographics"
+        verbose_name_plural = "Instagram Demographics"
+        unique_together = ("insta", "date", "age_range", "gender")
+        ordering = ["-date"]
+
+    class AgeRange(models.TextChoices):
+        AGE_13_17 = "13-17", "13-17"
+        AGE_18_24 = "18-24", "18-24"
+        AGE_25_34 = "25-34", "25-34"
+        AGE_35_44 = "35-44", "35-44"
+        AGE_45_54 = "45-54", "45-54"
+        AGE_55_64 = "55-64", "55-64"
+        Age_65_PLUS = "65+", "65+"
+        UNKNOWN = "unknown", "Unbekannt"
+
+    class Gender(models.TextChoices):
+        MALE = "male", "Männlich"
+        FEMALE = "female", "Weiblich"
+        UNKNOWN = "unknown", "Unbekannt"
+
+    insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
+        to=Insta,
+        on_delete=models.CASCADE,
+        related_name="instagram_demographics",
+        related_query_name="instagram_demographics",
+    )
+    date = models.DateField(verbose_name="Datum")
+
+    age_range = models.CharField(
+        verbose_name="Altersgruppe",
+        choices=AgeRange.choices,
+        help_text="Die Altersgruppe, für die dieser Datenpunkt gilt.",
+        max_length=20,
+    )
+    gender = models.CharField(
+        verbose_name="Geschlecht",
+        choices=Gender.choices,
+        help_text="Das Geschlecht, für das dieser Datenpunkt gilt.",
+        max_length=20,
+    )
+    followers = models.IntegerField(
+        verbose_name="Followers",
+        help_text="Anzahl der Followers dieser Demografie.",
+        null=True,
+    )
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.date}: {self.insta.name} - {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
+
+
+class InstaHourlyFollowers(models.Model):
+    """Daten zur Nutzung nach Tageszeit von einzelnem Instagram Account."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_hourly_followers"
+        verbose_name = "Instagram Hourly Followers"
+        verbose_name_plural = "Instagram  Hourly Followers"
+        unique_together = ("insta", "date_time")
+        ordering = ["-date_time"]
+
+    insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
+        to=Insta,
+        on_delete=models.CASCADE,
+        related_name="instagram_hourly_followers",
+        related_query_name="instagram_hourly_followers",
+    )
+    date_time = models.DateTimeField(
+        verbose_name="Zeitpunkt",
+        help_text="Datum und Uhrzeit des Datenpunktes",
+    )
+    followers = models.IntegerField(
+        verbose_name="Followers",
+        help_text="Anzahl der aktiven Follower",
+    )
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.insta.name}: {self.date_time}"

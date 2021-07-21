@@ -29,6 +29,6 @@ do
     echo "➡  Running flake8"
     echo "$content" | flake8 --stdin-display-name "$path" - || EXIT_STATUS=$?
 
-done < <(git diff --cached --name-only -- '***.py')
+done < <(git diff --cached --name-only --diff-filter=d -- '***.py')
 
 exit $EXIT_STATUS

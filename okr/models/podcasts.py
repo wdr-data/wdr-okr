@@ -740,7 +740,7 @@ class PodcastEpisodeDataSpotifyDemographics(models.Model):
     )
 
     def __str__(self):
-        return f"{self.episode.title}: {self.AgeRange(self.age_range).label} - {self.AgeRange(self.age_range).label}"
+        return f"{self.episode.title}: {self.AgeRange(self.age_range).label} - {self.Gender(self.gender).label}"
 
 
 class PodcastEpisodeDataPodstat(models.Model):
