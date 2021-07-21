@@ -112,24 +112,9 @@ def add_jobs():
     # Instagram
     scheduler.add_job(
         insta.scrape_insights,
-        args=["daily"],
         trigger="cron",
         hour="5,11,17,23",
         minute="30",
-    )
-    scheduler.add_job(
-        insta.scrape_insights,
-        args=["weekly"],
-        trigger="cron",
-        hour="6",
-        minute="0",
-    )
-    scheduler.add_job(
-        insta.scrape_insights,
-        args=["monthly"],
-        trigger="cron",
-        hour="6",
-        minute="10",
     )
     scheduler.add_job(
         insta.scrape_stories,

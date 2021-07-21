@@ -27,15 +27,8 @@ class InstaInsight(models.Model):
         db_table = "instagram_insights"
         verbose_name = "Instagram-Insight"
         verbose_name_plural = "Instagram-Insights"
-        unique_together = ("insta", "date", "interval")
+        unique_together = ("insta", "date")
         ordering = ["-date"]
-
-    class Interval(models.TextChoices):
-        """Available update intervals."""
-
-        DAILY = "daily", "Täglich"
-        WEEKLY = "weekly", "Wöchentlich"
-        MONTHLY = "monthly", "Monatlich"
 
     insta = models.ForeignKey(
         verbose_name="Instagram-Account",
@@ -46,21 +39,30 @@ class InstaInsight(models.Model):
         related_query_name="insight",
     )
     date = models.DateField(verbose_name="Datum")
-    interval = models.CharField(
-        verbose_name="Zeitraum",
-        help_text="Intervall (täglich, wöchentlich oder monatlich)",
-        choices=Interval.choices,
-        max_length=10,
-    )
+
     reach = models.IntegerField(verbose_name="Reichweite", null=True)
+    reach_7_days = models.IntegerField(
+        verbose_name="Reichweite (7 Tage rollierend)",
+        null=True,
+    )
+    reach_28_days = models.IntegerField(
+        verbose_name="Reichweite (28 Tage rollierend)",
+        null=True,
+    )
+
     impressions = models.IntegerField(verbose_name="Impressions", null=True)
-    followers = models.IntegerField(verbose_name="Follower")
-    followers_change = models.IntegerField(verbose_name="Veränderung Follower")
-    posts_change = models.IntegerField(verbose_name="Veränderung Posts")
+    followers = models.IntegerField(verbose_name="Follower", null=True)
     text_message_clicks_day = models.IntegerField(
         verbose_name="Nachricht senden", null=True
     )
     email_contacts_day = models.IntegerField(verbose_name="Email senden", null=True)
+    profile_views = models.IntegerField(verbose_name="Profilansichten", null=True)
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
@@ -125,9 +127,9 @@ class InstaPost(models.Model):
         null=True,
     )
     link = models.URLField(verbose_name="Link", help_text="URL des Postings")
-    quintly_import_time = models.DateTimeField(
-        verbose_name="Import Time",
-        help_text="Stand der Daten bei Quintly",
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
         null=True,
     )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
@@ -208,9 +210,9 @@ class InstaStory(models.Model):
         help_text="URL des Story-Elements",
         max_length=1024,
     )
-    quintly_import_time = models.DateTimeField(
-        verbose_name="Import Time",
-        help_text="Stand der Daten bei Quintly",
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
         null=True,
     )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
@@ -279,9 +281,9 @@ class InstaIGTV(models.Model):
         null=True,
     )
     link = models.URLField(verbose_name="Link", help_text="URL des Postings")
-    quintly_import_time = models.DateTimeField(
-        verbose_name="Import Time",
-        help_text="Stand der Daten bei Quintly",
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
         null=True,
     )
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)

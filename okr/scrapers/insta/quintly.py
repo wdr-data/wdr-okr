@@ -15,7 +15,6 @@ from ..common import utils
 def get_insta_insights(
     profile_id: int,
     *,
-    interval: str = "daily",
     start_date: Optional[datetime.date] = None,
 ) -> pd.DataFrame:
     """Read data for posts on Instagram profile via Quintly API.
@@ -33,31 +32,46 @@ def get_insta_insights(
 
     today = utils.local_today()
 
-    if start_date is None:
-        if interval == "daily":
-            start_date = today - datetime.timedelta(days=3)
-        elif interval == "weekly":
-            start_date = today - datetime.timedelta(days=14)
-        elif interval == "monthly":
-            start_date = today - datetime.timedelta(days=60)
+    start_date = start_date or today - datetime.timedelta(days=7)
 
     end_date = today
 
     table = "instagram"
-    fields = ["time", "followers", "followersChange", "postsChange"]
+    fields = [
+        "time",
+        "followers",
+    ]
 
     df_insta = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
     )
 
     table = "instagramInsights"
 
-    fields = ["time", "reach", "impressions"]
-    if interval == "daily":
-        fields += ["textMessageClicksDay", "emailContactsDay"]
+    fields = [
+        "time",
+        "importTime",
+        "reachDay",
+        "reachWeek",
+        "reachDays28",
+        "impressionsDay",
+        "textMessageClicksDay",
+        "emailContactsDay",
+        "profileViewsDay",
+    ]
 
     df_insta_insights = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
     )
 
     df_insta.time = df_insta.time.str[:10]
@@ -65,7 +79,7 @@ def get_insta_insights(
     df_insta_insights.time = df_insta_insights.time.str[:10]
     df_insta_insights.time = df_insta_insights.time.astype("str")
 
-    df = df_insta.merge(df_insta_insights, on="time", how="inner")
+    df = df_insta.merge(df_insta_insights, on="time", how="outer")
 
     df = df.replace({np.nan: None})
 

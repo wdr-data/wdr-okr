@@ -17,14 +17,13 @@ class InsightAdmin(admin.ModelAdmin):
     list_display = [
         "date",
         "insta",
-        "interval",
         "reach",
+        "reach_7_days",
+        "reach_28_days",
         "impressions",
-        "followers_change",
-        "posts_change",
     ]
     list_display_links = ["date"]
-    list_filter = ["insta", "interval"]
+    list_filter = ["insta"]
     date_hierarchy = "date"
 
 
@@ -35,7 +34,7 @@ class PostAdmin(admin.ModelAdmin):
         "external_id",
         "insta",
         "created_at",
-        "quintly_import_time",
+        "quintly_last_updated",
         "post_type",
         "likes",
         "reach",
@@ -55,7 +54,7 @@ class StoryAdmin(admin.ModelAdmin):
         "external_id",
         "insta",
         "created_at",
-        "quintly_import_time",
+        "quintly_last_updated",
         "story_type",
         "reach",
         "impressions",
@@ -75,7 +74,7 @@ class IGTVAdmin(admin.ModelAdmin):
         "external_id",
         "insta",
         "created_at",
-        "quintly_import_time",
+        "quintly_last_updated",
         "video_title",
         "reach",
         "impressions",
