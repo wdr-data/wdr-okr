@@ -159,8 +159,12 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON,
 
     # retry once if the itunes_url is 404 (renamed podcast?)
     if result.status_code == 404 and retry:
-        podcast = _get_metadata_url(podcast)
-        podcast.save()
+        url = _get_metadata_url(podcast)
+
+        if url:
+            podcast.itunes_url = url
+            podcast.save()
+
         return _get_reviews_json(podcast, retry=False)
 
     result.raise_for_status()
