@@ -81,6 +81,9 @@ def add_jobs():
     * :meth:`~okr.scrapers.insta.scrape_insights`
     * :meth:`~okr.scrapers.insta.scrape_stories`
     * :meth:`~okr.scrapers.insta.scrape_posts`
+    * :meth:`~okr.scrapers.insta.scrape_igtv`
+    * :meth:`~okr.scrapers.scrape_demographics`
+    * :meth:`~okr.scrapers.scrape_hourly_followers`
     * :meth:`~okr.scrapers.facebook.scrape_insights`
     * :meth:`~okr.scrapers.facebook.scrape_posts`
     * :meth:`~okr.scrapers.twitter.scrape_insights`
@@ -111,36 +114,39 @@ def add_jobs():
     # Instagram
     scheduler.add_job(
         insta.scrape_insights,
-        args=["daily"],
         trigger="cron",
         hour="5,11,17,23",
         minute="30",
     )
     scheduler.add_job(
-        insta.scrape_insights,
-        args=["weekly"],
-        trigger="cron",
-        hour="6",
-        minute="0",
-    )
-    scheduler.add_job(
-        insta.scrape_insights,
-        args=["monthly"],
-        trigger="cron",
-        hour="6",
-        minute="1",
-    )
-    scheduler.add_job(
         insta.scrape_stories,
         trigger="cron",
         hour="5",
-        minute="31",
+        minute="40",
     )
     scheduler.add_job(
         insta.scrape_posts,
         trigger="cron",
         hour="5",
-        minute="32",
+        minute="45",
+    )
+    scheduler.add_job(
+        insta.scrape_igtv,
+        trigger="cron",
+        hour="5",
+        minute="50",
+    )
+    scheduler.add_job(
+        insta.scrape_demographics,
+        trigger="cron",
+        hour="5",
+        minute="55",
+    )
+    scheduler.add_job(
+        insta.scrape_hourly_followers,
+        trigger="cron",
+        hour="5",
+        minute="59",
     )
 
     # Facebook
@@ -177,7 +183,7 @@ def add_jobs():
         twitter.scrape_insights,
         args=["daily"],
         trigger="cron",
-        hour="5,11,17,23",
+        hour="4,11,17,23",
         minute="50",
     )
     scheduler.add_job(

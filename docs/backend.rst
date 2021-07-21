@@ -12,8 +12,7 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
   :ref:`manuelle Anlegen und Zuweisen von Kategorien für Podcasts<backend_categories>`.
 
 * **Manuelles Einpflegen von zusätzlichen Daten**: Für manche
-  :ref:`YouTube-Daten <backend_youtube>` sowie für
-  Daten zu :ref:`Instagram Collaborations <backend_instagram>` müssen Daten noch manuell
+  :ref:`YouTube-Daten <backend_youtube>` müssen Daten noch manuell
   angelegt werden. Darüber hinaus ist es möglich, mit dem Data Warehouse Backend
   :ref:`manuelle Kennzahlen anzulegen und zu pflegen <backend_custom_key_results>`.
 
@@ -28,4 +27,3 @@ Dieses Backend erfüllt im Wesentlichen zwei Funktionen:
     backend/backend_custom_key_results
     backend/backend_categories
     backend/backend_youtube
-    backend/backend_instagram_collaborations

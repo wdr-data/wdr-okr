@@ -2,7 +2,6 @@
 
 import datetime
 from typing import Optional
-from loguru import logger
 
 import numpy as np
 import pandas as pd
@@ -15,14 +14,12 @@ from ..common import utils
 def get_insta_insights(
     profile_id: int,
     *,
-    interval: str = "daily",
     start_date: Optional[datetime.date] = None,
 ) -> pd.DataFrame:
     """Read data for posts on Instagram profile via Quintly API.
 
     Args:
         profile_id (int): ID of profile to request data for.
-        interval (str, optional): Description of interval. Defaults to "daily".
         start_date ([type], optional): Date of earliest data to request. Defaults to
           None. Will be set to include at least two intervals if None.
 
@@ -33,31 +30,46 @@ def get_insta_insights(
 
     today = utils.local_today()
 
-    if start_date is None:
-        if interval == "daily":
-            start_date = today - datetime.timedelta(days=3)
-        elif interval == "weekly":
-            start_date = today - datetime.timedelta(days=14)
-        elif interval == "monthly":
-            start_date = today - datetime.timedelta(days=60)
+    start_date = start_date or today - datetime.timedelta(days=7)
 
     end_date = today
 
     table = "instagram"
-    fields = ["time", "followers", "followersChange", "postsChange"]
+    fields = [
+        "time",
+        "followers",
+    ]
 
     df_insta = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
     )
 
     table = "instagramInsights"
 
-    fields = ["time", "reach", "impressions"]
-    if interval == "daily":
-        fields += ["textMessageClicksDay", "emailContactsDay"]
+    fields = [
+        "time",
+        "importTime",
+        "reachDay",
+        "reachWeek",
+        "reachDays28",
+        "impressionsDay",
+        "textMessageClicksDay",
+        "emailContactsDay",
+        "profileViewsDay",
+    ]
 
     df_insta_insights = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
     )
 
     df_insta.time = df_insta.time.str[:10]
@@ -65,7 +77,7 @@ def get_insta_insights(
     df_insta_insights.time = df_insta_insights.time.str[:10]
     df_insta_insights.time = df_insta_insights.time.astype("str")
 
-    df = df_insta.merge(df_insta_insights, on="time", how="inner")
+    df = df_insta.merge(df_insta_insights, on="time", how="outer")
 
     df = df.replace({np.nan: None})
 
@@ -94,10 +106,13 @@ def get_insta_stories(
     fields = [
         "externalId",
         "time",
+        "importTime",
         "caption",
         "reach",
         "impressions",
         "replies",
+        "tapsForward",
+        "tapsBack",
         "type",
         "link",
         "exits",
@@ -110,7 +125,6 @@ def get_insta_stories(
 
     df = df.replace({np.nan: None})
 
-    logger.debug(df)
     return df
 
 
@@ -131,25 +145,165 @@ def get_insta_posts(
     Returns:
         pd.DataFrame:  API response data.
     """
+
     profile_ids = [profile_id]
-    table = "instagramOwnPosts"
-    fields = ["externalId", "time", "message", "comments", "type", "link"]
+    table = "instagramInsightsOwnPosts"
+    fields = [
+        "externalId",
+        "importTime",
+        "impressions",
+        "comments",
+        "likes",
+        "link",
+        "message",
+        "reach",
+        "saved",
+        "time",
+        "type",
+        "videoViews",
+    ]
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
     end_date = datetime.date.today()
 
-    df_posts = common_quintly.quintly.run_query(
+    df = common_quintly.quintly.run_query(
         profile_ids, table, fields, start_date, end_date
     )
 
-    table = "instagramInsightsOwnPosts"
+    df = df.replace({np.nan: None})
 
-    fields = ["externalId", "time", "likes", "reach", "impressions"]
+    return df
 
-    df_posts_insights = common_quintly.quintly.run_query(
+
+@common_quintly.requires_quintly
+def get_insta_igtv(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for IGTV on Instagram profile via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date (Optional[datetime.date], optional): Date of earliest possible
+          data to request. Defaults to None. Will be set to today's date one week ago if
+          None.
+
+    Returns:
+        pd.DataFrame:  API response data.
+    """
+    profile_ids = [profile_id]
+    table = "instagramInsightsTvPosts"
+    fields = [
+        "externalId",
+        "time",
+        "importTime",
+        "message",
+        "videoTitle",
+        "likes",
+        "comments",
+        "reach",
+        "impressions",
+        "saved",
+        "videoViews",
+        "link",
+    ]
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    end_date = datetime.date.today()
+    df = common_quintly.quintly.run_query(
         profile_ids, table, fields, start_date, end_date
     )
 
-    df = df_posts.merge(df_posts_insights, on=["externalId", "time"], how="inner")
+    df = df.replace({np.nan: None})
+
+    return df
+
+
+@common_quintly.requires_quintly
+def get_insta_demographics(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for Instagram demographics via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date ([type], optional): Date of earliest data to request. Defaults to
+          None. Will be set to include at least two intervals if None.
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
+    profile_ids = [profile_id]
+
+    today = utils.local_today()
+
+    start_date = start_date or today - datetime.timedelta(days=7)
+
+    end_date = today
+
+    table = "instagramInsights"
+
+    fields = [
+        "time",
+        "importTime",
+        "audienceGenderAndAge",
+    ]
+
+    df = common_quintly.quintly.run_query(
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
+    )
+
+    df = df.replace({np.nan: None})
+
+    return df
+
+
+@common_quintly.requires_quintly
+def get_insta_hourly_followers(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for Instagram hourly followers via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date ([type], optional): Date of earliest data to request. Defaults to
+          None. Will be set to include at least two intervals if None.
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
+    profile_ids = [profile_id]
+
+    today = utils.local_today()
+
+    start_date = start_date or today - datetime.timedelta(days=7)
+
+    end_date = today
+
+    table = "instagramInsights"
+
+    fields = [
+        "time",
+        "importTime",
+        "onlineFollowers",
+    ]
+
+    df = common_quintly.quintly.run_query(
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
+    )
 
     df = df.replace({np.nan: None})
 
