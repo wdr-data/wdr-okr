@@ -4,6 +4,7 @@
 import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.settings")
+os.environ.setdefault("ROLE", "worker")
 
 import django
 

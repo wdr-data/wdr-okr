@@ -49,7 +49,7 @@ class FeedForm(forms.ModelForm):
     def clean(self) -> Dict[str, Any]:
         feed_dict = feed.parse(self.cleaned_data["feed_url"])
 
-        existing_podcast = Podcast.objects.filter(name=feed_dict.feed.title).first()
+        existing_podcast = Podcast.objects_all.filter(name=feed_dict.feed.title).first()
         if existing_podcast:
             raise ValidationError(
                 {
@@ -99,7 +99,7 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
         "main_category",
         "itunes_category",
     ]
-    list_filter = [
+    list_filter = ProductAdmin.list_filter + [
         "author",
         "categories",
         "main_category",
