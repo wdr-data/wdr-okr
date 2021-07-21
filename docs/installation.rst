@@ -27,7 +27,7 @@ Das OKR Data Warehouse läuft in zwei parallelen Prozessen (separate Dynos bei H
 .. _installation_voraussetzungen_web:
 
 Web
-    Im Web-Prozess (bzw. -Dyno) läuft das :ref:`backend` zum Anlegend und Editieren von
+    Im Web-Prozess (bzw. -Dyno) läuft das :ref:`backend` zum Anlegen und Editieren von
     Datenquellen.
 
 .. _installation_voraussetzungen_worker:
@@ -123,8 +123,8 @@ Anschließend sicherstellen, dass die Umgebungsvariablen für die
 gesetzt sind.
 
 Zunächst sicher stellen, dass die oben beschriebenen :ref:`installation_voraussetzungen`
-erfüllt sind. Anschließend die benötigten Pakete mit Hilfe von ``pipenv`` herunterladen
-und installieren:
+erfüllt sind und der Redis Server aktiv ist. Anschließend die benötigten Pakete mit
+Hilfe von ``pipenv`` herunterladen und installieren:
 
 .. code-block:: bash
 
