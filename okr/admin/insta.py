@@ -1,6 +1,5 @@
 """Forms for managing Instagram data."""
 
-from django import forms
 from django.contrib import admin
 from ..models import (
     Insta,
@@ -8,37 +7,8 @@ from ..models import (
     InstaPost,
     InstaStory,
     InstaIGTV,
-    InstaCollaboration,
-    InstaCollaborationType,
 )
 from .base import QuintlyAdmin
-
-
-class CollaborationModelForm(forms.ModelForm):
-    """Form for editing collaboration models."""
-
-    class Meta:
-        model = InstaCollaboration
-        exclude = ()
-
-    def get_initial_for_field(self, field, field_name):
-        if field_name == "insta" and not self.instance.id:
-            instas = Insta.objects.all()[:1]
-            instas = list(instas)
-            if instas:
-                return instas[0]
-
-        return super().get_initial_for_field(field, field_name)
-
-
-class CollaborationAdmin(admin.ModelAdmin):
-    """List for choosing from available collaboration models."""
-
-    form = CollaborationModelForm
-    list_display = ["date", "influencer", "collaboration_type", "followers"]
-    list_display_links = ["influencer"]
-    readonly_fields = ["last_updated"]
-    date_hierarchy = "date"
 
 
 class InsightAdmin(admin.ModelAdmin):
@@ -116,21 +86,8 @@ class IGTVAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
 
-class CollaborationTypeAdmin(admin.ModelAdmin):
-    """List for choosing existing collaboration types to edit."""
-
-    list_display = [
-        "name",
-    ]
-    list_display_links = ["name"]
-    list_filter = []
-    date_hierarchy = None
-
-
 admin.site.register(Insta, QuintlyAdmin)
 admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
 admin.site.register(InstaStory, StoryAdmin)
 admin.site.register(InstaIGTV, IGTVAdmin)
-admin.site.register(InstaCollaboration, CollaborationAdmin)
-admin.site.register(InstaCollaborationType, CollaborationTypeAdmin)
