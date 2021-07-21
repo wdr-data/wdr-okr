@@ -66,7 +66,7 @@ class InstaInsight(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.insta.name} - {self.Interval(self.interval).label}"
+        return f"{self.date}: {self.insta.name}"
 
 
 class InstaPost(models.Model):
@@ -290,3 +290,107 @@ class InstaIGTV(models.Model):
 
     def __str__(self):
         return f"{self.created_at}: {self.insta.name} - {self.video_title}"
+
+
+class InstaDemographics(models.Model):
+    """Demographische Daten zu einzelnem Instagram Account."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_demographics"
+        verbose_name = "Instagram Demographics"
+        verbose_name_plural = "Instagram Demographics"
+        unique_together = ("insta", "date", "age_range", "gender")
+        ordering = ["-date"]
+
+    class AgeRange(models.TextChoices):
+        AGE_13_17 = "13-17", "13-17"
+        AGE_18_24 = "18-24", "18-24"
+        AGE_25_34 = "25-34", "25-34"
+        AGE_35_44 = "35-44", "35-44"
+        AGE_45_54 = "45-54", "45-54"
+        AGE_55_64 = "55-64", "55-64"
+        Age_65_PLUS = "65+", "65+"
+        UNKNOWN = "unknown", "Unbekannt"
+
+    class Gender(models.TextChoices):
+        MALE = "male", "Männlich"
+        FEMALE = "female", "Weiblich"
+        UNKNOWN = "unknown", "Unbekannt"
+
+    insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
+        to=Insta,
+        on_delete=models.CASCADE,
+        related_name="instagram_demographics",
+        related_query_name="instagram_demographics",
+    )
+    date = models.DateField(verbose_name="Datum")
+
+    age_range = models.CharField(
+        verbose_name="Altersgruppe",
+        choices=AgeRange.choices,
+        help_text="Die Altersgruppe, für die dieser Datenpunkt gilt.",
+        max_length=20,
+    )
+    gender = models.CharField(
+        verbose_name="Geschlecht",
+        choices=Gender.choices,
+        help_text="Das Geschlecht, für das dieser Datenpunkt gilt.",
+        max_length=20,
+    )
+    followers = models.IntegerField(
+        verbose_name="Followers",
+        help_text="Anzahl der Followers dieser Demografie.",
+        null=True,
+    )
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.date}: {self.insta.name} - {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
+
+
+class InstaHourlyFollowers(models.Model):
+    """Daten zur Nutzung nach Tageszeit von einzelnem Instagram Account."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_hourly_followers"
+        verbose_name = "Instagram Hourly Followers"
+        verbose_name_plural = "Instagram  Hourly Followers"
+        unique_together = ("insta", "date_time")
+        ordering = ["-date_time"]
+
+    insta = models.ForeignKey(
+        verbose_name="Instagram-Account",
+        help_text="Globale ID des Instagram-Accounts",
+        to=Insta,
+        on_delete=models.CASCADE,
+        related_name="instagram_hourly_followers",
+        related_query_name="instagram_hourly_followers",
+    )
+    date_time = models.DateTimeField(
+        verbose_name="Zeitpunkt",
+        help_text="Datum und Uhrzeit des Datenpunktes",
+    )
+    followers = models.IntegerField(
+        verbose_name="Followers",
+        help_text="Anzahl der aktiven Follower",
+    )
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.insta.name}: {self.date_time}"

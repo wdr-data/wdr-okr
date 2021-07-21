@@ -7,6 +7,8 @@ from ..models import (
     InstaPost,
     InstaStory,
     InstaIGTV,
+    InstaDemographics,
+    InstaHourlyFollowers,
 )
 from .base import QuintlyAdmin
 
@@ -85,8 +87,41 @@ class IGTVAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
 
+class DemographicsAdmin(admin.ModelAdmin):
+    """List for choosing existing Instagram demographics data to edit."""
+
+    list_display = [
+        "insta",
+        "date",
+        "quintly_last_updated",
+        "age_range",
+        "gender",
+        "followers",
+    ]
+    list_display_links = ["insta", "date"]
+    list_filter = ["age_range", "gender", "insta"]
+    date_hierarchy = "date"
+    search_fields = ["insta"]
+
+
+class HourlyFollowersAdmin(admin.ModelAdmin):
+    """List for choosing existing Instagram hourly followers data to edit."""
+
+    list_display = [
+        "insta",
+        "date_time",
+        "followers",
+    ]
+    list_display_links = ["insta", "date_time"]
+    list_filter = ["insta"]
+    date_hierarchy = "date_time"
+    search_fields = ["insta"]
+
+
 admin.site.register(Insta, QuintlyAdmin)
 admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
 admin.site.register(InstaStory, StoryAdmin)
 admin.site.register(InstaIGTV, IGTVAdmin)
+admin.site.register(InstaDemographics, DemographicsAdmin)
+admin.site.register(InstaHourlyFollowers, HourlyFollowersAdmin)

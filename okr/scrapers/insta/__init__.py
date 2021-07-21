@@ -1,6 +1,7 @@
 """Read and process data for Instagram from Quintly."""
 
-from datetime import date, datetime
+import datetime as dt
+import json
 from time import sleep
 from typing import Optional
 
@@ -15,6 +16,8 @@ from ...models.insta import (
     InstaPost,
     InstaStory,
     InstaIGTV,
+    InstaDemographics,
+    InstaHourlyFollowers,
 )
 from . import quintly
 from ..common.utils import BERLIN
@@ -30,7 +33,7 @@ def scrape_full(insta: Insta):
     logger.info('Starting full scrape for Instagram account "{}"', insta.name)
 
     insta_filter = Q(id=insta.id)
-    start_date = date(2019, 1, 1)
+    start_date = dt.date(2019, 1, 1)
 
     sleep(1)
 
@@ -38,13 +41,15 @@ def scrape_full(insta: Insta):
     scrape_stories(start_date=start_date, insta_filter=insta_filter)
     scrape_posts(start_date=start_date, insta_filter=insta_filter)
     scrape_igtv(start_date=start_date, insta_filter=insta_filter)
+    scrape_demographics(start_date=start_date, insta_filter=insta_filter)
+    scrape_hourly_followers(start_date=start_date, insta_filter=insta_filter)
 
     logger.success('Finished full scrape for Instagram account "{}"', insta.name)
 
 
 def scrape_insights(
     *,
-    start_date: Optional[date] = None,
+    start_date: Optional[dt.date] = None,
     insta_filter: Optional[Q] = None,
 ):
     """Retrieve Instagram insights data from Quintly.
@@ -52,9 +57,8 @@ def scrape_insights(
     Results are saved in :class:`~okr.models.insta.InstaInsight`.
 
     Args:
-        interval (str): Interval to request data for.
-        start_date (Optional[date], optional): Earliest date to request data for.
-        Defaults to None.
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
         insta_filter (Optional[Q], optional): Filter to apply to
             :class:`~okr.models.insta.Insta` object. Defaults to None.
     """
@@ -64,12 +68,13 @@ def scrape_insights(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
+        logger.debug(f"Scraping Instagram insights for {insta.name}")
         df = quintly.get_insta_insights(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
             defaults = {
                 "quintly_last_updated": BERLIN.localize(
-                    datetime.fromisoformat(row.importTime)
+                    dt.datetime.fromisoformat(row.importTime)
                 ),
                 "reach": row.reachDay,
                 "reach_7_days": row.reachWeek,
@@ -84,7 +89,7 @@ def scrape_insights(
             try:
                 obj, created = InstaInsight.objects.update_or_create(
                     insta=insta,
-                    date=date.fromisoformat(row.time),
+                    date=dt.date.fromisoformat(row.time),
                     defaults=defaults,
                 )
             except IntegrityError as e:
@@ -97,15 +102,15 @@ def scrape_insights(
 
 
 def scrape_stories(
-    *, start_date: Optional[date] = None, insta_filter: Optional[Q] = None
+    *, start_date: Optional[dt.date] = None, insta_filter: Optional[Q] = None
 ):
     """Retrieve data for Instagram stories from Quintly.
 
     Results are saved in :class:`~okr.models.insta.InstaStory`.
 
     Args:
-        start_date (Optional[date], optional): Earliest date to request data for.
-        Defaults to None.
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
         insta_filter (Optional[Q], optional): Filter to apply to
             :class:`~okr.models.insta.Insta` object. Defaults to None.
     """
@@ -115,13 +120,14 @@ def scrape_stories(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
+        logger.debug(f"Scraping Instagram stories for {insta.name}")
         df = quintly.get_insta_stories(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
             defaults = {
-                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+                "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
                 "quintly_last_updated": BERLIN.localize(
-                    datetime.fromisoformat(row.importTime)
+                    dt.datetime.fromisoformat(row.importTime)
                 ),
                 "caption": row.caption,
                 "reach": row.reach,
@@ -148,15 +154,15 @@ def scrape_stories(
 
 
 def scrape_posts(
-    *, start_date: Optional[date] = None, insta_filter: Optional[Q] = None
+    *, start_date: Optional[dt.date] = None, insta_filter: Optional[Q] = None
 ):
     """Retrieve data for Instagram posts from Quintly.
 
     Results are saved in :class:`~okr.models.insta.InstaPost`.
 
     Args:
-        start_date (Optional[date], optional): Earliest date to request data for.
-        Defaults to None.
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
         insta_filter (Optional[Q], optional): Filter to apply to
             :class:`~okr.models.insta.Insta` object. Defaults to None.
     """
@@ -166,13 +172,14 @@ def scrape_posts(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
+        logger.debug(f"Scraping Instagram posts for {insta.name}")
         df = quintly.get_insta_posts(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
             defaults = {
-                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+                "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
                 "quintly_last_updated": BERLIN.localize(
-                    datetime.fromisoformat(row.importTime)
+                    dt.datetime.fromisoformat(row.importTime)
                 ),
                 "message": row.message or "",
                 "comments": row.comments,
@@ -198,14 +205,16 @@ def scrape_posts(
                 )
 
 
-def scrape_igtv(*, start_date: Optional[date] = None, insta_filter: Optional[Q] = None):
+def scrape_igtv(
+    *, start_date: Optional[dt.date] = None, insta_filter: Optional[Q] = None
+):
     """Retrieve data for Instagram IGTV videos from Quintly.
 
     Results are saved in :class:`~okr.models.insta.InstaIGTV`.
 
     Args:
-        start_date (Optional[date], optional): Earliest date to request data for.
-        Defaults to None.
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
         insta_filter (Optional[Q], optional): Filter to apply to
             :class:`~okr.models.insta.Insta` object. Defaults to None.
     """
@@ -215,16 +224,14 @@ def scrape_igtv(*, start_date: Optional[date] = None, insta_filter: Optional[Q] 
         instas = instas.filter(insta_filter)
 
     for insta in instas:
-
         logger.debug(f"Scraping IGTV for {insta.name}")
-
         df = quintly.get_insta_igtv(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
             defaults = {
-                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+                "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
                 "quintly_last_updated": BERLIN.localize(
-                    datetime.fromisoformat(row.importTime)
+                    dt.datetime.fromisoformat(row.importTime)
                 ),
                 "message": row.message or "",
                 "video_title": row.videoTitle,
@@ -248,3 +255,123 @@ def scrape_igtv(*, start_date: Optional[date] = None, insta_filter: Optional[Q] 
                     row.externalId,
                     defaults,
                 )
+
+
+def scrape_demographics(
+    *,
+    start_date: Optional[dt.date] = None,
+    insta_filter: Optional[Q] = None,
+):
+    """Retrieve Instagram demographics data from Quintly.
+
+    Results are saved in :class:`~okr.models.insta.InstaDemographics`.
+
+    Args:
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
+        insta_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.insta.Insta` object. Defaults to None.
+    """
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
+        logger.debug(f"Scraping Instagram demographics for {insta.name}")
+        df = quintly.get_insta_demographics(
+            insta.quintly_profile_id, start_date=start_date
+        )
+
+        for index, row in df.iterrows():
+            if not row.audienceGenderAndAge:
+                continue
+
+            for entry in json.loads(row.audienceGenderAndAge):
+                gender, _, age_range = entry["id"].partition("-")
+                followers = entry["followers"]
+
+                defaults = {
+                    "quintly_last_updated": BERLIN.localize(
+                        dt.datetime.fromisoformat(row.importTime)
+                    ),
+                    "followers": followers,
+                }
+
+                try:
+                    obj, created = InstaDemographics.objects.update_or_create(
+                        insta=insta,
+                        date=dt.date.fromisoformat(row.time[:10]),
+                        age_range=age_range,
+                        gender=gender,
+                        defaults=defaults,
+                    )
+
+                except IntegrityError as e:
+                    capture_exception(e)
+                    logger.exception(
+                        "Data for demographics on {} failed integrity check:\n{}",
+                        row.time,
+                        insta,
+                    )
+
+
+def scrape_hourly_followers(
+    *,
+    start_date: Optional[dt.date] = None,
+    insta_filter: Optional[Q] = None,
+):
+    """Retrieve Instagram hourly followers data from Quintly.
+
+    Results are saved in :class:`~okr.models.insta.InstaHourlyFollowers`.
+
+    Args:
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
+        insta_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.insta.Insta` object. Defaults to None.
+    """
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
+        logger.debug(f"Scraping Instagram hourly followers for {insta.name}")
+        df = quintly.get_insta_hourly_followers(
+            insta.quintly_profile_id, start_date=start_date
+        )
+
+        for index, row in df.iterrows():
+            if not row.onlineFollowers:
+                continue
+
+            date = dt.date.fromisoformat(row.time[:10])
+            for entry in json.loads(row.onlineFollowers):
+                hour = entry["id"]
+                followers = entry["followers"]
+                date_time = BERLIN.localize(
+                    dt.datetime(date.year, date.month, date.day, hour)
+                )
+                logger.debug(date_time)
+
+                defaults = {
+                    "quintly_last_updated": BERLIN.localize(
+                        dt.datetime.fromisoformat(row.importTime)
+                    ),
+                    "followers": followers,
+                }
+
+                try:
+                    obj, created = InstaHourlyFollowers.objects.update_or_create(
+                        insta=insta,
+                        date_time=date_time,
+                        defaults=defaults,
+                    )
+                except IntegrityError as e:
+                    capture_exception(e)
+                    logger.exception(
+                        "Data for hourly followers on {} failed integrity check:\n{}",
+                        date_time,
+                        insta,
+                    )

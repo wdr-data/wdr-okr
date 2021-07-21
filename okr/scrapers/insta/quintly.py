@@ -2,7 +2,6 @@
 
 import datetime
 from typing import Optional
-from loguru import logger
 
 import numpy as np
 import pandas as pd
@@ -21,7 +20,6 @@ def get_insta_insights(
 
     Args:
         profile_id (int): ID of profile to request data for.
-        interval (str, optional): Description of interval. Defaults to "daily".
         start_date ([type], optional): Date of earliest data to request. Defaults to
           None. Will be set to include at least two intervals if None.
 
@@ -217,5 +215,96 @@ def get_insta_igtv(
 
     df = df.replace({np.nan: None})
 
-    logger.debug(df)
+    return df
+
+
+@common_quintly.requires_quintly
+def get_insta_demographics(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for Instagram demographics via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date ([type], optional): Date of earliest data to request. Defaults to
+          None. Will be set to include at least two intervals if None.
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
+    profile_ids = [profile_id]
+
+    today = utils.local_today()
+
+    start_date = start_date or today - datetime.timedelta(days=7)
+
+    end_date = today
+
+    table = "instagramInsights"
+
+    fields = [
+        "time",
+        "importTime",
+        "audienceGenderAndAge",
+    ]
+
+    df = common_quintly.quintly.run_query(
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
+    )
+
+    df = df.replace({np.nan: None})
+
+    return df
+
+
+@common_quintly.requires_quintly
+def get_insta_hourly_followers(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for Instagram hourly followers via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date ([type], optional): Date of earliest data to request. Defaults to
+          None. Will be set to include at least two intervals if None.
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
+    profile_ids = [profile_id]
+
+    today = utils.local_today()
+
+    start_date = start_date or today - datetime.timedelta(days=7)
+
+    end_date = today
+
+    table = "instagramInsights"
+
+    fields = [
+        "time",
+        "importTime",
+        "onlineFollowers",
+    ]
+
+    df = common_quintly.quintly.run_query(
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval="daily",
+    )
+
+    df = df.replace({np.nan: None})
+
     return df
