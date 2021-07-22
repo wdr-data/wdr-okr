@@ -77,7 +77,7 @@ def get_insta_insights(
     df_insta_insights.time = df_insta_insights.time.str[:10]
     df_insta_insights.time = df_insta_insights.time.astype("str")
 
-    df = df_insta.merge(df_insta_insights, on="time", how="outer")
+    df = df_insta.merge(df_insta_insights, on="time", how="inner")
 
     df = df.replace({np.nan: None})
 
