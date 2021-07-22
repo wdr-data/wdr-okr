@@ -81,3 +81,19 @@ def date_param(
         date = min(latest, date)
 
     return date
+
+
+def to_timedelta(seconds: Optional[int]) -> Optional[dt.timedelta]:
+    if seconds is not None:
+        return dt.timedelta(seconds=seconds)
+    else:
+        return None
+
+
+def as_local_tz(
+    date_time: Optional[str], tz: pytz.timezone = BERLIN
+) -> Optional[dt.datetime]:
+    if date_time is not None:
+        return tz.localize(dt.datetime.fromisoformat(date_time))
+    else:
+        return None

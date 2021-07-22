@@ -20,8 +20,9 @@ from ..models import (
     Facebook,
     Twitter,
     SophoraNode,
+    SnapchatShow,
 )
-from . import insta, youtube, podcasts, pages, tiktok, facebook, twitter
+from . import insta, youtube, podcasts, pages, tiktok, facebook, twitter, snapchat_shows
 from .common.utils import BERLIN
 from .db_cleanup import run_db_cleanup
 from app.redis import q
@@ -34,6 +35,7 @@ executors = None
 def sentry_listener(event):
     """Forward exception of event to Sentry."""
     if event.exception:
+        logger.exception(event.exception)
         capture_exception(event.exception)
 
 
@@ -53,14 +55,15 @@ def setup():
     initial_executors = {
         f"initial_{model.__name__.lower()}": NativeThreadPoolExecutor(1)
         for model in (
-            Podcast,
-            Insta,
-            YouTube,
-            TikTok,
-            Property,
             Facebook,
-            Twitter,
+            Insta,
+            Podcast,
+            Property,
+            SnapchatShow,
             SophoraNode,
+            TikTok,
+            Twitter,
+            YouTube,
         )
     }
 
@@ -498,3 +501,17 @@ def tiktok_created(instance: TikTok, created: bool, **kwargs):
     logger.debug("{} saved, created={}", instance, created)
     if created:
         _on_created(tiktok.scrape_full, instance)
+
+
+@receiver(post_save, sender=SnapchatShow)
+def snapchat_show_created(instance: SnapchatShow, created: bool, **kwargs):
+    """Start scraper run for newly added Snapchat show account
+    (:meth:`okr.scrapers.snapchat_show.scrape_full`).
+
+    Args:
+        instance (SnapchatShow): An SnapchatShow instance
+        created (bool): Don't start scraper if set to False
+    """
+    logger.debug("{} saved, created={}", instance, created)
+    if created:
+        _on_created(snapchat_shows.scrape_full, instance)
