@@ -20,12 +20,12 @@ from ..common.utils import as_local_tz, to_timedelta
 
 
 def scrape_full(snapchat_show: SnapchatShow):
-    """Initiate scraping for SnapchatShow data from Quintly.
+    """Initiate scraping for Snapchat show data from Quintly.
 
     Args:
         snapchat_show (SnapchatShow): SnapchatShow object to collect data for.
     """
-    logger.info("Starting full SnapchatShow scrape of {}", snapchat_show.name)
+    logger.info("Starting full Snapchat show scrape of {}", snapchat_show.name)
 
     snapchat_show_filter = Q(id=snapchat_show.id)
     start_date = dt.date(2019, 1, 1)
@@ -34,7 +34,7 @@ def scrape_full(snapchat_show: SnapchatShow):
 
     scrape_insights(start_date=start_date, snapchat_show_filter=snapchat_show_filter)
     scrape_stories(start_date=start_date, snapchat_show_filter=snapchat_show_filter)
-    logger.success("Finished full SnapchatShow scrape of {}", snapchat_show.name)
+    logger.success("Finished full Snapchat show scrape of {}", snapchat_show.name)
 
 
 def scrape_insights(
@@ -42,7 +42,7 @@ def scrape_insights(
     start_date: Optional[dt.date] = None,
     snapchat_show_filter: Optional[Q] = None,
 ):
-    """Retrieve SnapchatShow insights data from Quintly.
+    """Retrieve Snapchat show insights data from Quintly.
 
     Results are saved in :class:`~okr.models.snapchat_shows.SnapchatShowInsight`.
 
@@ -116,7 +116,7 @@ def scrape_insights(
 def scrape_stories(
     *, start_date: Optional[dt.date] = None, snapchat_show_filter: Optional[Q] = None
 ):
-    """Retrieve data for SnapchatShow stories from Quintly.
+    """Retrieve data for Snapchat show stories from Quintly.
 
     Results are saved in :class:`~okr.models.snapchat_shows.SnapchatShowStory`.
 
