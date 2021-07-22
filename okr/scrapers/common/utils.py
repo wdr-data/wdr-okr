@@ -84,6 +84,15 @@ def date_param(
 
 
 def to_timedelta(seconds: Optional[int]) -> Optional[dt.timedelta]:
+    """Generate a timedelta from an int containing a number of seconds.
+
+    Args:
+        seconds (Optional[int]): Amount of seconds to convert to timedelta. Also
+            accepts None as input.
+
+    Returns:
+        Optional[dt.timedelta]: timedelta - returns None if seconds are None.
+    """
     if seconds is not None:
         return dt.timedelta(seconds=seconds)
     else:
@@ -93,6 +102,18 @@ def to_timedelta(seconds: Optional[int]) -> Optional[dt.timedelta]:
 def as_local_tz(
     date_time: Optional[str], tz: pytz.timezone = BERLIN
 ) -> Optional[dt.datetime]:
+    """Add timezone info to timezone naive isoformat date/time string.
+
+    Args:
+        date_time (Optional[str]): String containing timezone naive isoformat date/time
+            string.
+        tz (pytz.timezone, optional): Timezone to add to naive string. Defaults to
+            BERLIN.
+
+    Returns:
+        Optional[dt.datetime]: dt.datetime object with tz timezone. Returns None if
+            input date_time is None.
+    """
     if date_time is not None:
         return tz.localize(dt.datetime.fromisoformat(date_time))
     else:

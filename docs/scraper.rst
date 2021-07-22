@@ -36,12 +36,15 @@ Für Daten zu Podcasts:
   * Spotify Web API (`Web-API Dokumentation`_)
   * Spotify Analytics
 
-Für Daten zu Youtube:
+Für Daten zu Snapchat Shows:
   * Quintly API (`Quintly Dokumentation`_)
-  * Manueller Daten-Import aus YouTube Studio
 
 Für Daten zu TikTok:
   * Quintly API (`Quintly Dokumentation`_)
+
+Für Daten zu Youtube:
+  * Quintly API (`Quintly Dokumentation`_)
+  * Manueller Daten-Import aus YouTube Studio
 
 Bei Sophora-Inhalten betrachtet das Data Warehouse nur Dokumente mit den Endungen
 ``.html`` und ``.amp``.
