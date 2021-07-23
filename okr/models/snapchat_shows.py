@@ -331,9 +331,8 @@ class SnapchatShowStory(models.Model):
         return f"{self.start_date_time}: {self.snapchat_show.name} - {self.title}"
 
 
-'''
 class SnapchatShowSnap(models.Model):
-    """Grundlegende Daten zu einzelnen Snaps."""
+    """Grundlegende Daten zu einzelnen Snaps innerhalb von Snapchat show stories."""
 
     class Meta:
         """Model meta options."""
@@ -341,7 +340,7 @@ class SnapchatShowSnap(models.Model):
         db_table = "snapchat_show_snap"
         verbose_name = "Snapchat Show Snap"
         verbose_name_plural = "Snapchat Show Snaps"
-        ordering = ["-created_at"]
+        ordering = ["story__start_date_time"]
 
     external_id = models.CharField(
         help_text="The ID of this snap.",
@@ -351,6 +350,10 @@ class SnapchatShowSnap(models.Model):
     story = models.ForeignKey(
         verbose_name="Snapchat Show Story",
         help_text="The ID of the story this snap belongs to.",
+        to=SnapchatShowStory,
+        on_delete=models.CASCADE,
+        related_name="snaps",
+        related_query_name="snap",
     )
 
     name = models.TextField(
@@ -482,4 +485,3 @@ class SnapchatShowSnap(models.Model):
 
     def __str__(self):
         return f"{self.story.start_date_time}: {self.story.title} - {self.position}"
-'''

@@ -14,6 +14,7 @@ from ...models.snapchat_shows import (
     SnapchatShow,
     SnapchatShowInsight,
     SnapchatShowStory,
+    SnapchatShowSnap,
 )
 from . import quintly
 from ..common.utils import as_local_tz, to_timedelta
@@ -34,6 +35,7 @@ def scrape_full(snapchat_show: SnapchatShow):
 
     scrape_insights(start_date=start_date, snapchat_show_filter=snapchat_show_filter)
     scrape_stories(start_date=start_date, snapchat_show_filter=snapchat_show_filter)
+    scrape_story_snaps(start_date=start_date, snapchat_show_filter=snapchat_show_filter)
     logger.success("Finished full Snapchat show scrape of {}", snapchat_show.name)
 
 
@@ -185,6 +187,100 @@ def scrape_stories(
                 capture_exception(e)
                 logger.exception(
                     "Data for Snapchat story with ID {} failed integrity check:\n{}",
+                    row.id,
+                    defaults,
+                )
+
+
+def scrape_story_snaps(
+    *,
+    start_date: Optional[dt.date] = None,
+    snapchat_show_filter: Optional[Q] = None,
+):
+    """Retrieve data for Snapchat show story slides from Quintly.
+
+    Results are saved in :class:`~okr.models.snapchat_shows.SnapchatShowSnap`.
+
+    Args:
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
+        snapchat_show_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.snapchat_shows.SnapchatShow` object. Defaults to None.
+    """
+    snapchat_shows = SnapchatShow.objects.all()
+
+    if snapchat_show_filter:
+        snapchat_shows = snapchat_shows.filter(snapchat_show_filter)
+
+    for snapchat_show in snapchat_shows:
+        logger.debug("Scraping story snaps for {}", snapchat_show)
+        df = quintly.get_snapchat_show_story_snaps(
+            snapchat_show.quintly_profile_id, start_date=start_date
+        )
+
+        for index, row in df.iterrows():
+            if row.storyId is None:
+                continue
+
+            defaults = {
+                "name": row.name,
+                "position": row.position,
+                "duration": to_timedelta(row.duration),
+                "subscribe_options_headline": row.subscribeOptionsHeadline,
+                "tiles": row.tiles,
+                "gender_demographics_male": row.genderDemographicsMaleUsers,
+                "gender_demographics_female": row.genderDemographicsFemaleUsers,
+                "gender_demographics_unknown": row.genderDemographicsUnknownGenderUsers,
+                "age_demographics_13_to_17": row.ageDemographicsAgeRange13To17Users,
+                "age_demographics_18_to_24": row.ageDemographicsAgeRange18To24Users,
+                "age_demographics_25_to_34": row.ageDemographicsAgeRange25To34Users,
+                "age_demographics_35_plus": row.ageDemographicsAgeRange35PlusUsers,
+                "age_demographics_unknown": row.ageDemographicsUnknownAgeUsers,
+                "view_time": to_timedelta(row.viewTime),
+                "average_view_time_per_user": to_timedelta(row.averageViewTimePerUser),
+                "total_views": row.totalViews,
+                "unique_viewers": row.uniqueViewers,
+                "unique_completers": row.uniqueCompleters,
+                "completion_rate": row.completionRate,
+                "shares": row.shares,
+                "unique_sharers": row.uniqueSharers,
+                "viewers_from_shares": row.viewersFromShares,
+                "screenshots": row.screenshots,
+                "drop_off_rate": row.dropOffRate,
+                "topsnap_view_time": to_timedelta(row.topsnapViewTime),
+                "topsnap_average_view_time_per_user": to_timedelta(
+                    row.topsnapAverageViewTimePerUser
+                ),
+                "topsnap_total_views": row.topsnapTotalViews,
+                "topsnap_unique_views": row.topsnapUniqueViews,
+                "quintly_last_updated": as_local_tz(row.importTime),
+            }
+
+            # make sure exactly on matching story does exist before trying to set a ForeignKey
+            try:
+                story = SnapchatShowStory.objects.get(external_id=row.storyId)
+            except (
+                SnapchatShowStory.DoesNotExist,
+                SnapchatShowStory.MultipleObjectsReturned,
+            ) as e:
+                capture_exception(e)
+                logger.exception(
+                    "Story ID {} for Snapchat story snap with ID {} did not match any known story or there are more than one story with this ID!\n{}",
+                    row.storyId,
+                    row.id,
+                    defaults,
+                )
+
+            try:
+                obj, created = SnapchatShowSnap.objects.update_or_create(
+                    story=story,
+                    external_id=row.id,
+                    defaults=defaults,
+                )
+            except IntegrityError as e:
+                capture_exception(e)
+                logger.exception(
+                    "Data for Snapchat story snap with ID {} failed integrity check:\n{}",
                     row.id,
                     defaults,
                 )
