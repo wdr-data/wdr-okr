@@ -258,7 +258,7 @@ def scrape_story_snaps(
                 "quintly_last_updated": as_local_tz(row.importTime),
             }
 
-            # make sure exactly on matching story does exist before trying to set a ForeignKey
+            # Make sure exactly on matching story does exist before trying to set a ForeignKey
             try:
                 story = SnapchatShowStory.objects.get(external_id=row.storyId)
             except (
@@ -272,6 +272,7 @@ def scrape_story_snaps(
                     row.id,
                     defaults,
                 )
+                continue
 
             try:
                 obj, created = SnapchatShowSnap.objects.update_or_create(
