@@ -197,7 +197,7 @@ def scrape_story_snaps(
     start_date: Optional[dt.date] = None,
     snapchat_show_filter: Optional[Q] = None,
 ):
-    """Retrieve data for Snapchat show story slides from Quintly.
+    """Retrieve data for Snapchat show story snaps from Quintly.
 
     Results are saved in :class:`~okr.models.snapchat_shows.SnapchatShowSnap`.
 
