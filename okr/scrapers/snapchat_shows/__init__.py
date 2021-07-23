@@ -139,6 +139,9 @@ def scrape_stories(
             snapchat_show.quintly_profile_id, start_date=start_date
         )
 
+        # Ignore unpublished stories as they sometimes have the same ID as published ones
+        df = df[df["state"] == "Available"]
+
         for index, row in df.iterrows():
             defaults = {
                 "create_date_time": as_local_tz(row.createTime),
@@ -147,7 +150,6 @@ def scrape_stories(
                 "spotlight_end_date_time": as_local_tz(row.spotlightEndTime),
                 "spotlight_duration": to_timedelta(row.spotlightDuration),
                 "title": row.title,
-                "state": row.state.lower(),
                 "gender_demographics_male": row.genderDemographicsMaleUsers,
                 "gender_demographics_female": row.genderDemographicsFemaleUsers,
                 "gender_demographics_unknown": row.genderDemographicsUnknownGenderUsers,

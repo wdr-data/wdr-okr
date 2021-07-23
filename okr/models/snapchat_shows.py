@@ -124,7 +124,7 @@ class SnapchatShowInsight(models.Model):
         null=True,
     )
     attachment_conversion = models.DecimalField(
-        help_text="The percentage of unique users that swiped up on this show's snaps with attachments.",
+        help_text="The fraction of unique users that swiped up on this show's snaps with attachments.",
         null=True,
         decimal_places=5,
         max_digits=6,
@@ -168,14 +168,8 @@ class SnapchatShowStory(models.Model):
         verbose_name_plural = "Snapchat Show Stories"
         ordering = ["-start_date_time"]
 
-    class State(models.TextChoices):
-        """Possible states of a story."""
-
-        AVAILABLE = "available", "Verfügbar"
-        SCHEDULED = "scheduled", "Geplant"
-
     external_id = models.CharField(
-        help_text="The ID of this snap.",
+        help_text="The ID of this story.",
         max_length=32,
         unique=True,
     )
@@ -212,11 +206,6 @@ class SnapchatShowStory(models.Model):
 
     title = models.TextField(
         help_text="The title of this story.",
-    )
-    state = models.CharField(
-        help_text="The state of this story. One of: Available, Scheduled",
-        choices=State.choices,
-        max_length=9,
     )
 
     gender_demographics_male = models.IntegerField(
@@ -274,7 +263,7 @@ class SnapchatShowStory(models.Model):
         null=True,
     )
     completion_rate = models.DecimalField(
-        help_text="The percentage of users who completely watched this story.",
+        help_text="The fraction of users who completely watched this story.",
         null=True,
         decimal_places=5,
         max_digits=6,
@@ -432,7 +421,7 @@ class SnapchatShowSnap(models.Model):
         null=True,
     )
     completion_rate = models.DecimalField(
-        help_text="The percentage of users who completely watched this snap.",
+        help_text="The fraction of users who completely watched this snap.",
         null=True,
         decimal_places=5,
         max_digits=6,
@@ -454,7 +443,7 @@ class SnapchatShowSnap(models.Model):
         null=True,
     )
     drop_off_rate = models.DecimalField(
-        help_text="The percentage of users that dropped off from this snap to the next.",
+        help_text="The fraction of users that dropped off from this snap to the next.",
         null=True,
         decimal_places=5,
         max_digits=6,

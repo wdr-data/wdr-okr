@@ -37,7 +37,7 @@ class SnapchatShowStoryAdmin(admin.ModelAdmin):
         "quintly_last_updated",
     ]
     list_display_links = ["title"]
-    list_filter = ["snapchat_show", "state"]
+    list_filter = ["snapchat_show"]
     date_hierarchy = "start_date_time"
     search_fields = ["title"]
 
