@@ -350,7 +350,19 @@ def run_in_executor(
         kwargs (Optional[Mapping[str, Any]]): Mapping of keyword arguments for ``func``
         executor (str): The name of the executor ``func`` should run in. Defaults to ``"default"``.
     """
-    executors[executor].submit(func, *(args or []), **(kwargs or {}))
+
+    def catcher():
+        try:
+            func(*(args or []), **(kwargs or {}))
+        except Exception as e:
+            logger.exception(
+                'Function "{}" running in executor "{}" raised an exception.',
+                func.__name__,
+                executor,
+            )
+            capture_exception(e)
+
+    executors[executor].submit(catcher)
 
 
 def run_in_worker(
