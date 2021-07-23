@@ -46,8 +46,8 @@ class SnapchatShowSnapAdmin(admin.ModelAdmin):
     """List for choosing existing Snapchat show story snap data to edit."""
 
     list_display = [
-        "get_story_start_date_time",  # custom lookup function
-        "get_story_title",  # custom lookup function
+        "get_story_start_date_time",  # Custom lookup function
+        "get_story_title",  # Custom lookup function
         "position",
         "name",
         "total_views",
@@ -56,20 +56,20 @@ class SnapchatShowSnapAdmin(admin.ModelAdmin):
     ]
     list_display_links = ["name", "position"]
     date_hierarchy = "story__start_date_time"
-    ordering = ("story__start_date_time", "position")
+    ordering = ("-story__start_date_time", "position")
 
-    # custom lookup function für story.title
+    # Custom lookup function for story.title
     def get_story_title(self, obj):
         return obj.story.title
 
-    get_story_title.admin_order_field = "Story Titel"
+    get_story_title.admin_order_field = "story__title"
     get_story_title.short_description = "Story Titel"
 
-    # custom lookup function für story.start_date_time
+    # Custom lookup function for story.start_date_time
     def get_story_start_date_time(self, obj):
         return obj.story.start_date_time
 
-    get_story_start_date_time.admin_order_field = "Veröffentlichungszeitpunkt"
+    get_story_start_date_time.admin_order_field = "story__start_date_time"
     get_story_start_date_time.short_description = "Veröffentlichungszeitpunkt der Story"
 
 
