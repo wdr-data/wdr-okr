@@ -8,6 +8,7 @@ import re
 from typing import Optional, Tuple
 
 import bs4
+import dateparser
 from loguru import logger
 import requests
 from tenacity import retry
@@ -81,7 +82,7 @@ def get_reviews(
 
     for review in user_ratings_raw["review"]:
         user_reviews[html.unescape(review["author"])] = {
-            "date": dt.datetime.strptime(review["datePublished"], "%b %d, %Y").date(),
+            "date": dateparser.parse(review["datePublished"], locales=["de", "en"]).date(),
             "title": html.unescape(review["name"]),
             "text": html.unescape(review["reviewBody"]),
             "rating": review["reviewRating"]["ratingValue"],
