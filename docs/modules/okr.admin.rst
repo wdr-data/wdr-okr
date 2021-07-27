@@ -57,6 +57,14 @@ okr.admin.podcasts module
    :undoc-members:
    :show-inheritance:
 
+okr.admin.snapchat_shows module
+-------------------------------
+
+.. automodule:: okr.admin.snapchat_shows
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 okr.admin.tiktok module
 -------------------------
 
