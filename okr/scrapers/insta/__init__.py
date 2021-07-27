@@ -74,7 +74,7 @@ def scrape_insights(
         for index, row in df.iterrows():
             if row.importTime is None:
                 continue
-            
+
             defaults = {
                 "quintly_last_updated": BERLIN.localize(
                     dt.datetime.fromisoformat(row.importTime)

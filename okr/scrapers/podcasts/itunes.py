@@ -1,6 +1,5 @@
 """Retrieve and process reviews data from the iTunes podcast directory."""
 
-import datetime as dt
 from decimal import Decimal
 import html
 import json
@@ -82,7 +81,9 @@ def get_reviews(
 
     for review in user_ratings_raw["review"]:
         user_reviews[html.unescape(review["author"])] = {
-            "date": dateparser.parse(review["datePublished"], locales=["de", "en"]).date(),
+            "date": dateparser.parse(
+                review["datePublished"], locales=["de", "en"]
+            ).date(),
             "title": html.unescape(review["name"]),
             "text": html.unescape(review["reviewBody"]),
             "rating": review["reviewRating"]["ratingValue"],
