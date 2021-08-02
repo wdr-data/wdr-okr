@@ -12,6 +12,6 @@ from . import snapchat_shows
 from . import tiktok
 from . import custom
 
-admin.site.site_header = "STAGING | Django WDR OKR"
-admin.site.site_title = "STAGING | Django WDR OKR"
+admin.site.site_header = "Django WDR OKR"
+admin.site.site_title = "Django WDR OKR"
 admin.site.index_title = "Home"

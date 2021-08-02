@@ -39,21 +39,12 @@ def add_jobs():
     scheduler.add_job(
         bot_todo.run,
         trigger="cron",
-        hour="5",
-        minute="30",
-        kwargs={"last_update_gsc": "5:00"},
-    )
-
-    # SEO suggestions II
-    scheduler.add_job(
-        bot_todo.run,
-        trigger="cron",
         hour="9",
         minute="0",
         kwargs={"last_update_gsc": "8:30"},
     )
 
-    # SEO suggestions III
+    # SEO suggestions II
     scheduler.add_job(
         bot_todo.run,
         trigger="cron",
