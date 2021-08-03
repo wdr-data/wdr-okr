@@ -8,6 +8,7 @@ from . import insta
 from . import youtube
 from . import podcasts
 from . import pages
+from . import snapchat_shows
 from . import tiktok
 from . import custom
 

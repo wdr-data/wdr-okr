@@ -20,6 +20,7 @@ Subpackages
    okr.scrapers.insta
    okr.scrapers.pages
    okr.scrapers.podcasts
+   okr.scrapers.snapchat_shows
    okr.scrapers.tiktok
    okr.scrapers.twitter
    okr.scrapers.youtube

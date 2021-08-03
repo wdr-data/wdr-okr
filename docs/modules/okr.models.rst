@@ -60,6 +60,14 @@ okr.models.podcasts module
    :undoc-members:
    :show-inheritance:
 
+okr.models.snapchat_shows module
+--------------------------------
+
+.. automodule:: okr.models.snapchat_shows
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 okr.models.tiktok module
 --------------------------
 

@@ -20,8 +20,9 @@ from ..models import (
     Facebook,
     Twitter,
     SophoraNode,
+    SnapchatShow,
 )
-from . import insta, youtube, podcasts, pages, tiktok, facebook, twitter
+from . import insta, youtube, podcasts, pages, tiktok, facebook, twitter, snapchat_shows
 from .common.utils import BERLIN
 from .db_cleanup import run_db_cleanup
 from app.redis import q
@@ -34,6 +35,7 @@ executors = None
 def sentry_listener(event):
     """Forward exception of event to Sentry."""
     if event.exception:
+        logger.exception(event.exception)
         capture_exception(event.exception)
 
 
@@ -53,14 +55,15 @@ def setup():
     initial_executors = {
         f"initial_{model.__name__.lower()}": NativeThreadPoolExecutor(1)
         for model in (
-            Podcast,
-            Insta,
-            YouTube,
-            TikTok,
-            Property,
             Facebook,
-            Twitter,
+            Insta,
+            Podcast,
+            Property,
+            SnapchatShow,
             SophoraNode,
+            TikTok,
+            Twitter,
+            YouTube,
         )
     }
 
@@ -115,38 +118,38 @@ def add_jobs():
     scheduler.add_job(
         insta.scrape_insights,
         trigger="cron",
-        hour="5,11,17,23",
+        hour="5,9,11,17,23",
         minute="30",
     )
     scheduler.add_job(
         insta.scrape_stories,
         trigger="cron",
-        hour="5",
-        minute="40",
+        hour="5,9",
+        minute="52",
     )
     scheduler.add_job(
         insta.scrape_posts,
         trigger="cron",
-        hour="5",
-        minute="45",
+        hour="5,9",
+        minute="43",
     )
     scheduler.add_job(
         insta.scrape_igtv,
         trigger="cron",
-        hour="5",
+        hour="5,9",
         minute="50",
     )
     scheduler.add_job(
         insta.scrape_demographics,
         trigger="cron",
-        hour="5",
-        minute="55",
+        hour="5,9",
+        minute="54",
     )
     scheduler.add_job(
         insta.scrape_hourly_followers,
         trigger="cron",
-        hour="5",
-        minute="59",
+        hour="5,9",
+        minute="56",
     )
 
     # Facebook
@@ -328,6 +331,26 @@ def add_jobs():
         minute="30",
     )
 
+    # Snapchat shows
+    scheduler.add_job(
+        snapchat_shows.scrape_insights,
+        trigger="cron",
+        hour="4,9",
+        minute="10",
+    )
+    scheduler.add_job(
+        snapchat_shows.scrape_stories,
+        trigger="cron",
+        hour="4,9",
+        minute="15",
+    )
+    scheduler.add_job(
+        snapchat_shows.scrape_story_snaps,
+        trigger="cron",
+        hour="4,9",
+        minute="20",
+    )
+
 
 def run_in_executor(
     func: Callable,
@@ -504,3 +527,17 @@ def tiktok_created(instance: TikTok, created: bool, **kwargs):
     logger.debug("{} saved, created={}", instance, created)
     if created:
         _on_created(tiktok.scrape_full, instance)
+
+
+@receiver(post_save, sender=SnapchatShow)
+def snapchat_show_created(instance: SnapchatShow, created: bool, **kwargs):
+    """Start scraper run for newly added Snapchat show account
+    (:meth:`okr.scrapers.snapchat_show.scrape_full`).
+
+    Args:
+        instance (SnapchatShow): An SnapchatShow instance
+        created (bool): Don't start scraper if set to False
+    """
+    logger.debug("{} saved, created={}", instance, created)
+    if created:
+        _on_created(snapchat_shows.scrape_full, instance)
