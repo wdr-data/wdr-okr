@@ -16,11 +16,12 @@ from ...models.insta import (
     InstaPost,
     InstaStory,
     InstaIGTV,
+    InstaIGTVData,
     InstaDemographics,
     InstaHourlyFollowers,
 )
 from . import quintly
-from ..common.utils import BERLIN
+from ..common.utils import BERLIN, local_today
 
 
 def scrape_full(insta: Insta):
@@ -251,6 +252,7 @@ def scrape_igtv(
                 obj, created = InstaIGTV.objects.update_or_create(
                     insta=insta, external_id=row.externalId, defaults=defaults
                 )
+                _scrape_igtv_daily(insta, obj, defaults)
             except IntegrityError as e:
                 capture_exception(e)
                 logger.exception(
@@ -258,6 +260,46 @@ def scrape_igtv(
                     row.externalId,
                     defaults,
                 )
+
+
+def _scrape_igtv_daily(insta: Insta, igtv: InstaIGTV, defaults: dict):
+    """Scrape IGTV daily stats from Quintly."""
+    # Copy defaults to avoid modifying the original dict
+    defaults = defaults.copy()
+
+    # Delete fields that are not part of the daily stats
+    del defaults["created_at"]
+    del defaults["message"]
+    del defaults["video_title"]
+    del defaults["link"]
+
+    # Get last InstaIGTVData
+    today = local_today()
+    last_data = (
+        InstaIGTVData.objects.filter(igtv=igtv, date__lt=today)
+        .order_by("-date")
+        .first()
+    )
+
+    # If there is no earlier data, save as is
+    if not last_data:
+        obj, created = InstaIGTVData.objects.update_or_create(
+            igtv=igtv,
+            date=today,
+            defaults=defaults,
+        )
+        return
+
+    # If there is data, calculate differences and save
+    diff_fields = ["likes", "comments", "reach", "impressions", "saved", "video_views"]
+    for field in diff_fields:
+        defaults[field] = defaults[field] - getattr(last_data, field)
+
+    obj, created = InstaIGTVData.objects.update_or_create(
+        igtv=igtv,
+        date=today,
+        defaults=defaults,
+    )
 
 
 def scrape_demographics(
