@@ -6,7 +6,7 @@ from time import sleep
 from typing import Optional
 
 from django.db.utils import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Sum
 from loguru import logger
 from sentry_sdk import capture_exception
 
@@ -273,27 +273,19 @@ def _scrape_igtv_daily(insta: Insta, igtv: InstaIGTV, defaults: dict):
     del defaults["video_title"]
     del defaults["link"]
 
-    # Get last InstaIGTVData
     today = local_today()
-    last_data = (
-        InstaIGTVData.objects.filter(igtv=igtv, date__lt=today)
-        .order_by("-date")
-        .first()
-    )
+    diff_fields = ["likes", "comments", "reach", "impressions", "saved", "video_views"]
 
-    # If there is no earlier data, save as is
-    if not last_data:
-        obj, created = InstaIGTVData.objects.update_or_create(
-            igtv=igtv,
-            date=today,
-            defaults=defaults,
-        )
-        return
+    # Get last InstaIGTVData
+    aggregations = [Sum(field) for field in diff_fields]
+    last_data = InstaIGTVData.objects.filter(
+        igtv=igtv,
+        date__lt=today,
+    ).aggregate(*aggregations)
 
     # If there is data, calculate differences and save
-    diff_fields = ["likes", "comments", "reach", "impressions", "saved", "video_views"]
     for field in diff_fields:
-        defaults[field] = defaults[field] - getattr(last_data, field)
+        defaults[field] -= last_data[f"{field}__sum"] or 0
 
     obj, created = InstaIGTVData.objects.update_or_create(
         igtv=igtv,
