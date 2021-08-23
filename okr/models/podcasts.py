@@ -288,13 +288,11 @@ class PodcastDataSpotify(models.Model):
         verbose_name="Listeners",
         help_text="Anzahl der Hörer*innen",
     )
-    listeners_weekly = models.IntegerField(
-        verbose_name="Listeners (wöchentlich)",
-        help_text="Hörer*innen pro Woche",
+    listeners_7_days = models.IntegerField(
+        verbose_name="Listeners (7 Tage rollierend)",
     )
-    listeners_monthly = models.IntegerField(
-        verbose_name="Listeners (monatlich)",
-        help_text="Hörer*innen pro Monat",
+    listeners_28_days = models.IntegerField(
+        verbose_name="Listeners (28 Tage rollierend)",
     )
     listeners_all_time = models.IntegerField(
         verbose_name="Listeners (insgesamt)",
