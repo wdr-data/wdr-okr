@@ -241,7 +241,9 @@ class InstaIGTV(models.Model):
         related_query_name="igtv_video",
     )
     external_id = models.CharField(
-        verbose_name="Externe ID", max_length=25, unique=True
+        verbose_name="Externe ID",
+        max_length=25,
+        unique=True,
     )
     created_at = models.DateTimeField(verbose_name="Erstellungsdatum")
     message = models.TextField(
@@ -290,6 +292,70 @@ class InstaIGTV(models.Model):
 
     def __str__(self):
         return f"{self.created_at}: {self.insta.name} - {self.video_title}"
+
+
+class InstaIGTVData(models.Model):
+    """Tägliche Daten zu einzelnen Instagram IGTV Videos."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_tv_video_data"
+        verbose_name = "Instagram IGTV Video-Daten"
+        verbose_name_plural = "Instagram IGTV Video-Daten"
+        ordering = ["-date"]
+        unique_together = ("igtv", "date")
+
+    igtv = models.ForeignKey(
+        verbose_name="IGTV",
+        help_text="Globale ID des IGTV",
+        to=InstaIGTV,
+        on_delete=models.CASCADE,
+        related_name="data",
+        related_query_name="data",
+    )
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum des Datenpunkts",
+    )
+
+    likes = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Anzahl der Likes",
+        null=True,
+    )
+    comments = models.IntegerField(
+        verbose_name="Kommentare",
+        help_text="Anzahl der Kommentare",
+        null=True,
+    )
+    reach = models.IntegerField(
+        verbose_name="Reichweite",
+        null=True,
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        null=True,
+    )
+    saved = models.IntegerField(
+        verbose_name="Saves",
+        help_text="Anzahl der Saves",
+        null=True,
+    )
+    video_views = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Video-Views (3 sec oder mehr)",
+        null=True,
+    )
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.date}: {self.igtv.video_title}"
 
 
 class InstaDemographics(models.Model):
