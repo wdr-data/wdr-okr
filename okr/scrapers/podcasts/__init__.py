@@ -895,7 +895,7 @@ def scrape_podstat(
           Defaults to None.
     """
     if start_date is None:
-        start_date = dt.date.today() - dt.timedelta(days=7)
+        start_date = dt.date.today() - dt.timedelta(days=10)
 
     end_date = end_date or local_today()
 
