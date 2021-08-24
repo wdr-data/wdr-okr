@@ -289,10 +289,15 @@ def _scrape_feed_update_metadata(d, podcast, spotify_podcasts):
     # Update podcast meta data
     podcast.name = d.feed.title
     podcast.author = d.feed.author
-    podcast.image = d.feed.image.href
     podcast.description = d.feed.description
     podcast.itunes_category = d.feed.itunes_category
     podcast.itunes_subcategory = d.feed.itunes_subcategory
+
+    try:
+        podcast.image = d.feed.image.href
+    except AttributeError:
+        pass
+
     podcast.save()
 
     # Attempt to find Spotify ID if there is none yet
@@ -890,7 +895,7 @@ def scrape_podstat(
           Defaults to None.
     """
     if start_date is None:
-        start_date = dt.date.today() - dt.timedelta(days=20)
+        start_date = dt.date.today() - dt.timedelta(days=10)
 
     end_date = end_date or local_today()
 

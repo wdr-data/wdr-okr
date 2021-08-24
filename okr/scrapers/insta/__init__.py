@@ -6,7 +6,7 @@ from time import sleep
 from typing import Optional
 
 from django.db.utils import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Sum
 from loguru import logger
 from sentry_sdk import capture_exception
 
@@ -16,11 +16,12 @@ from ...models.insta import (
     InstaPost,
     InstaStory,
     InstaIGTV,
+    InstaIGTVData,
     InstaDemographics,
     InstaHourlyFollowers,
 )
 from . import quintly
-from ..common.utils import BERLIN
+from ..common.utils import BERLIN, local_today
 
 
 def scrape_full(insta: Insta):
@@ -251,6 +252,7 @@ def scrape_igtv(
                 obj, created = InstaIGTV.objects.update_or_create(
                     insta=insta, external_id=row.externalId, defaults=defaults
                 )
+                _scrape_igtv_daily(insta, obj, defaults)
             except IntegrityError as e:
                 capture_exception(e)
                 logger.exception(
@@ -258,6 +260,38 @@ def scrape_igtv(
                     row.externalId,
                     defaults,
                 )
+
+
+def _scrape_igtv_daily(insta: Insta, igtv: InstaIGTV, defaults: dict):
+    """Scrape IGTV daily stats from Quintly."""
+    # Copy defaults to avoid modifying the original dict
+    defaults = defaults.copy()
+
+    # Delete fields that are not part of the daily stats
+    del defaults["created_at"]
+    del defaults["message"]
+    del defaults["video_title"]
+    del defaults["link"]
+
+    today = local_today()
+    diff_fields = ["likes", "comments", "reach", "impressions", "saved", "video_views"]
+
+    # Get last InstaIGTVData
+    aggregations = [Sum(field) for field in diff_fields]
+    last_data = InstaIGTVData.objects.filter(
+        igtv=igtv,
+        date__lt=today,
+    ).aggregate(*aggregations)
+
+    # If there is data, calculate differences and save
+    for field in diff_fields:
+        defaults[field] -= last_data[f"{field}__sum"] or 0
+
+    obj, created = InstaIGTVData.objects.update_or_create(
+        igtv=igtv,
+        date=today,
+        defaults=defaults,
+    )
 
 
 def scrape_demographics(

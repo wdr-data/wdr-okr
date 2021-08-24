@@ -7,6 +7,7 @@ from ..models import (
     InstaPost,
     InstaStory,
     InstaIGTV,
+    InstaIGTVData,
     InstaDemographics,
     InstaHourlyFollowers,
 )
@@ -87,6 +88,25 @@ class IGTVAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
 
+class IGTVDataAdmin(admin.ModelAdmin):
+    """List for choosing existing IGTV data to edit."""
+
+    list_display = [
+        "date",
+        "igtv",
+        "likes",
+        "comments",
+        "reach",
+        "impressions",
+        "saved",
+        "video_views",
+    ]
+    list_display_links = ["date", "igtv"]
+    list_filter = ["igtv__insta"]
+    date_hierarchy = "date"
+    search_fields = ["igtv__external_id", "igtv__video_title"]
+
+
 class DemographicsAdmin(admin.ModelAdmin):
     """List for choosing existing Instagram demographics data to edit."""
 
@@ -123,5 +143,6 @@ admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
 admin.site.register(InstaStory, StoryAdmin)
 admin.site.register(InstaIGTV, IGTVAdmin)
+admin.site.register(InstaIGTVData, IGTVDataAdmin)
 admin.site.register(InstaDemographics, DemographicsAdmin)
 admin.site.register(InstaHourlyFollowers, HourlyFollowersAdmin)
