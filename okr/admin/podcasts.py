@@ -223,8 +223,8 @@ class DataSpotifyAdmin(admin.ModelAdmin):
         "date",
         "followers",
         "listeners",
-        "listeners_weekly",
-        "listeners_monthly",
+        "listeners_7_days",
+        "listeners_28_days",
         "listeners_all_time",
     ]
     list_display_links = ["podcast", "date"]
