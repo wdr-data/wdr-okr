@@ -90,11 +90,15 @@ def get_episode(connection_meta: ConnectionMeta, zmdb_id: int) -> List[Declarati
 
     PodcastUrl = connection_meta.classes.PodcastUrl
     # Actually returns (hopefully) 2 items, one for ondemand and one for downloads
-    return list(
+    query = (
         connection_meta.session.query(PodcastUrl)
-        .filter(PodcastUrl.titel.like(f"% {zmdb_id}"))
-        .options(
+        # Use FULLTEXT index to search for the zmdb_id first
+        .filter(PodcastUrl.titel.match(str(zmdb_id)))
+        # Then make sure it's at the end of the string
+        .having(PodcastUrl.titel.like(f"% {zmdb_id}")).options(
             # Prevents insane RAM usage due to DB weirdness
             joinedload(PodcastUrl.podcast_murl)
         )
     )
+
+    return list(query)

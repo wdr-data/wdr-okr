@@ -945,7 +945,7 @@ def _scrape_podstat_podcast(
 ):
     logger.info("Scraping podstat for {}", podcast)
 
-    last_available_cutoff = local_today() - dt.timedelta(days=10)
+    last_available_cutoff = local_today() - dt.timedelta(days=20)
 
     for podcast_episode in podcast.episodes.filter(
         Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
