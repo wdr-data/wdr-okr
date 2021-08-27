@@ -537,7 +537,7 @@ def _scrape_spotify_api_podcast_data(start_date, end_date, podcast):  # noqa: C9
             listener_monthly_data = spotify_api.podcast_data_date_range(
                 podcast.spotify_id,
                 "listeners",
-                start=date - dt.timedelta(days=30),
+                start=date - dt.timedelta(days=28),
                 end=date,
             )
         except SpotifyException:
@@ -546,8 +546,8 @@ def _scrape_spotify_api_podcast_data(start_date, end_date, podcast):  # noqa: C9
         defaults = {
             "listeners_all_time": listener_data_all_time["total"],
             "listeners": listener_data["total"],
-            "listeners_weekly": listener_weekly_data["total"],
-            "listeners_monthly": listener_monthly_data["total"],
+            "listeners_7_days": listener_weekly_data["total"],
+            "listeners_28_days": listener_monthly_data["total"],
         }
 
         defaults["followers"] = follower_data[date]
@@ -945,7 +945,7 @@ def _scrape_podstat_podcast(
 ):
     logger.info("Scraping podstat for {}", podcast)
 
-    last_available_cutoff = local_today() - dt.timedelta(days=10)
+    last_available_cutoff = local_today() - dt.timedelta(days=20)
 
     for podcast_episode in podcast.episodes.filter(
         Q(available=True) | Q(last_available_date_time__gt=last_available_cutoff)
