@@ -32,16 +32,13 @@ def scrape_full(facebook: Facebook):
 
     sleep(1)
 
-    scrape_insights("daily", start_date=start_date, facebook_filter=facebook_filter)
-    scrape_insights("weekly", start_date=start_date, facebook_filter=facebook_filter)
-    scrape_insights("monthly", start_date=start_date, facebook_filter=facebook_filter)
+    scrape_insights(start_date=start_date, facebook_filter=facebook_filter)
 
     scrape_posts(start_date=start_date, facebook_filter=facebook_filter)
     logger.success("Finished full Facebook scrape of {}", facebook)
 
 
 def scrape_insights(
-    interval: str,
     *,
     start_date: Optional[date] = None,
     facebook_filter: Optional[Q] = None,
@@ -51,7 +48,6 @@ def scrape_insights(
     Results are saved in :class:`~okr.models.facebook.FacebookInsight`.
 
     Args:
-        interval (str): Interval to request data for.
         start_date (Optional[date], optional): Earliest date to request data for.
             Defaults to None.
         facebook_filter (Optional[Q], optional): Filter to apply to
@@ -63,9 +59,10 @@ def scrape_insights(
         facebooks = facebooks.filter(facebook_filter)
 
     for facebook in facebooks:
-        logger.debug("Scraping insights for {} with interval {}", facebook, interval)
+        logger.debug("Scraping insights for {}", facebook)
         df = quintly.get_facebook_insights(
-            facebook.quintly_profile_id, interval=interval, start_date=start_date
+            facebook.quintly_profile_id,
+            start_date=start_date,
         )
 
         for index, row in df.iterrows():
@@ -73,27 +70,21 @@ def scrape_insights(
                 "fans": row.page_fans or 0,
                 "follows": row.page_follows or 0,
                 "impressions_unique": row.page_impressions_unique or 0,
+                "impressions_unique_7_days": row.page_impressions_unique_week or 0,
+                "impressions_unique_28_days": row.page_impressions_unique_28_days or 0,
+                "fans_online_per_day": row.page_fans_online_per_day or 0,
             }
-
-            if interval == "daily":
-                defaults.update(
-                    {
-                        "fans_online_per_day": row.page_fans_online_per_day or 0,
-                    }
-                )
 
             try:
                 obj, created = FacebookInsight.objects.update_or_create(
                     facebook=facebook,
                     date=date.fromisoformat(row.time),
-                    interval=interval,
                     defaults=defaults,
                 )
             except IntegrityError as e:
                 capture_exception(e)
                 logger.exception(
                     "Data for {} insights for date {} failed integrity check:\n{}",
-                    interval,
                     row.time,
                     defaults,
                 )
