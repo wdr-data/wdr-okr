@@ -54,6 +54,8 @@ pyadaptivecards = "*"
 analytics-data = {file = "./wheels/analytics_data-0.7.0-py2.py3-none-any.whl"}
 rq = "*"
 dateparser = "*"
+google-cloud-bigquery = "*"
+pyarrow = "*"
 
 [requires]
 python_version = "3.8"
