@@ -71,7 +71,7 @@ def scrape_insights(
                 "follows": row.page_follows or 0,
                 "impressions_unique": row.page_impressions_unique or 0,
                 "impressions_unique_7_days": row.page_impressions_unique_week or 0,
-                "impressions_unique_28_days": row.page_impressions_unique_28_days or 0,
+                "impressions_unique_28_days": row.page_impressions_unique_days_28 or 0,
                 "fans_online_per_day": row.page_fans_online_per_day or 0,
             }
 
