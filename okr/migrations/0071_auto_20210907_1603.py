@@ -29,6 +29,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(delete_non_daily_intervals),
         migrations.AddField(
             model_name="facebookinsight",
             name="impressions_unique_28_days",
