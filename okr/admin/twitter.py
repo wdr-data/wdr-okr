@@ -15,11 +15,10 @@ class InsightAdmin(admin.ModelAdmin):
     list_display = [
         "date",
         "twitter",
-        "interval",
         "followers",
     ]
     list_display_links = ["date"]
-    list_filter = ["twitter", "interval"]
+    list_filter = ["twitter"]
     date_hierarchy = "date"
 
 

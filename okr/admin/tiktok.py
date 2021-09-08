@@ -18,13 +18,12 @@ class DataAdmin(admin.ModelAdmin):
     list_display = [
         "tiktok",
         "date",
-        "interval",
         "followers",
         "likes",
         "videos",
     ]
     list_display_links = ["date"]
-    list_filter = ["tiktok", "interval"]
+    list_filter = ["tiktok"]
     date_hierarchy = "date"
 
 

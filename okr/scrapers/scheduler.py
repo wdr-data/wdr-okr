@@ -155,24 +155,9 @@ def add_jobs():
     # Facebook
     scheduler.add_job(
         facebook.scrape_insights,
-        args=["daily"],
         trigger="cron",
         hour="5,11,17,23",
         minute="40",
-    )
-    scheduler.add_job(
-        facebook.scrape_insights,
-        args=["weekly"],
-        trigger="cron",
-        hour="7",
-        minute="0",
-    )
-    scheduler.add_job(
-        facebook.scrape_insights,
-        args=["monthly"],
-        trigger="cron",
-        hour="7",
-        minute="1",
     )
     scheduler.add_job(
         facebook.scrape_posts,
@@ -184,24 +169,9 @@ def add_jobs():
     # Twitter
     scheduler.add_job(
         twitter.scrape_insights,
-        args=["daily"],
         trigger="cron",
         hour="4,11,17,23",
         minute="50",
-    )
-    scheduler.add_job(
-        twitter.scrape_insights,
-        args=["weekly"],
-        trigger="cron",
-        hour="7",
-        minute="5",
-    )
-    scheduler.add_job(
-        twitter.scrape_insights,
-        args=["monthly"],
-        trigger="cron",
-        hour="7",
-        minute="6",
     )
     scheduler.add_job(
         twitter.scrape_tweets,
@@ -236,24 +206,9 @@ def add_jobs():
     # TikTok
     scheduler.add_job(
         tiktok.scrape_data,
-        args=["daily"],
         trigger="cron",
         hour="2",
         minute="00",
-    )
-    scheduler.add_job(
-        tiktok.scrape_data,
-        args=["weekly"],
-        trigger="cron",
-        hour="2",
-        minute="10",
-    )
-    scheduler.add_job(
-        tiktok.scrape_data,
-        args=["monthly"],
-        trigger="cron",
-        hour="2",
-        minute="20",
     )
     scheduler.add_job(
         tiktok.scrape_posts,
