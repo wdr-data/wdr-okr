@@ -87,13 +87,14 @@ class YouTubeVideoAnalyticsAdmin(admin.ModelAdmin):
     """List for choosing existing YouTube video analytics data to edit."""
 
     list_display = [
+        "date",
         "youtube_video",
         "views",
         "watch_time",
         "last_updated",
     ]
-    list_display_links = ["youtube_video"]
-    list_filter = ["youtube_video__youtube"]
+    list_display_links = ["date", "youtube_video"]
+    list_filter = ["youtube_video__youtube", "live_or_on_demand"]
     search_fields = ["youtube_video__title", "youtube_video__external_id"]
     date_hierarchy = "date"
 
