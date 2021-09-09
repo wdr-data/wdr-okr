@@ -121,7 +121,7 @@ class YouTubeDemographics(models.Model):
         max_length=20,
     )
 
-    views = models.IntegerField(
+    views = models.IntegerField(  # or views percentage???
         verbose_name="Views",
         null=True,
     )

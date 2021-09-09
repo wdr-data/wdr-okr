@@ -62,10 +62,70 @@ def get_youtube_analytics(
         interval=interval,
     )
 
-    print(df)
-
     df.time = df.time.str[:10]
     df.time = df.time.astype("str")
+    df = df.replace({np.nan: None})
+
+    return df
+
+
+@common_quintly.requires_quintly
+def get_youtube_videos(
+    profile_id: int,
+    *,
+    interval: str = "daily",
+    start_date: Optional[dt.date] = None,
+) -> pd.DataFrame:
+    """Read YouTube channel analytics data via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        interval (str, optional): Description of interval. Defaults to "daily".
+        start_date (Optional[datetime.date], optional): Date of earliest data to
+          request. Defaults to None. Will be set to seven days ago if None.
+
+
+    Returns:
+        pd.DataFrame: API response data.
+    """
+    profile_ids = [profile_id]
+
+    today = utils.local_today()
+
+    if start_date is None:
+        start_date = today - dt.timedelta(days=7)
+
+    end_date = today
+
+    # Scrape "youtubeAnalyticsVideos" table
+    table = "youtubeAnalyticsVideos"
+    fields = [
+        "externalId",
+        "publishTime",
+        "liveBroadcastContent",  # Indicates if the video is an upcoming/active live broadcast. Or it's "none" if the video is not an upcoming/active live broadcast. Valid values for this property are: 'live', 'none' and 'upcoming'
+        "liveActualStartTime",
+        "title",
+        "description",
+        "duration",
+        "importTime",
+        # "profileId",  # needs to be part of query to receive data for subscribersLifetime
+    ]
+
+    df = common_quintly.quintly.run_query(
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval=interval,
+    )
+
+    print("YT videos")
+    print(df)
+    print(df["liveActualStartTime"])
+
+    # df.time = df.publishTime.str[:10]
+    # df.time = df.publishTime.astype("str")
     df = df.replace({np.nan: None})
 
     return df
