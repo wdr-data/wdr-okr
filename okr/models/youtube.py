@@ -34,16 +34,16 @@ class YouTubeAnalytics(models.Model):
         help_text="Globale ID des YouTube-Accouts",
         to=YouTube,
         on_delete=models.CASCADE,
-        related_name="analytic",
+        related_name="analytics",
         related_query_name="analytics",
     )
     date = models.DateField(verbose_name="Datum")
 
-    views = models.IntegerField(verbose_name="Gesamt-Views", null=True)
-    likes = models.IntegerField(verbose_name="Gesamt-Likes", null=True)
-    dislikes = models.IntegerField(verbose_name="Gesamt-Dislikes", null=True)
+    views = models.IntegerField(verbose_name="Views", null=True)
+    likes = models.IntegerField(verbose_name="Likes", null=True)
+    dislikes = models.IntegerField(verbose_name="Dislikes", null=True)
 
-    subscribers = models.IntegerField(verbose_name="Abonnent*innen)", null=True)
+    subscribers = models.IntegerField(verbose_name="Abonnent*innen (Gesamt)", null=True)
     subscribers_gained = models.IntegerField(
         verbose_name="Hinzugewonnene Abonnent*innen",
         null=True,
@@ -53,12 +53,8 @@ class YouTubeAnalytics(models.Model):
         null=True,
     )
 
-    total_view_duration = models.DurationField(
+    watch_time = models.DurationField(
         verbose_name="Sehdauer Gesamt",
-        null=True,
-    )
-    average_view_duration = models.DurationField(
-        verbose_name="Sehdauer im Schnitt",
         null=True,
     )
 
@@ -83,18 +79,8 @@ class YouTubeDemographics(models.Model):
         db_table = "youtube_demographics"
         verbose_name = "YouTube Demographics"
         verbose_name_plural = "YouTube Demographics"
-        unique_together = ("youtube_id", "date", "age_range", "gender")
-        ordering = ["-date"]
-
-    youtube = models.ForeignKey(
-        verbose_name="YouTube-Account",
-        help_text="Globale ID des YouTube-Accouts",
-        to=YouTube,
-        on_delete=models.CASCADE,
-        related_name="demographics",
-        related_query_name="analytics",
-    )
-    date = models.DateField(verbose_name="Datum")
+        unique_together = ("youtube", "date", "age_range", "gender")
+        ordering = ["-date", "gender", "age_range"]
 
     class AgeRange(models.TextChoices):
         # https://developers.google.com/youtube/analytics/dimensions#Demographic_Dimensions
@@ -110,6 +96,17 @@ class YouTubeDemographics(models.Model):
         # https://developers.google.com/youtube/analytics/dimensions#Demographic_Dimensions
         MALE = "male", "Männlich"
         FEMALE = "female", "Weiblich"
+        GENDER_OTHER = "other", "Andere Geschlechtsangabe"
+
+    youtube = models.ForeignKey(
+        verbose_name="YouTube-Account",
+        help_text="Globale ID des YouTube-Accouts",
+        to=YouTube,
+        on_delete=models.CASCADE,
+        related_name="demographics",
+        related_query_name="demographics",
+    )
+    date = models.DateField(verbose_name="Datum")
 
     age_range = models.CharField(
         verbose_name="Altersgruppe",
@@ -129,6 +126,11 @@ class YouTubeDemographics(models.Model):
         null=True,
     )
 
+    watch_time = models.DurationField(
+        verbose_name="Sehdauer Gesamt",
+        null=True,
+    )
+
     quintly_last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated (Quintly)",
         help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
@@ -138,6 +140,87 @@ class YouTubeDemographics(models.Model):
 
     def __str__(self):
         return f"{self.date}: {self.youtube.name} - {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
+
+
+class YouTubeTrafficSource(models.Model):
+    """Traffic Source-Daten für einen YouTube-Account, basierend auf Daten von
+    Quintly."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "youtube_traffic_source"
+        verbose_name = "YouTube Traffic Source"
+        verbose_name_plural = "YouTube Traffic Sources"
+        unique_together = ("youtube", "date", "source_type")
+        ordering = ["-date", "source_type"]
+
+    class SourceType(models.TextChoices):
+        # https://developers.google.com/youtube/reporting/v1/reports/dimensions#Traffic_Source_Dimensions
+        SOURCE_TYPE_0 = "0: Direct or unknown", "Direct or unknown"
+        SOURCE_TYPE_1 = "1: YouTube advertising", "YouTube advertising"
+        SOURCE_TYPE_3 = "3: Browse features", "Browse features"
+        SOURCE_TYPE_4 = "4: YouTube channels", "YouTube channels"
+        SOURCE_TYPE_5 = "5: YouTube search", "YouTube search"
+        SOURCE_TYPE_7 = "7: Suggested videos", "Suggested videos"
+        SOURCE_TYPE_8 = "8: Other YouTube features", "Other YouTube features"
+        SOURCE_TYPE_9 = "9: External", "External"
+        SOURCE_TYPE_11 = (
+            "11: Video cards and annotations",
+            "Video cards and annotations",
+        )
+        SOURCE_TYPE_14 = "14: Playlists", "Playlists"
+        SOURCE_TYPE_17 = "17: Notifications", "Notifications"
+        SOURCE_TYPE_18 = "18: Playlist pages", "Playlist pages"
+        SOURCE_TYPE_19 = (
+            "19: Programming from claimed content",
+            "Programming from claimed content",
+        )
+        SOURCE_TYPE_20 = (
+            "20: Interactive video endscreen",
+            "Interactive video endscreen",
+        )
+        SOURCE_TYPE_23 = "23: Stories", "Stories"
+        SOURCE_TYPE_24 = "24: Shorts", "Shorts"
+        SOURCE_TYPE_25 = "25: Product Pages", "Product Pages"
+        SOURCE_TYPE_26 = "26: Hashtag Pages", "Hashtag Pages"
+        SOURCE_TYPE_27 = "27: Sound Pages", "Sound Pages"
+
+    youtube = models.ForeignKey(
+        verbose_name="YouTube-Account",
+        to=YouTube,
+        on_delete=models.CASCADE,
+        related_name="traffic_sources",
+        related_query_name="traffic_source",
+    )
+
+    date = models.DateField(verbose_name="Datum")
+
+    source_type = models.CharField(
+        verbose_name="Source Type",
+        choices=SourceType.choices,
+        max_length=40,
+    )
+
+    views = models.IntegerField(
+        verbose_name="Views",
+        null=True,
+    )
+
+    watch_time = models.DurationField(
+        verbose_name="Sehdauer Gesamt",
+        null=True,
+    )
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.youtube.name} ({self.SourceType(self.source_type).label})"
 
 
 class YouTubeVideo(models.Model):
@@ -157,13 +240,15 @@ class YouTubeVideo(models.Model):
         help_text="Globale ID des YouTube-Accouts",
         to=YouTube,
         on_delete=models.CASCADE,
-        related_name="video",
-        related_query_name="videos",
+        related_name="videos",
+        related_query_name="video",
     )
 
-    external_id = models.CharField(verbose_name="Externe ID", max_length=32)
+    external_id = models.CharField(
+        verbose_name="Externe ID", max_length=32, unique=True
+    )
     published_at = models.DateTimeField(
-        help_text="Veröffentlichungszeitpunkt.",
+        verbose_name="Veröffentlichungszeitpunkt",
         null=True,
     )
     is_livestream = models.BooleanField(
@@ -198,7 +283,7 @@ class YouTubeVideo(models.Model):
 
 class YouTubeVideoAnalytics(models.Model):
     """Performance-Daten einzelner YouTube-Videos, basierend auf Daten von
-    Quintly."""
+    Youtube/BigQuery."""
 
     class Meta:
         """Model meta options."""
@@ -206,50 +291,44 @@ class YouTubeVideoAnalytics(models.Model):
         db_table = "youtube_video_analytics"
         verbose_name = "YouTube Video Analytics"
         verbose_name_plural = "YouTube Video Analytics"
-        unique_together = ("youtube_video_id", "date")
+        unique_together = ("youtube_video", "date", "live_or_on_demand")
         ordering = ["-date"]
 
-    youtube_video_id = models.ForeignKey(
+    class LiveOrOnDemand(models.TextChoices):
+        # https://developers.google.com/youtube/reporting/v1/reports/dimensions#Playback_Detail_Dimensions
+        LIVE = "live", "Live"
+        ON_DEMAND = "on_demand", "On demand"
+
+    youtube_video = models.ForeignKey(
         verbose_name="YouTube-Video",
         help_text="ID des YouTube-Videos",
-        to=YouTube,
+        to=YouTubeVideo,
         on_delete=models.CASCADE,
-        related_name="video_analytics",
-        related_query_name="video_analytics",
+        related_name="analytics",
+        related_query_name="analytics",
     )
     date = models.DateField(verbose_name="Datum")
-
-    views = models.IntegerField(verbose_name="Views", null=True)
-    likes = models.IntegerField(verbose_name="Likes", null=True)
-    dislikes = models.IntegerField(verbose_name="Dislikes", null=True)
-    comments = models.IntegerField(verbose_name="Kommentare", null=True)
-    shares = models.IntegerField(verbose_name="Shares", null=True)
-    subscribers_gained = models.IntegerField(
-        verbose_name="Verlorene Abonnent*innen",
-        null=True,
-    )
-    subscribers_lost = models.IntegerField(
-        verbose_name="Gewonnene Abonnent*innen",
-        null=True,
-    )
-    total_view_duration = models.DurationField(
-        verbose_name="Sehdauer Gesamt",
-        null=True,
-    )
-    average_view_duration = models.DurationField(
-        verbose_name="Sehdauer im Schnitt",
-        null=True,
+    live_or_on_demand = models.CharField(
+        verbose_name="Live oder on demand",
+        choices=LiveOrOnDemand.choices,
+        max_length=10,
     )
 
-    quintly_last_updated = models.DateTimeField(
-        verbose_name="Zuletzt upgedated (Quintly)",
-        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
-        null=True,
-    )
+    views = models.IntegerField(verbose_name="Views")
+    likes = models.IntegerField(verbose_name="Likes")
+    dislikes = models.IntegerField(verbose_name="Dislikes")
+    comments = models.IntegerField(verbose_name="Kommentare")
+    shares = models.IntegerField(verbose_name="Shares")
+    subscribers_gained = models.IntegerField(verbose_name="Verlorene Abonnent*innen")
+    subscribers_lost = models.IntegerField(verbose_name="Gewonnene Abonnent*innen")
+    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt")
+
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.youtube.name} - {self.youtube_video_id.title} (Analytics)"
+        return (
+            f"{self.date}: {self.youtube.name} - {self.youtube_video.title} (Analytics)"
+        )
 
 
 class YouTubeVideoDemographics(models.Model):
@@ -262,18 +341,8 @@ class YouTubeVideoDemographics(models.Model):
         db_table = "youtube_video_demographics"
         verbose_name = "YouTube Video Demographics"
         verbose_name_plural = "YouTube Video Demographics"
-        unique_together = ("youtube_video_id", "date", "age_range", "gender")
+        unique_together = ("youtube_video", "date", "age_range", "gender")
         ordering = ["-date"]
-
-    youtube_video_id = models.ForeignKey(
-        verbose_name="YouTube-Video",
-        help_text="ID des YouTube-Videos",
-        to=YouTube,
-        on_delete=models.CASCADE,
-        related_name="video_demographics",
-        related_query_name="video_demographics",
-    )
-    date = models.DateField(verbose_name="Datum")
 
     class AgeRange(models.TextChoices):
         AGE_13_17 = "13-17", "13-17"
@@ -288,6 +357,16 @@ class YouTubeVideoDemographics(models.Model):
         MALE = "male", "Männlich"
         FEMALE = "female", "Weiblich"
         GENDER_OTHER = "gender_other", "Andere Geschlechtsangabe"
+
+    youtube_video = models.ForeignKey(
+        verbose_name="YouTube-Video",
+        help_text="ID des YouTube-Videos",
+        to=YouTubeVideo,
+        on_delete=models.CASCADE,
+        related_name="demographics",
+        related_query_name="demographics",
+    )
+    date = models.DateField(verbose_name="Datum")
 
     age_range = models.CharField(
         verbose_name="Altersgruppe",
@@ -312,7 +391,7 @@ class YouTubeVideoDemographics(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.youtube.name} - {self.youtube_video_id.title} {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
+        return f"{self.date}: {self.youtube.name} - {self.youtube_video.title} {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
 
 
 class YouTubeVideoTrafficSource(models.Model):
@@ -325,16 +404,8 @@ class YouTubeVideoTrafficSource(models.Model):
         db_table = "youtube_video_traffic_source"
         verbose_name = "YouTube Video Traffic Source"
         verbose_name_plural = "YouTube Video Traffic Source"
+        unique_together = ("youtube_video", "source_type")
         ordering = ["source_type"]
-
-    youtube_video_id = models.ForeignKey(
-        verbose_name="YouTube-Video",
-        help_text="ID des YouTube-Videos",
-        to=YouTube,
-        on_delete=models.CASCADE,
-        related_name="video_traffic_source",
-        related_query_name="video_traffic_source",
-    )
 
     class SourceType(models.TextChoices):
         # https://developers.google.com/youtube/reporting/v1/reports/dimensions#Traffic_Source_Dimensions
@@ -367,27 +438,94 @@ class YouTubeVideoTrafficSource(models.Model):
         SOURCE_TYPE_26 = "26: Hashtag Pages", "Hashtag Pages"
         SOURCE_TYPE_27 = "27: Sound Pages", "Sound Pages"
 
+    youtube_video = models.ForeignKey(
+        verbose_name="YouTube-Video",
+        help_text="ID des YouTube-Videos",
+        to=YouTubeVideo,
+        on_delete=models.CASCADE,
+        related_name="traffic_sources",
+        related_query_name="traffic_source",
+    )
+
     source_type = models.CharField(
         verbose_name="Source Type",
         choices=SourceType.choices,
         max_length=40,
     )
 
-    views = models.IntegerField(
-        verbose_name="Views",
-        null=True,
-    )
+    views = models.IntegerField(verbose_name="Views")
 
-    total_view_duration = models.DurationField(
-        verbose_name="Sehdauer Gesamt",
-        null=True,
-    )
-    average_view_duration = models.DurationField(
-        verbose_name="Sehdauer im Schnitt",
-        null=True,
-    )
+    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.youtube.name} - {self.youtube_video_id.title} ({self.SourceType(self.source_type).label})"
+        return f"{self.youtube.name} - {self.youtube_video.title} ({self.SourceType(self.source_type).label})"
+
+
+class YouTubeVideoSearchTerm(models.Model):
+    """Top Suchanfragen für einzelne YouTube-Videos, basierend auf Daten von
+    Youtube/BigQuery."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "youtube_video_search_term"
+        verbose_name = "YouTube Video Search Term"
+        verbose_name_plural = "YouTube Video Search Terms"
+        unique_together = ("youtube_video", "search_term")
+        ordering = ["youtube_video", "search_term"]
+
+    youtube_video = models.ForeignKey(
+        verbose_name="YouTube-Video",
+        help_text="ID des YouTube-Videos",
+        to=YouTubeVideo,
+        on_delete=models.CASCADE,
+        related_name="search_terms",
+        related_query_name="search_term",
+    )
+
+    search_term = models.TextField(verbose_name="Suche")
+
+    views = models.IntegerField(verbose_name="Views")
+
+    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.youtube.name} - {self.youtube_video.title}: {self.search_term}"
+
+
+class YouTubeVideoExternalTraffic(models.Model):
+    """Externe Traffic Sources für einzelne YouTube-Videos, basierend auf Daten von
+    Youtube/BigQuery."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "youtube_video_external_traffic"
+        verbose_name = "YouTube Video External Traffic"
+        verbose_name_plural = "YouTube Video External Traffic"
+        unique_together = ("youtube_video", "name")
+        ordering = ["name"]
+
+    youtube_video = models.ForeignKey(
+        verbose_name="YouTube-Video",
+        help_text="ID des YouTube-Videos",
+        to=YouTubeVideo,
+        on_delete=models.CASCADE,
+        related_name="external_traffic",
+        related_query_name="external_traffic",
+    )
+
+    name = models.TextField(verbose_name="Traffic Source")
+
+    views = models.IntegerField(verbose_name="Views")
+
+    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.youtube.name} - {self.youtube_video.title}: {self.search_term}"
