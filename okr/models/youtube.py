@@ -15,6 +15,11 @@ class YouTube(Quintly):
         verbose_name_plural = "YouTube-Accounts"
         ordering = Quintly.Meta.ordering
 
+    bigquery_suffix = models.TextField(
+        verbose_name="BigQuery Suffix",
+        help_text="BigQuery Suffix, das im YouTube-Datentransfer in BigQuery konfiguriert wurde.",
+    )
+
 
 class YouTubeAnalytics(models.Model):
     """Performance-Daten gesamter YouTube-Accounts, basierend auf Daten von
