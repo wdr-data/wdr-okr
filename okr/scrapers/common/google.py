@@ -1,6 +1,7 @@
 """Set up Google service account credentials and required services.
 Requires a ``google-credentials.json`` file in the root directory.
 """
+import re
 
 from loguru import logger
 from apiclient.discovery import build
@@ -31,3 +32,24 @@ else:
         credentials=credentials,
         project=credentials.project_id,
     )
+
+
+def insert_table_name(
+    query: str,
+    table_prefix: str,
+    table_suffix: str,
+    placeholder: str = "@table_name",
+) -> str:
+    """
+    Replace @table_name with the actual table name
+    BigQuery doesn't support parameterized table names :(
+    Sanitizes the suffix, lol
+
+    Args:
+        query (str): The query to insert the table name into
+        table_prefix (str): The table prefix
+        table_suffix (str): The table suffix
+        placeholder (str): The placeholder to replace
+    """
+    table_suffix = re.sub(r"[^a-zA-Z0-9_]", "", table_suffix)
+    return query.replace(placeholder, f"{table_prefix}{table_suffix}")
