@@ -2,10 +2,13 @@
 Requires a ``google-credentials.json`` file in the root directory.
 """
 import re
+from typing import Callable, Generator
 
 from loguru import logger
+import pandas as pd
 from apiclient.discovery import build
 from google.cloud import bigquery
+from google.cloud.bigquery.job.query import QueryJobConfig
 from google.oauth2 import service_account
 
 KEY_PATH = "google-credentials.json"
@@ -53,3 +56,39 @@ def insert_table_name(
     """
     table_suffix = re.sub(r"[^a-zA-Z0-9_]", "", table_suffix)
     return query.replace(placeholder, f"{table_prefix}{table_suffix}")
+
+
+def iter_results(
+    bigquery_client: bigquery.Client,
+    query: str,
+    job_config: QueryJobConfig,
+    df_cleaner: Callable[[pd.DataFrame], pd.DataFrame] = None,
+) -> Generator[pd.Series, None, None]:
+    """
+    Page through the results of a query and yield each row as a pandas Series
+
+    Args:
+        bigquery_client (bigquery.Client): The BigQuery client
+        query (str): The query to run
+        job_config (QueryJobConfig): The BigQuery job config
+
+    Returns:
+        Generator[pd.Series, None, None]: A generator of pandas Series
+    """
+
+    query_job = bigquery_client.query(query, job_config=job_config)
+    query_job.result()
+
+    # Get reference to destination table
+    destination = bigquery_client.get_table(query_job.destination)
+
+    rows = bigquery_client.list_rows(destination, page_size=10000)
+
+    dfs = rows.to_dataframe_iterable()
+
+    for df in dfs:
+        if df_cleaner is not None:
+            df = df_cleaner(df)
+
+        for index, row in df.iterrows():
+            yield row

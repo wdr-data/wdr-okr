@@ -1,14 +1,14 @@
 """ Methods for scraping YouTube data with Quintly """
 
 import datetime
-from typing import Optional
+from typing import Generator, Optional
 
 from google.cloud import bigquery
 import numpy as np
 import pandas as pd
 
 from ..common import utils
-from ..common.google import bigquery_client, insert_table_name
+from ..common.google import bigquery_client, insert_table_name, iter_results
 
 
 def get_bigquery_basic(
@@ -16,7 +16,7 @@ def get_bigquery_basic(
     *,
     start_date: Optional[datetime.date] = None,
     end_date: Optional[datetime.date] = None,
-) -> pd.DataFrame:
+) -> Generator[pd.Series, None, None]:
     """Read YouTube Video data from BigQuery.
 
     Args:
@@ -28,8 +28,8 @@ def get_bigquery_basic(
           request. This date refers to the partition field value, not the date
           of the data itself. Defaults to None. Will be set to today if None.
 
-    Returns:
-        pd.DataFrame: BigQuery response data.
+    Yields:
+        pd.Series: BigQuery response data.
     """
 
     today = utils.local_today()
@@ -58,6 +58,7 @@ FROM
 WHERE
   DATE(_PARTITIONTIME) >= @start_date
   AND DATE(_PARTITIONTIME) <= @end_date
+  AND `video_id` IS NOT NULL
 GROUP BY
   `date`,
   `video_id`,
@@ -74,13 +75,15 @@ GROUP BY
         ],
     )
 
-    # Run the query
-    query_job = bigquery_client.query(query, job_config=job_config)
-    df = query_job.to_dataframe()
+    def df_cleaner(df: pd.DataFrame) -> pd.DataFrame:
+        df.date = pd.to_datetime(df.date).dt.date
+        df = df.replace({np.nan: None})
 
-    # Convert to date
-    df.date = pd.to_datetime(df.date).dt.date
+        return df
 
-    df = df.replace({np.nan: None})
-
-    return df
+    yield from iter_results(
+        bigquery_client,
+        query,
+        job_config,
+        df_cleaner,
+    )
