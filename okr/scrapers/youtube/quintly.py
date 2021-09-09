@@ -1,6 +1,6 @@
 """ Methods for scraping YouTube data with Quintly """
 
-import datetime
+import datetime as dt
 from typing import Optional
 
 import numpy as np
@@ -15,16 +15,15 @@ def get_youtube_analytics(
     profile_id: int,
     *,
     interval: str = "daily",
-    start_date: Optional[datetime.date] = None,
+    start_date: Optional[dt.date] = None,
 ) -> pd.DataFrame:
-    """Read YouTube data via Quintly API.
+    """Read YouTube channel analytics data via Quintly API.
 
     Args:
         profile_id (int): ID of profile to request data for.
         interval (str, optional): Description of interval. Defaults to "daily".
         start_date (Optional[datetime.date], optional): Date of earliest data to
-          request. Defaults to None. Will be set to include at least two intervals
-          if None.
+          request. Defaults to None. Will be set to seven days ago if None.
 
 
     Returns:
@@ -35,12 +34,7 @@ def get_youtube_analytics(
     today = utils.local_today()
 
     if start_date is None:
-        if interval == "daily":
-            start_date = today - datetime.timedelta(days=7)
-        elif interval == "weekly":
-            start_date = today - datetime.timedelta(days=14)
-        elif interval == "monthly":
-            start_date = today - datetime.timedelta(days=60)
+        start_date = today - dt.timedelta(days=7)
 
     end_date = today
 
@@ -51,12 +45,15 @@ def get_youtube_analytics(
         "views",
         "likes",
         "dislikes",
-        "estimatedMinutesWatched",
-        "averageViewDuration",
+        "subscribersLifetime",
         "subscribersGained",
+        "subscribersLost",
+        "estimatedMinutesWatched",
+        "importTime",
+        "profileId",  # needs to be part of query to receive data for subscribersLifetime
     ]
 
-    df_youtube_analytics = common_quintly.quintly.run_query(
+    df = common_quintly.quintly.run_query(
         profile_ids,
         table,
         fields,
@@ -65,30 +62,10 @@ def get_youtube_analytics(
         interval=interval,
     )
 
-    df_youtube_analytics.time = df_youtube_analytics.time.str[:10]
-    df_youtube_analytics.time = df_youtube_analytics.time.astype("str")
+    print(df)
 
-    # Scrape "youtube" table
-    table = "youtube"
-    fields = [
-        "time",
-        "subscribers",
-    ]
-
-    df_youtube = common_quintly.quintly.run_query(
-        profile_ids,
-        table,
-        fields,
-        start_date,
-        end_date,
-        interval=interval,
-    )
-
-    df_youtube.time = df_youtube.time.str[:10]
-    df_youtube.time = df_youtube.time.astype("str")
-
-    df = df_youtube.merge(df_youtube_analytics, on="time", how="inner")
-
+    df.time = df.time.str[:10]
+    df.time = df.time.astype("str")
     df = df.replace({np.nan: None})
 
     return df

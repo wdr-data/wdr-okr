@@ -1,6 +1,6 @@
 """Read and process YouTube data."""
 
-from datetime import date
+import datetime as dt
 from time import sleep
 from typing import Optional
 
@@ -14,6 +14,7 @@ from ...models.youtube import (
     YouTubeAnalytics,
 )
 from . import quintly
+from ..common.utils import BERLIN, to_timedelta
 
 
 def scrape_full(youtube: YouTube):
@@ -25,30 +26,26 @@ def scrape_full(youtube: YouTube):
     logger.info("Starting full YouTube scrape of {}", youtube)
 
     youtube_filter = Q(id=youtube.id)
-    start_date = date(2019, 1, 1)
+    # start_date = dt.date(2019, 1, 1)
+    start_date = dt.date(2021, 8, 1)
 
     sleep(1)
 
-    scrape_analytics("daily", start_date=start_date, youtube_filter=youtube_filter)
-    scrape_analytics("weekly", start_date=start_date, youtube_filter=youtube_filter)
-    scrape_analytics("monthly", start_date=start_date, youtube_filter=youtube_filter)
-
+    scrape_analytics(start_date=start_date, youtube_filter=youtube_filter)
     logger.success("Finished full YouTube scrape of {}", youtube)
 
 
 def scrape_analytics(
-    interval: str,
     *,
-    start_date: Optional[date] = None,
+    start_date: Optional[dt.date] = None,
     youtube_filter: Optional[Q] = None,
 ):
-    """Read YouTube analytics data from Quintly and store in database.
+    """Read YouTube channel analytics data from Quintly and store in database.
 
     Results are saved in
     :class:`~okr.models.youtube.YouTubeAnalytics`.
 
     Args:
-        interval (str): Interval to request data for ("daily", "weekly", or "monthly").
         start_date (Optional[date], optional): Earliest data to request data for.
             Defaults to None.
         youtube_filter (Optional[Q], optional): Q object to filter data with.
@@ -60,35 +57,45 @@ def scrape_analytics(
         youtubes = youtubes.filter(youtube_filter)
 
     for youtube in youtubes:
-        logger.debug("Scraping insights for {} with interval {}", youtube, interval)
+        logger.debug("Scraping YouTube channel analytics for {}", youtube)
 
         df = quintly.get_youtube_analytics(
-            youtube.quintly_profile_id, interval=interval, start_date=start_date
+            youtube.quintly_profile_id, start_date=start_date
         )
 
+        logger.debug("Dataframe Größe {}", len(df))
+
         for index, row in df.iterrows():
+
+            if row.importTime is None:
+                logger.debug("importTime is None!")
+                continue
+
             defaults = {
-                "subscribers": row.subscribers or 0,
-                "subscribers_change": row.subscribersGained or 0,
-                "views": row.views or 0,
-                "likes": row.likes or 0,
-                "dislikes": row.dislikes or 0,
-                "estimated_minutes_watched": row.estimatedMinutesWatched,
-                "average_view_duration": row.averageViewDuration,
+                "views": row.views,
+                "likes": row.likes,
+                "dislikes": row.dislikes,
+                "subscribers": row.subscribersLifetime,
+                "subscribers_gained": row.subscribersGained,
+                "subscribers_lost": row.subscribersLost,
+                "watch_time": to_timedelta(row.estimatedMinutesWatched),
+                "quintly_last_updated": BERLIN.localize(
+                    dt.datetime.fromisoformat(row.importTime)
+                ),
             }
+
+            # logger.debug("{} at {}", row.subscribersLifetime, BERLIN.localize(dt.datetime.fromisoformat(row.importTime)))
 
             try:
                 YouTubeAnalytics.objects.update_or_create(
                     youtube=youtube,
-                    date=date.fromisoformat(row.time),
-                    interval=interval,
+                    date=dt.date.fromisoformat(row.time),
                     defaults=defaults,
                 )
             except IntegrityError as e:
                 capture_exception(e)
                 logger.exception(
-                    "Data for analytics with interval {} at {} failed integrity check:\n{}",
-                    interval,
+                    "Data for channel analytics at {} failed integrity check:\n{}",
                     row.time,
                     defaults,
                 )
