@@ -12,6 +12,8 @@ from sentry_sdk import capture_exception
 from ...models.youtube import (
     YouTube,
     YouTubeAnalytics,
+    # YouTubeDemographics,
+    # YouTubeTrafficSource,
     YouTubeVideo,
     YouTubeVideoAnalytics,
     YouTubeVideoTrafficSource,
@@ -21,7 +23,7 @@ from ..common.utils import BERLIN, local_today, to_timedelta
 
 
 def scrape_full(youtube: YouTube):
-    """Initiate scraping for daily, weekly, and monthly YouTube data from Quintly.
+    """Initiate scraping for YouTube data from Quintly.
 
     Args:
         youtube (YouTube): YouTube object to scrape data for.
@@ -29,13 +31,14 @@ def scrape_full(youtube: YouTube):
     logger.info("Starting full YouTube scrape of {}", youtube)
 
     youtube_filter = Q(id=youtube.id)
+
     start_date = dt.date(2019, 1, 1)
 
     sleep(1)
 
-    # scrape_channel_analytics(start_date=start_date, youtube_filter=youtube_filter)
-    # scrape_videos(start_date=start_date, youtube_filter=youtube_filter)
-    # scrape_video_analytics(start_date=start_date, youtube_filter=youtube_filter)
+    scrape_channel_analytics(start_date=start_date, youtube_filter=youtube_filter)
+    scrape_videos(start_date=start_date, youtube_filter=youtube_filter)
+    scrape_video_analytics(start_date=start_date, youtube_filter=youtube_filter)
     scrape_video_traffic_sources(start_date=start_date, youtube_filter=youtube_filter)
 
     logger.success("Finished full YouTube scrape of {}", youtube)
@@ -65,13 +68,11 @@ def scrape_channel_analytics(
         youtubes = youtubes.filter(youtube_filter)
 
     for youtube in youtubes:
-        logger.debug("Scraping YouTube channel analytics for {}", youtube)
+        logger.debug("Scraping Quintly YouTube channel analytics for {}", youtube)
 
         df = quintly.get_youtube_analytics(
             youtube.quintly_profile_id, start_date=start_date
         )
-
-        logger.debug("Dataframe Größe {}", len(df))
 
         for index, row in df.iterrows():
 
@@ -135,18 +136,25 @@ def scrape_videos(
             youtube.quintly_profile_id, start_date=start_date
         )
 
-        logger.debug("Dataframe Größe {}", len(df))
-
         for index, row in df.iterrows():
 
             if row.importTime is None:
                 logger.debug("importTime is None!")
                 continue
 
+            # Ignore scheduled/unpublished videos
             if row.liveBroadcastContent == "upcoming":
-                logger.debug("Video {} is a scheduled live video!", row.title)
+                logger.debug(
+                    "Video {} ({}) is a scheduled live video!",
+                    row.title,
+                    row.externalId,
+                )
                 continue
 
+            # Check whether video was initially a live stream (or currently is a live
+            # stream). is_livestream will be False for all videos that were on-demand
+            # videos from the beginning - will be True for Videos that are/were live
+            # streams
             if row.liveActualStartTime:
                 is_livestream = True
             else:
