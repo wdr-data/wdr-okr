@@ -112,6 +112,11 @@ Um das OKR Data Warehouse lokal auszuführen, sollten die Umgebungsvariablen in 
 Datei namens ``.env`` im Root-Verzeichnis abgelegt werden. Auf diese Weise kann die
 Umgebung automatisch von ``pipenv`` eingerichtet werden.
 
+Zusätzlich zu den Umgebungsvariablen benötigt das Data Warehouse noch eine `JSON-Datei
+mit Zugangsinformationen zur Google Cloud <https://cloud.google.com/docs/authentication/production#manually>`_.
+Diese Datei muss im Root-Verzeichnis abgelegt sein und den Dateinamen
+``google-credentials.json`` tragen.
+
 Download und Inbetriebnahme
 ---------------------------
 

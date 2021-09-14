@@ -44,7 +44,7 @@ Für Daten zu TikTok:
 
 Für Daten zu Youtube:
   * Quintly API (`Quintly Dokumentation`_)
-  * Manueller Daten-Import aus YouTube Studio
+  * YouTube Reporting API via BigQuery (`Google Dokumentation`_)
 
 Bei Sophora-Inhalten betrachtet das Data Warehouse nur Dokumente mit den Endungen
 ``.html`` und ``.amp``.
@@ -90,3 +90,4 @@ Rohdaten geschieht in den jeweiligen Submodulen.
 .. _`Web-API Dokumentation`: https://developer.spotify.com/documentation/web-api/
 .. _`Webtrekk Dokumentation`: https://docs.mapp.com/download/attachments/33784075/Webtrekk-JSON-RPC_API_Manual-EN.pdf?version=1&modificationDate=1589549566000&api=v2
 .. _`iTunes Search Dokumentation`: https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
+.. _`Google Dokumentation`: https://developers.google.com/youtube/reporting/

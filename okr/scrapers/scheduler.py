@@ -182,25 +182,40 @@ def add_jobs():
 
     # YouTube
     scheduler.add_job(
-        youtube.scrape_analytics,
-        args=["daily"],
+        youtube.scrape_channel_analytics,
         trigger="cron",
-        hour="5",
+        hour="3",
         minute="35",
     )
     scheduler.add_job(
-        youtube.scrape_analytics,
-        args=["weekly"],
+        youtube.scrape_videos,
         trigger="cron",
-        hour="6",
-        minute="5",
+        hour="3",
+        minute="40",
     )
     scheduler.add_job(
-        youtube.scrape_analytics,
-        args=["monthly"],
+        youtube.scrape_video_analytics,
         trigger="cron",
-        hour="6",
-        minute="6",
+        hour="3",
+        minute="45",
+    )
+    scheduler.add_job(
+        youtube.scrape_video_traffic_sources,
+        trigger="cron",
+        hour="3",
+        minute="50",
+    )
+    scheduler.add_job(
+        youtube.scrape_video_external_traffic,
+        trigger="cron",
+        hour="3",
+        minute="55",
+    )
+    scheduler.add_job(
+        youtube.scrape_video_search_terms,
+        trigger="cron",
+        hour="4",
+        minute="5",
     )
 
     # TikTok
