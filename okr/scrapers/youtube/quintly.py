@@ -49,6 +49,9 @@ def get_youtube_analytics(
         "subscribersGained",
         "subscribersLost",
         "estimatedMinutesWatched",
+        "viewsPercentageByAgeAndGender",
+        "viewsByTrafficSource",
+        "estimatedMinutesWatchedByTrafficSource",
         "importTime",
         "profileId",  # needs to be part of query to receive data for subscribersLifetime
     ]

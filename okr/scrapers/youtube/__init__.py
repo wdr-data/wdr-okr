@@ -3,17 +3,20 @@
 import datetime as dt
 from time import sleep
 from typing import Dict, Mapping, Optional
+import json
+from collections import defaultdict
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
 from loguru import logger
 from sentry_sdk import capture_exception
+import pandas as pd
 
 from ...models.youtube import (
     YouTube,
     YouTubeAnalytics,
-    # YouTubeDemographics,
-    # YouTubeTrafficSource,
+    YouTubeDemographics,
+    YouTubeTrafficSource,
     YouTubeVideo,
     YouTubeVideoAnalytics,
     YouTubeVideoTrafficSource,
@@ -47,6 +50,94 @@ def scrape_full(youtube: YouTube):
     scrape_video_search_terms(start_date=start_date, youtube_filter=youtube_filter)
 
     logger.success("Finished full YouTube scrape of {}", youtube)
+
+
+def _scrape_youtube_demographics(
+    youtube: YouTube,
+    row: pd.Series,
+):
+    """Scrape YouTube demographics data from Quintly.
+
+    Args:
+        json_str (str): JSON string to scrape data from.
+    """
+    demographics_data = json.loads(row.viewsPercentageByAgeAndGender)
+
+    for demo in demographics_data:
+        defaults = {
+            "views_percentage": demo["value"],
+            "quintly_last_updated": BERLIN.localize(
+                dt.datetime.fromisoformat(row.importTime)
+            ),
+        }
+
+        gender = YouTubeDemographics.Gender(demo["gender"])
+        age_range = YouTubeDemographics.AgeRange(
+            demo["ageGroupName"].replace(" years", "")
+        )
+
+        try:
+            YouTubeDemographics.objects.update_or_create(
+                youtube=youtube,
+                date=dt.date.fromisoformat(row.time),
+                gender=gender,
+                age_range=age_range,
+                defaults=defaults,
+            )
+        except IntegrityError as e:
+            capture_exception(e)
+            logger.exception(
+                "Data for channel demographics at {} failed integrity check:\n{}",
+                row.time,
+                row,
+            )
+
+
+def _scrape_youtube_traffic_source(
+    youtube: YouTube,
+    row: pd.Series,
+):
+    """Scrape YouTube traffic source data from Quintly.
+
+    Args:
+        json_str (str): JSON string to scrape data from.
+    """
+    json_data_views = json.loads(row.viewsByTrafficSource)
+    json_data_minutes_watched = json.loads(row.estimatedMinutesWatchedByTrafficSource)
+
+    json_data = defaultdict(lambda: [None, None])
+
+    for data in json_data_views:
+        source_type = YouTubeTrafficSource.SourceType[data["trafficSource"]]
+        json_data[source_type][0] = data["value"]
+
+    for data in json_data_minutes_watched:
+        source_type = YouTubeTrafficSource.SourceType[data["trafficSource"]]
+        json_data[source_type][1] = data["value"]
+
+    for source_type, (views, minutes_watched) in json_data.items():
+        defaults = {
+            "views": views,
+            "watch_time": to_timedelta(minutes_watched * 60),
+            "quintly_last_updated": BERLIN.localize(
+                dt.datetime.fromisoformat(row.importTime)
+            ),
+        }
+
+        try:
+            YouTubeTrafficSource.objects.update_or_create(
+                youtube=youtube,
+                date=dt.date.fromisoformat(row.time),
+                source_type=source_type,
+                defaults=defaults,
+            )
+        except IntegrityError as e:
+            capture_exception(e)
+            logger.exception(
+                "Data for channel traffic source at {} failed integrity check:\n{}",
+                row.time,
+                row,
+            )
 
 
 def scrape_channel_analytics(
@@ -111,6 +202,15 @@ def scrape_channel_analytics(
                     row.time,
                     defaults,
                 )
+
+            _scrape_youtube_demographics(
+                youtube,
+                row,
+            )
+            _scrape_youtube_traffic_source(
+                youtube,
+                row,
+            )
 
 
 def scrape_videos(

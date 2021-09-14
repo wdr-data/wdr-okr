@@ -126,13 +126,10 @@ class YouTubeDemographics(models.Model):
         max_length=20,
     )
 
-    views = models.IntegerField(  # or views percentage???
-        verbose_name="Views",
-        null=True,
-    )
-
-    watch_time = models.DurationField(
-        verbose_name="Sehdauer Gesamt",
+    views_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=3,
+        verbose_name="Anteil der Views",
         null=True,
     )
 
@@ -161,35 +158,24 @@ class YouTubeTrafficSource(models.Model):
         ordering = ["-date", "source_type"]
 
     class SourceType(models.TextChoices):
-        # https://developers.google.com/youtube/reporting/v1/reports/dimensions#Traffic_Source_Dimensions
-        SOURCE_TYPE_0 = "0: Direct or unknown", "Direct or unknown"
-        SOURCE_TYPE_1 = "1: YouTube advertising", "YouTube advertising"
-        SOURCE_TYPE_3 = "3: Browse features", "Browse features"
-        SOURCE_TYPE_4 = "4: YouTube channels", "YouTube channels"
-        SOURCE_TYPE_5 = "5: YouTube search", "YouTube search"
-        SOURCE_TYPE_7 = "7: Suggested videos", "Suggested videos"
-        SOURCE_TYPE_8 = "8: Other YouTube features", "Other YouTube features"
-        SOURCE_TYPE_9 = "9: External", "External"
-        SOURCE_TYPE_11 = (
-            "11: Video cards and annotations",
-            "Video cards and annotations",
-        )
-        SOURCE_TYPE_14 = "14: Playlists", "Playlists"
-        SOURCE_TYPE_17 = "17: Notifications", "Notifications"
-        SOURCE_TYPE_18 = "18: Playlist pages", "Playlist pages"
-        SOURCE_TYPE_19 = (
-            "19: Programming from claimed content",
-            "Programming from claimed content",
-        )
-        SOURCE_TYPE_20 = (
-            "20: Interactive video endscreen",
-            "Interactive video endscreen",
-        )
-        SOURCE_TYPE_23 = "23: Stories", "Stories"
-        SOURCE_TYPE_24 = "24: Shorts", "Shorts"
-        SOURCE_TYPE_25 = "25: Product Pages", "Product Pages"
-        SOURCE_TYPE_26 = "26: Hashtag Pages", "Hashtag Pages"
-        SOURCE_TYPE_27 = "27: Sound Pages", "Sound Pages"
+        # https://developers.google.com/youtube/analytics/dimensions#Traffic_Source_Dimensions
+        ADVERTISING = "advertising", "Werbung"
+        ANNOTATION = "annotation", "Annotation"
+        CAMPAIGN_CARD = "campaign_card", "Kampagnenkarte"
+        END_SCREEN = "end_screen", "Endscreen"
+        EXT_URL = "ext_url", "Externe URL"
+        NO_LINK_EMBEDDED = "no_link_embedded", "Kein Link (eingebettet)"
+        NO_LINK_OTHER = "no_link_other", "Kein Link (sonstiges)"
+        NOTIFICATION = "notification", "Benachrichtigung"
+        PLAYLIST = "playlist", "Playlist"
+        PROMOTED = "promoted", "Promoted"
+        RELATED_VIDEO = "related_video", "Related"
+        SHORTS = "shorts", "Shorts"
+        SUBSCRIBER = "subscriber", "Abonnent*in"
+        YT_CHANNEL = "yt_channel", "Youtube-Kanal"
+        YT_OTHER_PAGE = "yt_other_page", "Sonstige Youtube-Seite"
+        YT_PLAYLIST_PAGE = "yt_playlist_page", "Youtube Playlist-Seite"
+        YT_SEARCH = "yt_search", "Youtube-Suche"
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
