@@ -2,7 +2,7 @@
 
 import datetime as dt
 from time import sleep
-from typing import Dict, Optional
+from typing import Dict, Mapping, Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q
@@ -17,6 +17,9 @@ from ...models.youtube import (
     YouTubeVideo,
     YouTubeVideoAnalytics,
     YouTubeVideoTrafficSource,
+    YouTubeVideoExternalTraffic,
+    YouTubeVideoSearchTerm,
+    # YouTubeVideoDemographics,
 )
 from . import quintly, google
 from ..common.utils import BERLIN, local_today, to_timedelta
@@ -40,6 +43,8 @@ def scrape_full(youtube: YouTube):
     scrape_videos(start_date=start_date, youtube_filter=youtube_filter)
     scrape_video_analytics(start_date=start_date, youtube_filter=youtube_filter)
     scrape_video_traffic_sources(start_date=start_date, youtube_filter=youtube_filter)
+    scrape_video_external_traffic(start_date=start_date, youtube_filter=youtube_filter)
+    scrape_video_search_terms(start_date=start_date, youtube_filter=youtube_filter)
 
     logger.success("Finished full YouTube scrape of {}", youtube)
 
@@ -188,6 +193,20 @@ def scrape_videos(
                 )
 
 
+def _get_youtube_video(video_id: str, video_cache: Mapping[str, YouTubeVideo]):
+    """Get YouTube video object from cache or database."""
+    try:
+        youtube_video = video_cache[video_id]
+    except KeyError:
+        youtube_video = YouTubeVideo.objects.filter(
+            external_id=video_id,
+        ).first()
+
+        video_cache[video_id] = youtube_video
+
+    return youtube_video
+
+
 def scrape_video_analytics(
     *,
     start_date: Optional[dt.date] = None,
@@ -237,14 +256,7 @@ def scrape_video_analytics(
             }
 
             # Find video in cache or query database
-            try:
-                youtube_video = video_cache[row.video_id]
-            except KeyError:
-                youtube_video = YouTubeVideo.objects.filter(
-                    external_id=row.video_id,
-                ).first()
-
-                video_cache[row.video_id] = youtube_video
+            youtube_video = _get_youtube_video(row.video_id, video_cache)
 
             if youtube_video is None:
                 logger.warning("Video {} not found in database", row.video_id)
@@ -298,6 +310,9 @@ def scrape_video_traffic_sources(
     for youtube in youtubes:
         logger.debug("Scraping YouTube video traffic source data for {}", youtube)
 
+        # Cache videos to prevent multiple queries for the same video
+        video_cache: Dict[str, YouTubeVideo] = {}
+
         rows_iter = google.get_bigquery_traffic_source(
             youtube.bigquery_suffix,
             start_date,
@@ -310,9 +325,8 @@ def scrape_video_traffic_sources(
                 "watch_time": to_timedelta(row.watch_time_minutes * 60),
             }
 
-            youtube_video = YouTubeVideo.objects.filter(
-                external_id=row.video_id,
-            ).first()
+            # Find video in cache or query database
+            youtube_video = _get_youtube_video(row.video_id, video_cache)
 
             if youtube_video is None:
                 logger.warning("Video {} not found in database", row.video_id)
@@ -331,6 +345,158 @@ def scrape_video_traffic_sources(
                     source_type=YouTubeVideoTrafficSource.SourceType[
                         f"SOURCE_TYPE_{row.traffic_source_type}"
                     ],
+                    defaults=defaults,
+                )
+            except IntegrityError as e:
+                capture_exception(e)
+                logger.exception(
+                    "Data for video analytics at {} failed integrity check:\n{}",
+                    row.time,
+                    defaults,
+                )
+
+
+def scrape_video_external_traffic(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    youtube_filter: Optional[Q] = None,
+):
+    """Read YouTube external traffic data for videos from BigQuery and store in database.
+
+    Results are saved in
+    :class:`~okr.models.youtube.YouTubeVideoTrafficSource`.
+
+    Args:
+        start_date (Optional[date], optional): Earliest data to request data for.
+            This date refers to the partition field value, not the date of the
+            data itself. Defaults to None. If None, the start date will be
+            set to 6 months in the past.
+        end_date (Optional[date], optional): Latest data to request data for.
+            Defaults to None.
+        youtube_filter (Optional[Q], optional): Q object to filter data with.
+            Defaults to None.
+    """
+    youtubes = YouTube.objects.all()
+
+    if youtube_filter:
+        youtubes = youtubes.filter(youtube_filter)
+
+    if start_date is None:
+        start_date = local_today() - dt.timedelta(days=31 * 6)
+
+    for youtube in youtubes:
+        logger.debug("Scraping YouTube video external traffic data for {}", youtube)
+
+        # Cache videos to prevent multiple queries for the same video
+        video_cache: Dict[str, YouTubeVideo] = {}
+
+        rows_iter = google.get_bigquery_external_traffic(
+            youtube.bigquery_suffix,
+            start_date,
+            end_date=end_date,
+        )
+
+        for row in rows_iter:
+            defaults = {
+                "views": row.views,
+                "watch_time": to_timedelta(row.watch_time_minutes * 60),
+            }
+
+            # Find video in cache or query database
+            youtube_video = _get_youtube_video(row.video_id, video_cache)
+
+            if youtube_video is None:
+                logger.warning("Video {} not found in database", row.video_id)
+                continue
+            elif youtube_video.published_at.date() < start_date:
+                logger.debug(
+                    "Video {} published before start date {}, skipping to prevent overwriting with bad data",
+                    youtube_video,
+                    start_date,
+                )
+                continue
+
+            try:
+                YouTubeVideoExternalTraffic.objects.update_or_create(
+                    youtube_video=youtube_video,
+                    name=row.traffic_source_detail,
+                    defaults=defaults,
+                )
+            except IntegrityError as e:
+                capture_exception(e)
+                logger.exception(
+                    "Data for video analytics at {} failed integrity check:\n{}",
+                    row.time,
+                    defaults,
+                )
+
+
+def scrape_video_search_terms(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    youtube_filter: Optional[Q] = None,
+):
+    """Read YouTube search term data for videos from BigQuery and store in database.
+
+    Results are saved in
+    :class:`~okr.models.youtube.YouTubeVideoTrafficSource`.
+
+    Args:
+        start_date (Optional[date], optional): Earliest data to request data for.
+            This date refers to the partition field value, not the date of the
+            data itself. Defaults to None. If None, the start date will be
+            set to 6 months in the past.
+        end_date (Optional[date], optional): Latest data to request data for.
+            Defaults to None.
+        youtube_filter (Optional[Q], optional): Q object to filter data with.
+            Defaults to None.
+    """
+    youtubes = YouTube.objects.all()
+
+    if youtube_filter:
+        youtubes = youtubes.filter(youtube_filter)
+
+    if start_date is None:
+        start_date = local_today() - dt.timedelta(days=31 * 6)
+
+    for youtube in youtubes:
+        logger.debug("Scraping YouTube video search term data for {}", youtube)
+
+        # Cache videos to prevent multiple queries for the same video
+        video_cache: Dict[str, YouTubeVideo] = {}
+
+        rows_iter = google.get_bigquery_search_terms(
+            youtube.bigquery_suffix,
+            start_date,
+            end_date=end_date,
+        )
+
+        for row in rows_iter:
+            defaults = {
+                "views": row.views,
+                "watch_time": to_timedelta(row.watch_time_minutes * 60),
+            }
+
+            # Find video in cache or query database
+            youtube_video = _get_youtube_video(row.video_id, video_cache)
+
+            if youtube_video is None:
+                logger.warning("Video {} not found in database", row.video_id)
+                continue
+            elif youtube_video.published_at.date() < start_date:
+                logger.debug(
+                    "Video {} published before start date {}, skipping to prevent overwriting with bad data",
+                    youtube_video,
+                    start_date,
+                )
+                continue
+
+            try:
+                YouTubeVideoSearchTerm.objects.update_or_create(
+                    youtube_video=youtube_video,
+                    search_term=row.traffic_source_detail,
                     defaults=defaults,
                 )
             except IntegrityError as e:
