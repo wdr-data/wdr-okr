@@ -127,7 +127,7 @@ class YouTubeDemographics(models.Model):
     )
 
     views_percentage = models.DecimalField(
-        max_digits=5,
+        max_digits=6,
         decimal_places=3,
         verbose_name="Anteil der Views",
         null=True,
@@ -371,7 +371,7 @@ class YouTubeVideoDemographics(models.Model):
     )
 
     views_percentage = models.DecimalField(
-        max_digits=5,
+        max_digits=6,
         decimal_places=3,
         verbose_name="Anteil der Views",
         null=True,
