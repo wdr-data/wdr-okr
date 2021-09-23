@@ -45,6 +45,11 @@ def _get_seo_articles_to_update(
     today = local_today()
 
     pages = _get_pages(impressions_min, date)
+    logger.debug(
+        "Found {} articles above threshold of {} impressions",
+        len(pages),
+        impressions_min,
+    )
 
     articles_to_do = []
 
@@ -94,6 +99,8 @@ def run(*, last_update_gsc: str = None):
     # articles_to_do = _get_seo_articles_to_update(
     #     10000, local_yesterday() - dt.timedelta(days=1)
     # )
+
+    logger.debug("Found {} articles to send to MS Teams", len(articles_to_do))
 
     adaptive_card = _generate_adaptive_card(
         articles_to_do,
