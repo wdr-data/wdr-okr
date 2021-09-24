@@ -4,6 +4,7 @@ import datetime as dt
 import os
 
 from django.db.models import F, Sum
+from django.db.models.query import QuerySet
 from loguru import logger
 
 from okr.models.pages import (
@@ -21,7 +22,7 @@ from ..teams_tools import generate_teams_payload, send_to_teams
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
 
 
-def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> Page:
+def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> QuerySet[Page]:
     # Get all pages that had a certain number of impressions on a certain date.
     gsc_date = (
         Page.objects.filter(data_gsc__date=date)
@@ -37,7 +38,8 @@ def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> Page:
 
 
 def _get_seo_articles_to_update(
-    impressions_min: int = 10000, date: dt.date = None
+    impressions_min: int = 10000,
+    date: dt.date = None,
 ) -> list:
     # Generate a list of pages that had at least a certain number of impressions
     # on a certain date and have not been updated today.
@@ -45,6 +47,11 @@ def _get_seo_articles_to_update(
     today = local_today()
 
     pages = _get_pages(impressions_min, date)
+    logger.debug(
+        "Found {} articles above threshold of {} impressions",
+        pages.count(),
+        impressions_min,
+    )
 
     articles_to_do = []
 
@@ -94,6 +101,8 @@ def run(*, last_update_gsc: str = None):
     # articles_to_do = _get_seo_articles_to_update(
     #     10000, local_yesterday() - dt.timedelta(days=1)
     # )
+
+    logger.debug("Found {} articles to send to MS Teams", len(articles_to_do))
 
     adaptive_card = _generate_adaptive_card(
         articles_to_do,
