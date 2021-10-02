@@ -15,14 +15,13 @@ class InsightAdmin(admin.ModelAdmin):
     list_display = [
         "date",
         "facebook",
-        "interval",
         "fans",
         "follows",
         "impressions_unique",
         "fans_online_per_day",
     ]
     list_display_links = ["date"]
-    list_filter = ["facebook", "interval"]
+    list_filter = ["facebook"]
     date_hierarchy = "date"
 
 

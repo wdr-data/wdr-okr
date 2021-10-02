@@ -27,15 +27,8 @@ class FacebookInsight(models.Model):
         db_table = "facebook_insights"
         verbose_name = "Facebook-Insight"
         verbose_name_plural = "Facebook-Insights"
-        unique_together = ("facebook", "date", "interval")
+        unique_together = ("facebook", "date")
         ordering = ["-date"]
-
-    class Interval(models.TextChoices):
-        """Available update intervals."""
-
-        DAILY = "daily", "Täglich"
-        WEEKLY = "weekly", "Wöchentlich"
-        MONTHLY = "monthly", "Monatlich"
 
     facebook = models.ForeignKey(
         verbose_name="Facebook-Account",
@@ -46,16 +39,18 @@ class FacebookInsight(models.Model):
         related_query_name="insight",
     )
     date = models.DateField(verbose_name="Datum")
-    interval = models.CharField(
-        verbose_name="Zeitraum",
-        help_text="Intervall (täglich, wöchentlich oder monatlich)",
-        choices=Interval.choices,
-        max_length=10,
-    )
 
     fans = models.IntegerField(verbose_name="Fans")
     follows = models.IntegerField(verbose_name="Follower")
-    impressions_unique = models.IntegerField(verbose_name="Impressions (Unique)")
+    impressions_unique = models.IntegerField(verbose_name="Unique Impressions")
+    impressions_unique_7_days = models.IntegerField(
+        verbose_name="Unique Impressions (7 Tage)",
+        null=True,
+    )
+    impressions_unique_28_days = models.IntegerField(
+        verbose_name="Unique Impressions (28 Tage)",
+        null=True,
+    )
     fans_online_per_day = models.IntegerField(
         verbose_name="Fans online pro Tag",
         null=True,
@@ -64,9 +59,7 @@ class FacebookInsight(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return (
-            f"{self.date}: {self.facebook.name} - {self.Interval(self.interval).label}"
-        )
+        return f"{self.date}: {self.facebook.name}"
 
 
 class FacebookPost(models.Model):

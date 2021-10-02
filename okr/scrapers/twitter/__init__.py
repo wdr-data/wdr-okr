@@ -32,16 +32,13 @@ def scrape_full(twitter: Twitter):
 
     sleep(1)
 
-    scrape_insights("daily", start_date=start_date, twitter_filter=twitter_filter)
-    scrape_insights("weekly", start_date=start_date, twitter_filter=twitter_filter)
-    scrape_insights("monthly", start_date=start_date, twitter_filter=twitter_filter)
+    scrape_insights(start_date=start_date, twitter_filter=twitter_filter)
 
     scrape_tweets(start_date=start_date, twitter_filter=twitter_filter)
     logger.success("Finished full Twitter scrape of {}", twitter)
 
 
 def scrape_insights(
-    interval: str,
     *,
     start_date: Optional[date] = None,
     twitter_filter: Optional[Q] = None,
@@ -51,7 +48,6 @@ def scrape_insights(
     Results are saved in :class:`~okr.models.twitter.TwitterInsight`.
 
     Args:
-        interval (str): Interval to request data for.
         start_date (Optional[date], optional): Earliest date to request data for.
         Defaults to None.
         twitter_filter (Optional[Q], optional): Filter to apply to
@@ -63,9 +59,9 @@ def scrape_insights(
         twitters = twitters.filter(twitter_filter)
 
     for twitter in twitters:
-        logger.debug("Scraping insights for {} with interval {}", twitter, interval)
+        logger.debug("Scraping insights for {}", twitter)
         df = quintly.get_twitter_insights(
-            twitter.quintly_profile_id, interval=interval, start_date=start_date
+            twitter.quintly_profile_id, start_date=start_date
         )
 
         for index, row in df.iterrows():
@@ -77,14 +73,12 @@ def scrape_insights(
                 obj, created = TwitterInsight.objects.update_or_create(
                     twitter=twitter,
                     date=date.fromisoformat(row.time),
-                    interval=interval,
                     defaults=defaults,
                 )
             except IntegrityError as e:
                 capture_exception(e)
                 logger.exception(
                     "Data for {} insights for date {} failed integrity check:\n{}",
-                    interval,
                     row.time,
                     defaults,
                 )

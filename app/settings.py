@@ -18,11 +18,12 @@ import dj_database_url
 from loguru import logger
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 if "SENTRY_DSN" in os.environ:
     sentry_sdk.init(
         dsn=os.environ["SENTRY_DSN"],
-        integrations=[DjangoIntegration()],
+        integrations=[DjangoIntegration(), RedisIntegration()],
         traces_sample_rate=1.0,
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.

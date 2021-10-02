@@ -33,9 +33,7 @@ def scrape_full(tiktok: TikTok):
 
     sleep(1)
 
-    scrape_data("daily", start_date=start_date, tiktok_filter=tiktok_filter)
-    scrape_data("weekly", start_date=start_date, tiktok_filter=tiktok_filter)
-    scrape_data("monthly", start_date=start_date, tiktok_filter=tiktok_filter)
+    scrape_data(start_date=start_date, tiktok_filter=tiktok_filter)
 
     scrape_posts(start_date=start_date, tiktok_filter=tiktok_filter)
 
@@ -43,7 +41,6 @@ def scrape_full(tiktok: TikTok):
 
 
 def scrape_data(
-    interval: str,
     *,
     start_date: Optional[dt.date] = None,
     tiktok_filter: Optional[Q] = None,
@@ -53,7 +50,6 @@ def scrape_data(
     Results are saved in :class:`~okr.models.tiktok.TikTok`.
 
     Args:
-        interval (str): Interval to request data for.
         start_date (Optional[date], optional): Earliest date to request data for.
           Defaults to None.
         tiktok_filter (Optional[Q], optional): Filter to apply to
@@ -65,9 +61,7 @@ def scrape_data(
         tiktoks = tiktoks.filter(tiktok_filter)
 
     for tiktok in tiktoks:
-        df = quintly.get_tiktok(
-            tiktok.quintly_profile_id, interval=interval, start_date=start_date
-        )
+        df = quintly.get_tiktok(tiktok.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
             defaults = {
@@ -84,7 +78,6 @@ def scrape_data(
             obj, created = TikTokData.objects.update_or_create(
                 tiktok=tiktok,
                 date=dt.date.fromisoformat(row.time),
-                interval=interval,
                 defaults=defaults,
             )
 

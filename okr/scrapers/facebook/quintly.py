@@ -48,6 +48,8 @@ def get_facebook_insights(
         "page_fans",
         "page_follows",
         "page_impressions_unique",
+        "page_impressions_unique_week",
+        "page_impressions_unique_days_28",
     ]
 
     if interval == "daily":

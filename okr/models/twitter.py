@@ -27,15 +27,8 @@ class TwitterInsight(models.Model):
         db_table = "twitter_insights"
         verbose_name = "Twitter-Insight"
         verbose_name_plural = "Twitter-Insights"
-        unique_together = ("twitter", "date", "interval")
+        unique_together = ("twitter", "date")
         ordering = ["-date"]
-
-    class Interval(models.TextChoices):
-        """Available update intervals."""
-
-        DAILY = "daily", "Täglich"
-        WEEKLY = "weekly", "Wöchentlich"
-        MONTHLY = "monthly", "Monatlich"
 
     twitter = models.ForeignKey(
         verbose_name="Twitter-Account",
@@ -46,21 +39,13 @@ class TwitterInsight(models.Model):
         related_query_name="insight",
     )
     date = models.DateField(verbose_name="Datum")
-    interval = models.CharField(
-        verbose_name="Zeitraum",
-        help_text="Intervall (täglich, wöchentlich oder monatlich)",
-        choices=Interval.choices,
-        max_length=10,
-    )
 
     followers = models.IntegerField(verbose_name="Follower")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return (
-            f"{self.date}: {self.twitter.name} - {self.Interval(self.interval).label}"
-        )
+        return f"{self.date}: {self.twitter.name}"
 
 
 class Tweet(models.Model):

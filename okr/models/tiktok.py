@@ -27,15 +27,8 @@ class TikTokData(models.Model):
         db_table = "tiktok_data"
         verbose_name = "TikTok-Daten"
         verbose_name_plural = "TikTok-Daten"
-        unique_together = ("tiktok", "date", "interval")
+        unique_together = ("tiktok", "date")
         ordering = ["-date"]
-
-    class Interval(models.TextChoices):
-        """Available update intervals."""
-
-        DAILY = "daily", "Täglich"
-        WEEKLY = "weekly", "Wöchentlich"
-        MONTHLY = "monthly", "Monatlich"
 
     tiktok = models.ForeignKey(
         verbose_name="TikTok-Account",
@@ -47,12 +40,6 @@ class TikTokData(models.Model):
     )
 
     date = models.DateField(verbose_name="Datum")
-    interval = models.CharField(
-        verbose_name="Zeitraum",
-        help_text="Intervall (täglich, wöchentlich oder monatlich)",
-        choices=Interval.choices,
-        max_length=10,
-    )
 
     followers = models.IntegerField(
         verbose_name="Follower",
@@ -97,7 +84,7 @@ class TikTokData(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.tiktok.name} - {self.Interval(self.interval).label}"
+        return f"{self.date}: {self.tiktok.name}"
 
 
 class TikTokHashtag(models.Model):
