@@ -25,6 +25,7 @@ from ..models import (
     PodcastEpisodeDataWebtrekkPerformance,
     PodcastEpisodeDataSpotifyDemographics,
     PodcastCategory,
+    PodcastEpisodeDataArdAudiothekPerformance,
 )
 from .base import ProductAdmin
 from .mixins import UnrequiredFieldsMixin, large_table
@@ -96,8 +97,8 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
     list_display = ProductAdmin.list_display + [
         "author",
         "spotify_id",
+        "ard_audiothek_id",
         "main_category",
-        "itunes_category",
     ]
     list_filter = ProductAdmin.list_filter + [
         "author",
@@ -107,6 +108,7 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
     ]
     search_fields = ProductAdmin.search_fields + [
         "spotify_id",
+        "ard_audiothek_id",
     ]
 
     unrequired_fields = [
@@ -115,6 +117,7 @@ class PodcastAdmin(UnrequiredFieldsMixin, ProductAdmin):
         "categories",
         "main_category",
         "spotify_id",
+        "ard_audiothek_id",
         "itunes_url",
     ]
 
@@ -256,13 +259,14 @@ class EpisodeAdmin(admin.ModelAdmin):
         "publication_date_time",
         "zmdb_id",
         "spotify_id",
+        "ard_audiothek_id",
         "duration",
         "available",
     ]
     list_display_links = ["title"]
     list_filter = ["podcast", "available"]
     date_hierarchy = "publication_date_time"
-    search_fields = ["title", "spotify_id", "zmdb_id"]
+    search_fields = ["title", "spotify_id", "ard_audiothek_id", "zmdb_id"]
 
 
 @large_table
@@ -365,6 +369,23 @@ class EpisodeDataWebtrekkPerformanceAdmin(admin.ModelAdmin):
 
 
 @large_table
+class EpisodeDataArdAudiothekPerformanceAdmin(admin.ModelAdmin):
+    """List for choosing existing ARD Audiothek episode performance data to edit."""
+
+    list_display = [
+        "episode",
+        "date",
+        "starts",
+        "playback_time",
+    ]
+    list_display_links = ["episode", "date"]
+    list_filter = ["episode__podcast"]
+    date_hierarchy = "date"
+    search_fields = ["episode__title"]
+    autocomplete_fields = ["episode"]
+
+
+@large_table
 class EpisodeDataPodstatAdmin(admin.ModelAdmin):
     """List for choosing existing Podstat episode data to edit."""
 
@@ -400,5 +421,8 @@ admin.site.register(
 )
 admin.site.register(
     PodcastEpisodeDataWebtrekkPerformance, EpisodeDataWebtrekkPerformanceAdmin
+)
+admin.site.register(
+    PodcastEpisodeDataArdAudiothekPerformance, EpisodeDataArdAudiothekPerformanceAdmin
 )
 admin.site.register(PodcastEpisodeDataPodstat, EpisodeDataPodstatAdmin)

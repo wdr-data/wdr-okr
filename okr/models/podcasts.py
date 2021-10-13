@@ -111,6 +111,13 @@ class Podcast(Product):
         null=True,
     )
 
+    ard_audiothek_id = models.CharField(
+        max_length=32,
+        verbose_name="ARD Audiothek ID",
+        help_text="ARD Audiothek ID, falls vorhanden",
+        null=True,
+    )
+
     last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated",
         help_text="Datum der letzten Daten-Aktualisierung",
@@ -514,6 +521,13 @@ class PodcastEpisode(models.Model):
         null=True,
     )
 
+    ard_audiothek_id = models.CharField(
+        max_length=32,
+        verbose_name="ARD Audiothek ID",
+        help_text="ARD Audiothek ID, falls vorhanden",
+        null=True,
+    )
+
     duration = models.DurationField(
         verbose_name="Länge",
         help_text="Länge der Mediendatei",
@@ -876,6 +890,50 @@ class PodcastEpisodeDataWebtrekkPerformance(models.Model):
     )
     playing_time = models.DurationField(
         verbose_name="Spieldauer", help_text="Abspieldauer der Mediendatei (HH:MM:SS)"
+    )
+
+    last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated",
+        help_text="Zeitpunkt der Datenaktualisierung",
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.episode.title} ({self.date})"
+
+
+class PodcastEpisodeDataArdAudiothekPerformance(models.Model):
+    """Zusätzliche Abruf-Daten von der ARD Audiothek für die einzelnen Folgen."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "podcast_episode_data_ard_audiothek_performance"
+        verbose_name = "Podcast-Episoden-Performance (ARD Audiothek)"
+        verbose_name_plural = "Podcast-Episoden-Performance (ARD Audiothek)"
+        unique_together = ("date", "episode")
+        ordering = ["-date", "episode"]
+
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum der Performance-Daten",
+    )
+    episode = models.ForeignKey(
+        verbose_name="Episode",
+        to=PodcastEpisode,
+        on_delete=models.CASCADE,
+        related_name="data_ard_audiothek_performance",
+        related_query_name="data_ard_audiothek_performance",
+        help_text="Globale ID der Episode",
+    )
+
+    starts = models.IntegerField(
+        verbose_name="Wiedergaben",
+        help_text="Wiedergaben der Episode",
+    )
+
+    playback_time = models.DurationField(
+        verbose_name="Spieldauer", help_text="Abspieldauer der Episode (HH:MM:SS)"
     )
 
     last_updated = models.DateTimeField(
