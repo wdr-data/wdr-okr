@@ -281,6 +281,12 @@ def add_jobs():
         hour="3",
         minute="0",
     )
+    scheduler.add_job(
+        podcasts.scrape_ard_audiothek,
+        trigger="cron",
+        hour="4",
+        minute="25",
+    )
 
     # Pages
     scheduler.add_job(
