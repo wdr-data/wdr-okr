@@ -23,7 +23,7 @@ from . import itunes
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
-from . import webtrekk
+from . import webtrekk, ard_audiothek
 from .connection_meta import ConnectionMeta
 from ..common.utils import (
     date_param,
@@ -239,6 +239,8 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     podcast.episodes.exclude(id__in=available_episode_ids).update(
         available=False,
     )
+
+    _scrape_ard_audiothek_ids_episodes(podcast)
 
 
 def _scrape_feed_episode_map(podcast):
@@ -1166,3 +1168,39 @@ def scrape_episode_data_webtrekk_performance(
                     date=date, episode=episode, defaults=data[episode.zmdb_id]
                 )
         logger.success("Finished scraping of Webtrekk performance data for {}.", date)
+
+
+def _extract_zmdb_id(item):
+    links = item["_links"]
+
+    media_url = links["mt:downloadUrl"]["href"]
+    return int(media_url.split("/")[-2])
+
+
+def _extract_ard_id(item):
+    links = item["_links"]
+
+    self_api_url = links["self"]["href"]
+    return self_api_url.split("/")[-1]
+
+
+def _scrape_ard_audiothek_ids_episodes(podcast: Podcast):
+    if (
+        not podcast.ard_audiothek_id
+        or podcast.episodes.filter(ard_audiothek_id=None, available=True).count() == 0
+    ):
+        return
+
+    logger.info("Scraping ARD Audiothek episode IDs for {}.", podcast)
+
+    data = ard_audiothek.get_programset(podcast.ard_audiothek_id)
+    episode_data = data["_embedded"]["mt:items"]
+
+    zmdb_to_ard_ids = {
+        _extract_zmdb_id(item): _extract_ard_id(item) for item in episode_data
+    }
+
+    for podcast_episode in podcast.episodes.filter(ard_audiothek_id=None):
+        if podcast_episode.zmdb_id in zmdb_to_ard_ids:
+            podcast_episode.ard_audiothek_id = zmdb_to_ard_ids[podcast_episode.zmdb_id]
+            podcast_episode.save()
