@@ -3,7 +3,7 @@
 
 import datetime as dt
 from time import sleep
-from typing import Dict, List, Optional
+from typing import Dict, Generator, List, Optional
 import gc
 import functools
 
@@ -17,13 +17,14 @@ from sentry_sdk import capture_exception, capture_message
 from spotipy.exceptions import SpotifyException
 from requests.exceptions import HTTPError
 from loguru import logger
+import pandas as pd
 
 from . import feed
 from . import itunes
 from . import podstat
 from .spotify_api import spotify_api, fetch_all
 from .experimental_spotify_podcast_api import experimental_spotify_podcast_api
-from . import webtrekk
+from . import webtrekk, ard_audiothek, ati
 from .connection_meta import ConnectionMeta
 from ..common.utils import (
     date_param,
@@ -31,6 +32,7 @@ from ..common.utils import (
     local_today,
     local_yesterday,
     date_range,
+    to_timedelta,
     BERLIN,
     UTC,
 )
@@ -46,6 +48,7 @@ from ...models import (
     PodcastDataWebtrekkPicker,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataWebtrekkPerformance,
+    PodcastEpisodeDataArdAudiothekPerformance,
     PodcastEpisodeDataSpotifyDemographics,
     PodcastDataSpotifyDemographics,
 )
@@ -115,6 +118,12 @@ def scrape_full(
         start_date=start_date,
         end_date=end_date,
         podcast_filter=podcast_filter,
+    )
+
+    sleep(1)
+    scrape_ard_audiothek(
+        start_date=start_date,
+        end_date=end_date,
     )
 
     logger.success("Finished full scrape of {}", podcast)
@@ -239,6 +248,8 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     podcast.episodes.exclude(id__in=available_episode_ids).update(
         available=False,
     )
+
+    _scrape_ard_audiothek_ids_episodes(podcast)
 
 
 def _scrape_feed_episode_map(podcast):
@@ -1166,3 +1177,189 @@ def scrape_episode_data_webtrekk_performance(
                     date=date, episode=episode, defaults=data[episode.zmdb_id]
                 )
         logger.success("Finished scraping of Webtrekk performance data for {}.", date)
+
+
+def _extract_zmdb_id(item):
+    links = item["_links"]
+
+    options = [
+        "mt:downloadUrl",
+        "mt:bestQualityPlaybackUrl",
+    ]
+
+    for option in options:
+        if option in links:
+            media_url = links[option]["href"]
+            return int(media_url.split("/")[-2])
+
+    raise ValueError("Could not find ZMDB ID for item {}".format(item))
+
+
+def _extract_ard_id(item):
+    links = item["_links"]
+
+    self_api_url = links["self"]["href"]
+    return self_api_url.split("/")[-1]
+
+
+def _scrape_ard_audiothek_ids_episodes(podcast: Podcast):
+    if (
+        not podcast.ard_audiothek_id
+        or podcast.episodes.filter(ard_audiothek_id=None, available=True).count() == 0
+    ):
+        return
+
+    logger.info("Scraping ARD Audiothek episode IDs for {}.", podcast)
+
+    data = ard_audiothek.get_programset(podcast.ard_audiothek_id)
+    episode_data = data["_embedded"]["mt:items"]
+
+    zmdb_to_ard_ids = {
+        _extract_zmdb_id(item): _extract_ard_id(item) for item in episode_data
+    }
+
+    for podcast_episode in podcast.episodes.filter(ard_audiothek_id=None):
+        if podcast_episode.zmdb_id in zmdb_to_ard_ids:
+            podcast_episode.ard_audiothek_id = zmdb_to_ard_ids[podcast_episode.zmdb_id]
+            podcast_episode.save()
+
+
+def scrape_ard_audiothek(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
+):
+    """Scrape ATI and ARD Audiothek APIs for episode data.
+
+    Results are saved in
+    :class:`~okr.models.podcasts.PodcastEpisodeDataArdAudiothekPerformance`.
+
+    Args:
+        start_date (dt.date, optional): Earliest date to request data for. Defaults to
+          None. If not set, "3 days ago" is used. Values are truncated to be no longer
+          than 7 days ago.
+        end_date (dt.date, optional): Latest date to request data for. Defaults to
+          None. If not set, "yesterday" is used.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
+    """
+
+    today = local_today()
+    yesterday = local_yesterday()
+
+    start_date = date_param(
+        start_date,
+        default=yesterday - dt.timedelta(days=2),
+        earliest=today - dt.timedelta(days=30),
+        latest=yesterday,
+    )
+    end_date = date_param(
+        end_date,
+        default=yesterday,
+        earliest=start_date,
+        latest=yesterday,
+    )
+
+    for i, date in enumerate(reversed(date_range(start_date, end_date))):
+        logger.info(
+            "Start collecting ARD Audiothek performance data from {}",
+            date,
+        )
+        df = ati.get_all_episode_data(date)
+
+        df = df[
+            (df["Inhaltsarten"] == "Audiodateien")
+            & df["Broadcasts"].str.startswith("Clip")
+            & (df["Level 2 sites"] == "Audiothek")
+        ]
+        df["episode_ard_id"] = df["Content"].str.split("_").str[-1]
+
+        if i == 0:
+            for podcast in _scrape_ard_audiothek_ids_podcasts(df):
+                _scrape_ard_audiothek_ids_episodes(podcast)
+
+        # Scrape episode data
+        df = df[["episode_ard_id", "Wiedergaben", "Gesamte Wiedergabedauer"]]
+        df = df.groupby(["episode_ard_id"], as_index=False).sum()
+
+        # create Data
+        data = {}
+        for _, row in df.iterrows():
+            data[row["episode_ard_id"]] = {
+                "starts": row["Wiedergaben"],
+                "playback_time": to_timedelta(row["Gesamte Wiedergabedauer"]),
+            }
+
+        podcasts = Podcast.objects.exclude(ard_audiothek_id=None)
+
+        if podcast_filter:
+            podcasts = podcasts.filter(podcast_filter)
+
+        for podcast in podcasts:
+            for episode in podcast.episodes.exclude(ard_audiothek_id=None):
+
+                if episode.ard_audiothek_id not in data:
+                    continue
+
+                PodcastEpisodeDataArdAudiothekPerformance.objects.update_or_create(
+                    date=date, episode=episode, defaults=data[episode.ard_audiothek_id]
+                )
+
+    logger.success("Finished scraping ARD Audiothek performance data.")
+
+
+def _scrape_ard_audiothek_ids_podcasts(
+    df: pd.DataFrame,
+) -> Generator[Podcast, None, None]:
+    # Take a random episode from each podcast to get the ID
+
+    df_podcasts = df.drop_duplicates(subset="Level 3 Themen")
+
+    for episode_ard_id in df_podcasts["episode_ard_id"]:
+        if PodcastEpisode.objects.filter(ard_audiothek_id=episode_ard_id).count():
+            continue
+
+        # Get item information from ARD API
+        try:
+            item_data = ard_audiothek.get_item(episode_ard_id)
+        except HTTPError:
+            logger.warning(
+                "Could not load API result for ARD ID {}.",
+                episode_ard_id,
+                exc_info=True,
+            )
+            continue
+
+        # Extract the ZMDB ID from the item
+        try:
+            episode_zmdb_id = _extract_zmdb_id(item_data)
+        except ValueError:
+            logger.warning(
+                "Could not find ZMDB ID for ARD ID {}.",
+                episode_ard_id,
+                exc_info=True,
+            )
+            continue
+
+        # Extract programset ID from item
+        programset_id = (
+            item_data["_embedded"]["mt:programSet"]["_links"]["self"]["href"]
+            .split("/")[-1]
+            .split("{")[0]
+        )
+
+        try:
+            podcast = PodcastEpisode.objects.get(zmdb_id=episode_zmdb_id).podcast
+        except PodcastEpisode.DoesNotExist:
+            logger.warning(
+                "Could not find podcast for ARD ID {} and ZMDB ID {}.",
+                episode_ard_id,
+                episode_zmdb_id,
+            )
+            continue
+
+        if podcast.ard_audiothek_id is None:
+            podcast.ard_audiothek_id = programset_id
+            podcast.save()
+            yield podcast
