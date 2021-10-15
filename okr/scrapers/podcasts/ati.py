@@ -9,7 +9,7 @@ import pandas as pd
 from ..common.utils import local_today, local_yesterday
 
 
-API_KEY = environ["ATI_API_KEY_SWR"]
+API_KEY = environ.get("ATI_API_KEY_SWR")
 
 
 def _get_data(**params: Optional[Dict[str, str]]):
