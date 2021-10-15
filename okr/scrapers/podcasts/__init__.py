@@ -32,6 +32,7 @@ from ..common.utils import (
     local_today,
     local_yesterday,
     date_range,
+    to_timedelta,
     BERLIN,
     UTC,
 )
@@ -47,6 +48,7 @@ from ...models import (
     PodcastDataWebtrekkPicker,
     PodcastEpisodeDataSpotifyPerformance,
     PodcastEpisodeDataWebtrekkPerformance,
+    PodcastEpisodeDataArdAudiothekPerformance,
     PodcastEpisodeDataSpotifyDemographics,
     PodcastDataSpotifyDemographics,
 )
@@ -1226,6 +1228,7 @@ def scrape_ard_audiothek(
     *,
     start_date: Optional[dt.date] = None,
     end_date: Optional[dt.date] = None,
+    podcast_filter: Optional[Q] = None,
 ):
     """Scrape ATI and ARD Audiothek APIs for episode data.
 
@@ -1238,6 +1241,8 @@ def scrape_ard_audiothek(
           than 7 days ago.
         end_date (dt.date, optional): Latest date to request data for. Defaults to
           None. If not set, "yesterday" is used.
+        podcast_filter (Q, optional): Filter for a subset of all Podcast objects.
+          Defaults to None.
     """
 
     today = local_today()
@@ -1257,28 +1262,62 @@ def scrape_ard_audiothek(
     )
 
     for i, date in enumerate(reversed(date_range(start_date, end_date))):
-        df = ati.get_all_episode_data()
+        logger.info(
+                "Start collecting ARD Audiothek performance data from {}",
+                date,
+            )
+        df = ati.get_all_episode_data(date)
+
+        df = df[
+            (df["Inhaltsarten"] == "Audiodateien")
+            & df["Broadcasts"].str.startswith("Clip")
+            & (df["Level 2 sites"] == "Audiothek")
+        ]
+        df["episode_ard_id"] = df["Content"].str.split("_").str[-1]
 
         if i == 0:
             for podcast in _scrape_ard_audiothek_ids_podcasts(df):
                 _scrape_ard_audiothek_ids_episodes(podcast)
 
-        # TODO: Scrape episode data
+        # Scrape episode data
+        df = df[["episode_ard_id", "Wiedergaben", "Gesamte Wiedergabedauer"]]
+        df = df.groupby(["episode_ard_id"], as_index=False).sum()
 
+        # create Data
+        data = {}
+        for _, row in df.iterrows():
+            data[row["episode_ard_id"]] = {
+                "starts": row["Wiedergaben"],
+                "playback_time": to_timedelta(row["Gesamte Wiedergabedauer"]),
+            }
+
+        podcasts = Podcast.objects.exclude(ard_audiothek_id=None)
+
+        if podcast_filter:
+            podcasts = podcasts.filter(podcast_filter)
+
+        for podcast in podcasts:
+            for episode in podcast.episodes.exclude(ard_audiothek_id=None):
+
+                if episode.ard_audiothek_id not in data:
+                    continue
+
+                PodcastEpisodeDataArdAudiothekPerformance.objects.update_or_create(
+                    date=date, episode=episode, defaults=data[episode.ard_audiothek_id]
+                )
+
+    logger.success(
+        "Finished scraping ARD Audiothek performance data."
+    )
 
 def _scrape_ard_audiothek_ids_podcasts(
     df: pd.DataFrame,
 ) -> Generator[Podcast, None, None]:
     # Take a random episode from each podcast to get the ID
-    df = df[
-        (df["Inhaltsarten"] == "Audiodateien")
-        & df["Broadcasts"].str.startswith("Clip")
-        & (df["Level 2 sites"] == "Audiothek")
-    ]
-    df_podcasts = df.drop_duplicates(subset="Level 3 Themen")
-    episode_ard_ids = df_podcasts["Content"].str.split("_").str[-1]
 
-    for episode_ard_id in episode_ard_ids:
+    df_podcasts = df.drop_duplicates(subset="Level 3 Themen")
+
+    for episode_ard_id in df_podcasts["episode_ard_id"]:
         if PodcastEpisode.objects.filter(ard_audiothek_id=episode_ard_id).count():
             continue
 
