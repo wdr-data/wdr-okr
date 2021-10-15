@@ -1263,9 +1263,9 @@ def scrape_ard_audiothek(
 
     for i, date in enumerate(reversed(date_range(start_date, end_date))):
         logger.info(
-                "Start collecting ARD Audiothek performance data from {}",
-                date,
-            )
+            "Start collecting ARD Audiothek performance data from {}",
+            date,
+        )
         df = ati.get_all_episode_data(date)
 
         df = df[
@@ -1306,9 +1306,8 @@ def scrape_ard_audiothek(
                     date=date, episode=episode, defaults=data[episode.ard_audiothek_id]
                 )
 
-    logger.success(
-        "Finished scraping ARD Audiothek performance data."
-    )
+    logger.success("Finished scraping ARD Audiothek performance data.")
+
 
 def _scrape_ard_audiothek_ids_podcasts(
     df: pd.DataFrame,
