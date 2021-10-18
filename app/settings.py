@@ -19,6 +19,7 @@ from loguru import logger
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.logging import ignore_logger
 
 if "SENTRY_DSN" in os.environ:
     sentry_sdk.init(
@@ -30,6 +31,8 @@ if "SENTRY_DSN" in os.environ:
         send_default_pii=True,
         release=os.environ.get("HEROKU_SLUG_COMMIT"),
     )
+
+    ignore_logger("spotipy.client")
 
     with sentry_sdk.configure_scope() as scope:
         scope.set_tag(
