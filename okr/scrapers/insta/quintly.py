@@ -245,7 +245,6 @@ def get_insta_comments(
         "isAccountAnswer",
         "username",
         "message",
-        "link",
         "likes",
         "isReply",
         "parentCommentId",

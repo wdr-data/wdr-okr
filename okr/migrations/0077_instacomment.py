@@ -64,13 +64,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "link",
-                    models.TextField(
-                        help_text="Link zum Kommentar bei Instagram",
-                        verbose_name="Link",
-                    ),
-                ),
-                (
                     "likes",
                     models.IntegerField(
                         help_text="Anzahl der Likes des Kommentars",

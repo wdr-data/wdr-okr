@@ -115,9 +115,8 @@ class CommentAdmin(admin.ModelAdmin):
         "insta",
         "created_at",
         "username",
-        "link",
     ]
-    list_display_links = ["insta", "created_at"]
+    list_display_links = ["created_at", "username"]
     list_filter = ["is_account_answer", "is_reply", "is_hidden", "insta"]
     date_hierarchy = "created_at"
     search_fields = ["insta", "username", "external_post_id", "external_id"]

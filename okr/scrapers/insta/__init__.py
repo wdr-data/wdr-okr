@@ -296,7 +296,6 @@ def scrape_comments(
                 "is_account_answer": bool(row.isAccountAnswer),
                 "username": row.username,
                 "message_length": len(row.message or ""),
-                "link": row.link,
                 "likes": row.likes,
                 "is_reply": bool(row.isReply),
                 "parent_comment_id": row.parentCommentId,

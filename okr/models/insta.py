@@ -406,11 +406,6 @@ class InstaComment(models.Model):
         help_text="Zeichenzahl des Kommentars",
     )
 
-    link = models.TextField(
-        verbose_name="Link",
-        help_text="Link zum Kommentar bei Instagram",
-    )
-
     likes = models.IntegerField(
         verbose_name="Likes",
         help_text="Anzahl der Likes des Kommentars",
