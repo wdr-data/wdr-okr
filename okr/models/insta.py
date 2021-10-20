@@ -425,7 +425,7 @@ class InstaComment(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.insta.name}"
+        return f"{self.username} ({self.date})"
 
 
 class InstaDemographics(models.Model):
