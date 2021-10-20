@@ -358,6 +358,76 @@ class InstaIGTVData(models.Model):
         return f"{self.date}: {self.igtv.video_title}"
 
 
+class InstaComment(models.Model):
+    """Daten zu einzelnen Kommentaren."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_comments"
+        verbose_name = "Instagram-Comment"
+        verbose_name_plural = "Instagram-Comments"
+        unique_together = ("external_id", "date")
+        ordering = ["-date"]
+
+    insta = models.ForeignKey(
+        verbose_name="Instagram-Posting",
+        help_text="ID des Instagram-Postings (Post, Video, etc)",
+        to=InstaPost,  # hm, so klappt das ja nur mit InstaPost - aber müsste natürlich auch zu IGTV/Stories verknüpft werden...
+        on_delete=models.CASCADE,
+        related_name="comments",
+        related_query_name="comment",
+    )
+    date = models.DateTimeField(
+        verbose_name="Erstellungszeitpunkt"
+    )  # enthält Daten des Feldes "time" bei Quintly
+
+    is_account_answer = models.BooleanField(
+        verbose_name="Is account answer",
+        help_text="True für Antwort des Accounts, False für User*innen-Kommentar",
+    )
+
+    external_id = models.TextField(
+        verbose_name="External ID",
+        help_text="ID des Kommentars bei Instagram",
+    )  # ToDo: herausfinden, wie lange diese IDs sind, und ein CharField verwenden
+
+    username = models.TextField(
+        verbose_name="User name",
+        help_text="Username der Kommentarverfasser*in",
+    )
+
+    message = models.TextField(
+        verbose_name="Message",
+        help_text="Volltext des Kommentars",
+    )
+
+    link = models.TextField(
+        verbose_name="Link",
+        help_text="Link zum Kommentar bei Instagram",
+    )
+
+    likes = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Anzahl der Likes des Kommentars",
+    )
+
+    is_hidden = models.BooleanField(
+        verbose_name="Is hidden",
+        help_text="True wenn Kommentar verborgen wurde",
+    )
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.date}: {self.insta.name}"
+
+
 class InstaDemographics(models.Model):
     """Demographische Daten zu einzelnem Instagram Account."""
 
