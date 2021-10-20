@@ -219,6 +219,52 @@ def get_insta_igtv(
 
 
 @common_quintly.requires_quintly
+def get_insta_comments(
+    profile_id: int,
+    *,
+    start_date: Optional[datetime.date] = None,
+) -> pd.DataFrame:
+    """Read data for comments on Instagram profile via Quintly API.
+
+    Args:
+        profile_id (int): ID of profile to request data for.
+        start_date (Optional[datetime.date], optional): Date of earliest possible
+          data to request. Defaults to None. Will be set to today's date one week ago if
+          None.
+
+    Returns:
+        pd.DataFrame:  API response data.
+    """
+
+    profile_ids = [profile_id]
+    table = "instagramInsightsComments"
+    fields = [
+        "externalId",
+        "externalPostId",
+        "time",
+        "isAccountAnswer",
+        "username",
+        "message",
+        "link",
+        "likes",
+        "isReply",
+        "parentCommentId",
+        "isHidden",
+        "importTime",
+    ]
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    end_date = datetime.date.today()
+
+    df = common_quintly.quintly.run_query(
+        profile_ids, table, fields, start_date, end_date
+    )
+
+    df = df.replace({np.nan: None})
+
+    return df
+
+
+@common_quintly.requires_quintly
 def get_insta_demographics(
     profile_id: int,
     *,

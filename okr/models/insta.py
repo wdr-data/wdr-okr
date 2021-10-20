@@ -364,42 +364,46 @@ class InstaComment(models.Model):
     class Meta:
         """Model meta options."""
 
-        db_table = "instagram_comments"
+        db_table = "instagram_comment"
         verbose_name = "Instagram-Comment"
         verbose_name_plural = "Instagram-Comments"
-        unique_together = ("external_id", "date")
-        ordering = ["-date"]
+        ordering = ["-created_at"]
 
     insta = models.ForeignKey(
-        verbose_name="Instagram-Posting",
-        help_text="ID des Instagram-Postings (Post, Video, etc)",
-        to=InstaPost,  # hm, so klappt das ja nur mit InstaPost - aber müsste natürlich auch zu IGTV/Stories verknüpft werden...
+        verbose_name="Instagram-Account",
+        help_text="ID des Instagram-Accounts",
+        to=Insta,
         on_delete=models.CASCADE,
         related_name="comments",
         related_query_name="comment",
     )
-    date = models.DateTimeField(
-        verbose_name="Erstellungszeitpunkt"
-    )  # enthält Daten des Feldes "time" bei Quintly
+
+    external_id = models.TextField(
+        verbose_name="Externe ID",
+        help_text="ID des Kommentars bei Instagram",
+        unique=True,
+    )
+
+    external_post_id = models.TextField(
+        verbose_name="Externe Post ID",
+        help_text="ID des dazugehörigen Posts bei Instagram",
+    )
+
+    created_at = models.DateTimeField(verbose_name="Erstellungszeitpunkt")
 
     is_account_answer = models.BooleanField(
-        verbose_name="Is account answer",
+        verbose_name="Antwort des Accounts",
         help_text="True für Antwort des Accounts, False für User*innen-Kommentar",
     )
 
-    external_id = models.TextField(
-        verbose_name="External ID",
-        help_text="ID des Kommentars bei Instagram",
-    )  # ToDo: herausfinden, wie lange diese IDs sind, und ein CharField verwenden
-
     username = models.TextField(
-        verbose_name="User name",
+        verbose_name="Username",
         help_text="Username der Kommentarverfasser*in",
     )
 
-    message = models.TextField(
-        verbose_name="Message",
-        help_text="Volltext des Kommentars",
+    message_length = models.IntegerField(
+        verbose_name="Kommentar-Länge",
+        help_text="Zeichenzahl des Kommentars",
     )
 
     link = models.TextField(
@@ -412,8 +416,19 @@ class InstaComment(models.Model):
         help_text="Anzahl der Likes des Kommentars",
     )
 
+    is_reply = models.BooleanField(
+        verbose_name="Ist Antwort",
+        help_text="True wenn Kommentar eine Antwort ist",
+    )
+
+    parent_comment_id = models.TextField(
+        verbose_name="ID des Elternkommentars",
+        help_text="ID des Kommentars, auf den sich die Antwort bezieht",
+        null=True,
+    )
+
     is_hidden = models.BooleanField(
-        verbose_name="Is hidden",
+        verbose_name="Ist verborgen",
         help_text="True wenn Kommentar verborgen wurde",
     )
 
@@ -425,7 +440,7 @@ class InstaComment(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.username} ({self.date})"
+        return f"{self.username} - {self.external_id} ({self.created_at})"
 
 
 class InstaDemographics(models.Model):
