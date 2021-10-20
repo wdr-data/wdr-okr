@@ -330,8 +330,8 @@ class YouTubeVideoDemographics(models.Model):
         db_table = "youtube_video_demographics"
         verbose_name = "YouTube Video Demographics"
         verbose_name_plural = "YouTube Video Demographics"
-        unique_together = ("youtube_video", "date", "age_range", "gender")
-        ordering = ["-date"]
+        unique_together = ("youtube_video", "age_range", "gender")
+        ordering = ["youtube_video", "gender", "age_range"]
 
     class AgeRange(models.TextChoices):
         AGE_13_17 = "13-17", "13-17"
@@ -355,7 +355,6 @@ class YouTubeVideoDemographics(models.Model):
         related_name="demographics",
         related_query_name="demographics",
     )
-    date = models.DateField(verbose_name="Datum")
 
     age_range = models.CharField(
         verbose_name="Altersgruppe",
@@ -380,7 +379,7 @@ class YouTubeVideoDemographics(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.youtube_video.youtube.name} - {self.youtube_video.title} {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
+        return f"{self.youtube_video.youtube.name} - {self.youtube_video.title} {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
 
 
 class YouTubeVideoTrafficSource(models.Model):
