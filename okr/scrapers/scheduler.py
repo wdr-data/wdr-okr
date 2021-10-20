@@ -217,6 +217,12 @@ def add_jobs():
         hour="4",
         minute="5",
     )
+    scheduler.add_job(
+        youtube.scrape_video_demographics,
+        trigger="cron",
+        hour="4",
+        minute="20",
+    )
 
     # TikTok
     scheduler.add_job(

@@ -379,7 +379,7 @@ class YouTubeVideoDemographics(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.youtube_video.youtube.name} - {self.youtube_video.title} {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
+        return f"{self.youtube_video.youtube.name} - {self.youtube_video.title} {self.AgeRange(self.age_range).label}, {self.Gender(self.gender).label}"
 
 
 class YouTubeVideoTrafficSource(models.Model):

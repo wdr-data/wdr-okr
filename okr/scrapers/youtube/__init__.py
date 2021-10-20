@@ -19,10 +19,10 @@ from ...models.youtube import (
     YouTubeTrafficSource,
     YouTubeVideo,
     YouTubeVideoAnalytics,
+    YouTubeVideoDemographics,
     YouTubeVideoTrafficSource,
     YouTubeVideoExternalTraffic,
     YouTubeVideoSearchTerm,
-    # YouTubeVideoDemographics,
 )
 from . import quintly, google
 from ..common.utils import BERLIN, local_today, to_timedelta
@@ -48,6 +48,7 @@ def scrape_full(youtube: YouTube):
     scrape_video_traffic_sources(start_date=start_date, youtube_filter=youtube_filter)
     scrape_video_external_traffic(start_date=start_date, youtube_filter=youtube_filter)
     scrape_video_search_terms(start_date=start_date, youtube_filter=youtube_filter)
+    scrape_video_demographics(start_date=start_date, youtube_filter=youtube_filter)
 
     logger.success("Finished full YouTube scrape of {}", youtube)
 
@@ -164,7 +165,7 @@ def scrape_channel_analytics(
         youtubes = youtubes.filter(youtube_filter)
 
     for youtube in youtubes:
-        logger.debug("Scraping Quintly YouTube channel analytics for {}", youtube)
+        logger.info("Scraping Quintly YouTube channel analytics for {}", youtube)
 
         df = quintly.get_youtube_analytics(
             youtube.quintly_profile_id, start_date=start_date
@@ -235,7 +236,7 @@ def scrape_videos(
         youtubes = youtubes.filter(youtube_filter)
 
     for youtube in youtubes:
-        logger.debug("Scraping basic YouTube video data for {}", youtube)
+        logger.info("Scraping basic YouTube video data for {}", youtube)
 
         df = quintly.get_youtube_videos(
             youtube.quintly_profile_id, start_date=start_date
@@ -332,7 +333,7 @@ def scrape_video_analytics(
         youtubes = youtubes.filter(youtube_filter)
 
     for youtube in youtubes:
-        logger.debug("Scraping YouTube video analytics for {}", youtube)
+        logger.info("Scraping YouTube video analytics for {}", youtube)
 
         # Cache videos to prevent multiple queries for the same video
         video_cache: Dict[str, YouTubeVideo] = {}
@@ -408,7 +409,7 @@ def scrape_video_traffic_sources(
         start_date = local_today() - dt.timedelta(days=31 * 6)
 
     for youtube in youtubes:
-        logger.debug("Scraping YouTube video traffic source data for {}", youtube)
+        logger.info("Scraping YouTube video traffic source data for {}", youtube)
 
         # Cache videos to prevent multiple queries for the same video
         video_cache: Dict[str, YouTubeVideo] = {}
@@ -486,7 +487,7 @@ def scrape_video_external_traffic(
         start_date = local_today() - dt.timedelta(days=31 * 6)
 
     for youtube in youtubes:
-        logger.debug("Scraping YouTube video external traffic data for {}", youtube)
+        logger.info("Scraping YouTube video external traffic data for {}", youtube)
 
         # Cache videos to prevent multiple queries for the same video
         video_cache: Dict[str, YouTubeVideo] = {}
@@ -562,7 +563,7 @@ def scrape_video_search_terms(
         start_date = local_today() - dt.timedelta(days=31 * 6)
 
     for youtube in youtubes:
-        logger.debug("Scraping YouTube video search term data for {}", youtube)
+        logger.info("Scraping YouTube video search term data for {}", youtube)
 
         # Cache videos to prevent multiple queries for the same video
         video_cache: Dict[str, YouTubeVideo] = {}
@@ -603,6 +604,88 @@ def scrape_video_search_terms(
                 capture_exception(e)
                 logger.exception(
                     "Data for video analytics at {} failed integrity check:\n{}",
+                    row.time,
+                    defaults,
+                )
+
+
+def scrape_video_demographics(
+    *,
+    start_date: Optional[dt.date] = None,
+    end_date: Optional[dt.date] = None,
+    youtube_filter: Optional[Q] = None,
+):
+    """Read YouTube demographics data for videos from BigQuery and store in database.
+
+    Results are saved in
+    :class:`~okr.models.youtube.YouTubeVideoDemographics`.
+
+    Args:
+        start_date (Optional[date], optional): Earliest data to request data for.
+            This date refers to the partition field value, not the date of the
+            data itself. Defaults to None. If None, the start date will be
+            set to 6 months in the past.
+        end_date (Optional[date], optional): Latest data to request data for.
+            Defaults to None.
+        youtube_filter (Optional[Q], optional): Q object to filter data with.
+            Defaults to None.
+    """
+    youtubes = YouTube.objects.all()
+
+    if youtube_filter:
+        youtubes = youtubes.filter(youtube_filter)
+
+    if start_date is None:
+        start_date = local_today() - dt.timedelta(days=31 * 6)
+
+    for youtube in youtubes:
+        logger.info("Scraping YouTube video demographics data for {}", youtube)
+
+        # Cache videos to prevent multiple queries for the same video
+        video_cache: Dict[str, YouTubeVideo] = {}
+
+        rows_iter = google.get_bigquery_video_demographics(
+            youtube.bigquery_suffix,
+            start_date,
+            end_date=end_date,
+        )
+
+        for row in rows_iter:
+
+            # Find video in cache or query database
+            youtube_video = _get_youtube_video(row.video_id, video_cache)
+
+            if youtube_video is None:
+                logger.warning("Video {} not found in database", row.video_id)
+                continue
+            elif youtube_video.published_at.date() < start_date:
+                logger.debug(
+                    "Video {} published before start date {}, skipping to prevent overwriting with bad data",
+                    youtube_video,
+                    start_date,
+                )
+                continue
+
+            gender = YouTubeVideoDemographics.Gender(row.gender.lower())
+            age_range = YouTubeVideoDemographics.AgeRange(
+                row.age_group[4:].replace("65_", "65+").replace("_", "-")
+            )
+
+            defaults = {
+                "views_percentage": row.views_percentage,
+            }
+
+            try:
+                YouTubeVideoDemographics.objects.update_or_create(
+                    youtube_video=youtube_video,
+                    gender=gender,
+                    age_range=age_range,
+                    defaults=defaults,
+                )
+            except IntegrityError as e:
+                capture_exception(e)
+                logger.exception(
+                    "Data for video demographics at {} failed integrity check:\n{}",
                     row.time,
                     defaults,
                 )
