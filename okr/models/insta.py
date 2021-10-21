@@ -358,6 +358,92 @@ class InstaIGTVData(models.Model):
         return f"{self.date}: {self.igtv.video_title}"
 
 
+class InstaComment(models.Model):
+    """
+    Enthält Daten zu einzelnen Kommentaren.
+
+    Diese Daten werden von Quintly aus der Tabelle "instagramInsightsComments"
+    (siehe https://api.quintly.com/#instagramInsightsComments) bezogen.
+    Allerdings nehmen wir nur die Kommentare auf, die wir einem Post zuordnen
+    können, und daher grundsätzlich nicht die Kommentare auf IGTV-Videos.
+
+    Grund dafür ist, dass IGTV eingestellt wird und daher in Zukunft keine
+    Bedeutung mehr haben wird. Falls für die Vergangenheit Unterschiede zu
+    Auswertungen in Quintly auftreten, ist dies die Ursache.
+    """
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_comment"
+        verbose_name = "Instagram-Comment"
+        verbose_name_plural = "Instagram-Comments"
+        ordering = ["-created_at"]
+
+    post = models.ForeignKey(
+        verbose_name="Instagram-Post",
+        help_text="ID des Instagram-Posts",
+        to=InstaPost,
+        on_delete=models.CASCADE,
+        related_name="comment_details",
+        related_query_name="comment",
+    )
+
+    external_id = models.TextField(
+        verbose_name="Externe ID",
+        help_text="ID des Kommentars bei Instagram",
+        unique=True,
+    )
+
+    created_at = models.DateTimeField(verbose_name="Erstellungszeitpunkt")
+
+    is_account_answer = models.BooleanField(
+        verbose_name="Antwort des Accounts",
+        help_text="True für Antwort des Accounts, False für User*innen-Kommentar",
+    )
+
+    username = models.TextField(
+        verbose_name="Username",
+        help_text="Username der Kommentarverfasser*in",
+    )
+
+    message_length = models.IntegerField(
+        verbose_name="Kommentar-Länge",
+        help_text="Zeichenzahl des Kommentars",
+    )
+
+    likes = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Anzahl der Likes des Kommentars",
+    )
+
+    is_reply = models.BooleanField(
+        verbose_name="Ist Antwort",
+        help_text="True wenn Kommentar eine Antwort ist",
+    )
+
+    parent_comment_id = models.TextField(
+        verbose_name="ID des Elternkommentars",
+        help_text="ID des Kommentars, auf den sich die Antwort bezieht",
+        null=True,
+    )
+
+    is_hidden = models.BooleanField(
+        verbose_name="Ist verborgen",
+        help_text="True wenn Kommentar verborgen wurde",
+    )
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.username} - {self.external_id} ({self.created_at})"
+
+
 class InstaDemographics(models.Model):
     """Demographische Daten zu einzelnem Instagram Account."""
 

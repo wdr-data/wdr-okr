@@ -154,8 +154,9 @@ def build_html(  # noqa: C901
     html_tables = ""
     for table_name, table_infos in output_sorted.items():
         # convert output table to HTML
+        html_tables += f"<a name='{table_infos[2]}'></a>"  # For backwards compatibility
         html_tables += (
-            f"<h3><a name='{table_infos[2]}'>{table_name}</a></h3>"
+            f"<h3><a name='{table_name}' href='#{table_name}'>{table_name}</a></h3>"
             + f"<div class='docstring'>{table_infos[0]}</div>"
             + "\n"
             + tabulate(
