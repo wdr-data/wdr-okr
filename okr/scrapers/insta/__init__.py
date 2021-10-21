@@ -3,7 +3,7 @@
 import datetime as dt
 import json
 from time import sleep
-from typing import Optional
+from typing import Dict, Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q, Sum
@@ -39,10 +39,10 @@ def scrape_full(insta: Insta):
 
     sleep(1)
 
-    scrape_insights(start_date=start_date, insta_filter=insta_filter)
-    scrape_stories(start_date=start_date, insta_filter=insta_filter)
-    scrape_posts(start_date=start_date, insta_filter=insta_filter)
-    scrape_igtv(start_date=start_date, insta_filter=insta_filter)
+    # scrape_insights(start_date=start_date, insta_filter=insta_filter)
+    # scrape_stories(start_date=start_date, insta_filter=insta_filter)
+    # scrape_posts(start_date=start_date, insta_filter=insta_filter)
+    # scrape_igtv(start_date=start_date, insta_filter=insta_filter)
     scrape_comments(start_date=start_date, insta_filter=insta_filter)
     scrape_demographics(start_date=start_date, insta_filter=insta_filter)
     scrape_hourly_followers(start_date=start_date, insta_filter=insta_filter)
@@ -286,13 +286,14 @@ def scrape_comments(
         logger.info(f"Scraping Instagram comments for {insta.name}")
         df = quintly.get_insta_comments(insta.quintly_profile_id, start_date=start_date)
 
+        post_cache: Dict[str, InstaPost] = {}
+
         for index, row in df.iterrows():
             defaults = {
                 "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
                 "quintly_last_updated": BERLIN.localize(
                     dt.datetime.fromisoformat(row.importTime)
                 ),
-                "external_post_id": row.externalPostId,
                 "is_account_answer": bool(row.isAccountAnswer),
                 "username": row.username,
                 "message_length": len(row.message or ""),
@@ -302,9 +303,27 @@ def scrape_comments(
                 "is_hidden": bool(row.isHidden),
             }
 
+            if row.externalPostId in post_cache:
+                post = post_cache[row.externalPostId]
+            else:
+                post = InstaPost.objects.filter(
+                    insta=insta,
+                    external_id=row.externalPostId,
+                ).first()
+                post_cache[row.externalPostId] = post
+
+            if not post:
+                logger.debug(
+                    "Comment with ID {} and post ID {} has no corresponding post",
+                    row.externalId,
+                    row.externalPostId,
+                )
+                continue
+
+            defaults["post"] = post
+
             try:
                 obj, created = InstaComment.objects.update_or_create(
-                    insta=insta,
                     external_id=row.externalId,
                     defaults=defaults,
                 )
@@ -445,7 +464,6 @@ def scrape_hourly_followers(
                 date_time = BERLIN.localize(
                     dt.datetime(date.year, date.month, date.day, hour)
                 )
-                logger.debug(date_time)
 
                 defaults = {
                     "quintly_last_updated": BERLIN.localize(

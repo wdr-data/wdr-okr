@@ -359,7 +359,18 @@ class InstaIGTVData(models.Model):
 
 
 class InstaComment(models.Model):
-    """Daten zu einzelnen Kommentaren."""
+    """
+    Enthält Daten zu einzelnen Kommentaren.
+
+    Diese Daten werden von Quintly aus der Tabelle "instagramInsightsComments"
+    (siehe https://api.quintly.com/#instagramInsightsComments) bezogen.
+    Allerdings nehmen wir nur die Kommentare auf, die wir einem Post zuordnen
+    können, und daher grundsätzlich nicht die Kommentare auf IGTV-Videos.
+
+    Grund dafür ist, dass IGTV eingestellt wird und daher in Zukunft keine
+    Bedeutung mehr haben wird. Falls für die Vergangenheit Unterschiede zu
+    Auswertungen in Quintly auftreten, ist dies die Ursache.
+    """
 
     class Meta:
         """Model meta options."""
@@ -369,12 +380,12 @@ class InstaComment(models.Model):
         verbose_name_plural = "Instagram-Comments"
         ordering = ["-created_at"]
 
-    insta = models.ForeignKey(
-        verbose_name="Instagram-Account",
-        help_text="ID des Instagram-Accounts",
-        to=Insta,
+    post = models.ForeignKey(
+        verbose_name="Instagram-Post",
+        help_text="ID des Instagram-Posts",
+        to=InstaPost,
         on_delete=models.CASCADE,
-        related_name="comments",
+        related_name="comment_details",
         related_query_name="comment",
     )
 
@@ -382,11 +393,6 @@ class InstaComment(models.Model):
         verbose_name="Externe ID",
         help_text="ID des Kommentars bei Instagram",
         unique=True,
-    )
-
-    external_post_id = models.TextField(
-        verbose_name="Externe Post ID",
-        help_text="ID des dazugehörigen Posts bei Instagram",
     )
 
     created_at = models.DateTimeField(verbose_name="Erstellungszeitpunkt")

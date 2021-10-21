@@ -32,13 +32,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "external_post_id",
-                    models.TextField(
-                        help_text="ID des dazugehörigen Posts bei Instagram",
-                        verbose_name="Externe Post ID",
-                    ),
-                ),
-                (
                     "created_at",
                     models.DateTimeField(verbose_name="Erstellungszeitpunkt"),
                 ),
@@ -107,14 +100,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "insta",
+                    "post",
                     models.ForeignKey(
-                        help_text="ID des Instagram-Accounts",
+                        verbose_name="Instagram-Post",
+                        help_text="ID des Instagram-Posts",
+                        to="okr.instapost",
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="comments",
+                        related_name="comment_details",
                         related_query_name="comment",
-                        to="okr.insta",
-                        verbose_name="Instagram-Account",
                     ),
                 ),
             ],

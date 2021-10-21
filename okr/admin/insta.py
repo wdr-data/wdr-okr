@@ -112,14 +112,14 @@ class CommentAdmin(admin.ModelAdmin):
     """List for choosing existing Instagram comment data to edit."""
 
     list_display = [
-        "insta",
+        "post",
         "created_at",
         "username",
     ]
     list_display_links = ["created_at", "username"]
-    list_filter = ["is_account_answer", "is_reply", "is_hidden", "insta"]
+    list_filter = ["is_account_answer", "is_reply", "is_hidden", "post__insta"]
     date_hierarchy = "created_at"
-    search_fields = ["insta", "username", "external_post_id", "external_id"]
+    search_fields = ["post", "username", "external_post_id", "external_id"]
 
 
 class DemographicsAdmin(admin.ModelAdmin):
