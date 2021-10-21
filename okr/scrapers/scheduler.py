@@ -85,6 +85,7 @@ def add_jobs():
     * :meth:`~okr.scrapers.insta.scrape_stories`
     * :meth:`~okr.scrapers.insta.scrape_posts`
     * :meth:`~okr.scrapers.insta.scrape_igtv`
+    * :meth:`~okr.scrapers.insta.scrape_comments`
     * :meth:`~okr.scrapers.scrape_demographics`
     * :meth:`~okr.scrapers.scrape_hourly_followers`
     * :meth:`~okr.scrapers.facebook.scrape_insights`
@@ -92,6 +93,13 @@ def add_jobs():
     * :meth:`~okr.scrapers.twitter.scrape_insights`
     * :meth:`~okr.scrapers.twitter.scrape_tweets`
     * :meth:`~okr.scrapers.youtube.scrape_analytics`
+    * :meth:`~okr.scrapers.youtube.scrape_channel_analytics`
+    * :meth:`~okr.scrapers.youtube.scrape_videos`
+    * :meth:`~okr.scrapers.youtube.scrape_video_analytics`
+    * :meth:`~okr.scrapers.youtube.scrape_video_traffic_sources`
+    * :meth:`~okr.scrapers.youtube.scrape_video_external_traffic`
+    * :meth:`~okr.scrapers.youtube.scrape_video_search_terms`
+    * :meth:`~okr.scrapers.youtube.scrape_video_demographics`
     * :meth:`~okr.scrapers.podcasts.scrape_feed`
     * :meth:`~okr.scrapers.podcasts.scrape_itunes_reviews`
     * :meth:`~okr.scrapers.podcasts.scrape_spotify_api`
@@ -150,6 +158,12 @@ def add_jobs():
         trigger="cron",
         hour="5,9",
         minute="56",
+    )
+    scheduler.add_job(
+        insta.scrape_comments,
+        trigger="cron",
+        hour="5,9",
+        minute="58",
     )
 
     # Facebook
@@ -216,6 +230,12 @@ def add_jobs():
         trigger="cron",
         hour="4",
         minute="5",
+    )
+    scheduler.add_job(
+        youtube.scrape_video_demographics,
+        trigger="cron",
+        hour="4",
+        minute="20",
     )
 
     # TikTok

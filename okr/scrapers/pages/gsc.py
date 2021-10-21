@@ -7,7 +7,7 @@ from tenacity import retry
 from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
 
-from ..common.google import webmasters_service
+from ..common.google import searchconsole_service
 from ...models import Property
 
 Dimension = Literal["page", "device", "date", "query", "country", "searchAppearance"]
@@ -57,7 +57,7 @@ def fetch_data(
         }
 
         response = (
-            webmasters_service.searchanalytics()
+            searchconsole_service.searchanalytics()
             .query(siteUrl=property.url, body=request)
             .execute()
         )

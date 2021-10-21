@@ -3,7 +3,7 @@
 import datetime as dt
 import json
 from time import sleep
-from typing import Optional
+from typing import Dict, Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q, Sum
@@ -17,6 +17,7 @@ from ...models.insta import (
     InstaStory,
     InstaIGTV,
     InstaIGTVData,
+    InstaComment,
     InstaDemographics,
     InstaHourlyFollowers,
 )
@@ -38,10 +39,11 @@ def scrape_full(insta: Insta):
 
     sleep(1)
 
-    scrape_insights(start_date=start_date, insta_filter=insta_filter)
-    scrape_stories(start_date=start_date, insta_filter=insta_filter)
-    scrape_posts(start_date=start_date, insta_filter=insta_filter)
-    scrape_igtv(start_date=start_date, insta_filter=insta_filter)
+    # scrape_insights(start_date=start_date, insta_filter=insta_filter)
+    # scrape_stories(start_date=start_date, insta_filter=insta_filter)
+    # scrape_posts(start_date=start_date, insta_filter=insta_filter)
+    # scrape_igtv(start_date=start_date, insta_filter=insta_filter)
+    scrape_comments(start_date=start_date, insta_filter=insta_filter)
     scrape_demographics(start_date=start_date, insta_filter=insta_filter)
     scrape_hourly_followers(start_date=start_date, insta_filter=insta_filter)
 
@@ -69,7 +71,7 @@ def scrape_insights(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
-        logger.debug(f"Scraping Instagram insights for {insta.name}")
+        logger.info(f"Scraping Instagram insights for {insta.name}")
         df = quintly.get_insta_insights(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
@@ -124,7 +126,7 @@ def scrape_stories(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
-        logger.debug(f"Scraping Instagram stories for {insta.name}")
+        logger.info(f"Scraping Instagram stories for {insta.name}")
         df = quintly.get_insta_stories(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
@@ -176,7 +178,7 @@ def scrape_posts(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
-        logger.debug(f"Scraping Instagram posts for {insta.name}")
+        logger.info(f"Scraping Instagram posts for {insta.name}")
         df = quintly.get_insta_posts(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
@@ -228,7 +230,7 @@ def scrape_igtv(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
-        logger.debug(f"Scraping IGTV for {insta.name}")
+        logger.info(f"Scraping IGTV for {insta.name}")
         df = quintly.get_insta_igtv(insta.quintly_profile_id, start_date=start_date)
 
         for index, row in df.iterrows():
@@ -257,6 +259,78 @@ def scrape_igtv(
                 capture_exception(e)
                 logger.exception(
                     "Data for post with ID {} failed integrity check:\n{}",
+                    row.externalId,
+                    defaults,
+                )
+
+
+def scrape_comments(
+    *, start_date: Optional[dt.date] = None, insta_filter: Optional[Q] = None
+):
+    """Retrieve data for Instagram comments from Quintly.
+
+    Results are saved in :class:`~okr.models.insta.InstaComment`.
+
+    Args:
+        start_date (Optional[dt.date], optional): Earliest date to request data for.
+            Defaults to None.
+        insta_filter (Optional[Q], optional): Filter to apply to
+            :class:`~okr.models.insta.Insta` object. Defaults to None.
+    """
+    instas = Insta.objects.all()
+
+    if insta_filter:
+        instas = instas.filter(insta_filter)
+
+    for insta in instas:
+        logger.info(f"Scraping Instagram comments for {insta.name}")
+        df = quintly.get_insta_comments(insta.quintly_profile_id, start_date=start_date)
+
+        post_cache: Dict[str, InstaPost] = {}
+
+        for index, row in df.iterrows():
+            defaults = {
+                "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
+                "quintly_last_updated": BERLIN.localize(
+                    dt.datetime.fromisoformat(row.importTime)
+                ),
+                "is_account_answer": bool(row.isAccountAnswer),
+                "username": row.username,
+                "message_length": len(row.message or ""),
+                "likes": row.likes,
+                "is_reply": bool(row.isReply),
+                "parent_comment_id": row.parentCommentId,
+                "is_hidden": bool(row.isHidden),
+            }
+
+            if row.externalPostId in post_cache:
+                post = post_cache[row.externalPostId]
+            else:
+                post = InstaPost.objects.filter(
+                    insta=insta,
+                    external_id=row.externalPostId,
+                ).first()
+                post_cache[row.externalPostId] = post
+
+            if not post:
+                logger.debug(
+                    "Comment with ID {} and post ID {} has no corresponding post",
+                    row.externalId,
+                    row.externalPostId,
+                )
+                continue
+
+            defaults["post"] = post
+
+            try:
+                obj, created = InstaComment.objects.update_or_create(
+                    external_id=row.externalId,
+                    defaults=defaults,
+                )
+            except IntegrityError as e:
+                capture_exception(e)
+                logger.exception(
+                    "Data for comment with ID {} failed integrity check:\n{}",
                     row.externalId,
                     defaults,
                 )
@@ -315,7 +389,7 @@ def scrape_demographics(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
-        logger.debug(f"Scraping Instagram demographics for {insta.name}")
+        logger.info(f"Scraping Instagram demographics for {insta.name}")
         df = quintly.get_insta_demographics(
             insta.quintly_profile_id, start_date=start_date
         )
@@ -374,7 +448,7 @@ def scrape_hourly_followers(
         instas = instas.filter(insta_filter)
 
     for insta in instas:
-        logger.debug(f"Scraping Instagram hourly followers for {insta.name}")
+        logger.info(f"Scraping Instagram hourly followers for {insta.name}")
         df = quintly.get_insta_hourly_followers(
             insta.quintly_profile_id, start_date=start_date
         )
@@ -390,7 +464,6 @@ def scrape_hourly_followers(
                 date_time = BERLIN.localize(
                     dt.datetime(date.year, date.month, date.day, hour)
                 )
-                logger.debug(date_time)
 
                 defaults = {
                     "quintly_last_updated": BERLIN.localize(

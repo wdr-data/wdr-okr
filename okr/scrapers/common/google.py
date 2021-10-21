@@ -26,11 +26,11 @@ except FileNotFoundError:
     logger.warning(
         "Service account file not found, GSC/BigQuery-related scrapers will fail"
     )
-    webmasters_service = None
+    searchconsole_service = None
     bigquery_client = None
 
 else:
-    webmasters_service = build("webmasters", "v3", credentials=credentials)
+    searchconsole_service = build("searchconsole", "v1", credentials=credentials)
     bigquery_client = bigquery.Client(
         credentials=credentials,
         project=credentials.project_id,

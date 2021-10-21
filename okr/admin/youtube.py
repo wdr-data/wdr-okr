@@ -112,7 +112,6 @@ class YouTubeVideoDemographicsAdmin(admin.ModelAdmin):
     list_display_links = ["youtube_video"]
     list_filter = ["youtube_video__youtube", "age_range", "gender"]
     search_fields = ["youtube_video__title", "youtube_video__external_id"]
-    date_hierarchy = "date"
 
 
 class YouTubeVideoTrafficSourceAdmin(admin.ModelAdmin):
