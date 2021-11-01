@@ -106,7 +106,7 @@ def get_tiktok_posts(
 
     today = utils.local_today()
 
-    start_date = start_date or today - datetime.timedelta(days=7)
+    start_date = start_date or today - datetime.timedelta(days=365)
     end_date = today
 
     df = common_quintly.quintly.run_query(
