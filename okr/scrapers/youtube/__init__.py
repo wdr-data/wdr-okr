@@ -141,7 +141,7 @@ def _scrape_youtube_traffic_source(
             )
 
 
-def scrape_channel_analytics(
+def scrape_channel_analytics(  # noqa: C901
     *,
     start_date: Optional[dt.date] = None,
     youtube_filter: Optional[Q] = None,
