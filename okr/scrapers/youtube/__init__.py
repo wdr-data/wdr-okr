@@ -204,14 +204,25 @@ def scrape_channel_analytics(
                     defaults,
                 )
 
-            _scrape_youtube_demographics(
-                youtube,
-                row,
-            )
-            _scrape_youtube_traffic_source(
-                youtube,
-                row,
-            )
+            try:
+                _scrape_youtube_demographics(youtube, row)
+            except Exception as e:
+                capture_exception(e)
+                logger.exception(
+                    "Failed to scrape YouTube demographics data for {} at {}",
+                    youtube,
+                    row.time,
+                )
+
+            try:
+                _scrape_youtube_traffic_source(youtube, row)
+            except Exception as e:
+                capture_exception(e)
+                logger.exception(
+                    "Failed to scrape YouTube traffic source data for {} at {}",
+                    youtube,
+                    row.time,
+                )
 
 
 def scrape_videos(

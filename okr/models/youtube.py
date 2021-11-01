@@ -176,6 +176,7 @@ class YouTubeTrafficSource(models.Model):
         YT_OTHER_PAGE = "yt_other_page", "Sonstige Youtube-Seite"
         YT_PLAYLIST_PAGE = "yt_playlist_page", "Youtube Playlist-Seite"
         YT_SEARCH = "yt_search", "Youtube-Suche"
+        HASHTAGS = "hashtags", "Hashtags"
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
