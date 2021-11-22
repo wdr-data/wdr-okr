@@ -49,8 +49,17 @@ def get_twitter_insights(
     ]
 
     df_twitter_insights = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval=interval,
     )
+
+    # Skip adjustments if the dataframe is empty cause it will fail
+    if df_twitter_insights.empty:
+        return df_twitter_insights
 
     df_twitter_insights.time = df_twitter_insights.time.str[:10]
     df_twitter_insights.time = df_twitter_insights.time.astype("str")
@@ -94,7 +103,11 @@ def get_tweets(
     end_date = datetime.date.today()
 
     df_posts_insights = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
     )
 
     df_posts_insights = df_posts_insights.replace({np.nan: None})

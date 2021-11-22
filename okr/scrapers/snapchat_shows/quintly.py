@@ -74,6 +74,10 @@ def get_snapchat_show_insights(
         end_date,
     )
 
+    # Skip adjustments if the dataframe is empty cause it will fail
+    if df.empty:
+        return df
+
     df["time"] = df.intervalStartTime.str[:10]
     df.time = df.time.astype("str")
 
@@ -140,7 +144,11 @@ def get_snapchat_show_stories(
     end_date = datetime.date.today()
 
     df = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
     )
 
     df = df.replace({np.nan: None})
@@ -204,7 +212,11 @@ def get_snapchat_show_story_snaps(
     end_date = datetime.date.today()
 
     df = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
     )
 
     df = df.replace({np.nan: None})

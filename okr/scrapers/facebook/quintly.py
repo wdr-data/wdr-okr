@@ -56,8 +56,17 @@ def get_facebook_insights(
         fields.append("page_fans_online_per_day")
 
     df_facebook_insights = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date, interval=interval
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
+        interval=interval,
     )
+
+    # Skip adjustments if the dataframe is empty cause it will fail
+    if df_facebook_insights.empty:
+        return df_facebook_insights
 
     df_facebook_insights.time = df_facebook_insights.time.str[:10]
     df_facebook_insights.time = df_facebook_insights.time.astype("str")
@@ -109,7 +118,11 @@ def get_facebook_posts(
     end_date = datetime.date.today()
 
     df_posts_insights = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date
+        profile_ids,
+        table,
+        fields,
+        start_date,
+        end_date,
     )
 
     df_posts_insights = df_posts_insights.replace({np.nan: None})
