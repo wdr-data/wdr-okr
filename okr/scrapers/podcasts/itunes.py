@@ -85,7 +85,7 @@ def get_reviews(
                 review["datePublished"], locales=["de", "en"]
             ).date(),
             "title": html.unescape(review["name"]),
-            "text": html.unescape(review["reviewBody"]),
+            "text": html.unescape(review.get("reviewBody", "")),
             "rating": review["reviewRating"]["ratingValue"],
         }
 
