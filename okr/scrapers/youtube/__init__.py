@@ -314,6 +314,9 @@ def _get_youtube_video(video_id: str, video_cache: Mapping[str, YouTubeVideo]):
             external_id=video_id,
         ).first()
 
+        if youtube_video is None:
+            logger.warning("Video {} not found in database", video_id)
+
         video_cache[video_id] = youtube_video
 
     return youtube_video
@@ -371,7 +374,6 @@ def scrape_video_analytics(
             youtube_video = _get_youtube_video(row.video_id, video_cache)
 
             if youtube_video is None:
-                logger.warning("Video {} not found in database", row.video_id)
                 continue
 
             try:
@@ -519,7 +521,6 @@ def scrape_video_external_traffic(
             youtube_video = _get_youtube_video(row.video_id, video_cache)
 
             if youtube_video is None:
-                logger.warning("Video {} not found in database", row.video_id)
                 continue
             elif youtube_video.published_at.date() < start_date:
                 logger.debug(
@@ -595,7 +596,6 @@ def scrape_video_search_terms(
             youtube_video = _get_youtube_video(row.video_id, video_cache)
 
             if youtube_video is None:
-                logger.warning("Video {} not found in database", row.video_id)
                 continue
             elif youtube_video.published_at.date() < start_date:
                 logger.debug(
@@ -667,7 +667,6 @@ def scrape_video_demographics(
             youtube_video = _get_youtube_video(row.video_id, video_cache)
 
             if youtube_video is None:
-                logger.warning("Video {} not found in database", row.video_id)
                 continue
             elif youtube_video.published_at.date() < start_date:
                 logger.debug(
