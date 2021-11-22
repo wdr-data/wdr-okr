@@ -65,6 +65,10 @@ def get_youtube_analytics(
         interval=interval,
     )
 
+    # Skip adjustments if the dataframe is empty cause it will fail
+    if df.empty:
+        return df
+
     df.time = df.time.str[:10]
     df.time = df.time.astype("str")
     df = df.replace({np.nan: None})

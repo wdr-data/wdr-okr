@@ -1214,6 +1214,10 @@ def _scrape_ard_audiothek_ids_episodes(podcast: Podcast):
     data = ard_audiothek.get_programset(podcast.ard_audiothek_id)
     episode_data = data["_embedded"]["mt:items"]
 
+    # Apparently if there is only one episode, the API does not return it as a list
+    if isinstance(episode_data, dict):
+        episode_data = [episode_data]
+
     zmdb_to_ard_ids = {
         _extract_zmdb_id(item): _extract_ard_id(item) for item in episode_data
     }
