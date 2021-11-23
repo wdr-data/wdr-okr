@@ -221,7 +221,7 @@ def scrape_posts(
 
 
 def _scrape_video_daily(insta: Insta, post: InstaPost, defaults: dict):
-    """Scrape IGTV daily stats from Quintly."""
+    """Scrape daily stats for video posts from Quintly."""
     # Copy defaults to avoid modifying the original dict
     defaults = defaults.copy()
 
