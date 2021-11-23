@@ -20,6 +20,7 @@ from ...models.insta import (
     InstaComment,
     InstaDemographics,
     InstaHourlyFollowers,
+    InstaVideoData,
 )
 from . import quintly
 from ..common.utils import BERLIN, local_today
@@ -209,6 +210,50 @@ def scrape_posts(
                     row.externalId,
                     defaults,
                 )
+
+
+def _scrape_video_daily(insta: Insta, post: InstaPost, defaults: dict):
+    """Scrape IGTV daily stats from Quintly."""
+    # Copy defaults to avoid modifying the original dict
+    defaults = defaults.copy()
+
+    # Delete fields that are not part of the daily stats
+    remove_fields = [
+        "external_id",
+        "message",
+        "created_at",
+        "post_type",
+        "link",
+    ]
+    for field in remove_fields:
+        del defaults[field]
+
+    today = local_today()
+    diff_fields = [
+        "comments",
+        "likes",
+        "reach",
+        "impressions",
+        "saved",
+        "video_views",
+    ]
+
+    # Get sum of existing InstaVideoData
+    aggregations = [Sum(field) for field in diff_fields]
+    last_data = InstaVideoData.objects.filter(
+        post=post,
+        date__lt=today,
+    ).aggregate(*aggregations)
+
+    # If there is data, calculate differences and save
+    for field in diff_fields:
+        defaults[field] -= last_data[f"{field}__sum"] or 0
+
+    obj, created = InstaVideoData.objects.update_or_create(
+        post=post,
+        date=today,
+        defaults=defaults,
+    )
 
 
 def scrape_igtv(
