@@ -20,6 +20,7 @@ from ...models.insta import (
     InstaComment,
     InstaDemographics,
     InstaHourlyFollowers,
+    InstaVideoData,
 )
 from . import quintly
 from ..common.utils import BERLIN, local_today
@@ -39,10 +40,10 @@ def scrape_full(insta: Insta):
 
     sleep(1)
 
-    # scrape_insights(start_date=start_date, insta_filter=insta_filter)
-    # scrape_stories(start_date=start_date, insta_filter=insta_filter)
-    # scrape_posts(start_date=start_date, insta_filter=insta_filter)
-    # scrape_igtv(start_date=start_date, insta_filter=insta_filter)
+    scrape_insights(start_date=start_date, insta_filter=insta_filter)
+    scrape_stories(start_date=start_date, insta_filter=insta_filter)
+    scrape_posts(start_date=start_date, insta_filter=insta_filter)
+    scrape_igtv(start_date=start_date, insta_filter=insta_filter)
     scrape_comments(start_date=start_date, insta_filter=insta_filter)
     scrape_demographics(start_date=start_date, insta_filter=insta_filter)
     scrape_hourly_followers(start_date=start_date, insta_filter=insta_filter)
@@ -165,6 +166,7 @@ def scrape_posts(
     """Retrieve data for Instagram posts from Quintly.
 
     Results are saved in :class:`~okr.models.insta.InstaPost`.
+    For video posts, additional results are saved in :class:`~okr.models.insta.InstaVideoData`.
 
     Args:
         start_date (Optional[dt.date], optional): Earliest date to request data for.
@@ -200,8 +202,15 @@ def scrape_posts(
 
             try:
                 obj, created = InstaPost.objects.update_or_create(
-                    insta=insta, external_id=row.externalId, defaults=defaults
+                    insta=insta,
+                    external_id=row.externalId,
+                    defaults=defaults,
                 )
+
+                # If this is a video post, save additional data
+                if row.type.lower() == "video":
+                    _scrape_video_daily(insta, obj, defaults)
+
             except IntegrityError as e:
                 capture_exception(e)
                 logger.exception(
@@ -209,6 +218,49 @@ def scrape_posts(
                     row.externalId,
                     defaults,
                 )
+
+
+def _scrape_video_daily(insta: Insta, post: InstaPost, defaults: dict):
+    """Scrape daily stats for video posts from Quintly."""
+    # Copy defaults to avoid modifying the original dict
+    defaults = defaults.copy()
+
+    # Delete fields that are not part of the daily stats
+    remove_fields = [
+        "message",
+        "created_at",
+        "post_type",
+        "link",
+    ]
+    for field in remove_fields:
+        del defaults[field]
+
+    today = local_today()
+    diff_fields = [
+        "comments",
+        "likes",
+        "reach",
+        "impressions",
+        "saved",
+        "video_views",
+    ]
+
+    # Get sum of existing InstaVideoData
+    aggregations = [Sum(field) for field in diff_fields]
+    last_data = InstaVideoData.objects.filter(
+        post=post,
+        date__lt=today,
+    ).aggregate(*aggregations)
+
+    # If there is data, calculate differences and save
+    for field in diff_fields:
+        defaults[field] -= last_data[f"{field}__sum"] or 0
+
+    obj, created = InstaVideoData.objects.update_or_create(
+        post=post,
+        date=today,
+        defaults=defaults,
+    )
 
 
 def scrape_igtv(
