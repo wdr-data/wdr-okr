@@ -306,14 +306,23 @@ class YouTubeVideoAnalytics(models.Model):
         max_length=10,
     )
 
-    views = models.IntegerField(verbose_name="Views")
-    likes = models.IntegerField(verbose_name="Likes")
-    dislikes = models.IntegerField(verbose_name="Dislikes")
-    comments = models.IntegerField(verbose_name="Kommentare")
-    shares = models.IntegerField(verbose_name="Shares")
-    subscribers_gained = models.IntegerField(verbose_name="Verlorene Abonnent*innen")
-    subscribers_lost = models.IntegerField(verbose_name="Gewonnene Abonnent*innen")
-    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt")
+    views = models.IntegerField(verbose_name="Views", null=True)
+    likes = models.IntegerField(verbose_name="Likes", null=True)
+    dislikes = models.IntegerField(verbose_name="Dislikes", null=True)
+    comments = models.IntegerField(verbose_name="Kommentare", null=True)
+    shares = models.IntegerField(verbose_name="Shares", null=True)
+    subscribers_gained = models.IntegerField(
+        verbose_name="Verlorene Abonnent*innen",
+        null=True,
+    )
+    subscribers_lost = models.IntegerField(
+        verbose_name="Gewonnene Abonnent*innen",
+        null=True,
+    )
+    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt", null=True)
+
+    impressions = models.IntegerField(verbose_name="Impressions", null=True)
+    clicks = models.IntegerField(verbose_name="Clicks", null=True)
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
