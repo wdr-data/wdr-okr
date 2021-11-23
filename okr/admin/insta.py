@@ -5,6 +5,7 @@ from ..models import (
     Insta,
     InstaInsight,
     InstaPost,
+    InstaVideoData,
     InstaStory,
     InstaIGTV,
     InstaIGTVData,
@@ -49,6 +50,22 @@ class PostAdmin(admin.ModelAdmin):
     list_display_links = ["external_id"]
     list_filter = ["insta", "post_type"]
     date_hierarchy = "created_at"
+
+
+class InstaVideoDataAdmin(admin.ModelAdmin):
+    """List for choosing existing video data to edit."""
+
+    list_display = [
+        "date",
+        "post",
+        "video_views",
+        "impressions",
+        "quintly_last_updated",
+    ]
+    list_display_links = ["date", "post"]
+    list_filter = ["post__insta"]
+    date_hierarchy = "date"
+    search_fields = ["post__external_id"]
 
 
 class StoryAdmin(admin.ModelAdmin):
@@ -156,6 +173,7 @@ class HourlyFollowersAdmin(admin.ModelAdmin):
 admin.site.register(Insta, QuintlyAdmin)
 admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
+admin.site.register(InstaVideoData, InstaVideoDataAdmin)
 admin.site.register(InstaStory, StoryAdmin)
 admin.site.register(InstaIGTV, IGTVAdmin)
 admin.site.register(InstaIGTVData, IGTVDataAdmin)

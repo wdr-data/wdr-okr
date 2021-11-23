@@ -40,10 +40,10 @@ def scrape_full(insta: Insta):
 
     sleep(1)
 
-    # scrape_insights(start_date=start_date, insta_filter=insta_filter)
-    # scrape_stories(start_date=start_date, insta_filter=insta_filter)
-    # scrape_posts(start_date=start_date, insta_filter=insta_filter)
-    # scrape_igtv(start_date=start_date, insta_filter=insta_filter)
+    scrape_insights(start_date=start_date, insta_filter=insta_filter)
+    scrape_stories(start_date=start_date, insta_filter=insta_filter)
+    scrape_posts(start_date=start_date, insta_filter=insta_filter)
+    scrape_igtv(start_date=start_date, insta_filter=insta_filter)
     scrape_comments(start_date=start_date, insta_filter=insta_filter)
     scrape_demographics(start_date=start_date, insta_filter=insta_filter)
     scrape_hourly_followers(start_date=start_date, insta_filter=insta_filter)
@@ -166,6 +166,7 @@ def scrape_posts(
     """Retrieve data for Instagram posts from Quintly.
 
     Results are saved in :class:`~okr.models.insta.InstaPost`.
+    For video posts, additional results are saved in :class:`~okr.models.insta.InstaVideoData`.
 
     Args:
         start_date (Optional[dt.date], optional): Earliest date to request data for.
@@ -201,8 +202,15 @@ def scrape_posts(
 
             try:
                 obj, created = InstaPost.objects.update_or_create(
-                    insta=insta, external_id=row.externalId, defaults=defaults
+                    insta=insta,
+                    external_id=row.externalId,
+                    defaults=defaults,
                 )
+
+                # If this is a video post, save additional data
+                if row.type.lower() == "video":
+                    _scrape_video_daily(insta, obj, defaults)
+
             except IntegrityError as e:
                 capture_exception(e)
                 logger.exception(
@@ -219,7 +227,6 @@ def _scrape_video_daily(insta: Insta, post: InstaPost, defaults: dict):
 
     # Delete fields that are not part of the daily stats
     remove_fields = [
-        "external_id",
         "message",
         "created_at",
         "post_type",

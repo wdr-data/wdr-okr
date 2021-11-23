@@ -205,7 +205,7 @@ class InstaVideoData(models.Model):
 class InstaStory(models.Model):
     """Daten zu einzelnen Instagram Stories.
 
-    Jede Zeile der Datenbank entählt Daten zu einem Story-Element. Eine Insta-Story
+    Jede Zeile der Datenbank enthält Daten zu einem Story-Element. Eine Insta-Story
     besteht in der Regel aus mehreren Story-Elementen.
     """
 
