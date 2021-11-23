@@ -17,7 +17,7 @@ from sentry_sdk import capture_exception
 
 
 class UploadFileForm(forms.Form):
-    uploaded_file = forms.FileField()
+    uploaded_file = forms.FileField(label="Datei auswählen")
 
 
 class UploadFileMixin:
