@@ -307,20 +307,43 @@ class YouTubeVideoAnalytics(models.Model):
         max_length=10,
     )
 
-    views = models.IntegerField(verbose_name="Views", null=True)
-    likes = models.IntegerField(verbose_name="Likes", null=True)
-    dislikes = models.IntegerField(verbose_name="Dislikes", null=True)
-    comments = models.IntegerField(verbose_name="Kommentare", null=True)
-    shares = models.IntegerField(verbose_name="Shares", null=True)
-    subscribers_gained = models.IntegerField(
-        verbose_name="Verlorene Abonnent*innen",
-        null=True,
+    views = models.IntegerField(verbose_name="Views")
+    likes = models.IntegerField(verbose_name="Likes")
+    dislikes = models.IntegerField(verbose_name="Dislikes")
+    comments = models.IntegerField(verbose_name="Kommentare")
+    shares = models.IntegerField(verbose_name="Shares")
+    subscribers_gained = models.IntegerField(verbose_name="Verlorene Abonnent*innen")
+    subscribers_lost = models.IntegerField(verbose_name="Gewonnene Abonnent*innen")
+    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.date}: {self.youtube_video.youtube.name} - {self.youtube_video.title} (Analytics)"
+
+
+class YouTubeVideoAnalyticsExtra(models.Model):
+    """Performance-Daten einzelner YouTube-Videos, basierend auf manuell hochgeladenen
+    Daten von Youtube."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "youtube_video_analytics_extra"
+        verbose_name = "YouTube Video Analytics Extra"
+        verbose_name_plural = "YouTube Video Analytics Extra"
+        unique_together = ("youtube_video", "date")
+        ordering = ["-date"]
+
+    youtube_video = models.ForeignKey(
+        verbose_name="YouTube-Video",
+        help_text="ID des YouTube-Videos",
+        to=YouTubeVideo,
+        on_delete=models.CASCADE,
+        related_name="analytics_extra",
+        related_query_name="analytics_extra",
     )
-    subscribers_lost = models.IntegerField(
-        verbose_name="Gewonnene Abonnent*innen",
-        null=True,
-    )
-    watch_time = models.DurationField(verbose_name="Sehdauer Gesamt", null=True)
+    date = models.DateField(verbose_name="Datum")
 
     impressions = models.IntegerField(verbose_name="Impressions", null=True)
     clicks = models.IntegerField(verbose_name="Clicks", null=True)
@@ -328,7 +351,7 @@ class YouTubeVideoAnalytics(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.date}: {self.youtube_video.youtube.name} - {self.youtube_video.title} (Analytics)"
+        return f"{self.date}: {self.youtube_video.youtube.name} - {self.youtube_video.title} (Analytics Extra)"
 
 
 class YouTubeVideoDemographics(models.Model):
