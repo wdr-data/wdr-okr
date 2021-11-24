@@ -138,10 +138,74 @@ class InstaPost(models.Model):
         return f"{self.created_at}: {self.insta.name} - {self.post_type}"
 
 
+class InstaVideoData(models.Model):
+    """Tägliche Daten zu einzelnen Instagram Posts vom Typ "Video"."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_video_data"
+        verbose_name = "Instagram Video-Daten"
+        verbose_name_plural = "Instagram Video-Daten"
+        ordering = ["-date"]
+        unique_together = ("post", "date")
+
+    post = models.ForeignKey(
+        verbose_name="Post",
+        help_text="Globale ID des Posts",
+        to=InstaPost,
+        on_delete=models.CASCADE,
+        related_name="video_data",
+        related_query_name="video_data",
+    )
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum des Datenpunkts",
+    )
+
+    comments = models.IntegerField(
+        verbose_name="Kommentare",
+        help_text="Anzahl der Kommentare",
+        null=True,
+    )
+    likes = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Anzahl der Likes",
+        null=True,
+    )
+    reach = models.IntegerField(
+        verbose_name="Reichweite",
+        null=True,
+    )
+    impressions = models.IntegerField(
+        verbose_name="Impressions",
+        null=True,
+    )
+    saved = models.IntegerField(
+        verbose_name="Saves",
+        help_text="Anzahl der Saves",
+        null=True,
+    )
+    video_views = models.IntegerField(
+        verbose_name="Video-Views",
+        help_text="Video-Views (3 sec oder mehr)",
+        null=True,
+    )
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.date}: {self.post.message[:15]}..."
+
+
 class InstaStory(models.Model):
     """Daten zu einzelnen Instagram Stories.
 
-    Jede Zeile der Datenbank entählt Daten zu einem Story-Element. Eine Insta-Story
+    Jede Zeile der Datenbank enthält Daten zu einem Story-Element. Eine Insta-Story
     besteht in der Regel aus mehreren Story-Elementen.
     """
 

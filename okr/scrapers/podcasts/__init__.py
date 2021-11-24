@@ -173,6 +173,8 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
             logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
+    logger.success("Finished scraping feed")
+
 
 def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
     logger.info("Scraping feed for {}", podcast)
@@ -352,6 +354,8 @@ def scrape_itunes_reviews(podcast_filter: Optional[Q] = None):
             logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
+    logger.success("Finished scraping iTunes reviews.")
+
 
 def _scrape_itunes_reviews_podcast(podcast):
     itunes_data = itunes.get_reviews(podcast)
@@ -424,6 +428,8 @@ def scrape_spotify_api(
             capture_exception(e)
 
         gc.collect()
+
+    logger.success("Finished scraping Spotify API")
 
 
 def _scrape_spotify_api_podcast(
@@ -625,6 +631,8 @@ def scrape_spotify_experimental_performance(
             logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
 
+    logger.success("Finished scraping spotify experimental performance")
+
 
 def _scrape_spotify_experimental_performance_podcast(
     podcast: Podcast,
@@ -725,6 +733,8 @@ def scrape_spotify_experimental_demographics(
         except Exception as e:
             logger.exception("Failed! Capturing exception and skipping.")
             capture_exception(e)
+
+    logger.success("Finished scraping spotify experimental demographics")
 
 
 def _episodes_queryset(podcast: Podcast) -> QuerySet[Podcast]:
@@ -946,6 +956,8 @@ def scrape_podstat(
 
         del connection_meta
         gc.collect()
+
+    logger.success("Finished scraping Podstat data.")
 
 
 def _scrape_podstat_podcast(

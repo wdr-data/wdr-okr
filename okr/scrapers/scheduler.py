@@ -84,7 +84,6 @@ def add_jobs():
     * :meth:`~okr.scrapers.insta.scrape_insights`
     * :meth:`~okr.scrapers.insta.scrape_stories`
     * :meth:`~okr.scrapers.insta.scrape_posts`
-    * :meth:`~okr.scrapers.insta.scrape_igtv`
     * :meth:`~okr.scrapers.insta.scrape_comments`
     * :meth:`~okr.scrapers.scrape_demographics`
     * :meth:`~okr.scrapers.scrape_hourly_followers`
@@ -141,12 +140,13 @@ def add_jobs():
         hour="5,9",
         minute="43",
     )
-    scheduler.add_job(
-        insta.scrape_igtv,
-        trigger="cron",
-        hour="5,9",
-        minute="50",
-    )
+    # Deaktiviert, weil IGTV nicht mehr aktiv ist
+    # scheduler.add_job(
+    #     insta.scrape_igtv,
+    #     trigger="cron",
+    #     hour="5,9",
+    #     minute="50",
+    # )
     scheduler.add_job(
         insta.scrape_demographics,
         trigger="cron",
