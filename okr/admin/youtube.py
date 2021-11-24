@@ -4,6 +4,8 @@ from datetime import date, timedelta
 
 import re
 
+from bulk_sync import bulk_sync
+from django.db.models import Q
 from django.contrib import admin
 from django.contrib import messages
 from django.core.files.uploadedfile import UploadedFile
@@ -201,26 +203,37 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
             df["Impressions click-through rate (%)"] * df["Impressions"] / 100
         ).astype("int")
 
+        youtube_videos = YouTubeVideo.objects.filter(
+            external_id__in=df["Video"].unique().tolist()
+        )
+
+        new_models = []
+        youtube_videos = {video.external_id: video for video in youtube_videos}
+
         for index, row in df.iterrows():
-            youtube_video = YouTubeVideo.objects.filter(
-                external_id=row["Video"]
-            ).first()
-            if youtube_video is None:
+            if row["Video"] not in youtube_videos:
                 logger.warning(
                     "Could not find YouTube video with external_id {}", row["Video"]
                 )
                 continue
 
-            defaults = {
-                "impressions": row["Impressions"],
-                "clicks": row["Clicks"],
-            }
-
-            obj, created = YouTubeVideoAnalyticsExtra.objects.update_or_create(
-                youtube_video=youtube_video,
-                date=start_date,
-                defaults=defaults,
+            new_models.append(
+                YouTubeVideoAnalyticsExtra(
+                    youtube_video=youtube_videos[row["Video"]],
+                    date=start_date,
+                    impressions=row["Impressions"],
+                    clicks=row["Clicks"],
+                )
             )
+
+        result = bulk_sync(
+            new_models=new_models,
+            filters=Q(date=start_date),
+            key_fields=["youtube_video_id", "date"],
+            skip_deletes=True,
+        )
+
+        logger.info(result)
 
         self.message_user(request, f"Datei {filename} erfolgreich eingelesen!")
 
