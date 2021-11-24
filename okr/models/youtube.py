@@ -171,6 +171,7 @@ class YouTubeTrafficSource(models.Model):
         PROMOTED = "promoted", "Promoted"
         RELATED_VIDEO = "related_video", "Related"
         SHORTS = "shorts", "Shorts"
+        SOUND_PAGE = "sound_page", "Soundpage"
         SUBSCRIBER = "subscriber", "Abonnent*in"
         YT_CHANNEL = "yt_channel", "Youtube-Kanal"
         YT_OTHER_PAGE = "yt_other_page", "Sonstige Youtube-Seite"
