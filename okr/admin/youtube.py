@@ -3,7 +3,6 @@
 from collections import defaultdict
 from datetime import date
 
-from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.core.files.uploadedfile import UploadedFile
@@ -24,20 +23,7 @@ from ..models import (
     YouTubeVideoExternalTraffic,
 )
 from .base import QuintlyAdmin
-from .uploads import UploadFileMixin, UploadFileForm
-
-
-class UploadFileFormYouTube(UploadFileForm):
-    """Upload form for YouTube data."""
-
-    def get_initial_for_field(self, field, field_name):
-        if field_name == "youtube":
-            youtubes = YouTube.objects.all()[:1]
-            youtubes = list(youtubes)
-            if youtubes:
-                return youtubes[0]
-
-    youtube = forms.ModelChoiceField(YouTube.objects.all(), label="YouTube-Account")
+from .uploads import UploadFileMixin, UploadMultipleFilesForm
 
 
 class YouTubeAnalyticsAdmin(admin.ModelAdmin):
@@ -109,7 +95,7 @@ class YouTubeVideoAdmin(admin.ModelAdmin):
 class YouTubeVideoAnalyticsAdmin(UploadFileMixin, admin.ModelAdmin):
     """List for choosing existing YouTube video analytics data to edit."""
 
-    upload_form_class = UploadFileFormYouTube
+    upload_form_class = UploadMultipleFilesForm
 
     list_display = [
         "date",
