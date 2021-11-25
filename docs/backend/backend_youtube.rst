@@ -3,9 +3,23 @@
 YouTube-Daten anlegen
 =====================
 
-Weil momentan noch nicht alle Daten von YouTube zum automatisierten Abruf zur Verfügung
-stehen, lassen sich diese Daten über eine Eingabemaske im Backend zur Datenbank
-hinzufügen.
+[TBD]
+Advance Analytics
+
+Custom-Date = 1Tag
+
+Export als csv
+
+Zip File hochladen (mehrere auf einmal - müssen alle vom gleichen Kanal stammen)
+Dateinamenn nicht verändern, muss genau so heißen, wie es von YouTube kommt
+
+
+Weil YouTube im Moment noch keine Daten zu Impressions und Clicks zum
+automatisierten Abruf zur Verfügung stellt, lassen sich diese Daten über einen
+manuellen Upload im Backend zur Datenbank hinzufügen.
+
+Dazu muss für jeden Tag eine separate CSV-Datei bei YouTube heruntergeladen
+und dann im Backend wieder hochgeladen werden.
 
 Voraussetzungen
 ---------------
@@ -27,45 +41,26 @@ Das Hinzufügen der Daten zur Datenbank besteht aus zwei Schritten:
 Herunterladen der Daten bei YouTube
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bei YouTube musst du zwei Datenpakete herunterladen: eines mit
-:ref:`Zielgruppen-Daten <backend_youtube_herunterladen_zielgruppen>` und eines
-mit :ref:`Impressions-Daten <backend_youtube_herunterladen_impressions>`.
+Melde dich als erstes im `YouTube Creator Studio <https://studio.youtube.com/>`_
+an und wechsle in den gewünschten Account. Anschließend wähle den Analytics
+Advanced Mode aus:
 
-Melde dich als erstes im `YouTube Creator Studio <https://studio.youtube.com/>`_ an und wechsle in
-den gewünschten Account. Anschließend wähle den Analytics Advanced Mode aus:
+    1. Wähle den Punkt *Analytics* in der linken Menüleiste.
+    2. Klicke oben rechts auf *ADVANCED MODE*.
 
-    1. Wähle den Punkt *Analytics* in der linken Menüleiste
-    2. Klicke oben rechts auf *ADVANCED MODE*
+       .. image:: ../_static/advanced_mode.png
 
-.. _backend_youtube_herunterladen_zielgruppen:
+    3. Stelle sicher, dass der Reiter *Video* aktiviert ist.
+    4. Stelle rechts oben das jeweilige Datum ein. Dabei ist es wichtig, dass
+       du nur einen Tag auswählst, nicht mehrere Tage. Es sollte dort also
+       *1 day selected* stehen.
 
-Herunterladen der Zielgruppen-Daten:
-    1. Den Reiter *Viewer age* aktivieren
-    2. Zeitraum auswählen
-    3. Start- und Enddaten für *wöchentlich* oder *monatlich* auswählen:
+       .. image:: ../_static/datum.png
 
-        - wöchentlich IMMER Montag bis Sonntag
-        - monatlich nur abgeschlossene Monate (Erhebung frühestens am 04. des
-          Folgemonats durchführen, da Daten bis zu 72h Verzug haben!)
+    5. Wähle *Export Current View* aus und speichere die Daten als *.csv*-Datei
+       ab.
 
-    4. *Export Current View* auswählen und als *.csv*-Datei nach dem Schema
-       *Viewer age YYYY-MM-DD_YYYY-MM-DD.zip* abspeichern.
-
-    .. image:: ../_static/youtube1.png
-
-.. _backend_youtube_herunterladen_impressions:
-
-Herunterladen der Impressions-Daten:
-    1. Den Reiter *Traffic source* aktivieren
-    2. *Impressions by Traffic Source* auswählen
-    3. *Browse features* auswählen
-    4. Zeitraum einstellen: kann beliebig gewählt werden (z.B. letzte 90 Tage), da die
-       Daten auf täglicher Basis exportiert und beim Upload ggf.
-       überschrieben/aktualisiert werden
-    5. *Export Current View* auswählen und als *.csv*-Datei nach dem Schema
-       `Traffic source YYYY-MM-DD_YYYY-MM-DD.zip``
-
-    .. image:: ../_static/youtube2.png
+       .. image:: ../_static/csv-export.png
 
 .. _backend_youtube_hochladen:
 
@@ -73,18 +68,18 @@ Einfügen der Daten in das Backend
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Melde dich im Backend des OKR Data Warehouse (Django) an.
-2. Wähle in der Liste *OKR - Objectives and Key Results* die entsprechende Kennzahl aus,
-   entweder *YouTube Age-Ranges (Watch Time - Hours)* oder *YouTube-TrafficSources*
-   (WICHTIG: Nutze den Link zur Liste!)
+2. Wähle in der Liste *OKR - Objectives and Key Results* den Link *YouTube
+   Video Analytics Extra* aus.
 
-   .. image:: ../_static/youtube3.png
+   .. image:: ../_static/backend1.png
 
-3. Wähle `Datei hochladen`
+3. Wähle den Button `DATEI HOCHLADEN`.
 
-   .. image:: ../_static/youtube4.png
+   .. image:: ../_static/backend2.png
 
-4. YouTube-Kanal auswählen
-5. Entsprechende Datei auswählen und hochladen
+4. Nutze das *Choose Files* Feld um eine oder mehrere CSV-Dateien auszuwählen.
+5. Wähle den Button *HOCHLADEN* (bitte nur einmal anklicken, der Upload kann ein
+   paar Sekunden dauern).
 
-Falls die Analytics nicht korrekt exportiert wurden, erscheint eine entsprechende
-Fehlermeldung.
+Falls die Daten nicht korrekt eingelesen werden konnten, erscheint eine
+entsprechende Fehlermeldung.

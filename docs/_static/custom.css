@@ -60,7 +60,7 @@
     font-size: 0.9rem;
 }
 
-/* Styling for schedue table */
+/* Styling for schedule table */
 
 #schedule_table table {
     width: 100%;
@@ -100,4 +100,5 @@
 img {
     border: 1px solid lightgrey;
     margin-bottom: 1em;
+    margin-top: 0px !important;
 }
