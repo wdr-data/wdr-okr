@@ -345,8 +345,8 @@ class YouTubeVideoAnalyticsExtra(models.Model):
     )
     date = models.DateField(verbose_name="Datum")
 
-    impressions = models.IntegerField(verbose_name="Impressions", null=True)
-    clicks = models.IntegerField(verbose_name="Clicks", null=True)
+    impressions = models.IntegerField(verbose_name="Impressions")
+    clicks = models.IntegerField(verbose_name="Clicks")
 
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 

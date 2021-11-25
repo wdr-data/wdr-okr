@@ -55,9 +55,9 @@ class Migration(migrations.Migration):
                 ("date", models.DateField(verbose_name="Datum")),
                 (
                     "impressions",
-                    models.IntegerField(null=True, verbose_name="Impressions"),
+                    models.IntegerField(verbose_name="Impressions"),
                 ),
-                ("clicks", models.IntegerField(null=True, verbose_name="Clicks")),
+                ("clicks", models.IntegerField(verbose_name="Clicks")),
                 (
                     "last_updated",
                     models.DateTimeField(
