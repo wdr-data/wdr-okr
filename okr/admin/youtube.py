@@ -154,7 +154,7 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
         if not parsed_name:
             self.message_user(
                 request,
-                f'{filename} ist nicht der richtige Export (Dateiname beginnt nicht mit "Video")',
+                f'Datei "{filename}" ist nicht der richtige Export (Dateiname beginnt nicht mit "Video")',
                 level=messages.ERROR,
             )
             return
@@ -166,7 +166,7 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
         if end_date - start_date > timedelta(days=1, hours=2):
             self.message_user(
                 request,
-                f"{filename} scheint mehr als einen Tag zu umfassen",
+                f'Datei "{filename}" scheint mehr als einen Tag zu umfassen',
                 level=messages.ERROR,
             )
             return
@@ -174,7 +174,7 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
         if "Video" not in df.columns:
             self.message_user(
                 request,
-                f"Die hochgeladene Datei {filename} enthält keine Video-Zahlen! "
+                f'Datei "{filename}" enthält keine Video-Zahlen! '
                 'Wähle den Tab "Video" in den YouTube Studio Analytics.',
                 level=messages.ERROR,
             )
@@ -183,7 +183,7 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
         if "Impressions" not in df.columns:
             self.message_user(
                 request,
-                f"Die hochgeladene Datei {filename} enthält keine Impressions! "
+                f'Datei "{filename}" enthält keine Impressions! '
                 'Wähle den Tab "Video" in den YouTube Studio Analytics.',
                 level=messages.ERROR,
             )
@@ -192,7 +192,7 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
         if "Impressions click-through rate (%)" not in df.columns:
             self.message_user(
                 request,
-                f"Die hochgeladene Datei {filename} enthält keine Click-Through-Rate! "
+                f'Datei "{filename}" enthält keine Click-Through-Rate! '
                 'Wähle den Tab "Video" in den YouTube Studio Analytics.',
                 level=messages.ERROR,
             )
@@ -235,7 +235,7 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
 
         logger.info(result)
 
-        self.message_user(request, f"Datei {filename} erfolgreich eingelesen!")
+        self.message_user(request, f'Datei "{filename}" erfolgreich eingelesen!')
 
 
 class YouTubeVideoDemographicsAdmin(admin.ModelAdmin):
