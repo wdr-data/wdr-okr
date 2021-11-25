@@ -7,6 +7,7 @@ import logging
 from django import forms
 from django.contrib import messages
 from django.contrib.admin import helpers
+from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpResponseForbidden
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -59,7 +60,7 @@ class UploadFileMixin:
     def _handle_file(
         self,
         request: HttpRequest,
-        uploaded_file: IO[bytes],
+        uploaded_file: UploadedFile,
     ) -> HttpResponse:
         try:
             self.process_uploaded_file(request, uploaded_file)
@@ -68,7 +69,7 @@ class UploadFileMixin:
             logging.exception("Processing file upload failed")
             self.message_user(
                 request,
-                "Bei der Verarbeitung ist ein unerwarteter Fehler aufgetreten",
+                f'Datei "{uploaded_file.name}" konnte nicht eingelesen werden.',
                 level=messages.ERROR,
             )
 

@@ -1,8 +1,8 @@
 """Forms for managing YouTube data."""
 
 from datetime import date, timedelta
-
 import re
+import zipfile
 
 from bulk_sync import bulk_sync
 from django.db.models import Q
@@ -142,7 +142,17 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
             file (UploadedFile): The uploaded file
         """
         logger.info("Uploaded file: {}", file.name)
-        df = pd.read_csv(self.open_zip(file)["Table data.csv"])
+
+        try:
+            df = pd.read_csv(self.open_zip(file)["Table data.csv"])
+        except zipfile.BadZipFile:
+            self.message_user(
+                request,
+                f'Datei "{file.name}" ist keine ZIP-Datei. Bitte lade die Datei so hoch, wie sie aus YouTube Studio raus kommt.',
+                level=messages.ERROR,
+            )
+            return
+
         logger.debug(df)
 
         df.fillna(0, inplace=True)
@@ -154,7 +164,7 @@ class YouTubeVideoAnalyticsExtraAdmin(UploadFileMixin, admin.ModelAdmin):
         if not parsed_name:
             self.message_user(
                 request,
-                f'Datei "{filename}" ist nicht der richtige Export (Dateiname beginnt nicht mit "Video")',
+                f'Datei "{filename}" ist nicht der richtige Export (Dateiname beginnt nicht mit "Video"). Wähle zum Export den Tab "Video" in den YouTube Studio Analytics.',
                 level=messages.ERROR,
             )
             return
