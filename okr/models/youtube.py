@@ -171,6 +171,7 @@ class YouTubeTrafficSource(models.Model):
         PROMOTED = "promoted", "Promoted"
         RELATED_VIDEO = "related_video", "Related"
         SHORTS = "shorts", "Shorts"
+        SOUND_PAGE = "sound_page", "Soundpage"
         SUBSCRIBER = "subscriber", "Abonnent*in"
         YT_CHANNEL = "yt_channel", "Youtube-Kanal"
         YT_OTHER_PAGE = "yt_other_page", "Sonstige Youtube-Seite"
@@ -319,6 +320,38 @@ class YouTubeVideoAnalytics(models.Model):
 
     def __str__(self):
         return f"{self.date}: {self.youtube_video.youtube.name} - {self.youtube_video.title} (Analytics)"
+
+
+class YouTubeVideoAnalyticsExtra(models.Model):
+    """Performance-Daten einzelner YouTube-Videos, basierend auf manuell hochgeladenen
+    Daten von Youtube."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "youtube_video_analytics_extra"
+        verbose_name = "YouTube Video Analytics Extra"
+        verbose_name_plural = "YouTube Video Analytics Extra"
+        unique_together = ("youtube_video", "date")
+        ordering = ["-date"]
+
+    youtube_video = models.ForeignKey(
+        verbose_name="YouTube-Video",
+        help_text="ID des YouTube-Videos",
+        to=YouTubeVideo,
+        on_delete=models.CASCADE,
+        related_name="analytics_extra",
+        related_query_name="analytics_extra",
+    )
+    date = models.DateField(verbose_name="Datum")
+
+    impressions = models.IntegerField(verbose_name="Impressions")
+    clicks = models.IntegerField(verbose_name="Clicks")
+
+    last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
+
+    def __str__(self):
+        return f"{self.date}: {self.youtube_video.youtube.name} - {self.youtube_video.title} (Analytics Extra)"
 
 
 class YouTubeVideoDemographics(models.Model):

@@ -7,6 +7,7 @@ import logging
 from django import forms
 from django.contrib import messages
 from django.contrib.admin import helpers
+from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpResponseForbidden
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -17,7 +18,15 @@ from sentry_sdk import capture_exception
 
 
 class UploadFileForm(forms.Form):
-    uploaded_file = forms.FileField()
+    uploaded_file = forms.FileField(label="Datei auswählen")
+
+
+class UploadMultipleFilesForm(forms.Form):
+    uploaded_files = forms.FileField(
+        label="Dateien auswählen",
+        widget=forms.ClearableFileInput(attrs={"multiple": True}),
+        help_text="Es können mehrere Dateien auf einmal ausgewählt werden",
+    )
 
 
 class UploadFileMixin:
@@ -48,6 +57,35 @@ class UploadFileMixin:
         data_zip = ZipFile(zip_file)
         return {name: data_zip.open(name) for name in data_zip.namelist()}
 
+    def _handle_file(
+        self,
+        request: HttpRequest,
+        uploaded_file: UploadedFile,
+    ) -> HttpResponse:
+        try:
+            self.process_uploaded_file(request, uploaded_file)
+        except Exception as e:
+            capture_exception(e)
+            logging.exception("Processing file upload failed")
+            self.message_user(
+                request,
+                f'Datei "{uploaded_file.name}" konnte nicht eingelesen werden.',
+                level=messages.ERROR,
+            )
+
+    def _handle_single_file(self, request: HttpRequest) -> HttpResponse:
+        uploaded_file = request.FILES["uploaded_file"]
+        self._handle_file(request, uploaded_file)
+        return redirect("..")
+
+    def _handle_multiple_files(self, request: HttpRequest) -> HttpResponse:
+        uploaded_files = request.FILES.getlist("uploaded_files", [])
+
+        for uploaded_file in uploaded_files:
+            self._handle_file(request, uploaded_file)
+
+        return redirect("..")
+
     def _upload_file(self, request: HttpRequest) -> HttpResponse:
         if not self.has_add_permission(request):
             if not request.user.is_authenticated:
@@ -55,28 +93,17 @@ class UploadFileMixin:
             return HttpResponseForbidden()
 
         if request.method == "POST":
-            try:
-                uploaded_file = request.FILES["uploaded_file"]
-            except KeyError:
+            if "uploaded_file" in request.FILES:
+                return self._handle_single_file(request)
+            elif "uploaded_files" in request.FILES:
+                return self._handle_multiple_files(request)
+            else:
                 self.message_user(
                     request,
                     "Bitte eine Datei auswählen",
                     level=messages.ERROR,
                 )
                 return redirect(".")
-
-            try:
-                self.process_uploaded_file(request, uploaded_file)
-            except Exception as e:
-                capture_exception(e)
-                logging.exception("Processing file upload failed")
-                self.message_user(
-                    request,
-                    "Bei der Verarbeitung ist ein unerwarteter Fehler aufgetreten",
-                    level=messages.ERROR,
-                )
-
-            return redirect("..")
 
         form = self.upload_form_class()
 
