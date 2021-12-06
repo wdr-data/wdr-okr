@@ -23,7 +23,7 @@ WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
 ARTICLE_THRESHOLD = int(os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD", 10000))
 
 
-def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List[Page]:
+def _get_top_articles(number_of_articles: int = 5, date: dt.date = None) -> List[Page]:
     # Get a number of pages that had the highest number of clicks on a certain date.
     logger.debug("Requesting top articles from DB")
     gsc_top_articles = (
@@ -105,7 +105,7 @@ def run():
     # For local testing in different time zone:
     # date = local_yesterday() - dt.timedelta(days=1)
 
-    top_articles = _get_top_articles(3, date)
+    top_articles = _get_top_articles(5, date)
 
     if not top_articles:
         logger.info("No articles found, sending no message to Teams")
