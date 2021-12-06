@@ -20,6 +20,8 @@ from .teams_message import _generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
 
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
+WEBHOOK_URL_SECONDARY = os.environ.get("TEAMS_WEBHOOK_SEO_BOT_DIGITALE_NEWS")
+
 ARTICLE_THRESHOLD = int(os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD", 10000))
 
 
@@ -125,3 +127,7 @@ def run():
     # Send payload to MS Teams
     result = send_to_teams(payload, WEBHOOK_URL)
     logger.debug(result)
+
+    if WEBHOOK_URL_SECONDARY:
+        result = send_to_teams(payload, WEBHOOK_URL_SECONDARY)
+        logger.debug(result)
