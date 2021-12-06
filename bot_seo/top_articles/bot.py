@@ -107,22 +107,21 @@ def run():
 
     top_articles = _get_top_articles(3, date)
 
-    if top_articles:
-        logger.debug("Found top articles")
-        articles_above_threshold = _get_articles_above_threshold(
-            ARTICLE_THRESHOLD,
-            date,
-        )
-        logger.debug(
-            "Found {} articles above threshold".format(articles_above_threshold)
-        )
-
-        adaptive_card = _generate_adaptive_card(top_articles, articles_above_threshold)
-        logger.debug(adaptive_card.to_json())
-        payload = generate_teams_payload(adaptive_card)
-
-        # Send payload to MS Teams
-        result = send_to_teams(payload, WEBHOOK_URL)
-        logger.debug(result)
-    else:
+    if not top_articles:
         logger.info("No articles found, sending no message to Teams")
+        return
+
+    logger.debug("Found top articles")
+    articles_above_threshold = _get_articles_above_threshold(
+        ARTICLE_THRESHOLD,
+        date,
+    )
+    logger.debug("Found {} articles above threshold".format(articles_above_threshold))
+
+    adaptive_card = _generate_adaptive_card(top_articles, articles_above_threshold)
+    logger.debug(adaptive_card.to_json())
+    payload = generate_teams_payload(adaptive_card)
+
+    # Send payload to MS Teams
+    result = send_to_teams(payload, WEBHOOK_URL)
+    logger.debug(result)
