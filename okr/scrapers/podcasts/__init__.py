@@ -156,15 +156,19 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
 
     # Fetch licensed podcasts and their names so we can match them to find
     # Spotify IDs of podcasts that were published on Spotify later
-    licensed_podcasts = spotify_api.licensed_podcasts()
-    spotify_podcasts = fetch_all(
-        functools.partial(spotify_api.shows, market="DE"),
-        list(
-            uri.replace("spotify:show:", "")
-            for uri in licensed_podcasts["shows"].keys()
-        ),
-        "shows",
-    )
+    try:
+        licensed_podcasts = spotify_api.licensed_podcasts()
+        spotify_podcasts = fetch_all(
+            functools.partial(spotify_api.shows, market="DE"),
+            list(
+                uri.replace("spotify:show:", "")
+                for uri in licensed_podcasts["shows"].keys()
+            ),
+            "shows",
+        )
+    except Exception as e:
+        capture_exception(e)
+        spotify_podcasts = {}
 
     for podcast in podcasts:
         try:
@@ -176,7 +180,7 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
     logger.success("Finished scraping feed")
 
 
-def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
+def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):  # noqa: C901
     logger.info("Scraping feed for {}", podcast)
 
     now = local_now()
@@ -200,13 +204,16 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
 
     # For podcasts that are available on Spotify: Map episode title to Spotify ID
     # for faster lookups
-    spotify_episode_id_by_name = _scrape_feed_episode_map(podcast)
+    try:
+        spotify_episode_id_by_name = _scrape_feed_episode_map(podcast)
+    except Exception as e:
+        capture_exception(e)
+        spotify_episode_id_by_name = {}
 
     # Loop feed entries to find new episodes
     available_episode_ids = []
-    for entry in d.entries:
-        spotify_id = spotify_episode_id_by_name.get(entry.title)
 
+    for entry in d.entries:
         media_url = entry.enclosures[0].href
         zmdb_id = int(media_url.split("/")[-2])
 
@@ -227,11 +234,15 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
             "description": entry.description,
             "publication_date_time": publication_date_time,
             "media": media_url,
-            "spotify_id": spotify_id,
             "duration": duration,
             "available": True,
             "last_available_date_time": now,
         }
+
+        spotify_id = spotify_episode_id_by_name.get(entry.title)
+
+        if spotify_id:
+            defaults["spotify_id"] = spotify_id
 
         try:
             obj, created = PodcastEpisode.objects.update_or_create(
@@ -239,6 +250,13 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
                 defaults=defaults,
             )
             available_episode_ids.append(obj.id)
+
+            # Report to Sentry if something is weird
+            if obj.spotify_id and not spotify_id and spotify_episode_id_by_name:
+                capture_message(
+                    f"Episode {obj} has a Spotify ID ({obj.spotify_id} in the database, "
+                    "but it wasn't found in the Spotify API"
+                )
         except IntegrityError as e:
             capture_exception(e)
             logger.exception(
@@ -255,46 +273,44 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):
 
 
 def _scrape_feed_episode_map(podcast):
+    if not podcast.spotify_id:
+        return {}
+
     # For podcasts that are available on Spotify: Map episode title to Spotify ID
     # for faster lookups
-    if podcast.spotify_id:
-        licensed_episodes = spotify_api.podcast_episodes(podcast.spotify_id)
+    licensed_episodes = spotify_api.podcast_episodes(podcast.spotify_id)
 
-        spotify_episode_id_by_name = {}
-        spotify_episode_ids_search = list(
-            reversed(
-                list(
-                    uri.replace("spotify:episode:", "")
-                    for uri in licensed_episodes["episodes"].keys()
-                )
+    spotify_episode_id_by_name = {}
+    spotify_episode_ids_search = list(
+        reversed(
+            list(
+                uri.replace("spotify:episode:", "")
+                for uri in licensed_episodes["episodes"].keys()
             )
         )
-        # Search Podcaster API
-        for episode_id in spotify_episode_ids_search:
-            try:
-                ep_meta = spotify_api.podcast_episode_meta(
-                    podcast.spotify_id,
-                    episode_id,
-                )
+    )
+    # Search Podcaster API
+    for episode_id in spotify_episode_ids_search:
+        try:
+            ep_meta = spotify_api.podcast_episode_meta(
+                podcast.spotify_id,
+                episode_id,
+            )
 
-                spotify_episode_id_by_name[ep_meta["name"]] = episode_id
-            except SpotifyException:
-                logger.debug("Episode ID {} not found in Podcaster API", episode_id)
+            spotify_episode_id_by_name[ep_meta["name"]] = episode_id
+        except SpotifyException:
+            logger.debug("Episode ID {} not found in Podcaster API", episode_id)
 
-        # Try to read additional, publicly available data from Spotify's public API
-        ep_metas_public = fetch_all(
-            functools.partial(spotify_api.episodes, market="de"),
-            spotify_episode_ids_search,
-            "episodes",
-        )
-        for episode_id, ep_meta_public in zip(
-            spotify_episode_ids_search, ep_metas_public
-        ):
-            if ep_meta_public:
-                spotify_episode_id_by_name[ep_meta_public["name"]] = episode_id
-    # Leave Spotify ID empty of no matching ID was found
-    else:
-        spotify_episode_id_by_name = {}
+    # Try to read additional, publicly available data from Spotify's public API
+    ep_metas_public = fetch_all(
+        functools.partial(spotify_api.episodes, market="de"),
+        spotify_episode_ids_search,
+        "episodes",
+    )
+    for episode_id, ep_meta_public in zip(spotify_episode_ids_search, ep_metas_public):
+        if ep_meta_public:
+            spotify_episode_id_by_name[ep_meta_public["name"]] = episode_id
+
     return spotify_episode_id_by_name
 
 
@@ -447,7 +463,10 @@ def _scrape_spotify_api_podcast(
         if start_date < first_episode_date:
             start_date = first_episode_date
 
-    _scrape_spotify_api_podcast_data(start_date, end_date, podcast)
+    try:
+        _scrape_spotify_api_podcast_data(start_date, end_date, podcast)
+    except Exception as e:
+        capture_exception(e)
 
     # Retrieve data for individual episodes
     _scrape_spotify_api_episode_data(podcast, start_date, end_date)
@@ -813,11 +832,14 @@ def _scrape_spotify_experimental_demographics_podcast(
             start_date = first_episode_date
 
     # Get podcast-level data
-    _scrape_spotify_experimental_demographics_podcast_data(
-        start_date,
-        end_date,
-        podcast,
-    )
+    try:
+        _scrape_spotify_experimental_demographics_podcast_data(
+            start_date,
+            end_date,
+            podcast,
+        )
+    except Exception as e:
+        capture_exception(e)
 
     # Get episode-level data
     _scrape_spotify_experimental_demographics_episode_data(podcast)
@@ -1115,7 +1137,12 @@ def scrape_podcast_data_webtrekk_picker(
     )
 
     for date in reversed(date_range(start_date, end_date)):
-        data = webtrekk.cleaned_picker_data(date)
+        try:
+            data = webtrekk.cleaned_picker_data(date)
+        except Exception as e:
+            capture_exception(e)
+            logger.warning("Skipping {} due to error {}", date, e)
+            continue
 
         podcasts = Podcast.objects.all()
 
@@ -1172,7 +1199,12 @@ def scrape_episode_data_webtrekk_performance(
     )
 
     for date in reversed(date_range(start_date, end_date)):
-        data = webtrekk.cleaned_audio_data(date)
+        try:
+            data = webtrekk.cleaned_audio_data(date)
+        except Exception as e:
+            capture_exception(e)
+            logger.warning("Skipping {} due to error {}", date, e)
+            continue
 
         podcasts = Podcast.objects.all()
 
@@ -1240,7 +1272,7 @@ def _scrape_ard_audiothek_ids_episodes(podcast: Podcast):
             podcast_episode.save()
 
 
-def scrape_ard_audiothek(
+def scrape_ard_audiothek(  # noqa: C901
     *,
     start_date: Optional[dt.date] = None,
     end_date: Optional[dt.date] = None,
@@ -1282,7 +1314,12 @@ def scrape_ard_audiothek(
             "Start collecting ARD Audiothek performance data from {}",
             date,
         )
-        df = ati.get_all_episode_data(date)
+        try:
+            df = ati.get_all_episode_data(date)
+        except Exception as e:
+            capture_exception(e)
+            logger.warning("Skipping {} due to error {}", date, e)
+            continue
 
         df = df[
             (df["Inhaltsarten"] == "Audiodateien")
