@@ -213,7 +213,7 @@ def _generate_adaptive_card(
         wrap=True,
     )
     intro_text = TextBlock(
-        f"{greeting} Das sind die drei Beiträge, mit denen wir gestern die meisten Besucher:innen von Google in unser Angebot locken konnten. **Können wir daraus was lernen?**",
+        f"{greeting} Das sind die {len(top_articles)} Beiträge, mit denen wir gestern die meisten Besucher:innen von Google in unser Angebot locken konnten. **Können wir daraus was lernen?**",
         wrap=True,
     )
     intro = Container([intro_headline, intro_text])

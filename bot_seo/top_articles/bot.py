@@ -35,7 +35,7 @@ def _get_top_articles(number_of_articles: int = 5, date: dt.date = None) -> List
         .order_by(F("clicks_all").desc(nulls_last=True))
     )
 
-    top_articles = gsc_top_articles[0:number_of_articles]
+    top_articles = list(gsc_top_articles[0:number_of_articles])
 
     for page in top_articles:
         # Retrieve and append latest_meta
