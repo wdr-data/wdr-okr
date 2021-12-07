@@ -355,15 +355,29 @@ def scrape_gsc(
 
         page_cache = {}
 
-        _property_data_gsc(property, start_date, yesterday)
+        try:
+            _property_data_gsc(property, start_date, yesterday)
+        except Exception as e:
+            capture_exception(e)
 
         for date in reversed(date_range(start_date, yesterday)):
             logger.info("Scraping data for {}.", date)
 
             # Get page data first to ensure scrape is done before SEO bot runs
-            _page_data_gsc(property, date, page_cache)
-            _page_data_query_gsc(property, date, page_cache)
-            _property_data_query_gsc(property, date)
+            try:
+                _page_data_gsc(property, date, page_cache)
+            except Exception as e:
+                capture_exception(e)
+
+            try:
+                _page_data_query_gsc(property, date, page_cache)
+            except Exception as e:
+                capture_exception(e)
+
+            try:
+                _property_data_query_gsc(property, date)
+            except Exception as e:
+                capture_exception(e)
 
         logger.success(
             "Finished Google Search Console scrape for property {}.",
@@ -656,7 +670,12 @@ def scrape_webtrekk(
 
     for date in reversed(date_range(start_date, end_date)):
         logger.info("Start Webtrekk SEO scrape for {}.", date)
-        data = webtrekk.cleaned_webtrekk_page_data(date)
+
+        try:
+            data = webtrekk.cleaned_webtrekk_page_data(date)
+        except Exception as e:
+            capture_exception(e)
+            continue
 
         for key, item in data.items():
             url, headline, query = key
