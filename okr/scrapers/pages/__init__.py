@@ -54,9 +54,6 @@ def scrape_full_gsc(property: Property):
     sleep(1)
     scrape_gsc(start_date=start_date, property_filter=property_filter)
 
-    # sleep(1)
-    # scrape_sophora(property_filter=property_filter)
-
     logger.success("Finished full scrape of property {}", property)
 
 
