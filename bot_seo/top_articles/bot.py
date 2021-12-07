@@ -20,10 +20,12 @@ from .teams_message import _generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
 
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
+WEBHOOK_URL_SECONDARY = os.environ.get("TEAMS_WEBHOOK_SEO_BOT_DIGITALE_NEWS")
+
 ARTICLE_THRESHOLD = int(os.environ.get("SEO_BOT_TOP_ARTICLES_THRESHOLD", 10000))
 
 
-def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List[Page]:
+def _get_top_articles(number_of_articles: int = 5, date: dt.date = None) -> List[Page]:
     # Get a number of pages that had the highest number of clicks on a certain date.
     logger.debug("Requesting top articles from DB")
     gsc_top_articles = (
@@ -33,7 +35,7 @@ def _get_top_articles(number_of_articles: int = 3, date: dt.date = None) -> List
         .order_by(F("clicks_all").desc(nulls_last=True))
     )
 
-    top_articles = gsc_top_articles[0:number_of_articles]
+    top_articles = list(gsc_top_articles[0:number_of_articles])
 
     for page in top_articles:
         # Retrieve and append latest_meta
@@ -105,24 +107,27 @@ def run():
     # For local testing in different time zone:
     # date = local_yesterday() - dt.timedelta(days=1)
 
-    top_articles = _get_top_articles(3, date)
+    top_articles = _get_top_articles(5, date)
 
-    if top_articles:
-        logger.debug("Found top articles")
-        articles_above_threshold = _get_articles_above_threshold(
-            ARTICLE_THRESHOLD,
-            date,
-        )
-        logger.debug(
-            "Found {} articles above threshold".format(articles_above_threshold)
-        )
-
-        adaptive_card = _generate_adaptive_card(top_articles, articles_above_threshold)
-        logger.debug(adaptive_card.to_json())
-        payload = generate_teams_payload(adaptive_card)
-
-        # Send payload to MS Teams
-        result = send_to_teams(payload, WEBHOOK_URL)
-        logger.debug(result)
-    else:
+    if not top_articles:
         logger.info("No articles found, sending no message to Teams")
+        return
+
+    logger.debug("Found top articles")
+    articles_above_threshold = _get_articles_above_threshold(
+        ARTICLE_THRESHOLD,
+        date,
+    )
+    logger.debug("Found {} articles above threshold".format(articles_above_threshold))
+
+    adaptive_card = _generate_adaptive_card(top_articles, articles_above_threshold)
+    logger.debug(adaptive_card.to_json())
+    payload = generate_teams_payload(adaptive_card)
+
+    # Send payload to MS Teams
+    result = send_to_teams(payload, WEBHOOK_URL)
+    logger.debug(result)
+
+    if WEBHOOK_URL_SECONDARY:
+        result = send_to_teams(payload, WEBHOOK_URL_SECONDARY)
+        logger.debug(result)

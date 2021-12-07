@@ -20,6 +20,7 @@ from .teams_message import _generate_adaptive_card
 from ..teams_tools import generate_teams_payload, send_to_teams
 
 WEBHOOK_URL = os.environ.get("TEAMS_WEBHOOK_SEO_BOT")
+WEBHOOK_URL_SECONDARY = os.environ.get("TEAMS_WEBHOOK_SEO_BOT_DIGITALE_NEWS")
 
 
 def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> QuerySet[Page]:
@@ -40,6 +41,7 @@ def _get_pages(impressions_min: int = 10000, date: dt.date = None) -> QuerySet[P
 def _get_seo_articles_to_update(
     impressions_min: int = 10000,
     date: dt.date = None,
+    number_of_articles: int = 10,
 ) -> list:
     # Generate a list of pages that had at least a certain number of impressions
     # on a certain date and have not been updated today.
@@ -88,7 +90,7 @@ def _get_seo_articles_to_update(
 
         articles_to_do.append(page)
 
-        if len(articles_to_do) == 5:
+        if len(articles_to_do) == number_of_articles:
             break
 
     return articles_to_do
@@ -113,3 +115,7 @@ def run(*, last_update_gsc: str = None):
     # Send payload to MS Teams
     result = send_to_teams(payload, WEBHOOK_URL)
     logger.debug(result)
+
+    if WEBHOOK_URL_SECONDARY:
+        result = send_to_teams(payload, WEBHOOK_URL_SECONDARY)
+        logger.debug(result)
