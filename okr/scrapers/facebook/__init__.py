@@ -59,35 +59,42 @@ def scrape_insights(
         facebooks = facebooks.filter(facebook_filter)
 
     for facebook in facebooks:
-        logger.debug("Scraping insights for {}", facebook)
-        df = quintly.get_facebook_insights(
-            facebook.quintly_profile_id,
-            start_date=start_date,
-        )
+        try:
+            _scrape_insights_facebook(start_date, facebook)
+        except Exception as e:
+            capture_exception(e)
 
-        for index, row in df.iterrows():
-            defaults = {
-                "fans": row.page_fans or 0,
-                "follows": row.page_follows or 0,
-                "impressions_unique": row.page_impressions_unique or 0,
-                "impressions_unique_7_days": row.page_impressions_unique_week or 0,
-                "impressions_unique_28_days": row.page_impressions_unique_days_28 or 0,
-                "fans_online_per_day": row.page_fans_online_per_day or 0,
-            }
 
-            try:
-                obj, created = FacebookInsight.objects.update_or_create(
-                    facebook=facebook,
-                    date=date.fromisoformat(row.time),
-                    defaults=defaults,
-                )
-            except IntegrityError as e:
-                capture_exception(e)
-                logger.exception(
-                    "Data for {} insights for date {} failed integrity check:\n{}",
-                    row.time,
-                    defaults,
-                )
+def _scrape_insights_facebook(start_date, facebook):
+    logger.debug("Scraping insights for {}", facebook)
+    df = quintly.get_facebook_insights(
+        facebook.quintly_profile_id,
+        start_date=start_date,
+    )
+
+    for index, row in df.iterrows():
+        defaults = {
+            "fans": row.page_fans or 0,
+            "follows": row.page_follows or 0,
+            "impressions_unique": row.page_impressions_unique or 0,
+            "impressions_unique_7_days": row.page_impressions_unique_week or 0,
+            "impressions_unique_28_days": row.page_impressions_unique_days_28 or 0,
+            "fans_online_per_day": row.page_fans_online_per_day or 0,
+        }
+
+        try:
+            obj, created = FacebookInsight.objects.update_or_create(
+                facebook=facebook,
+                date=date.fromisoformat(row.time),
+                defaults=defaults,
+            )
+        except IntegrityError as e:
+            capture_exception(e)
+            logger.exception(
+                "Data for {} insights for date {} failed integrity check:\n{}",
+                row.time,
+                defaults,
+            )
 
 
 def scrape_posts(
@@ -109,40 +116,45 @@ def scrape_posts(
         facebooks = facebooks.filter(facebook_filter)
 
     for facebook in facebooks:
-        logger.debug("Scraping post insights for {}", facebook)
-        df = quintly.get_facebook_posts(
-            facebook.quintly_profile_id, start_date=start_date
-        )
+        try:
+            _scrape_posts_facebook(start_date, facebook)
+        except Exception as e:
+            capture_exception(e)
 
-        for index, row in df.iterrows():
-            defaults = {
-                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
-                "post_type": row.type,
-                "link": row.link,
-                "message": row.message,
-                "likes": row.likes or 0,
-                "love": row.love or 0,
-                "wow": row.wow or 0,
-                "haha": row.haha or 0,
-                "sad": row.sad or 0,
-                "angry": row.angry or 0,
-                "comments": row.comments or 0,
-                "shares": row.shares or 0,
-                "impressions_unique": row.post_impressions_unique or 0,
-                "is_published": parse_bool(row.is_published),
-                "is_hidden": parse_bool(row.is_hidden),
-            }
 
-            try:
-                obj, created = FacebookPost.objects.update_or_create(
-                    facebook=facebook,
-                    external_id=row.externalId,
-                    defaults=defaults,
-                )
-            except IntegrityError as e:
-                capture_exception(e)
-                logger.exception(
-                    "Data for post with ID {} failed integrity check:\n{}",
-                    row.externalId,
-                    defaults,
-                )
+def _scrape_posts_facebook(start_date, facebook):
+    logger.debug("Scraping post insights for {}", facebook)
+    df = quintly.get_facebook_posts(facebook.quintly_profile_id, start_date=start_date)
+
+    for index, row in df.iterrows():
+        defaults = {
+            "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+            "post_type": row.type,
+            "link": row.link,
+            "message": row.message,
+            "likes": row.likes or 0,
+            "love": row.love or 0,
+            "wow": row.wow or 0,
+            "haha": row.haha or 0,
+            "sad": row.sad or 0,
+            "angry": row.angry or 0,
+            "comments": row.comments or 0,
+            "shares": row.shares or 0,
+            "impressions_unique": row.post_impressions_unique or 0,
+            "is_published": parse_bool(row.is_published),
+            "is_hidden": parse_bool(row.is_hidden),
+        }
+
+        try:
+            obj, created = FacebookPost.objects.update_or_create(
+                facebook=facebook,
+                external_id=row.externalId,
+                defaults=defaults,
+            )
+        except IntegrityError as e:
+            capture_exception(e)
+            logger.exception(
+                "Data for post with ID {} failed integrity check:\n{}",
+                row.externalId,
+                defaults,
+            )
