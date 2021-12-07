@@ -10,6 +10,7 @@ import bs4
 import dateparser
 from loguru import logger
 import requests
+from sentry_sdk import capture_exception
 from tenacity import retry
 from tenacity.stop import stop_after_attempt
 from tenacity.wait import wait_exponential
@@ -50,8 +51,11 @@ def get_reviews(
             'Querying iTunes Search API for "{}" to retrieve itunes_url',
             podcast.name,
         )
-        podcast.itunes_url = _get_metadata_url(podcast)
-        podcast.save()
+        try:
+            podcast.itunes_url = _get_metadata_url(podcast)
+            podcast.save()
+        except Exception as e:
+            capture_exception(e)
 
     if not podcast.itunes_url:
         return None
@@ -184,6 +188,9 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON,
     review_bars = soup.find_all(
         "div", attrs={"class": "we-star-bar-graph__bar__foreground-bar"}
     )
+
+    if review_bars.count() != 5:
+        raise ItunesReviewsError("Failed to find review bars")
 
     percentage_regex = r"width:\s*(\d+)%"
     reviews_percentages = dict()
