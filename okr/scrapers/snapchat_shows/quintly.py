@@ -140,7 +140,7 @@ def get_snapchat_show_stories(
         "uniqueTopsnapsPerUser",
         "importTime",
     ]
-    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=120)
     end_date = datetime.date.today()
 
     df = common_quintly.quintly.run_query(
@@ -208,7 +208,7 @@ def get_snapchat_show_story_snaps(
         "topsnapTotalViews",
         "topsnapUniqueViews",
     ]
-    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=120)
     end_date = datetime.date.today()
 
     df = common_quintly.quintly.run_query(

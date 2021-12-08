@@ -3,6 +3,7 @@ ignore =
     E501,  # Line length, controlled by black
     W503,  # Line break before binary operator, controlled by black
     E203,  # Whitespace before ':', controlled by black
+    C901,  # Yeah, this is not happening (complexity)
 
 max-complexity: 10
 

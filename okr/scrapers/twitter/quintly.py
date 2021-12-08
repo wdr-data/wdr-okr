@@ -99,7 +99,7 @@ def get_tweets(
         "retweets",
         "replies",
     ]
-    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=120)
     end_date = datetime.date.today()
 
     df_posts_insights = common_quintly.quintly.run_query(

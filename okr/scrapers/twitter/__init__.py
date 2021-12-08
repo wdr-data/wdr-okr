@@ -59,29 +59,34 @@ def scrape_insights(
         twitters = twitters.filter(twitter_filter)
 
     for twitter in twitters:
-        logger.debug("Scraping insights for {}", twitter)
-        df = quintly.get_twitter_insights(
-            twitter.quintly_profile_id, start_date=start_date
-        )
+        try:
+            _scrape_insights_twitter(start_date, twitter)
+        except Exception as e:
+            capture_exception(e)
 
-        for index, row in df.iterrows():
-            defaults = {
-                "followers": row.followers or 0,
-            }
 
-            try:
-                obj, created = TwitterInsight.objects.update_or_create(
-                    twitter=twitter,
-                    date=date.fromisoformat(row.time),
-                    defaults=defaults,
-                )
-            except IntegrityError as e:
-                capture_exception(e)
-                logger.exception(
-                    "Data for {} insights for date {} failed integrity check:\n{}",
-                    row.time,
-                    defaults,
-                )
+def _scrape_insights_twitter(start_date, twitter):
+    logger.debug("Scraping insights for {}", twitter)
+    df = quintly.get_twitter_insights(twitter.quintly_profile_id, start_date=start_date)
+
+    for index, row in df.iterrows():
+        defaults = {
+            "followers": row.followers or 0,
+        }
+
+        try:
+            obj, created = TwitterInsight.objects.update_or_create(
+                twitter=twitter,
+                date=date.fromisoformat(row.time),
+                defaults=defaults,
+            )
+        except IntegrityError as e:
+            capture_exception(e)
+            logger.exception(
+                "Data for {} insights for date {} failed integrity check:\n{}",
+                row.time,
+                defaults,
+            )
 
 
 def scrape_tweets(
@@ -103,32 +108,39 @@ def scrape_tweets(
         twitters = twitters.filter(twitter_filter)
 
     for twitter in twitters:
-        logger.debug("Scraping post insights for {}", twitter)
-        df = quintly.get_tweets(twitter.quintly_profile_id, start_date=start_date)
+        try:
+            _scrape_tweets_twitter(start_date, twitter)
+        except Exception as e:
+            capture_exception(e)
 
-        for index, row in df.iterrows():
-            defaults = {
-                "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
-                "tweet_type": row.type,
-                "link": row.link,
-                # False is just an empty string in this table
-                "is_retweet": parse_bool(row.isRetweet, default=False),
-                "message": row.message,
-                "favs": row.favs or 0,
-                "retweets": row.retweets or 0,
-                "replies": row.replies or 0,
-            }
 
-            try:
-                obj, created = Tweet.objects.update_or_create(
-                    twitter=twitter,
-                    external_id=row.externalId,
-                    defaults=defaults,
-                )
-            except IntegrityError as e:
-                capture_exception(e)
-                logger.exception(
-                    "Data for tweet with ID {} failed integrity check:\n{}",
-                    row.externalId,
-                    defaults,
-                )
+def _scrape_tweets_twitter(start_date, twitter):
+    logger.debug("Scraping post insights for {}", twitter)
+    df = quintly.get_tweets(twitter.quintly_profile_id, start_date=start_date)
+
+    for index, row in df.iterrows():
+        defaults = {
+            "created_at": BERLIN.localize(datetime.fromisoformat(row.time)),
+            "tweet_type": row.type,
+            "link": row.link,
+            # False is just an empty string in this table
+            "is_retweet": parse_bool(row.isRetweet, default=False),
+            "message": row.message,
+            "favs": row.favs or 0,
+            "retweets": row.retweets or 0,
+            "replies": row.replies or 0,
+        }
+
+        try:
+            obj, created = Tweet.objects.update_or_create(
+                twitter=twitter,
+                external_id=row.externalId,
+                defaults=defaults,
+            )
+        except IntegrityError as e:
+            capture_exception(e)
+            logger.exception(
+                "Data for tweet with ID {} failed integrity check:\n{}",
+                row.externalId,
+                defaults,
+            )

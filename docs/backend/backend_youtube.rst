@@ -3,17 +3,6 @@
 YouTube-Daten anlegen
 =====================
 
-[TBD]
-Advance Analytics
-
-Custom-Date = 1Tag
-
-Export als csv
-
-Zip File hochladen (mehrere auf einmal - müssen alle vom gleichen Kanal stammen)
-Dateinamenn nicht verändern, muss genau so heißen, wie es von YouTube kommt
-
-
 Weil YouTube im Moment noch keine Daten zu Impressions und Clicks zum
 automatisierten Abruf zur Verfügung stellt, lassen sich diese Daten über einen
 manuellen Upload im Backend zur Datenbank hinzufügen.
