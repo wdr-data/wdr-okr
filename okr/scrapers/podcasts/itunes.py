@@ -189,7 +189,7 @@ def _get_reviews_json(podcast: Podcast, retry: bool = True) -> Tuple[types.JSON,
         "div", attrs={"class": "we-star-bar-graph__bar__foreground-bar"}
     )
 
-    if review_bars.count() != 5:
+    if len(review_bars) != 5:
         raise ItunesReviewsError("Failed to find review bars")
 
     percentage_regex = r"width:\s*(\d+)%"
