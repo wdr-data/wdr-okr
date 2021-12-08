@@ -207,7 +207,7 @@ def get_insta_igtv(
         "videoViews",
         "link",
     ]
-    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=120)
     end_date = datetime.date.today()
     df = common_quintly.quintly.run_query(
         profile_ids, table, fields, start_date, end_date
@@ -251,7 +251,7 @@ def get_insta_comments(
         "isHidden",
         "importTime",
     ]
-    start_date = start_date or datetime.date.today() - datetime.timedelta(days=7)
+    start_date = start_date or datetime.date.today() - datetime.timedelta(days=120)
     end_date = datetime.date.today()
 
     df = common_quintly.quintly.run_query(
