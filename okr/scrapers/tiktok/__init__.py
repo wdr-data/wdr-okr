@@ -7,6 +7,7 @@ from typing import Optional
 
 from django.db.models import Q
 from loguru import logger
+from sentry_sdk import capture_exception
 
 from ...models.tiktok import (
     TikTok,
@@ -61,25 +62,32 @@ def scrape_data(
         tiktoks = tiktoks.filter(tiktok_filter)
 
     for tiktok in tiktoks:
-        df = quintly.get_tiktok(tiktok.quintly_profile_id, start_date=start_date)
+        try:
+            _scrape_data_tiktok(start_date, tiktok)
+        except Exception as e:
+            capture_exception(e)
 
-        for index, row in df.iterrows():
-            defaults = {
-                "followers": row.followers,
-                "followers_change": row.followersChange,
-                "following": row.following,
-                "following_change": row.followingChange,
-                "likes": row.likes,
-                "likes_change": row.likesChange,
-                "videos": row.videos,
-                "videos_change": row.videosChange,
-            }
 
-            obj, created = TikTokData.objects.update_or_create(
-                tiktok=tiktok,
-                date=dt.date.fromisoformat(row.time),
-                defaults=defaults,
-            )
+def _scrape_data_tiktok(start_date, tiktok):
+    df = quintly.get_tiktok(tiktok.quintly_profile_id, start_date=start_date)
+
+    for index, row in df.iterrows():
+        defaults = {
+            "followers": row.followers,
+            "followers_change": row.followersChange,
+            "following": row.following,
+            "following_change": row.followingChange,
+            "likes": row.likes,
+            "likes_change": row.likesChange,
+            "videos": row.videos,
+            "videos_change": row.videosChange,
+        }
+
+        obj, created = TikTokData.objects.update_or_create(
+            tiktok=tiktok,
+            date=dt.date.fromisoformat(row.time),
+            defaults=defaults,
+        )
 
 
 def scrape_posts(
@@ -101,45 +109,49 @@ def scrape_posts(
         tiktoks = tiktoks.filter(tiktok_filter)
 
     for tiktok in tiktoks:
-        df = quintly.get_tiktok_posts(tiktok.quintly_profile_id, start_date=start_date)
+        try:
+            _scrape_posts_tiktok(start_date, tiktok)
+        except Exception as e:
+            capture_exception(e)
 
-        for index, row in df.iterrows():
-            defaults = {
-                "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
-                "link": row.link,
-                "description": row.description,
-                "video_length": row.videoLength
-                and dt.timedelta(seconds=row.videoLength),
-                "video_cover_url": row.videoCoverUrl,
-                "likes": row.likes,
-                "comments": row.comments,
-                "shares": row.shares,
-                "views": row.views,
-            }
 
-            tiktok_post, created = TikTokPost.objects.update_or_create(
-                tiktok=tiktok, external_id=row.externalId, defaults=defaults
+def _scrape_posts_tiktok(start_date, tiktok):
+    df = quintly.get_tiktok_posts(tiktok.quintly_profile_id, start_date=start_date)
+
+    for index, row in df.iterrows():
+        defaults = {
+            "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
+            "link": row.link,
+            "description": row.description,
+            "video_length": row.videoLength and dt.timedelta(seconds=row.videoLength),
+            "video_cover_url": row.videoCoverUrl,
+            "likes": row.likes,
+            "comments": row.comments,
+            "shares": row.shares,
+            "views": row.views,
+        }
+
+        tiktok_post, created = TikTokPost.objects.update_or_create(
+            tiktok=tiktok, external_id=row.externalId, defaults=defaults
+        )
+
+        for hashtag in json.loads(row.hashtags):
+            tiktok_hashtag, created = TikTokHashtag.objects.get_or_create(
+                hashtag=hashtag,
             )
+            tiktok_post.hashtags.add(tiktok_hashtag)
 
-            for hashtag in json.loads(row.hashtags):
-                tiktok_hashtag, created = TikTokHashtag.objects.get_or_create(
-                    hashtag=hashtag,
-                )
-                tiktok_post.hashtags.add(tiktok_hashtag)
+        for challenge_dict in json.loads(row.challenges):
+            description = challenge_dict["description"]
+            challenge_defaults = dict(description=description) if description else None
+            tiktok_challenge, created = TikTokChallenge.objects.get_or_create(
+                title=challenge_dict["title"],
+                defaults=challenge_defaults,
+            )
+            tiktok_post.challenges.add(tiktok_challenge)
 
-            for challenge_dict in json.loads(row.challenges):
-                description = challenge_dict["description"]
-                challenge_defaults = (
-                    dict(description=description) if description else None
-                )
-                tiktok_challenge, created = TikTokChallenge.objects.get_or_create(
-                    title=challenge_dict["title"],
-                    defaults=challenge_defaults,
-                )
-                tiktok_post.challenges.add(tiktok_challenge)
-
-            for tag_dict in json.loads(row.postTags):
-                tiktok_tag, created = TikTokTag.objects.get_or_create(
-                    name=tag_dict["name"],
-                )
-                tiktok_post.tags.add(tiktok_tag)
+        for tag_dict in json.loads(row.postTags):
+            tiktok_tag, created = TikTokTag.objects.get_or_create(
+                name=tag_dict["name"],
+            )
+            tiktok_post.tags.add(tiktok_tag)
