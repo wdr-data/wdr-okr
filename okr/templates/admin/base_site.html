@@ -1,0 +1,10 @@
+{% extends "admin/base_site.html" %}
+{% block extrahead %}
+    <!-- For models with file uploads, don't show add links/buttons -->
+    <style>
+        .model-youtubevideoanalyticsextra .addlink {
+            display: none !important;
+        }
+    </style>
+    {{ block.super }}
+{% endblock %}

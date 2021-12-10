@@ -151,6 +151,10 @@ def _scrape_stories_snapchat_show(start_date, snapchat_show):
         snapchat_show.quintly_profile_id, start_date=start_date
     )
 
+    if df.empty:
+        logger.info("No stories found for {}", snapchat_show)
+        return
+
     # Ignore unpublished stories as they sometimes have the same ID as published ones
     df = df[df["state"] == "Available"]
 
