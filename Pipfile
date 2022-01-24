@@ -20,7 +20,7 @@ flake8 = "*"
 flake8-print = "*"
 
 [packages]
-django = "*"
+django = "<4"
 dj-database-url = "*"
 django-tz-detect = "*"
 gunicorn = "*"
