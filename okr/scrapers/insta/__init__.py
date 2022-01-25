@@ -3,12 +3,13 @@
 import datetime as dt
 import json
 from time import sleep
-from typing import Dict, Optional
+from typing import Dict, Generator, Optional
 
 from django.db.utils import IntegrityError
 from django.db.models import Q, Sum
 from loguru import logger
 from sentry_sdk import capture_exception
+from bulk_sync import bulk_sync
 
 from ...models.insta import (
     Insta,
@@ -398,15 +399,38 @@ def scrape_comments(
         try:
             _scrape_comments_insta(start_date, insta)
         except Exception as e:
+            logger.exception(f"Failed to scrape comments for {insta.name}")
             capture_exception(e)
 
 
 def _scrape_comments_insta(start_date, insta):
     logger.info(f"Scraping Instagram comments for {insta.name}")
-    df = quintly.get_insta_comments(insta.quintly_profile_id, start_date=start_date)
+    dfs = quintly.get_insta_comments(insta.quintly_profile_id, start_date=start_date)
 
     post_cache: Dict[str, InstaPost] = {}
 
+    for df in dfs:
+        comments = list(_scrape_comments_insta_day(insta, post_cache, df))
+
+        # bulk_sync breaks if there are no comments
+        if not comments:
+            continue
+
+        posts = set(comment.post for comment in comments)
+
+        sync_results = bulk_sync(
+            comments,
+            ["external_id"],
+            Q(post__in=posts),
+            batch_size=100,
+            skip_deletes=True,
+        )
+        logger.debug(sync_results)
+
+
+def _scrape_comments_insta_day(
+    insta: Insta, post_cache: Dict[str, InstaPost], df
+) -> Generator[InstaComment, None, None]:
     for index, row in df.iterrows():
         defaults = {
             "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
@@ -441,18 +465,8 @@ def _scrape_comments_insta(start_date, insta):
 
         defaults["post"] = post
 
-        try:
-            obj, created = InstaComment.objects.update_or_create(
-                external_id=row.externalId,
-                defaults=defaults,
-            )
-        except IntegrityError as e:
-            capture_exception(e)
-            logger.exception(
-                "Data for comment with ID {} failed integrity check:\n{}",
-                row.externalId,
-                defaults,
-            )
+        # Build comment object for bulk_sync
+        yield InstaComment(external_id=row.externalId, **defaults)
 
 
 def scrape_demographics(

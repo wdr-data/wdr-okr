@@ -1,10 +1,11 @@
 """ Methods for scraping insta data with Quintly """
 
 import datetime
-from typing import Optional
+from typing import Generator, Optional
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from ..common import quintly as common_quintly
 from ..common import utils
@@ -223,7 +224,7 @@ def get_insta_comments(
     profile_id: int,
     *,
     start_date: Optional[datetime.date] = None,
-) -> pd.DataFrame:
+) -> Generator[pd.DataFrame, None, None]:
     """Read data for comments on Instagram profile via Quintly API.
 
     Args:
@@ -251,16 +252,16 @@ def get_insta_comments(
         "isHidden",
         "importTime",
     ]
-    start_date = start_date or datetime.date.today() - datetime.timedelta(days=120)
-    end_date = datetime.date.today()
+    today = utils.local_today()
+    start_date = start_date or today - datetime.timedelta(days=120)
+    end_date = today
 
-    df = common_quintly.quintly.run_query(
-        profile_ids, table, fields, start_date, end_date
-    )
+    for date in reversed(utils.date_range(start_date, end_date)):
+        logger.trace("Getting next insta comment dataframe")
+        df = common_quintly.quintly.run_query(profile_ids, table, fields, date, date)
 
-    df = df.replace({np.nan: None})
-
-    return df
+        df.replace({np.nan: None}, inplace=True)
+        yield df
 
 
 @common_quintly.requires_quintly
