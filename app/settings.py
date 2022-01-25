@@ -21,6 +21,21 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
+
+# Get role context
+ROLE = os.environ.get("ROLE")
+dyno = os.environ.get("DYNO")
+
+if not ROLE and dyno:
+    dyno_role = dyno.split(".")[0]
+    if dyno_role in ("web", "worker"):
+        ROLE = dyno
+
+if not ROLE:
+    logger.warning('Failed to get role context. Defaulting to "web"')
+    ROLE = "web"
+
+
 if "SENTRY_DSN" in os.environ:
     sentry_sdk.init(
         dsn=os.environ["SENTRY_DSN"],
@@ -35,6 +50,16 @@ if "SENTRY_DSN" in os.environ:
     ignore_logger("spotipy.client")
 
     with sentry_sdk.configure_scope() as scope:
+        scope.set_tag(
+            "stage",
+            os.environ.get("HEROKU_APP_NAME") == "wdr-okr"
+            and "production"
+            or "staging",
+        )
+        scope.set_tag(
+            "role",
+            ROLE,
+        )
         scope.set_tag(
             "heroku-release",
             f"{os.environ.get('HEROKU_APP_NAME')}@{os.environ.get('HEROKU_RELEASE_VERSION')}",
@@ -81,20 +106,6 @@ if "HEROKU_APP_NAME" not in os.environ:
 logger.remove()  # Remove default logger
 logger.add(sys.stderr, level=lvl, format=fmt, diagnose=DEBUG)
 logger.info("Logging setup complete.")
-
-
-# Get role context
-ROLE = os.environ.get("ROLE")
-dyno = os.environ.get("DYNO")
-
-if not ROLE and dyno:
-    dyno_role = dyno.split(".")[0]
-    if dyno_role in ("web", "worker"):
-        ROLE = dyno
-
-if not ROLE:
-    logger.warning('Failed to get role context. Defaulting to "web"')
-    ROLE = "web"
 
 
 # Continue with default Django config stuff
