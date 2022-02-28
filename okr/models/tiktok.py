@@ -195,10 +195,15 @@ class TikTokPost(models.Model):
 
     external_id = models.TextField(verbose_name="Externe ID", unique=True)
     created_at = models.DateTimeField(verbose_name="Erstellungsdatum")
-    link = models.URLField(verbose_name="Link", help_text="URL des Postings.")
+    link = models.URLField(
+        verbose_name="Link",
+        help_text="URL des Postings.",
+        max_length=1024,
+    )
 
     description = models.TextField(
-        verbose_name="Text", help_text="Volltext des Postings."
+        verbose_name="Text",
+        help_text="Volltext des Postings.",
     )
 
     hashtags = models.ManyToManyField(
@@ -240,6 +245,7 @@ class TikTokPost(models.Model):
     video_cover_url = models.URLField(
         verbose_name="Video-Cover URL",
         help_text="URL des Video-Coverbildes.",
+        max_length=1024,
         null=True,
     )
 
