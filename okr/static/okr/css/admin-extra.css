@@ -17,5 +17,5 @@
 label.manual-required
 {
     font-weight: bold;
-    color: #333;
+    color: var(--body-fg);
 }

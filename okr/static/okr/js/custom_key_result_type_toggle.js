@@ -2,8 +2,9 @@ const keyResultSelector = '#id_key_result';
 
 const fieldValueTextSelector = '.field-value_text';
 const fieldValueIntegerSelector = '.field-value_integer';
+const fieldValueDecimalSelector = '.field-value_decimal';
 
-const fieldValueSelectors = [fieldValueTextSelector, fieldValueIntegerSelector];
+const fieldValueSelectors = [fieldValueTextSelector, fieldValueIntegerSelector, fieldValueDecimalSelector];
 
 const toggleValueFields = (keyResult) => {
     fieldValueSelectors.forEach(function (selector) {
@@ -12,6 +13,8 @@ const toggleValueFields = (keyResult) => {
 
     if (keyResultTypes[keyResult] === "integer") {
         django.jQuery(fieldValueIntegerSelector).show();
+    } else if (keyResultTypes[keyResult] === "decimal") {
+        django.jQuery(fieldValueDecimalSelector).show();
     } else if (keyResultTypes[keyResult] === "text") {
         django.jQuery(fieldValueTextSelector).show();
     }

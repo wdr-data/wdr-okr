@@ -32,7 +32,8 @@ class CustomKeyResult(models.Model):
 
     class KeyResultType(models.TextChoices):
         TEXT = "text", "Text"
-        INTEGER = "integer", "Zahl"
+        INTEGER = "integer", "Ganzzahl"
+        DECIMAL = "decimal", "Kommazahl"
 
     class Meta:
         """Model meta options."""
@@ -101,7 +102,15 @@ class CustomKeyResultRecord(models.Model):
 
     value_integer = models.IntegerField(
         verbose_name="Wert",
-        help_text="Der Wert der Kennzahl als Zahl.",
+        help_text="Der Wert der Kennzahl als Ganzzahl.",
+        null=True,
+    )
+
+    value_decimal = models.DecimalField(
+        verbose_name="Wert",
+        help_text="Der Wert der Kennzahl als Kommazahl.",
+        max_digits=20,
+        decimal_places=5,
         null=True,
     )
 
