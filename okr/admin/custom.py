@@ -54,18 +54,24 @@ class CustomKeyResultRecordModelForm(forms.ModelForm):
 
         type_to_field = {
             "integer": "value_integer",
+            "decimal": "value_decimal",
             "text": "value_text",
         }
 
         # Make sure the required field is set
         required_type = self.cleaned_data["key_result"].key_result_type
         required_field = type_to_field[required_type]
+
+        # Django removes the required field from cleaned_data when it's invalid
+        # and creates its own error message.
+        if required_field not in self.cleaned_data:
+            return
+
         if self.cleaned_data[required_field] in (None, ""):
             raise ValidationError({required_field: "Der Wert muss ausgefüllt werden."})
 
         # Clear all other fields
-        value_field_names = ["value_integer", "value_text"]
-        for field_name in value_field_names:
+        for field_name in type_to_field.values():
             if field_name != required_field:
                 self.cleaned_data[field_name] = None
 
@@ -82,6 +88,7 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
         "key_result",
         "date",
         "value_integer",
+        "value_decimal",
         "value_text",
     ]
 
@@ -103,6 +110,7 @@ class CustomKeyResultRecordAdmin(UnrequiredFieldsMixin, admin.ModelAdmin):
 
     unrequired_fields = [
         "value_text",
+        "value_decimal",
         "value_integer",
     ]
 

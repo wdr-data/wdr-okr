@@ -120,11 +120,12 @@ def scrape_full(
         podcast_filter=podcast_filter,
     )
 
-    sleep(1)
-    scrape_ard_audiothek(
-        start_date=start_date,
-        end_date=end_date,
-    )
+    # TODO: ARD Audiothek API change
+    # sleep(1)
+    # scrape_ard_audiothek(
+    #     start_date=start_date,
+    #     end_date=end_date,
+    # )
 
     logger.success("Finished full scrape of {}", podcast)
 
@@ -269,7 +270,8 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):  # noq
         available=False,
     )
 
-    _scrape_ard_audiothek_ids_episodes(podcast)
+    # TODO: ARD Audiothek API change
+    # _scrape_ard_audiothek_ids_episodes(podcast)
 
 
 def _scrape_feed_episode_map(podcast):
