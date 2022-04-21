@@ -299,6 +299,9 @@ def _scrape_feed_episode_map(podcast):
                 episode_id,
             )
 
+            if ep_meta is None:
+                raise SpotifyException(404, "", msg="Episode not found")
+
             spotify_episode_id_by_name[ep_meta["name"]] = episode_id
         except SpotifyException:
             logger.debug("Episode ID {} not found in Podcaster API", episode_id)
