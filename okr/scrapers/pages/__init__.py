@@ -418,6 +418,11 @@ def _handle_sophora_document(  # noqa: C901
             # Normalize only
             tags = [tag.lower().strip() for tag in tags]
 
+    elif sophora_document_info.get("mediaType") == "uebersicht":
+        editorial_update = None
+        headline = sophora_document_info["seitenTitel"]
+        teaser = sophora_document_info["beschreibung"]
+
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
         # Sometimes this is not set to sane value
         if sophora_document_info["lastModified"] < 1:
