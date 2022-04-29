@@ -425,7 +425,9 @@ def _handle_sophora_document(  # noqa: C901
 
     elif sophora_document_info.get("mediaType") == "uebersicht":
         editorial_update = None
-        headline = sophora_document_info.get("seitenTitel", sophora_document_info.get("title"))
+        headline = sophora_document_info.get(
+            "seitenTitel", sophora_document_info.get("title")
+        )
         teaser = sophora_document_info["beschreibung"]
 
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
