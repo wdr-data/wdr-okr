@@ -18,7 +18,7 @@ from ...models.tiktok import (
     TikTokTag,
 )
 from . import quintly
-from ..common.utils import BERLIN
+from ..common.utils import BERLIN, to_timedelta
 
 
 def scrape_full(tiktok: TikTok):
@@ -123,7 +123,7 @@ def _scrape_posts_tiktok(start_date, tiktok):
             "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
             "link": row.link,
             "description": row.description,
-            "video_length": row.videoLength and dt.timedelta(seconds=row.videoLength),
+            "video_length": to_timedelta(row.videoLength),
             "video_cover_url": row.videoCoverUrl,
             "likes": row.likes,
             "comments": row.comments,

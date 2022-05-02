@@ -79,6 +79,11 @@ class SkipPageException(Exception):
 
 def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
 
+    # Special cases
+    if url == "https://www1.wdr.de/nachrichten/nrw":
+        # TODO: Investigate if there are more like this
+        url = "https://www1.wdr.de/nachrichten/index.html"
+
     # Ensure that overview pages with missing "index.html" suffix
     # get related to the same SophoraID
     if url.endswith("/"):
@@ -417,6 +422,13 @@ def _handle_sophora_document(  # noqa: C901
         else:
             # Normalize only
             tags = [tag.lower().strip() for tag in tags]
+
+    elif sophora_document_info.get("mediaType") == "uebersicht":
+        editorial_update = None
+        headline = sophora_document_info.get(
+            "seitenTitel", sophora_document_info.get("title")
+        )
+        teaser = sophora_document_info["beschreibung"]
 
     elif sophora_document_info.get("mediaType") in ["audio", "video"]:
         # Sometimes this is not set to sane value

@@ -57,6 +57,7 @@ dateparser = "*"
 google-cloud-bigquery = "*"
 pyarrow = "*"
 pyyaml = "*"
+db-dtypes = "*"
 
 [requires]
 python_version = "3.8"
