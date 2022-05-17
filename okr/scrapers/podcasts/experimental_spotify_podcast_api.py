@@ -25,7 +25,6 @@ import yaml
 
 BASE_URL = os.environ.get("EXPERIMENTAL_SPOTIFY_BASE_URL")
 CLIENT_ID = os.environ.get("EXPERIMENTAL_SPOTIFY_CLIENT_ID")
-SP_AC = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_AC")
 SP_DC = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_DC")
 SP_KEY = os.environ.get("EXPERIMENTAL_SPOTIFY_SP_KEY")
 
@@ -94,7 +93,6 @@ class ExperimentalSpotifyPodcastAPI:
                     "prompt": "none",
                 },
                 cookies={
-                    "sp_ac": SP_AC,
                     "sp_dc": SP_DC,
                     "sp_key": SP_KEY,
                 },
