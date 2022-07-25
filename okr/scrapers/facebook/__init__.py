@@ -141,8 +141,8 @@ def _scrape_posts_facebook(start_date, facebook):
             "comments": row.comments or 0,
             "shares": row.shares or 0,
             "impressions_unique": row.post_impressions_unique or 0,
-            "is_published": parse_bool(row.is_published),
-            "is_hidden": parse_bool(row.is_hidden),
+            "is_published": parse_bool(row.is_published, default=False),
+            "is_hidden": parse_bool(row.is_hidden, default=False),
         }
 
         try:
