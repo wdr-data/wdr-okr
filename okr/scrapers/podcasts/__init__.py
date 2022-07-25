@@ -2,6 +2,7 @@
 """
 
 import datetime as dt
+import re
 from time import sleep
 from typing import Dict, Generator, List, Optional
 import gc
@@ -216,7 +217,18 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):  # noq
 
     for entry in d.entries:
         media_url = entry.enclosures[0].href
-        zmdb_id = int(media_url.split("/")[-2])
+
+        try:
+            zmdb_id = int(media_url.split("/")[-2])
+        except ValueError as e:
+            # TODO: Sportschau changed to using a uuid in this spot and no longer has ZMDB ids
+            pattern = r"invalid literal for int\(\) with base 10: '[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}'"
+            if re.match(pattern, str(e)):
+                logger.warning("Ignoring ZMDB ID in the form of a UUID")
+                continue
+
+            # Otherwise continue to raise an error here
+            raise
 
         if "itunes_duration" in entry:
             t = dt.datetime.strptime(entry.itunes_duration, "%H:%M:%S")

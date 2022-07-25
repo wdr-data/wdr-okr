@@ -47,7 +47,7 @@ def parse_bool(value: str, default: Optional[bool] = None) -> Optional[bool]:
 
     try:
         parsed = bool(int(value))
-    except ValueError:
+    except (ValueError, TypeError):
         parsed = default
 
     return parsed
