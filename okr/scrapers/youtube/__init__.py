@@ -722,7 +722,7 @@ def _scrape_video_demographics_youtube(start_date, end_date, youtube):
 
         # Convert gender to enum
         gender = row.gender.lower()
-        if gender == "genderUserSpecified":
+        if gender in ["genderUserSpecified", "user_specified"]:
             gender = "gender_other"
         gender = YouTubeVideoDemographics.Gender(row.gender.lower())
 
