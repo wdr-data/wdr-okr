@@ -22,6 +22,7 @@ from ...models.insta import (
     InstaDemographics,
     InstaHourlyFollowers,
     InstaVideoData,
+    InstaReelData,
 )
 from . import quintly
 from ..common.utils import BERLIN, local_today
@@ -218,6 +219,7 @@ def _scrape_posts_insta(start_date, insta):
             "likes": row.likes,
             "saved": row.saved,
             "video_views": row.videoViews,
+            "shares": row.shares,
             "post_type": row.type,
             "link": row.link,
         }
@@ -229,9 +231,11 @@ def _scrape_posts_insta(start_date, insta):
                 defaults=defaults,
             )
 
-            # If this is a video post, save additional data
+            # If this is a video or reel post, save additional data
             if row.type.lower() == "video":
                 _scrape_video_daily(insta, obj, defaults)
+            elif row.type.lower() == "reel":
+                _scrape_reel_daily(insta, obj, defaults)
 
         except IntegrityError as e:
             capture_exception(e)
@@ -253,6 +257,7 @@ def _scrape_video_daily(insta: Insta, post: InstaPost, defaults: dict):
         "created_at",
         "post_type",
         "link",
+        "shares",
     ]
     for field in remove_fields:
         del defaults[field]
@@ -279,6 +284,50 @@ def _scrape_video_daily(insta: Insta, post: InstaPost, defaults: dict):
         defaults[field] -= last_data[f"{field}__sum"] or 0
 
     obj, created = InstaVideoData.objects.update_or_create(
+        post=post,
+        date=today,
+        defaults=defaults,
+    )
+
+
+def _scrape_reel_daily(insta: Insta, post: InstaPost, defaults: dict):
+    """Scrape daily stats for reel posts from Quintly."""
+    # Copy defaults to avoid modifying the original dict
+    defaults = defaults.copy()
+
+    # Delete fields that are not part of the daily stats
+    remove_fields = [
+        "message",
+        "created_at",
+        "post_type",
+        "link",
+        "impressions",  # Reels don't have impressions
+    ]
+    for field in remove_fields:
+        del defaults[field]
+
+    today = local_today()
+    diff_fields = [
+        "comments",
+        "likes",
+        "reach",
+        "saved",
+        "video_views",
+        "shares",
+    ]
+
+    # Get sum of existing InstaVideoData
+    aggregations = [Sum(field) for field in diff_fields]
+    last_data = InstaReelData.objects.filter(
+        post=post,
+        date__lt=today,
+    ).aggregate(*aggregations)
+
+    # If there is data, calculate differences and save
+    for field in diff_fields:
+        defaults[field] -= last_data[f"{field}__sum"] or 0
+
+    obj, created = InstaReelData.objects.update_or_create(
         post=post,
         date=today,
         defaults=defaults,

@@ -126,6 +126,11 @@ class InstaPost(models.Model):
         help_text="Video-Views (3 sec oder mehr)",
         null=True,
     )
+    shares = models.IntegerField(
+        verbose_name="Shares",
+        help_text="Organische Shares, nur für Reels verfügbar",
+        null=True,
+    )
     link = models.URLField(verbose_name="Link", help_text="URL des Postings")
     quintly_last_updated = models.DateTimeField(
         verbose_name="Zuletzt upgedated (Quintly)",
@@ -189,6 +194,71 @@ class InstaVideoData(models.Model):
     video_views = models.IntegerField(
         verbose_name="Video-Views",
         help_text="Video-Views (3 sec oder mehr)",
+        null=True,
+    )
+
+    quintly_last_updated = models.DateTimeField(
+        verbose_name="Zuletzt upgedated (Quintly)",
+        help_text="Zeitpunkt, zu dem Quintly die Daten zuletzt upgedated hat",
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.date}: {self.post.message[:15]}..."
+
+
+class InstaReelData(models.Model):
+    """Tägliche Daten zu einzelnen Instagram Posts vom Typ "Reel"."""
+
+    class Meta:
+        """Model meta options."""
+
+        db_table = "instagram_reel_data"
+        verbose_name = "Instagram Reel-Daten"
+        verbose_name_plural = "Instagram Reel-Daten"
+        ordering = ["-date"]
+        unique_together = ("post", "date")
+
+    post = models.ForeignKey(
+        verbose_name="Post",
+        help_text="Globale ID des Posts",
+        to=InstaPost,
+        on_delete=models.CASCADE,
+        related_name="reel_data",
+        related_query_name="reel_data",
+    )
+    date = models.DateField(
+        verbose_name="Datum",
+        help_text="Datum des Datenpunkts",
+    )
+
+    comments = models.IntegerField(
+        verbose_name="Kommentare",
+        help_text="Anzahl der Kommentare",
+        null=True,
+    )
+    likes = models.IntegerField(
+        verbose_name="Likes",
+        help_text="Anzahl der Likes",
+        null=True,
+    )
+    reach = models.IntegerField(
+        verbose_name="Reichweite",
+        null=True,
+    )
+    saved = models.IntegerField(
+        verbose_name="Saves",
+        help_text="Anzahl der Saves",
+        null=True,
+    )
+    video_views = models.IntegerField(
+        verbose_name="Video-Views",
+        help_text="Video-Views (3 sec oder mehr)",
+        null=True,
+    )
+    shares = models.IntegerField(
+        verbose_name="Shares",
+        help_text="Organische Shares",
         null=True,
     )
 
