@@ -1,6 +1,8 @@
 """Set up Google service account credentials and required services.
-Requires a ``google-credentials.json`` file in the root directory.
+Requires the ``GOOGLE_SERVICE_ACCOUNT`` environment variable to be set.
 """
+import json
+import os
 import re
 from typing import Callable, Generator
 
@@ -11,20 +13,25 @@ from google.cloud import bigquery
 from google.cloud.bigquery.job.query import QueryJobConfig
 from google.oauth2 import service_account
 
-KEY_PATH = "google-credentials.json"
-
 try:
-    credentials = service_account.Credentials.from_service_account_file(
-        KEY_PATH,
+    credentials = service_account.Credentials.from_service_account_info(
+        json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"]),
         scopes=[
             "https://www.googleapis.com/auth/webmasters",
             "https://www.googleapis.com/auth/cloud-platform",
         ],
     )
 
-except FileNotFoundError:
+except KeyError:
     logger.warning(
-        "Service account file not found, GSC/BigQuery-related scrapers will fail"
+        "Service account info not found in environment, GSC/BigQuery-related scrapers will fail"
+    )
+    searchconsole_service = None
+    bigquery_client = None
+
+except json.JSONDecodeError:
+    logger.warning(
+        "Failed to parse service account info, GSC/BigQuery-related scrapers will fail"
     )
     searchconsole_service = None
     bigquery_client = None
