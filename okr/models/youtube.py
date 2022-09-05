@@ -380,6 +380,7 @@ class YouTubeVideoDemographics(models.Model):
         MALE = "male", "Männlich"
         FEMALE = "female", "Weiblich"
         GENDER_OTHER = "gender_other", "Andere Geschlechtsangabe"
+        GENDER_UNKNOWN = "gender_unknown", "Geschlecht unbekannt"
 
     youtube_video = models.ForeignKey(
         verbose_name="YouTube-Video",
