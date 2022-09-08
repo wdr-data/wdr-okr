@@ -6,6 +6,7 @@ from ..models import (
     InstaInsight,
     InstaPost,
     InstaVideoData,
+    InstaReelData,
     InstaStory,
     InstaIGTV,
     InstaIGTVData,
@@ -60,6 +61,22 @@ class InstaVideoDataAdmin(admin.ModelAdmin):
         "post",
         "video_views",
         "impressions",
+        "quintly_last_updated",
+    ]
+    list_display_links = ["date", "post"]
+    list_filter = ["post__insta"]
+    date_hierarchy = "date"
+    search_fields = ["post__external_id"]
+
+
+class InstaReelDataAdmin(admin.ModelAdmin):
+    """List for choosing existing reel data to edit."""
+
+    list_display = [
+        "date",
+        "post",
+        "video_views",
+        "shares",
         "quintly_last_updated",
     ]
     list_display_links = ["date", "post"]
@@ -174,6 +191,7 @@ admin.site.register(Insta, QuintlyAdmin)
 admin.site.register(InstaInsight, InsightAdmin)
 admin.site.register(InstaPost, PostAdmin)
 admin.site.register(InstaVideoData, InstaVideoDataAdmin)
+admin.site.register(InstaReelData, InstaReelDataAdmin)
 admin.site.register(InstaStory, StoryAdmin)
 admin.site.register(InstaIGTV, IGTVAdmin)
 admin.site.register(InstaIGTVData, IGTVDataAdmin)

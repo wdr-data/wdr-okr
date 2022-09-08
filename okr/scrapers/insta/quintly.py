@@ -162,6 +162,7 @@ def get_insta_posts(
         "time",
         "type",
         "videoViews",
+        "shares",
     ]
     start_date = start_date or datetime.date.today() - datetime.timedelta(days=120)
     end_date = datetime.date.today()
