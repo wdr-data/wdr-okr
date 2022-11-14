@@ -20,7 +20,7 @@ def make_connection_meta() -> Iterator[ConnectionMeta]:
         Iterator[ConnectionMeta]: ConnectionMeta object.
     """
     engine = create_engine(
-        f"mysql://{os.environ['MYSQL_PODCAST_USER']}:{os.environ['MYSQL_PODCAST_PASSWORD']}@{os.environ['MYSQL_PODCAST_HOST']}/{os.environ['MYSQL_PODCAST_DATABASE_PODSTAT']}"
+        f"mariadb+mariadbconnector://{os.environ['MYSQL_PODCAST_USER']}:{os.environ['MYSQL_PODCAST_PASSWORD']}@{os.environ['MYSQL_PODCAST_HOST']}/{os.environ['MYSQL_PODCAST_DATABASE_PODSTAT']}"
     )
     session = Session(engine)
 
