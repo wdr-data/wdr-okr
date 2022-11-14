@@ -27,13 +27,13 @@
   "addons": ["heroku-postgresql:hobby-dev"],
   "buildpacks": [
     {
-      "url": "https://github.com/loadsmart/env-buildpack"
+      "url": "heroku-community/apt"
     },
     {
       "url": "heroku/python"
     },
     {
-      "url": "https://github.com/heroku/heroku-buildpack-locale"
+      "url": "https://github.com/loadsmart/env-buildpack"
     },
     {
       "url": "https://github.com/niteoweb/heroku-buildpack-shell"
