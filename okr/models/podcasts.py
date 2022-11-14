@@ -419,7 +419,7 @@ class PodcastDataSpotifyDemographics(models.Model):
     )
 
     def __str__(self):
-        return f"{self.podcast.title}: {self.AgeRange(self.age_range).label} - {self.AgeRange(self.age_range).label}"
+        return f"{self.podcast.name}: {self.AgeRange(self.age_range).label} - {self.AgeRange(self.age_range).label}"
 
 
 class PodcastDataWebtrekkPicker(models.Model):

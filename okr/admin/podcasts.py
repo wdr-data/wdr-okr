@@ -2,12 +2,14 @@
 
 import functools
 from typing import Any, Dict
+from time import sleep
 
 from django import forms
 from django.contrib import admin
 from django.db import models
 from django.forms import ValidationError
 from loguru import logger
+from sentry_sdk import capture_exception
 
 from ..models import (
     Podcast,
@@ -48,7 +50,13 @@ class FeedForm(forms.ModelForm):
     feed_url = forms.URLField(label="Feed URL")
 
     def clean(self) -> Dict[str, Any]:
-        feed_dict = feed.parse(self.cleaned_data["feed_url"])
+        try:
+            feed_dict = feed.parse(self.cleaned_data["feed_url"])
+        except Exception as e:
+            capture_exception(e)
+            raise ValidationError(
+                {"feed_url": "Die URL scheint keinen gültigen Feed zu enthalten."}
+            ) from e
 
         existing_podcast = Podcast.objects_all.filter(name=feed_dict.feed.title).first()
         if existing_podcast:
@@ -59,6 +67,26 @@ class FeedForm(forms.ModelForm):
             )
 
         self.feed_dict = feed_dict
+
+        # Load licensed podcasts and their names so we can get the spotify_id for this podcast later
+        # We do it here so we can raise a validation error if the Spotify API is not available
+        try:
+            licensed_podcasts = spotify_api.licensed_podcasts()
+            sleep(0.5)
+            self.spotify_podcasts = fetch_all(
+                functools.partial(spotify_api.shows, market="DE"),
+                list(
+                    uri.replace("spotify:show:", "")
+                    for uri in licensed_podcasts["shows"].keys()
+                ),
+                "shows",
+            )
+        except Exception as e:
+            logger.exception(e)
+            capture_exception(e)
+            raise ValidationError(
+                "Spotify API nicht erreichbar. Bitte versuchen Sie es später erneut."
+            ) from e
 
         return super().clean()
 
@@ -71,23 +99,10 @@ class FeedForm(forms.ModelForm):
         self.instance.description = d.feed.description
         self.instance.itunes_category = d.feed.itunes_category
         self.instance.itunes_subcategory = d.feed.itunes_subcategory
-
-        licensed_podcasts = spotify_api.licensed_podcasts()
-        spotify_podcasts = fetch_all(
-            functools.partial(spotify_api.shows, market="DE"),
-            list(
-                uri.replace("spotify:show:", "")
-                for uri in licensed_podcasts["shows"].keys()
-            ),
-            "shows",
-        )
-
-        spotify_podcast_id = next(
-            (p["id"] for p in spotify_podcasts if p and p["name"] == d.feed.title),
+        self.instance.spotify_id = next(
+            (p["id"] for p in self.spotify_podcasts if p and p["name"] == d.feed.title),
             None,
         )
-        self.instance.spotify_id = spotify_podcast_id
-
         return super().save(commit=commit)
 
 
