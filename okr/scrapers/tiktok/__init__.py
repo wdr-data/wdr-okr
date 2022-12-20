@@ -64,6 +64,11 @@ def scrape_data(
         try:
             _scrape_data_tiktok(start_date, tiktok)
         except Exception as e:
+            logger.error(
+                'Failed to scrape TikTok data for TikTok "{}": {}',
+                tiktok.name,
+                e,
+            )
             capture_exception(e)
 
 
@@ -74,7 +79,10 @@ def _scrape_data_tiktok(start_date, tiktok):
         date = dt.date.fromisoformat(row.time)
 
         # Count all videos in this account until the given date
-        total_videos = TikTokPost.objects.filter(tiktok=tiktok, date__lte=date).count()
+        total_videos = TikTokPost.objects.filter(
+            tiktok=tiktok,
+            created_at__lte=BERLIN.localize(dt.datetime.combine(date, dt.time.max)),
+        ).count()
 
         defaults = {
             "followers": row.followers,
@@ -116,6 +124,11 @@ def scrape_posts(
         try:
             _scrape_posts_tiktok(start_date, tiktok)
         except Exception as e:
+            logger.error(
+                'Failed to scrape TikTok posts for TikTok "{}": {}',
+                tiktok.name,
+                e,
+            )
             capture_exception(e)
 
 
