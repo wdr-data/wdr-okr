@@ -42,7 +42,7 @@ def get_tiktok(
 
     end_date = today
 
-    table = "tiktok"
+    table = "tiktokAnalytics"
     fields = [
         "time",
         "followers",
@@ -51,8 +51,7 @@ def get_tiktok(
         "followingChange",
         "likes",
         "likesChange",
-        "videos",
-        "videosChange",
+        "ownVideos",
     ]
 
     df = common_quintly.quintly.run_query(
@@ -94,14 +93,13 @@ def get_tiktok_posts(
         pd.DataFrame:  API response data.
     """
     profile_ids = [profile_id]
-    table = "tiktokOwnPosts"
+    table = "tiktokAnalyticsOwnPosts"
     fields = [
         "externalId",
         "time",
         "link",
         "description",
         "hashtags",
-        "challenges",
         "videoLength",
         "videoCoverUrl",
         "musicId",
