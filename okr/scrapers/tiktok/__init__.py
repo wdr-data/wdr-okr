@@ -12,7 +12,6 @@ from sentry_sdk import capture_exception
 from ...models.tiktok import (
     TikTok,
     TikTokData,
-    TikTokChallenge,
     TikTokPost,
     TikTokHashtag,
     TikTokTag,
