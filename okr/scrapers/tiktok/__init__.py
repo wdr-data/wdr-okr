@@ -72,6 +72,11 @@ def _scrape_data_tiktok(start_date, tiktok):
     df = quintly.get_tiktok(tiktok.quintly_profile_id, start_date=start_date)
 
     for index, row in df.iterrows():
+        date = dt.date.fromisoformat(row.time)
+
+        # Count all videos in this account until the given date
+        total_videos = TikTokPost.objects.filter(tiktok=tiktok, date__lte=date).count()
+
         defaults = {
             "followers": row.followers,
             "followers_change": row.followersChange,
@@ -79,13 +84,13 @@ def _scrape_data_tiktok(start_date, tiktok):
             "following_change": row.followingChange,
             "likes": row.likes,
             "likes_change": row.likesChange,
-            "videos": row.videos,
-            "videos_change": row.videosChange,
+            "videos": total_videos,
+            "videos_change": row.ownVideos,
         }
 
         obj, created = TikTokData.objects.update_or_create(
             tiktok=tiktok,
-            date=dt.date.fromisoformat(row.time),
+            date=date,
             defaults=defaults,
         )
 
@@ -140,15 +145,6 @@ def _scrape_posts_tiktok(start_date, tiktok):
                 hashtag=hashtag,
             )
             tiktok_post.hashtags.add(tiktok_hashtag)
-
-        for challenge_dict in json.loads(row.challenges):
-            description = challenge_dict["description"]
-            challenge_defaults = dict(description=description) if description else None
-            tiktok_challenge, created = TikTokChallenge.objects.get_or_create(
-                title=challenge_dict["title"],
-                defaults=challenge_defaults,
-            )
-            tiktok_post.challenges.add(tiktok_challenge)
 
         for tag_dict in json.loads(row.postTags):
             tiktok_tag, created = TikTokTag.objects.get_or_create(

@@ -73,7 +73,8 @@ class TikTokData(models.Model):
     )
     videos = models.IntegerField(
         verbose_name="Videos",
-        help_text="Anzahl der Videos des Accounts",
+        help_text="Anzahl der Videos des Accounts. Wird automatisch berechnet und kann daher von "
+        "der tatsächlichen Anzahl der Videos im Account abweichen.",
         null=True,
     )
     videos_change = models.IntegerField(
