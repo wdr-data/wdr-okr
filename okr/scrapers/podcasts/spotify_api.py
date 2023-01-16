@@ -35,7 +35,18 @@ class SpotipyFilter(logging.Filter):
         Returns:
             bool: True if no error detected, False if error detected.
         """
-        return not record.getMessage().endswith("returned 404 due to error")
+
+        filter_suffixes = [
+            "returned 404 due to error",
+            "returned 404 due to None",
+            "returned 404 due to Requested date has no data",
+        ]
+
+        for suffix in filter_suffixes:
+            if record.getMessage().endswith(suffix):
+                return False
+
+        return True
 
 
 spotipy.client.logger.addFilter(SpotipyFilter())
