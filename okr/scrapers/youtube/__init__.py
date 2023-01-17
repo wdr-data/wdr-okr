@@ -472,7 +472,7 @@ def _scrape_video_traffic_sources_youtube(start_date, end_date, youtube):
             logger.warning("Video {} not found in database", row.video_id)
             continue
         elif youtube_video.published_at.date() < start_date:
-            logger.debug(
+            logger.trace(
                 "Video {} published before start date {}, skipping to prevent overwriting with bad data",
                 youtube_video,
                 start_date,
@@ -556,7 +556,7 @@ def _scrape_video_external_traffic_youtube(start_date, end_date, youtube):
         if youtube_video is None:
             continue
         elif youtube_video.published_at.date() < start_date:
-            logger.debug(
+            logger.trace(
                 "Video {} published before start date {}, skipping to prevent overwriting with bad data",
                 youtube_video,
                 start_date,
@@ -638,7 +638,7 @@ def _scrape_video_search_terms_youtube(start_date, end_date, youtube):
         if youtube_video is None:
             continue
         elif youtube_video.published_at.date() < start_date:
-            logger.debug(
+            logger.trace(
                 "Video {} published before start date {}, skipping to prevent overwriting with bad data",
                 youtube_video,
                 start_date,
@@ -715,7 +715,7 @@ def _scrape_video_demographics_youtube(start_date, end_date, youtube):
         if youtube_video is None:
             continue
         elif youtube_video.published_at.date() < start_date:
-            logger.debug(
+            logger.trace(
                 "Video {} published before start date {}, skipping to prevent overwriting with bad data",
                 youtube_video,
                 start_date,
