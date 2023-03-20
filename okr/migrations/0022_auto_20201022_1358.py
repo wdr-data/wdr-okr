@@ -26,7 +26,6 @@ def remove_duplicates(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0021_auto_20201022_1207"),
     ]

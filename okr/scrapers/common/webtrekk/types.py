@@ -25,7 +25,6 @@ class WebtrekkType:
 
     @classmethod
     def _format_value(cls, value: Any) -> JSON:
-
         if isinstance(value, str):
             return value
 

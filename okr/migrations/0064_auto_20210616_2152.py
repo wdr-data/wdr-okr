@@ -105,7 +105,6 @@ def translate_episodes(PodcastEpisode, PodcastEpisodeDataSpotifyDemographics):
 
 
 class Migration(migrations.Migration):
-
     atomic = False
 
     dependencies = [

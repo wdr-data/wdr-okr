@@ -108,7 +108,6 @@ class ActionSet(Serializable):
         horizontalAlignment: Optional[str] = None,
         id: Optional[str] = None,
     ):
-
         self.type = "ActionSet"
         self.actions = actions
         self.isVisible = isVisible

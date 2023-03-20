@@ -18,7 +18,6 @@ MORE_URL = os.environ.get("SEO_BOT_TODO_MORE_URL")
 
 
 def _generate_details(page: Page) -> Container:
-
     facts = []
 
     facts.append(
@@ -98,7 +97,6 @@ def _generate_details(page: Page) -> Container:
 
 
 def _generate_story(page: Page) -> Container:
-
     details = _generate_details(page)
 
     headline = TextBlock(
@@ -140,7 +138,6 @@ def _generate_story(page: Page) -> Container:
 
 
 def _generate_adaptive_card(pages: Page, last_update_gsc: str = None) -> AdaptiveCard:
-
     # Convert PDT timezone to Berlin time, because GSC-times are all PDT-based
     PDT = dt.timezone(-dt.timedelta(hours=7))
     yesterday = local_yesterday()

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0052_podcastepisode_last_available_date_time"),
     ]

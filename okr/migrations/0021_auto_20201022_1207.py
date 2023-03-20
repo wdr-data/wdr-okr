@@ -32,7 +32,6 @@ def fill_podcast_data_history(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0020_auto_20201021_1655"),
     ]

@@ -46,7 +46,6 @@ def fetch_data(
     ROW_LIMIT = 25000
 
     while True:
-
         request = {
             "startDate": start_date.isoformat(),
             "endDate": end_date.isoformat(),

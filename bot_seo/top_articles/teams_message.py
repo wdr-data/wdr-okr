@@ -131,7 +131,6 @@ def _generate_details(page: Page) -> Container:
 
 
 def _generate_article_section(page: Page, i: int) -> Container:
-
     details = _generate_details(page)
 
     # some pages (such as https://www1.wdr.de/nachrichten/index.html)
@@ -203,7 +202,6 @@ def _generate_adaptive_card(
     articles_above_threshold: int,
     threshold: int = 10000,
 ) -> AdaptiveCard:
-
     # Generate intro
     greeting = random.choice(GREETINGS)
     intro_headline = TextBlock(

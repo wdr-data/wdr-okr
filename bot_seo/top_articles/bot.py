@@ -102,7 +102,6 @@ def _get_articles_above_threshold(clicks_min: int = 10000, date: dt.date = None)
 
 
 def run():
-
     date = local_yesterday()
     # For local testing in different time zone:
     # date = local_yesterday() - dt.timedelta(days=1)

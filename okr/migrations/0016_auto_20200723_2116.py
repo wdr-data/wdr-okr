@@ -30,7 +30,7 @@ def migrate_age_ranges(apps, schema_editor):
     }
 
     for viewer_age in YouTubeViewerAge.objects.all():
-        for (viewer_age_range_attr_name, mapped_class) in mapping.items():
+        for viewer_age_range_attr_name, mapped_class in mapping.items():
             viewer_age_range = getattr(viewer_age, viewer_age_range_attr_name)
             obj = mapped_class(
                 youtube=viewer_age.youtube,
@@ -48,7 +48,6 @@ def migrate_age_ranges(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0015_auto_20200722_1822"),
     ]

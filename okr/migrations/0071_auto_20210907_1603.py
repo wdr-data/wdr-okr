@@ -23,7 +23,6 @@ def delete_non_daily_intervals(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0070_auto_20210823_1654"),
     ]
