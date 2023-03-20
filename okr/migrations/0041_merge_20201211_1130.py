@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0040_pagedatawebtrekk_pagewebtrekkmeta"),
         ("okr", "0039_auto_20201211_1035"),

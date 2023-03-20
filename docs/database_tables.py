@@ -73,7 +73,6 @@ def build_html(  # noqa: C901
     output_table_dict = {}
 
     for label in app_labels:
-
         # read basic data with django_extensions.management.modelviz
         data = generate_graph_data([label])
 
@@ -172,7 +171,6 @@ def build_html(  # noqa: C901
 
 
 if __name__ == "__main__":
-
     # generate html page (based on constants from database_tables_config)
     html_page = build_html(APP_LABELS, HTML_TOP, HTML_BOTTOM)
 

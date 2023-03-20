@@ -78,7 +78,6 @@ class SkipPageException(Exception):
 
 
 def _parse_sophora_url(url: str) -> Tuple[str, str, Optional[int]]:
-
     # Special cases
     if url == "https://www1.wdr.de/nachrichten/nrw":
         # TODO: Investigate if there are more like this

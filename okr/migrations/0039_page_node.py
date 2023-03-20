@@ -18,7 +18,6 @@ def set_node(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0038_auto_20201210_1505"),
     ]

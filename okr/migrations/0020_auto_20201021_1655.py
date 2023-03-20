@@ -33,7 +33,6 @@ def fill_spotify_ids(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0019_podcastepisodedatapodstat"),
     ]

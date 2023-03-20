@@ -542,7 +542,6 @@ def _scrape_spotify_api_episode_data(podcast, start_date, end_date):
 
 
 def _scrape_spotify_api_podcast_data(start_date, end_date, podcast):  # noqa: C901
-
     # Retrieve follower for podcast from experimental API
     follower_data = experimental_spotify_podcast_api.podcast_followers(
         podcast.spotify_id,
@@ -1230,7 +1229,6 @@ def scrape_episode_data_webtrekk_performance(
 
         for podcast in podcasts:
             for episode in podcast.episodes.all():
-
                 if episode.zmdb_id not in data:
                     continue
 
@@ -1368,7 +1366,6 @@ def scrape_ard_audiothek(  # noqa: C901
 
         for podcast in podcasts:
             for episode in podcast.episodes.exclude(ard_audiothek_id=None):
-
                 if episode.ard_audiothek_id not in data:
                     continue
 

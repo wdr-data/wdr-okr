@@ -45,7 +45,6 @@ def migrate_podstat(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0018_auto_20201020_1717"),
     ]

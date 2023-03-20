@@ -16,7 +16,6 @@ def scrape_spotify_api_last_days(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("okr", "0023_auto_20201023_1207"),
     ]

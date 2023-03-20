@@ -67,7 +67,6 @@ def cleaned_audio_data(date: dt.date) -> Dict:
     # Loop over episodes
     data_dict = {}
     for element in data:
-
         # Find ZMDB ID
         match = re.match(r".*?mdb-(\d+)(_AMP)?$", element[0])
 

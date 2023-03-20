@@ -97,7 +97,8 @@ def _scrape_insights_snapchat_show(start_date, snapchat_show):
             "unique_topsnaps_per_user": row.uniqueTopsnapsPerUser,
             "unique_topsnap_views": row.uniqueTopsnapViews,
             "topsnap_views": row.topsnapViews,
-            "attachment_conversion": row.attachmentConversion,
+            # Convert from percentage to fraction
+            "attachment_conversion": row.attachmentConversion / 100.0,
             "attachment_article_views": row.attachmentArticleViews,
             "attachment_video_views": row.attachmentVideoViews,
             "screenshots": row.screenshots,
@@ -179,7 +180,8 @@ def _scrape_stories_snapchat_show(start_date, snapchat_show):
             "total_views": row.totalViews,
             "unique_viewers": row.uniqueViewers,
             "unique_completers": row.uniqueCompleters,
-            "completion_rate": row.completionRate,
+            # Convert from percentage to fraction
+            "completion_rate": row.completionRate / 100.0,
             "shares": row.shares,
             "unique_sharers": row.uniqueSharers,
             "viewers_from_shares": row.viewersFromShares,
@@ -266,12 +268,14 @@ def _scrape_story_snaps_snapchat_show(start_date, snapchat_show):
             "total_views": row.totalViews,
             "unique_viewers": row.uniqueViewers,
             "unique_completers": row.uniqueCompleters,
-            "completion_rate": row.completionRate,
+            # Convert from percentage to fraction
+            "completion_rate": row.completionRate / 100.0,
             "shares": row.shares,
             "unique_sharers": row.uniqueSharers,
             "viewers_from_shares": row.viewersFromShares,
             "screenshots": row.screenshots,
-            "drop_off_rate": row.dropOffRate,
+            # Convert from percentage to fraction
+            "drop_off_rate": row.dropOffRate / 100.0,
             "topsnap_view_time": to_timedelta(row.topsnapViewTime),
             "topsnap_average_view_time_per_user": to_timedelta(
                 row.topsnapAverageViewTimePerUser
