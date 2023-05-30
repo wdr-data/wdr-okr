@@ -296,6 +296,7 @@ def fetch_all(
     ids: List[str],
     result_key: str,
     chunk_size: int = 50,
+    delay: float = 2.0,
 ) -> List[Dict]:
     """Split up larger API requests into chunks.
 
@@ -310,9 +311,14 @@ def fetch_all(
         List[Dict]: List of dicts containing API response.
     """
     agg = []
+
     for chunk in _divide_chunks(ids, chunk_size):
         result = fn(chunk)
         agg.extend(result[result_key])
+
+        if delay:
+            sleep(delay)
+
     return agg
 
 
