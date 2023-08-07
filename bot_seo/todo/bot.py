@@ -60,6 +60,7 @@ def _get_seo_articles_to_update(
     for page in pages:
         latest_meta = (
             SophoraDocumentMeta.objects.filter(sophora_document__sophora_id__page=page)
+            .filter(editorial_update__isnull=False)
             .order_by("-editorial_update")
             .first()
         )
