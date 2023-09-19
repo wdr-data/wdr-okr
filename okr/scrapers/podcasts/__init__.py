@@ -177,7 +177,16 @@ def scrape_feed(*, podcast_filter: Optional[Q] = None):
             _scrape_feed_podcast(podcast, spotify_podcasts)
         except Exception as e:
             logger.exception("Failed! Capturing exception and skipping.")
-            capture_exception(e)
+
+            if (
+                isinstance(e, SpotifyException)
+                and "show's networkId does not match provided networkId" in e.msg
+            ):
+                # ignore this error, it's caused by some of our shows still being
+                # associated with the old network id after the move
+                pass
+            else:
+                capture_exception(e)
 
     logger.success("Finished scraping feed")
 

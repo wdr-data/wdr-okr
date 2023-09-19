@@ -40,6 +40,7 @@ class SpotipyFilter(logging.Filter):
             "returned 404 due to error",
             "returned 404 due to None",
             "returned 404 due to Requested date has no data",
+            "show's networkId does not match provided networkId",
         ]
 
         for suffix in filter_suffixes:
