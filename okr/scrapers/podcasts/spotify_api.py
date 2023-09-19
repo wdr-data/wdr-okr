@@ -130,6 +130,19 @@ class CustomSpotify(spotipy.Spotify):
         """
         return self.podcast_api(f"licensors/{LICENSOR_ID}/podcasts")
 
+    def podcast_meta(self, podcast_id: str) -> dict:
+        """Read meta data for specific podcast from Spotify Podcaster API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+
+        Returns:
+            dict: Results from API.
+        """
+        return self.podcast_api(
+            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/metadata",
+        )
+
     def podcast_data(
         self,
         podcast_id: str,
