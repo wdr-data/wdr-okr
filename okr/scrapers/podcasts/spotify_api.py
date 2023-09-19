@@ -40,6 +40,7 @@ class SpotipyFilter(logging.Filter):
             "returned 404 due to error",
             "returned 404 due to None",
             "returned 404 due to Requested date has no data",
+            "show's networkId does not match provided networkId",
         ]
 
         for suffix in filter_suffixes:
@@ -128,6 +129,19 @@ class CustomSpotify(spotipy.Spotify):
             Dict: Results from API.
         """
         return self.podcast_api(f"licensors/{LICENSOR_ID}/podcasts")
+
+    def podcast_meta(self, podcast_id: str) -> dict:
+        """Read meta data for specific podcast from Spotify Podcaster API.
+
+        Args:
+            podcast_id (str): Podcast ID.
+
+        Returns:
+            dict: Results from API.
+        """
+        return self.podcast_api(
+            f"licensors/{LICENSOR_ID}/podcasts/{podcast_id}/metadata",
+        )
 
     def podcast_data(
         self,

@@ -112,6 +112,9 @@ class ExperimentalSpotifyPodcastAPI:
             # Confirm that auth was successful
             assert auth_response["type"] == "authorization_response"
             assert auth_response["response"]["state"] == state
+            assert auth_response["response"].get("error") is None, auth_response[
+                "response"
+            ].get("error")
 
             auth_code = auth_response["response"]["code"]
 
