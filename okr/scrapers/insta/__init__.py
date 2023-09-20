@@ -206,6 +206,10 @@ def _scrape_posts_insta(start_date, insta):
     logger.info(f"Scraping Instagram posts for {insta.name}")
     df = quintly.get_insta_posts(insta.quintly_profile_id, start_date=start_date)
 
+    # Prevent accessing empty dataframe (deleted account?) which causes an error
+    if df.empty:
+        return
+
     for index, row in df.iterrows():
         defaults = {
             "created_at": BERLIN.localize(dt.datetime.fromisoformat(row.time)),
