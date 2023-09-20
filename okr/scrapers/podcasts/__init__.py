@@ -218,7 +218,16 @@ def _scrape_feed_podcast(podcast: Podcast, spotify_podcasts: List[Dict]):  # noq
     try:
         spotify_episode_id_by_name = _scrape_feed_episode_map(podcast)
     except Exception as e:
-        capture_exception(e)
+        if (
+            isinstance(e, SpotifyException)
+            and "show's networkId does not match provided networkId" in e.msg
+        ):
+            # ignore this error, it's caused by some of our shows still being
+            # associated with the old network id after the move
+            pass
+        else:
+            capture_exception(e)
+
         spotify_episode_id_by_name = {}
 
     # Loop feed entries to find new episodes
