@@ -32,7 +32,7 @@ from ..models import (
 from .base import ProductAdmin
 from .mixins import UnrequiredFieldsMixin, large_table
 from ..scrapers.podcasts import feed
-from ..scrapers.podcasts.spotify_api import spotify_api, fetch_all
+from ..scrapers.podcasts.spotify_api import spotify_api
 
 
 class FeedForm(forms.ModelForm):
@@ -48,6 +48,11 @@ class FeedForm(forms.ModelForm):
         fields = ["feed_url"]
 
     feed_url = forms.URLField(label="Feed URL")
+    spotify_id = forms.CharField(
+        label="Spotify ID",
+        help_text="Nicht erforderlich. Die Spotify ID kann hier manuell angegeben werden, falls die automatische Erkennung nicht funktioniert.",
+        required=False,
+    )
 
     def clean(self) -> Dict[str, Any]:
         try:
@@ -72,21 +77,42 @@ class FeedForm(forms.ModelForm):
         # We do it here so we can raise a validation error if the Spotify API is not available
         try:
             licensed_podcasts = spotify_api.licensed_podcasts()
-            sleep(0.5)
-            self.spotify_podcasts = fetch_all(
-                functools.partial(spotify_api.shows, market="DE"),
-                list(
-                    uri.replace("spotify:show:", "")
-                    for uri in licensed_podcasts["shows"].keys()
-                ),
-                "shows",
-            )
         except Exception as e:
             logger.exception(e)
             capture_exception(e)
             raise ValidationError(
                 "Spotify API nicht erreichbar. Bitte versuchen Sie es später erneut."
             ) from e
+
+        licensed_ids = list(
+            uri.replace("spotify:show:", "")
+            for uri in licensed_podcasts["shows"].keys()
+        )
+
+        spotify_id = None
+
+        if self.cleaned_data["spotify_id"] in licensed_ids:
+            spotify_id = self.cleaned_data["spotify_id"]
+        elif (
+            self.cleaned_data["spotify_id"]
+            and self.cleaned_data["spotify_id"] not in licensed_ids
+        ):
+            raise ValidationError(
+                "Die angegebene Spotify ID ist nicht nicht bekannt. Bitte geben Sie eine andere ID an oder lassen Sie das Feld frei, um eine automatische Zuordnung zu versuchen."
+            )
+        # Try searching for the podcast name in the Spotify API
+        else:
+            results = spotify_api.search(feed_dict.feed.title, type="show", market="DE")
+            for item in results["shows"]["items"]:
+                logger.info("Found Spotify podcast: {}", item)
+                if item is None:
+                    continue
+
+                if item["name"] == feed_dict.feed.title and item["id"] in licensed_ids:
+                    spotify_id = item["id"]
+                    break
+
+        self._spotify_id = spotify_id
 
         return super().clean()
 
@@ -99,10 +125,7 @@ class FeedForm(forms.ModelForm):
         self.instance.description = d.feed.description
         self.instance.itunes_category = d.feed.itunes_category
         self.instance.itunes_subcategory = d.feed.itunes_subcategory
-        self.instance.spotify_id = next(
-            (p["id"] for p in self.spotify_podcasts if p and p["name"] == d.feed.title),
-            None,
-        )
+        self.instance.spotify_id = self._spotify_id
         return super().save(commit=commit)
 
 
