@@ -101,7 +101,7 @@ def get_documents_in_node(
         response_data = response.json()
         yield from response_data["data"]
 
-        if response_data["moreLink"] is None:
+        if "moreLink" not in response_data or response_data["moreLink"] is None:
             break
         else:
             url = response_data["moreLink"]["moreUrl"]
