@@ -178,7 +178,10 @@ class YouTubeTrafficSource(models.Model):
         YT_PLAYLIST_PAGE = "yt_playlist_page", "Youtube Playlist-Seite"
         YT_SEARCH = "yt_search", "Youtube-Suche"
         HASHTAGS = "hashtags", "Hashtags"
-        SHORTS_CONTENT_LINKS = "shorts_content_links", "Shorts Content Links"  # Not listed in docs, but in data
+        SHORTS_CONTENT_LINKS = (
+            "shorts_content_links",
+            "Shorts Content Links",
+        )  # Not listed in docs, but in data
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
