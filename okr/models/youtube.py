@@ -178,6 +178,7 @@ class YouTubeTrafficSource(models.Model):
         YT_PLAYLIST_PAGE = "yt_playlist_page", "Youtube Playlist-Seite"
         YT_SEARCH = "yt_search", "Youtube-Suche"
         HASHTAGS = "hashtags", "Hashtags"
+        SHORTS_CONTENT_LINKS = "shorts_content_links", "Shorts Content Links"  # Not listed in docs, but in data
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
@@ -460,6 +461,10 @@ class YouTubeVideoTrafficSource(models.Model):
         SOURCE_TYPE_25 = "25: Product Pages", "Product Pages"
         SOURCE_TYPE_26 = "26: Hashtag Pages", "Hashtag Pages"
         SOURCE_TYPE_27 = "27: Sound Pages", "Sound Pages"
+        SOURCE_TYPE_28 = "28: Live redirect", "Live redirect"
+        SOURCE_TYPE_30 = "30: Remixed video", "Remixed video"
+        SOURCE_TYPE_31 = "31: Vertical live feed", "Vertical live feed"
+        SOURCE_TYPE_32 = "32: Related video", "Related video"
 
     youtube_video = models.ForeignKey(
         verbose_name="YouTube-Video",
