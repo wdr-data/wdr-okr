@@ -73,6 +73,9 @@ def get_insta_insights(
         interval="daily",
     )
 
+    if df_insta.empty or df_insta_insights.empty:
+        return pd.DataFrame()
+
     df_insta.time = df_insta.time.str[:10]
     df_insta.time = df_insta.time.astype("str")
     df_insta_insights.time = df_insta_insights.time.str[:10]

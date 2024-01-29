@@ -98,7 +98,7 @@ def _scrape_insights_snapchat_show(start_date, snapchat_show):
             "unique_topsnap_views": row.uniqueTopsnapViews,
             "topsnap_views": row.topsnapViews,
             # Convert from percentage to fraction
-            "attachment_conversion": row.attachmentConversion / 100.0,
+            "attachment_conversion": (row.attachmentConversion or 0) / 100.0,
             "attachment_article_views": row.attachmentArticleViews,
             "attachment_video_views": row.attachmentVideoViews,
             "screenshots": row.screenshots,
