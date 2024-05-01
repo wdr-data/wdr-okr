@@ -108,6 +108,11 @@ logger.add(sys.stderr, level=lvl, format=fmt, diagnose=DEBUG)
 logger.info("Logging setup complete.")
 
 
+# read secret key for xlsx_service from environment
+XLSX_SECRET_KEY = os.environ.get("XLSX_SECRET_KEY")
+if not XLSX_SECRET_KEY:
+    logger.error("No XLSX_SECRET_KEY found in environment - xlsx_service will not work")
+
 # Continue with default Django config stuff
 SECRET_KEY = os.environ.get("SECRET_KEY")
 if SECRET_KEY is None:
