@@ -164,10 +164,13 @@ class YouTubeTrafficSource(models.Model):
         CAMPAIGN_CARD = "campaign_card", "Kampagnenkarte"
         END_SCREEN = "end_screen", "Endscreen"
         EXT_URL = "ext_url", "Externe URL"
+        HASHTAGS = "hashtags", "Hashtags"
+        LIVE_REDIRECT = "live_redirect", "Live-Weiterleitung"
         NO_LINK_EMBEDDED = "no_link_embedded", "Kein Link (eingebettet)"
         NO_LINK_OTHER = "no_link_other", "Kein Link (sonstiges)"
         NOTIFICATION = "notification", "Benachrichtigung"
         PLAYLIST = "playlist", "Playlist"
+        PRODUCT_PAGE = "product_page", "Produktseite"
         PROMOTED = "promoted", "Promoted"
         RELATED_VIDEO = "related_video", "Related"
         SHORTS = "shorts", "Shorts"
@@ -175,9 +178,9 @@ class YouTubeTrafficSource(models.Model):
         SUBSCRIBER = "subscriber", "Abonnent*in"
         YT_CHANNEL = "yt_channel", "Youtube-Kanal"
         YT_OTHER_PAGE = "yt_other_page", "Sonstige Youtube-Seite"
-        YT_PLAYLIST_PAGE = "yt_playlist_page", "Youtube Playlist-Seite"
         YT_SEARCH = "yt_search", "Youtube-Suche"
-        HASHTAGS = "hashtags", "Hashtags"
+        VIDEO_REMIXES = "video_remixes", "Video-Remixes"
+        YT_PLAYLIST_PAGE = "yt_playlist_page", "Youtube Playlist-Seite"
         SHORTS_CONTENT_LINKS = (
             "shorts_content_links",
             "Shorts Content Links",
@@ -559,4 +562,4 @@ class YouTubeVideoExternalTraffic(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.youtube_video.youtube.name} - {self.youtube_video.title}: {self.search_term}"
+        return f"{self.youtube_video.youtube.name} - {self.youtube_video.title}: {self.name}"

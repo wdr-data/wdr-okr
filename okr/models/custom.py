@@ -126,4 +126,4 @@ class CustomKeyResultRecord(models.Model):
     )
 
     def __str__(self):
-        return f'{self.key_result} ({dt.datetime.strftime(self.date, "%d.%m.%Y")})'
+        return f'{self.key_result} ({dt.date.strftime(self.date, "%d.%m.%Y")})'
