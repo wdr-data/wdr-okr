@@ -1,4 +1,5 @@
 """Module for Django model definitions."""
+
 # flake8: noqa
 
 from .base import *

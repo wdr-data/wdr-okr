@@ -23,9 +23,9 @@ def patch():
                 ]
                 context["m2m_targets"] = m2m_targets
 
-                context[
-                    "docstring"
-                ] = "Automatisch erzeugte Tabelle für eine Many-to-Many-Relation."
+                context["docstring"] = (
+                    "Automatisch erzeugte Tabelle für eine Many-to-Many-Relation."
+                )
 
             return context
 

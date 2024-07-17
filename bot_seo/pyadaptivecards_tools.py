@@ -1,4 +1,5 @@
 """ Extensions and hacks for pyadaptivecards. """
+
 from typing import Literal, List, Optional
 
 from pyadaptivecards.abstract_components import Serializable

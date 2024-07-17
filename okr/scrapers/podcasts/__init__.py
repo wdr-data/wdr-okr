@@ -536,13 +536,13 @@ def _scrape_spotify_api_episode_data(podcast, start_date, end_date):
                     episode_data[agg_type] = {"total": 0}
 
             try:
-                episode_data[
-                    "listeners_all_time"
-                ] = spotify_api.podcast_episode_data_all_time(
-                    podcast.spotify_id,
-                    podcast_episode.spotify_id,
-                    "listeners",
-                    end=date,
+                episode_data["listeners_all_time"] = (
+                    spotify_api.podcast_episode_data_all_time(
+                        podcast.spotify_id,
+                        podcast_episode.spotify_id,
+                        "listeners",
+                        end=date,
+                    )
                 )
             except SpotifyException:
                 episode_data["listeners_all_time"] = {"total": 0}
