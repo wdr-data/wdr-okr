@@ -562,4 +562,4 @@ class YouTubeVideoExternalTraffic(models.Model):
     last_updated = models.DateTimeField(verbose_name="Zuletzt upgedated", auto_now=True)
 
     def __str__(self):
-        return f"{self.youtube_video.youtube.name} - {self.youtube_video.title}: {self.search_term}"
+        return f"{self.youtube_video.youtube.name} - {self.youtube_video.title}: {self.name}"
