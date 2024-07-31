@@ -317,7 +317,7 @@ def _scrape_feed_episode_map(podcast):
         reversed(
             list(
                 uri.replace("spotify:episode:", "")
-                for uri in licensed_episodes["episodes"].keys()
+                for uri in licensed_episodes.get("episodes", {}).keys()
             )
         )
     )
