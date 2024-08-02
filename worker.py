@@ -1,6 +1,5 @@
 """ Main entrypoint for the worker process """
 
-
 import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.settings")

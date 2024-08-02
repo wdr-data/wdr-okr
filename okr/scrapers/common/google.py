@@ -1,6 +1,7 @@
 """Set up Google service account credentials and required services.
 Requires the ``GOOGLE_SERVICE_ACCOUNT`` environment variable to be set.
 """
+
 import json
 import os
 import re

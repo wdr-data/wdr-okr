@@ -121,9 +121,11 @@ def _scrape_youtube_traffic_source(
     for source_type, (views, minutes_watched) in json_data.items():
         defaults = {
             "views": views,
-            "watch_time": to_timedelta(minutes_watched * 60)
-            if minutes_watched is not None
-            else None,
+            "watch_time": (
+                to_timedelta(minutes_watched * 60)
+                if minutes_watched is not None
+                else None
+            ),
             "quintly_last_updated": BERLIN.localize(
                 dt.datetime.fromisoformat(row.importTime)
             ),
