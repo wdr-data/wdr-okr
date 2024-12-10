@@ -27,7 +27,8 @@ def setup():
         return
 
     scheduler = BackgroundScheduler(timezone=BERLIN)
-    scheduler.start()
+    # Disabled for now, since Teams disabled the webhooks we use
+    # scheduler.start()
 
 
 def add_jobs():
