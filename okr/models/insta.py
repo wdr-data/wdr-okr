@@ -539,6 +539,7 @@ class InstaComment(models.Model):
     username = models.TextField(
         verbose_name="Username",
         help_text="Username der Kommentarverfasser*in",
+        null=True,  # Werden wohl von Quintly nicht mehr geliefert
     )
 
     message_length = models.IntegerField(

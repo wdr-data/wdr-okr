@@ -180,11 +180,14 @@ class YouTubeTrafficSource(models.Model):
         YT_OTHER_PAGE = "yt_other_page", "Sonstige Youtube-Seite"
         YT_SEARCH = "yt_search", "Youtube-Suche"
         VIDEO_REMIXES = "video_remixes", "Video-Remixes"
+
+        # Not listed in docs, but in data
         YT_PLAYLIST_PAGE = "yt_playlist_page", "Youtube Playlist-Seite"
         SHORTS_CONTENT_LINKS = (
             "shorts_content_links",
             "Shorts Content Links",
-        )  # Not listed in docs, but in data
+        )
+        IMMERSIVE_LIVE = "immersive_live", "Immersive Live"
 
     youtube = models.ForeignKey(
         verbose_name="YouTube-Account",
