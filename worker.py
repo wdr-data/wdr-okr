@@ -1,4 +1,4 @@
-""" Main entrypoint for the worker process """
+"""Main entrypoint for the worker process"""
 
 import os
 
@@ -15,11 +15,9 @@ from rq import SimpleWorker, Queue, Connection
 from app.redis import conn
 
 from okr.scrapers import scheduler as scheduler_okr
-from bot_seo import scheduler as scheduler_bot_seo
 
 scheduler_modules = [
     scheduler_okr,
-    scheduler_bot_seo,
 ]
 
 # Set up schedulers

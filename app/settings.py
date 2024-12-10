@@ -132,7 +132,6 @@ INSTALLED_APPS = [
     "tz_detect",
     "django_extensions",
     "okr.apps.OkrConfig",
-    "bot_seo.apps.BotSeoConfig",
 ]
 
 MIDDLEWARE = [
