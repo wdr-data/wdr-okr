@@ -271,12 +271,13 @@ def add_jobs():
         hour="9",
         minute="0",
     )
-    scheduler.add_job(
-        podcasts.scrape_podstat,
-        trigger="cron",
-        hour="4",
-        minute="0",
-    )
+    # Server ist abgeschaltet
+    # scheduler.add_job(
+    #     podcasts.scrape_podstat,
+    #     trigger="cron",
+    #     hour="4",
+    #     minute="0",
+    # )
     scheduler.add_job(
         podcasts.scrape_podcast_data_webtrekk_picker,
         trigger="cron",
